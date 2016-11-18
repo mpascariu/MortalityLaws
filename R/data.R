@@ -1,14 +1,18 @@
 # Data in the package
 
-#' England and Wales death rates
+#' England and Wales demographic data
 #'
-#' A dataset containing the death rates for female population in 
-#' England and Wales in 4 diffrent years (1850, 1900, 1950, 2010)
+#' Dataset containing the HMD death rates (mx), death counts (Dx) 
+#' and exposures (Nx) for female population living in 
+#' England & Wales in four diffrent years: 1850, 1900, 1950 and 2010. 
+#' The data-set is provided for testing purposes only.
+#' Download the actual data free of charge from \url{http://www.mortality.org}.  
 #'
-#' @format A matrix with 111 rows and 4 columns:
+#' @format A list with 3 matrices with 101 rows and 52 columns:
 #' \describe{
 #'   \item{rows}{age interval}
 #'   \item{colums}{years}
 #' }
-#' @source \url{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}
-"mxENW"
+#' @source Human Mortality Database, 
+#' \url{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}.
+"HMD.test.data"

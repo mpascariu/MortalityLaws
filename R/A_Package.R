@@ -1,14 +1,14 @@
-#' mortality: A package for fitting the most important mortality laws
-#'
-#' The mortality package provides three categories of important functions:
-#' foo, bar and baz.
-#' 
-#' @section Mlaw functions:
-#' The Mlaw functions ...
-#'
-#' @docType package
-#' @name mortality
-NULL
+# #' mortality: A package for fitting the most important mortality laws
+# #'
+# #' The mortality package provides three categories of important functions:
+# #' foo, bar and baz.
+# #' 
+# #' @section Mlaw functions:
+# #' The Mlaw functions ...
+# #'
+# #' @docType package
+# #' @name mortality
+# NULL
 
 
 #' @import dplyr

@@ -4,26 +4,49 @@
 \alias{lifetable}
 \title{Life table function}
 \usage{
-lifetable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx0 = 1e+05)
+lifetable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx0 = 1e+05,
+  ax0 = 0.1)
 }
 \arguments{
-\item{x}{vector of ages}
+\item{x}{Vector of ages}
 
-\item{Dx}{Dx}
+\item{Dx}{Vector containing death counts. An element of the vector, Dx, 
+represents the number of deaths during the year to persons aged x to x+1}
 
-\item{Ex}{Ex}
+\item{Ex}{Vector containing the exposure in the period. 
+Ex is the mid-year population aged x to x+1}
 
-\item{mx}{mx}
+\item{mx}{Age-specific death rates}
 
-\item{qx}{qx}
+\item{qx}{1-year pobability of dying between age x and x+1}
 
-\item{lx0}{lx0}
+\item{lx0}{Radix}
+
+\item{ax0}{average time spent between age 0 and age 1 of those how died 
+in age 0. For x > 0  we assume an uniform distribution of deaths (UDD).}
 }
 \value{
-Results
+Life Tables
 }
 \description{
 Function to create a life table with input variables: (age, Dx, Ex) 
 or (age, mx) or (age, qx)
+}
+\examples{
+library(MortalityLaws)
+
+F_Dx <- HMD.test.data$Dx
+F_Nx <- HMD.test.data$Nx
+F_mx <- HMD.test.data$mx
+
+ages <- as.numeric(rownames(F_mx))
+year <- 1900
+
+mx <- F_mx[, paste(year)]
+Dx <- F_Dx[, paste(year)]
+Nx <- F_Nx[, paste(year)]
+
+lifetable(x = ages, mx = mx)$lt
+lifetable(x = ages, Dx = Dx, Ex = Nx)$lt
 }
 
