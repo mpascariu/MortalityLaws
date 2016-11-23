@@ -1,10 +1,8 @@
 # MortalityLaws
 Fit and compare the most popular human mortality laws
 
-
-
-This repository includes R code fitting most popular human mortality laws
-and download [Human Mortality Database ](www.mortality.org) data.
+This repository includes R code for fitting most popular human mortality laws
+and downloading [Human Mortality Database ](http://www.mortality.org) data.
 People involved in the project:
 [Marius Pascariu](http://findresearcher.sdu.dk:8080/portal/da/person/mpascariu) and
 [Vladimir Canudas-Romo](http://www.sdu.dk/ansat/vcanudas).
