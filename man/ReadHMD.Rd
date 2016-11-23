@@ -2,46 +2,60 @@
 % Please edit documentation in R/readHMD.R
 \name{ReadHMD}
 \alias{ReadHMD}
-\title{Function to download data from HMD}
+\title{Function for downloading data from HMD}
 \usage{
 ReadHMD(countries, interval, what, username, password, save = TRUE)
 }
 \arguments{
 \item{countries}{Countries}
 
-\item{interval}{Interval: 1x1, 1x5, 1x10, 5x1}
+\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}}
 
-\item{what}{...}
+\item{what}{What type of data are you looking for? We have death counts,
+exposures, death-rates, life tables for femlaes, life table for males,
+life table for total population, cohort death-rates and cohort exposures. 
+The codes: \code{Dx}, \code{Nx}, \code{mx}, \code{LT_f}, 
+\code{LT_m}, \code{LT_t}, \code{mxc} and \code{Nxc}.}
 
-\item{username}{HMD Username}
+\item{username}{Your HMD Username. If you don't have one you can sign up
+for free on Human Mortality Database website.}
 
-\item{password}{HMD password}
+\item{password}{Your HMD password}
 
-\item{save}{Save data}
+\item{save}{Do you want to save a copy of the dataset on your local machine?}
 }
 \value{
-....
+An \code{ReadHMD} object.
 }
 \description{
-Function to download data for several countries in a single object 
-from the Human Mortality Database (www.mortality.org)
+Function for downloading data for several countries in a single object 
+from the Human Mortality Database (\url{http://www.mortality.org})
 }
 \examples{
 \dontrun{
+library(MortalityLaws)
+
+# Let's download demographic data for 3 countries.
+# First specify the username and password
 username <- "user@email.com"
 password <- "password"
+# Let's say that we want a 1x1 format
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10
 interval <- paste0(age_int, "x", year_int)  # --> 1x1
-cntr     <- 'SWE'  # We want to download Swedish data
+# And the 3 countries: Sweden Denmark and USA
+cntr     <- c('SWE', 'DNK', 'USA')  
 
 # Download death counts. We don't want to export data outside R.
 HMD_Dx <- ReadHMD(cntr, interval, what = "Dx", 
                   username, password, save = FALSE)
+HMD_Dx
+ls(HMD_Dx)
 
 # Download life tables for female population and export data.
 HMD_LT_f <- ReadHMD(cntr, interval, what = "LT_f",
                     username, password, save = TRUE)
+HMD_LT_f
 } 
 }
 

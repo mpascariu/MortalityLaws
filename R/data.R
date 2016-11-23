@@ -15,4 +15,5 @@
 #' }
 #' @source Human Mortality Database, 
 #' \url{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}.
+#' @seealso \code{\link{ReadHMD}} 
 "HMD.test.data"

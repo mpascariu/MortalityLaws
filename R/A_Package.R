@@ -19,5 +19,9 @@ NULL
 NULL
 #' @importFrom utils read.table flush.console
 NULL
-#' @importFrom stats fitted coef
+#' @importFrom stats fitted coef optim
+NULL
+#' @importFrom pbapply startpb closepb setpb
+NULL
+#' @importFrom psych headTail
 NULL

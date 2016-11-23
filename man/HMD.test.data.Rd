@@ -23,5 +23,8 @@ England & Wales in four diffrent years: 1850, 1900, 1950 and 2010.
 The data-set is provided for testing purposes only.
 Download the actual data free of charge from \url{http://www.mortality.org}.
 }
+\seealso{
+\code{\link{ReadHMD}}
+}
 \keyword{datasets}
 
