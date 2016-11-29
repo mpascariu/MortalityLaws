@@ -4,22 +4,23 @@
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-     cat('Model:\n')
-     cat(x$model_info, '\n')
-     cat('\nCoefficients:\n')
-     print(round(x$coefficients, 5))
+  cat('Model:\n')
+  cat(x$model_info, '\n')
+  cat('\nCoefficients:\n')
+  print(round(x$coefficients, 5))
 }
 
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-     cat('Model:\n')
-     cat('\nCall:\n')
-     print(object$call)
-     cat('\nDeviance Residuals:\n')
-     print(round(summary(as.vector(as.matrix(object$residuals))), 5))
-     cat('\nCoefficients:\n')
-     print(round(object$coefficients, 5))
+  cat('Model:\n')
+  cat(object$model_info, '\n')
+  cat('\nCall:\n')
+  print(object$call)
+  cat('\nDeviance Residuals:\n')
+  print(round(summary(as.vector(as.matrix(object$residuals))), 5))
+  cat('\nCoefficients:\n')
+  print(round(object$coefficients, 5))
 }
 
 #' @keywords internal

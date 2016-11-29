@@ -61,28 +61,6 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   return(out)
 }
 
-#' Function to check input data in MortalityLaw
-#' @keywords internal
-#' 
-check_input <- function(input){
-  models <- c('gompertz', 'makeham', 'kannisto')
-  # models <- c('demoivre', 'gompertz', 'makeham', 'opperman',
-  #             'HP','thiele', 'wittstein')
-  if ( !(input$law %in% models)) {
-    cat('Error: mortality law not available.\n')
-    cat('Check one of the following models: \n', models, sep = ' | ')
-    stop()
-  }
-  
-  function_to_optimize <- c('poissonL', 'binomialL', 'LAE', 'LSE')
-  if (!(input$how %in% function_to_optimize)) {
-    cat('Error: Choose a different function to optimize.\n')
-    cat('Check one of the following options: \n', 
-        function_to_optimize, sep = ' | ')
-    stop()
-  }
-}
-
 #' Call a mortality law (model) - 3 options so far
 #' @keywords internal
 #' 
