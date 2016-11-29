@@ -6,14 +6,16 @@
 #' and exposures (Nx) for female population living in 
 #' England & Wales in four diffrent years: 1850, 1900, 1950 and 2010. 
 #' The data-set is provided for testing purposes only.
-#' Download the actual data free of charge from \url{http://www.mortality.org}.  
+#' Download the actual data free of charge from \url{http://www.mortality.org}.
+#' 
 #'
 #' @format A list with 3 matrices with 101 rows and 52 columns:
 #' \describe{
 #'   \item{rows}{age interval}
 #'   \item{colums}{years}
 #' }
-#' @source Human Mortality Database, 
-#' \url{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}.
+#' @source 
+#' \href{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}{
+#' Human Mortality Database}  
 #' @seealso \code{\link{ReadHMD}} 
 "HMD.test.data"

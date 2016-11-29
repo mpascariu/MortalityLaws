@@ -11,8 +11,6 @@
 # NULL
 
 
-#' @import dplyr
-NULL
 #' @import minpack.lm
 NULL
 #' @import RCurl

@@ -36,25 +36,24 @@
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
-                          law, how = 'poissonL', parS = NULL, ...){
-  check_input(law, how)
-  input <- list(x = x, mx = mx, Dx = Dx, Ex = Ex, 
-                law = law, how = how, parS = parS)
-
+                         law, how = 'poissonL', parS = NULL, ...){
+  # Check input
+  input <- c(as.list(environment()))
+  check_input(input)
   if (is.null(parS)) { parS = choose_law(law, x)$par }
-  
+  # Find optim coefficients
   opt <- optim(par = log(parS), fn = objective_fun, law = law, 
                  fun = how, x = x, mx = mx, Dx = Dx, 
                  Ex = Ex, method = 'Nelder-Mead')
   coef <- exp(opt$par)
+  # Fit mortality law
   mlaw <- choose_law(law, x, par = coef)
   fit <- mlaw$distribution$hx
-  
+  # Compute residuals
   if (!is.null(Dx)) { mx = Dx/Ex }
   resid <- mx - fit
-    
   # Prepare, arrange, customize output
-  output <- list(input = input, coefficients = coef, fitted = fit, 
+  output <- list(input = input, coefficients = coef, fitted.values = fit, 
                  residuals = resid, distribution = mlaw$distribution, 
                  model_info = mlaw$model_info, process_date = date())
   output$call <- match.call()
@@ -65,18 +64,18 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
 #' Function to check input data in MortalityLaw
 #' @keywords internal
 #' 
-check_input <- function(law, how){
-  models <- c('gompertz', 'makeham')
-  # models <- c('demoivre', 'gompertz', 'makeham', 'opperman', 'kannisto',
+check_input <- function(input){
+  models <- c('gompertz', 'makeham', 'kannisto')
+  # models <- c('demoivre', 'gompertz', 'makeham', 'opperman',
   #             'HP','thiele', 'wittstein')
-  if ( !(law %in% models)) {
+  if ( !(input$law %in% models)) {
     cat('Error: mortality law not available.\n')
     cat('Check one of the following models: \n', models, sep = ' | ')
     stop()
   }
   
   function_to_optimize <- c('poissonL', 'binomialL', 'LAE', 'LSE')
-  if (!(how %in% function_to_optimize)) {
+  if (!(input$how %in% function_to_optimize)) {
     cat('Error: Choose a different function to optimize.\n')
     cat('Check one of the following options: \n', 
         function_to_optimize, sep = ' | ')
@@ -84,14 +83,29 @@ check_input <- function(law, how){
   }
 }
 
-#' Call a mortality law (model) - 2 options so far
+#' Call a mortality law (model) - 3 options so far
 #' @keywords internal
 #' 
 choose_law <- function(law, x, par = NULL){
-  out <- switch(law,
-                gompertz = gompertz(x, par),
-                makeham = makeham(x, par)
+  # Order and scale the x vector
+  x <- unique(x[order(x)])
+  x_ <- x - min(x)
+  # Mortality law
+  mlaw <- switch(law,
+                gompertz = gompertz(x_, par),
+                makeham  = makeham(x_, par),
+                kannisto = kannisto(x_, par)
   )
+  hx <- mlaw$hx
+  Hx <- mlaw$Hx
+  Sx <- exp(-Hx)
+  fx <- hx * Sx
+  Fx <- 1 - Sx
+  if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
+  foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
+  # Output
+  out <- list(model_info = mlaw$model_info, 
+              par = mlaw$par, distribution = foo)
   return(out)
 }
 
@@ -122,55 +136,54 @@ objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL,
   return(out)
 }
 
-
-# =========================
+# =================================================================
 
 #' Gompertz mortality law
 #' @keywords internal
 #' 
-gompertz <- function(x, par = NULL, u = NULL){
+gompertz <- function(x, par = NULL){
   model_info <- 'Gompertz (1825): h(x) = a*exp(b*x)'
   # default parameters
   a = 0.0002; b = 0.13
   if (!is.null(par)) { a = par[1]; b = par[2] }
-  # Order and scale the x vector
-  x <- unique(x[order(x)])
-  x_ <- x - min(x)
   # Compute distribution functions
-  hx <- a*exp(b*x_)
-  Hx <- a/b * (exp(b*x_) - 1)
-  Sx <- exp(a/b * (1 - exp(b*x_))) # exp(-Hx)
-  fx <- a*exp(b*x_) * exp(a/b * (1 - exp(b*x_))) # hx * Sx
-  Fx <- 1 - Sx
-  foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
-  # Output
-  out <- list(model_info = model_info, par = c(a = a, b = b), 
-              distribution = foo)
-  return(out)
+  hx <- a*exp(b*x)
+  Hx <- a/b * (exp(b*x) - 1)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+         par = c(a = a, b = b)))
 }
 
 #' Makeham mortality law
 #' @keywords internal
 #' 
-makeham <- function(x, par = NULL, u = NULL){
+makeham <- function(x, par = NULL){
   model_info <- 'Makeham (1860):  h(x) = a*exp(b*x) + c'
   # default parameters
   a = 0.0002; b = 0.13; c = 0.001
   if (!is.null(par)) { a = par[1]; b = par[2]; c = par[3] }
-  # Order and scale the x vector
-  x <- unique(x[order(x)])
-  x_ <- x - min(x)
   # Compute distribution functions
-  hx <- a*exp(b*x_) + c
-  Hx <- a/b * (exp(b*x_) - 1) + x_*c
-  Sx <- exp(-Hx)
-  fx <- hx * Sx
-  Fx <- 1 - Sx
-  # if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
-  foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
-  # Output
-  out <- list(model_info = model_info, par = c(a = a, b = b, c = c), 
-              distribution = foo)
-  return(out)
+  hx <- a*exp(b*x) + c
+  Hx <- a/b * (exp(b*x) - 1) + x*c
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+         par = c(a = a, b = b, c = c)))
 }
+
+#' Kannisto mortality law
+#' @keywords internal
+#' 
+kannisto <- function(x, par = NULL){
+  model_info <- 'Kannisto (1992): u(x) = a*exp(b*x) / [1 + a*exp(b*x)]'
+  # default parameters
+  a = 0.5; b = 0.13
+  if (!is.null(par)) { a = par[1]; b = par[2] }
+  # Compute distribution functions
+  hx <- a*exp(b*x) / (1 + a*exp(b*x))
+  Hx <- 1/a * log( (1 + a*exp(b*x)) / (1 + a) )
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a, b = b)))
+}
+
+
+
+
 

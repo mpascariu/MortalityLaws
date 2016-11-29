@@ -10,8 +10,8 @@
   \item{colums}{years}
 }}
 \source{
-Human Mortality Database, 
-\url{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}.
+\href{http://www.mortality.org/cgi-bin/hmd/country.php?cntr=GBRTENW&level=1}{
+Human Mortality Database}
 }
 \usage{
 HMD.test.data
