@@ -79,7 +79,7 @@ choose_law <- function(law, x, par = NULL){
   Sx <- exp(-Hx)
   fx <- hx * Sx
   Fx <- 1 - Sx
-  if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
+  # if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
   foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
   # Output
   out <- list(model_info = mlaw$model_info, 
