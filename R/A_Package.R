@@ -11,13 +11,15 @@
 # NULL
 
 
+#' @import graphics
+NULL
 #' @import minpack.lm
 NULL
 #' @import RCurl
 NULL
 #' @importFrom utils read.table flush.console
 NULL
-#' @importFrom stats fitted coef optim
+#' @importFrom stats fitted coef optim quantile
 NULL
 #' @importFrom pbapply startpb closepb setpb
 NULL

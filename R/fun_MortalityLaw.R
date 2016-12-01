@@ -28,11 +28,11 @@
 #' model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LSE')
 #' model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LAE')
 #' model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
-#' 
+#'  
 #' model1
-#' model2
-#' model3
-#' model4
+#' ls(model1)
+#' summary(model1)
+#' plot(model1)
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
