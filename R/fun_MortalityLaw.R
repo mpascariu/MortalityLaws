@@ -1,120 +1,4 @@
-#' Fit mortality law
-#'
-#' This is a description Fit mortality models
-#' @param x Vector of ages
-#' @param mx Vector of age-specific death rates
-#' @param Dx Vector containing death counts
-#' @param Ex Vector containing the exposed population
-#' @param law The name of the mortality law/model to be fitted. eg. \code{gompertz}, 
-#' \code{makeham}, ...
-#' @param how How would you like to find the parameters? Specify the function 
-#' to be optimize. Available options: the Poisson likelihood function 
-#' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-#' Least absolute errors \code{LAE};
-#' and Least square errors \code{LSE}.
-#' @param parS Starting parameters used in optimization process (optional)
-#' @param ... Other argumnets
-#' @return A \code{MortalityLaw} object
-#' @examples 
-#' library(MortalityLaws)
-#' 
-#' yr <- 2010
-#' ages  <- 30:90
-#' Dx <- HMD.test.data$Dx[paste(ages), paste(yr)]
-#' Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
-#' mx <- HMD.test.data$mx[paste(ages), paste(yr)]
-#' 
-#' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
-#' model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LSE')
-#' model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LAE')
-#' model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
-#'  
-#' model1
-#' ls(model1)
-#' summary(model1)
-#' plot(model1)
-#' @export
-#' 
-MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
-                         law, how = 'poissonL', parS = NULL, ...){
-  # Check input
-  input <- c(as.list(environment()))
-  check_input(input)
-  if (is.null(parS)) { parS = choose_law(law, x)$par }
-  # Find optim coefficients
-  opt <- optim(par = log(parS), fn = objective_fun, law = law, 
-                 fun = how, x = x, mx = mx, Dx = Dx, 
-                 Ex = Ex, method = 'Nelder-Mead')
-  coef <- exp(opt$par)
-  # Fit mortality law
-  mlaw <- choose_law(law, x, par = coef)
-  fit <- mlaw$distribution$hx
-  # Compute residuals
-  if (!is.null(Dx)) { mx = Dx/Ex }
-  resid <- mx - fit
-  # Prepare, arrange, customize output
-  output <- list(input = input, coefficients = coef, fitted.values = fit, 
-                 residuals = resid, distribution = mlaw$distribution, 
-                 model_info = mlaw$model_info, process_date = date())
-  output$call <- match.call()
-  out <- structure(class = "MortalityLaw", output)
-  return(out)
-}
-
-#' Call a mortality law (model) - 3 options so far
-#' @keywords internal
-#' 
-choose_law <- function(law, x, par = NULL){
-  # Order and scale the x vector
-  x <- unique(x[order(x)])
-  x_ <- x - min(x)
-  # Mortality law
-  mlaw <- switch(law,
-                gompertz = gompertz(x_, par),
-                makeham  = makeham(x_, par),
-                kannisto = kannisto(x_, par)
-  )
-  hx <- mlaw$hx
-  Hx <- mlaw$Hx
-  Sx <- exp(-Hx)
-  fx <- hx * Sx
-  Fx <- 1 - Sx
-  # if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
-  foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
-  # Output
-  out <- list(model_info = mlaw$model_info, 
-              par = mlaw$par, distribution = foo)
-  return(out)
-}
-
-#' Call a function to optimize - 4 options available
-#' @keywords internal
-#' 
-choose_fun <- function(fun, mu, mx, Dx, Ex){
-  out <- sum(
-    switch(fun,
-           poissonL = -(Dx * log(mu) - mu*Ex),
-           binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
-           LAE = abs(mx - mu),
-           LSE = (mx - mu) ^ 2), 
-    na.rm = TRUE)
-  return(out)
-}
-
-#' Function to be optimize
-#' @keywords internal
-#' 
-objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
-                          law, fun = 'poissonL'){
-  par_ <- exp(par)
-  mu <- choose_law(law, x, par_)$distribution$hx
-  if (!is.null(mx)) { Dx = mx; Ex = 1 }
-  if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
-  out <- choose_fun(fun, mu, mx, Dx, Ex)
-  return(out)
-}
-
-# =================================================================
+# ---- LAWS -------------
 
 #' Gompertz mortality law
 #' @keywords internal
@@ -150,7 +34,7 @@ makeham <- function(x, par = NULL){
 #' @keywords internal
 #' 
 kannisto <- function(x, par = NULL){
-  model_info <- 'Kannisto (1992): u(x) = a*exp(b*x) / [1 + a*exp(b*x)]'
+  model_info <- 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]'
   # default parameters
   a = 0.5; b = 0.13
   if (!is.null(par)) { a = par[1]; b = par[2] }
@@ -160,6 +44,105 @@ kannisto <- function(x, par = NULL){
   return(list(model_info = model_info, hx = hx, Hx = Hx,
               par = c(a = a, b = b)))
 }
+
+
+#' DeMoivre mortality law
+#' @keywords internal
+#' 
+demoivre <- function(x, par = NULL){
+  model_info <- 'DeMoivre (1725): h(x) = 1/(a-x)'
+  # default parameters
+  a = 100
+  if (!is.null(par)) { a = par[1] }
+  # Compute distribution functions
+  vsmall = 1e-10 # very small number
+  hx <- 1/(a-x) + vsmall
+  Hx <- cumsum(hx)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a)))
+}
+
+
+#' Opperman mortality law
+#' @keywords internal
+#' 
+opperman <- function(x, par = NULL){
+  model_info <- 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)'
+  # default parameters
+  a = 0.004; b = -0.0004; c = 0.001
+  if (!is.null(par)) { a = par[1]; b = par[2]; c = par[3] }
+  # Compute distribution functions
+  hx = a/sqrt(x) + b + c*(x^(1/3))
+  Hx = cumsum(hx)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a, b = b, c = c)))
+}
+
+#' Heligman-Pollard mortality law
+#' @keywords internal
+#' 
+heligman_pollard <- function(x, par = NULL){
+  model_info <- 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)'
+  # default parameters
+  a = 0.0005; b = 0.004; c = 0.08; d = 0.001 
+  e = 10; f = 17; g = 0.00005; h = 1.1
+  if (!is.null(par)) {a = par[1]; b = par[2]; c = par[3]; d = par[4]; 
+                      e = par[5]; f = par[6]; g = par[7]; h = par[8]}
+  # Compute distribution functions
+  hx = ifelse(x==0, 
+              a^((x+b)^c) + g*h^x, 
+              a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)
+  Hx = cumsum(hx)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a, b = b, c = c, d = d, 
+                      e = e, f = f, g = g, h = h)))
+}
+
+
+
+#' Thiele mortality law
+#' @keywords internal
+#' 
+thiele <- function(x, par = NULL){
+  model_info <- 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)'
+  # default parameters
+  a = 0.02474; b = 0.3; c = 0.004; d = 0.5 
+  e = 25; f = 0.0001; g = 0.13
+  if (!is.null(par)) {a = par[1]; b = par[2]; c = par[3]; d = par[4]; 
+                      e = par[5]; f = par[6]; g = par[7]}
+  # Compute distribution functions
+  hx = ifelse(x == 0, 
+              a*exp(-b*x) + f*exp(g*x), 
+              a*exp(-b*x) + c*exp(-.5*d*(x-e)^2) + f*exp(g*x))
+  Hx = cumsum(hx)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a, b = b, c = c, d = d, 
+                      e = e, f = f, g = g)))
+}
+
+
+#' Wittstein mortality law
+#' @keywords internal
+#' 
+wittstein <- function(x, par = NULL){
+  model_info <- 'Wittstein (1883): q(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]'
+  # default parameters
+  a = 1.5; m = 1.0; n = 0.5; M = 100
+  if (!is.null(par)) {a = par[1]; m = par[2]; n = par[3]; M = par[4]}
+  # Compute distribution functions
+  hx = (1/m)*a^-((m*x)^n) + a^-((M-x)^n)
+  Hx = cumsum(hx)
+  return(list(model_info = model_info, hx = hx, Hx = Hx,
+              par = c(a = a, m = m, n = n, M = M)))
+}
+
+
+
+
+
+
+
+
 
 
 

@@ -31,7 +31,7 @@ plot.MortalityLaw <- function(x, ...){
   layout(lay_mat, widths = c(6, 6, 1.5), heights = c(1.5, 6, 6), respect = T)
   
   # ----- Plot 1 -----
-  par(mar = c(5, 5, 4, 1), cex.lab = 1.3, cex.axis = 1.3)
+  par(mar = c(5, 5, 4, 1), cex.lab = 1.5, cex.axis = 1.5)
   age = x$input$x
   y = if (is.null(x$input$mx)) { x$input$Dx/x$input$Ex 
   }else{x$input$mx }
@@ -39,7 +39,7 @@ plot.MortalityLaw <- function(x, ...){
   pos_x <- quantile(age,  p = seq(0, 1, by = 0.25), type = 1)
   pos_y <- round(quantile(log(y),  p = seq(0, 1, by = 0.25), type = 1), 1)
   
-  plot(age, y = log(y), pch = 16, cex = 1.5,
+  plot(age, y = log(y), pch = 16, cex = 2,
        ylab = 'log(mx)', xlab = 'x', axes = FALSE,
        main = 'Observed and Fitted \nAge-Specific Death Rate') 
   box(col = 'grey80'); axis(1, at = pos_x); axis(2, at = pos_y)
@@ -51,8 +51,8 @@ plot.MortalityLaw <- function(x, ...){
   
   # ----- Plot 2 -----
   resid <- x$residuals
-  par(mar = c(5, 5, 4, 1), cex.lab = 1.3, cex.axis = 1.3)
-  plot(age, resid, pch = 16, cex = 1.5, main = 'Residual plot',
+  par(mar = c(5, 5, 4, 1), cex.lab = 1.5, cex.axis = 1.5)
+  plot(age, resid, pch = 16, cex = 2, main = 'Residual plot',
        xlab = 'x', ylab = 'Error', axes = F)
   box(col = 'grey80'); axis(1, at = pos_x); axis(2)
   abline(h = 0, lty = 2)
