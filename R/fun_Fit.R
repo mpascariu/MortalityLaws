@@ -68,11 +68,14 @@ choose_law <- function(law, x, par = NULL){
   x_ <- x - min(x)
   # Mortality law
   mlaw <- switch(law,
-                 demoivre = demoivre(x_, par),
-                 gompertz = gompertz(x_, par),
-                 makeham  = makeham(x_, par),
-                 kannisto = kannisto(x_, par),
-                 opperman = opperman(x_+1, par),
+                 demoivre  = demoivre(x_, par),
+                 gompertz0 = gompertz0(x_, par),
+                 gompertz  = gompertz(x_, par),
+                 invgompertz = invgompertz(x_, par),
+                 makeham0  = makeham0(x_, par),
+                 makeham   = makeham(x_, par),
+                 kannisto  = kannisto(x_, par),
+                 opperman  = opperman(x_+1, par),
                  HP = heligman_pollard(x_, par),
                  thiele = thiele(x_, par),
                  wittstein = wittstein(x_, par)
@@ -118,7 +121,8 @@ objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL,
 #' 
 choose_optim <- function(input){
   with(as.list(input), {
-    if(law %in% c('gompertz', 'makeham', 'kannisto')){
+    if(law %in% c('gompertz', 'gompertz0', 'invgompertz', 
+                  'makeham', 'makeham0', 'kannisto')){
       opt <- optim(par = log(parS), fn = objective_fun, 
                    law = law, fun = how,
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 

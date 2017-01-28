@@ -15,7 +15,8 @@ check_input <- function(input){
             stop('x, Dx and Ex do not have the same length!')
         }
         
-        models <- c('gompertz', 'makeham', 'kannisto', 'demoivre', 
+        models <- c('gompertz', 'gompertz0', 'invgompertz',
+                    'makeham', 'makeham0', 'kannisto', 'demoivre', 
                     'opperman', 'HP', 'thiele', 'wittstein')
         if ( !(law %in% models)) {
           cat('Error: mortality law not available.\n')

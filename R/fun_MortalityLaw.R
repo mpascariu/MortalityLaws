@@ -1,4 +1,36 @@
-# ---- LAWS -------------
+
+#' Integarte hazard funcion
+#' @keywords internal
+#' 
+int_hazard <- function(x, par, ux){
+  Hx <- NULL
+  for(j in 1:length(x)){
+    Hx[j] <- integrate(ux, x[1], x[j], par = par)$value
+  }
+  return(Hx)
+}
+
+int_hazard2 <- function(x, hx){
+  mult   = 10
+  lhx    = log(hx)
+  hx_num = spline(x, lhx, n = mult*length(x))
+  x2     = hx_num$x 
+  hxfun  = splinefun(x2, exp(hx_num$y))
+  Hx <- NULL
+  for(j in 1:length(x2)){
+    Hx[j] <- integrate(hxfun, x2[1], x2[j])$value
+  }
+  Hx = Hx[seq(1, length(x2), by = mult)+9]
+  return(Hx)
+}
+
+# Compute distribution functions
+# ux = function(x, par){ (1/par[1]) * exp( (x-par[2])/par[1] ) }
+# hx <- ux(x, par)
+# Hx <- int_hazard(x, par, ux)
+# Hx <- int_hazard2(x, hx)
+
+# ---- LAWS ---------------------------------------
 
 #' Gompertz mortality law
 #' @keywords internal
@@ -6,13 +38,49 @@
 gompertz <- function(x, par = NULL){
   model_info <- 'Gompertz (1825): h(x) = a*exp(b*x)'
   # default parameters
-  a = 0.0002; b = 0.13
-  if (!is.null(par)) { a = par[1]; b = par[2] }
+  if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13 }
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx <- a*exp(b*x)
-  Hx <- a/b * (exp(b*x) - 1)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-         par = c(a = a, b = b)))
+  hx  <- par['a']*exp(par['b']*x)
+  Hx  <- par['a']/par['b'] * (exp(par['b']*x) - 1)
+  return(as.list(environment()))
+}
+
+
+#' Gompertz mortality law - informative parametrization
+#' @keywords internal
+#' 
+gompertz0 <- function(x, par = NULL){
+  model_info <- 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]'
+  # default parameters
+  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
+  names(par) <- c('sigma', 'm')
+  # Compute distribution functions
+  hx <- (1/par['sigma']) * exp( (x-par['m'])/par['sigma'] )
+  Hx <- exp(-par['m']/par['sigma']) * (exp(x/par['sigma']) - 1)
+  return(as.list(environment()))
+}
+
+#' Inverse-Gompertz mortality law - informative parametrization
+#' m - is a measure of location because it is the mode of the density, m > 0
+#' sigma - represents the dispersion of the density about the mode, sigma > 0
+#' @keywords internal
+#' 
+invgompertz <- function(x, par = NULL){
+  model_info <- 'Inverse-Gompertz:
+                h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]'
+  # default parameters
+  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
+  names(par) <- c('sigma', 'm')
+  # Compute distribution functions
+  mu1 <- 1/par['sigma'] * exp(-(x-par['m'])/par['sigma'])
+  mu2 <- exp(exp(-(x-par['m'])/par['sigma'])) - 1
+  hx  <- mu1 / mu2
+  
+  mu3 <- 1 - exp(-exp(-(x-par['m'])/par['sigma']))
+  mu4 <- 1 - exp(-exp(par['m']/par['sigma']))
+  Hx  <- -log(mu3/mu4)
+  return(as.list(environment()))
 }
 
 #' Makeham mortality law
@@ -21,14 +89,28 @@ gompertz <- function(x, par = NULL){
 makeham <- function(x, par = NULL){
   model_info <- 'Makeham (1860):  h(x) = a*exp(b*x) + c'
   # default parameters
-  a = 0.0002; b = 0.13; c = 0.001
-  if (!is.null(par)) { a = par[1]; b = par[2]; c = par[3] }
+  if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13; par[3] = 0.001 }
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx <- a*exp(b*x) + c
-  Hx <- a/b * (exp(b*x) - 1) + x*c
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-         par = c(a = a, b = b, c = c)))
+  hx  <- par['a']*exp(par['b']*x) + par['c']
+  Hx  <- par['a']/par['b'] * (exp(par['b']*x) - 1) + x*par['c']
+  return(as.list(environment()))
 }
+
+#' Makeham mortality law - informative parametrization
+#' @keywords internal
+#' 
+makeham0 <- function(x, par = NULL){
+  model_info <- 'Makeham (1860):  h(x) = 1/sigma * exp[(x-m)/sigma)] + c'
+  # default parameters
+  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286; par[3] = 0.001 }
+  names(par) <- c('sigma', 'm', 'c')
+  # Compute hazard
+  hx <- (1/par['sigma']) * exp( (x-par['m'])/par['sigma'] ) + par['c']
+  Hx <- exp(-par['m']/par['sigma']) * (exp(x/par['sigma']) - 1) + x*par['c']
+  return(as.list(environment()))
+}
+
 
 #' Kannisto mortality law
 #' @keywords internal
@@ -36,13 +118,12 @@ makeham <- function(x, par = NULL){
 kannisto <- function(x, par = NULL){
   model_info <- 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]'
   # default parameters
-  a = 0.5; b = 0.13
-  if (!is.null(par)) { a = par[1]; b = par[2] }
+  if (is.null(par)) { par[1] = 0.5; par[2] = 0.13}
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx <- a*exp(b*x) / (1 + a*exp(b*x))
-  Hx <- 1/a * log( (1 + a*exp(b*x)) / (1 + a) )
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a, b = b)))
+  hx <- par['a']*exp(par['b']*x) / (1 + par['a']*exp(par['b']*x))
+  Hx <- 1/par['a'] * log( (1 + par['a']*exp(par['b']*x)) / (1 + par['a']) )
+  return(as.list(environment()))
 }
 
 
@@ -52,14 +133,13 @@ kannisto <- function(x, par = NULL){
 demoivre <- function(x, par = NULL){
   model_info <- 'DeMoivre (1725): h(x) = 1/(a-x)'
   # default parameters
-  a = 100
-  if (!is.null(par)) { a = par[1] }
-  # Compute distribution functions
+  if (is.null(par)) { par = 100 }
+  names(par) = 'a'
+  # Compute hazard
   vsmall = 1e-10 # very small number
-  hx <- 1/(a-x) + vsmall
+  hx <- 1/(par-x) + vsmall
   Hx <- cumsum(hx)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a)))
+  return(as.list(environment()))
 }
 
 
@@ -69,13 +149,12 @@ demoivre <- function(x, par = NULL){
 opperman <- function(x, par = NULL){
   model_info <- 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)'
   # default parameters
-  a = 0.004; b = -0.0004; c = 0.001
-  if (!is.null(par)) { a = par[1]; b = par[2]; c = par[3] }
+  if (is.null(par)) { par[1] = 0.004; par[2] = -0.0004; par[3] = 0.001 }
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx = a/sqrt(x) + b + c*(x^(1/3))
+  hx = par['a']/sqrt(x) + par['b'] + par['c']*(x^(1/3))
   Hx = cumsum(hx)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a, b = b, c = c)))
+  return(as.list(environment()))
 }
 
 #' Heligman-Pollard mortality law
@@ -84,18 +163,15 @@ opperman <- function(x, par = NULL){
 heligman_pollard <- function(x, par = NULL){
   model_info <- 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)'
   # default parameters
-  a = 0.0005; b = 0.004; c = 0.08; d = 0.001 
-  e = 10; f = 17; g = 0.00005; h = 1.1
-  if (!is.null(par)) {a = par[1]; b = par[2]; c = par[3]; d = par[4]; 
-                      e = par[5]; f = par[6]; g = par[7]; h = par[8]}
+  if (is.null(par)) {par = c(.0005, .004, .08, .001, 10, 17, .00005, 1.1)}
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx = ifelse(x==0, 
-              a^((x+b)^c) + g*h^x, 
-              a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)
+  mu1 = par['a']^((x+par['b'])^par['c'])
+  mu2 = par['d']*exp(-par['e']*(log(x/par['f']))^2)
+  mu3 = par['g']*par['h']^x
+  hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   Hx = cumsum(hx)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a, b = b, c = c, d = d, 
-                      e = e, f = f, g = g, h = h)))
+  return(as.list(environment()))
 }
 
 
@@ -106,18 +182,15 @@ heligman_pollard <- function(x, par = NULL){
 thiele <- function(x, par = NULL){
   model_info <- 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)'
   # default parameters
-  a = 0.02474; b = 0.3; c = 0.004; d = 0.5 
-  e = 25; f = 0.0001; g = 0.13
-  if (!is.null(par)) {a = par[1]; b = par[2]; c = par[3]; d = par[4]; 
-                      e = par[5]; f = par[6]; g = par[7]}
+  if (is.null(par)) {par = c(.02474, .3, .004, .5, 25, .0001, .13)}
+  names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx = ifelse(x == 0, 
-              a*exp(-b*x) + f*exp(g*x), 
-              a*exp(-b*x) + c*exp(-.5*d*(x-e)^2) + f*exp(g*x))
+  mu1 = par['a']*exp(-par['b']*x)
+  mu2 = par['c']*exp(-.5*par['d']*(x-par['e'])^2)
+  mu3 = par['f']*exp(par['g']*x)
+  hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   Hx = cumsum(hx)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a, b = b, c = c, d = d, 
-                      e = e, f = f, g = g)))
+  return(as.list(environment()))
 }
 
 
@@ -127,13 +200,14 @@ thiele <- function(x, par = NULL){
 wittstein <- function(x, par = NULL){
   model_info <- 'Wittstein (1883): q(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]'
   # default parameters
-  a = 1.5; m = 1.0; n = 0.5; M = 100
-  if (!is.null(par)) {a = par[1]; m = par[2]; n = par[3]; M = par[4]}
+  if (is.null(par)) {par = c(1.5, 1, .5, 100)}
+  names(par) <- c('a', 'm', 'n', 'M')
   # Compute distribution functions
-  hx = (1/m)*a^-((m*x)^n) + a^-((M-x)^n)
+  mu1 = (1/par['m'])*par['a']^-((par['m']*x)^par['n'])
+  mu2 = par['a']^-((par['M']-x)^par['n'])
+  hx = mu1 + mu2
   Hx = cumsum(hx)
-  return(list(model_info = model_info, hx = hx, Hx = Hx,
-              par = c(a = a, m = m, n = n, M = M)))
+  return(as.list(environment()))
 }
 
 

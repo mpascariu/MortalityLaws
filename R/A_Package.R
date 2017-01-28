@@ -19,7 +19,7 @@ NULL
 NULL
 #' @importFrom utils read.table flush.console
 NULL
-#' @importFrom stats fitted coef optim quantile
+#' @importFrom stats fitted coef optim quantile integrate spline splinefun
 NULL
 #' @importFrom pbapply startpb closepb setpb
 NULL
