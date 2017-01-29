@@ -111,6 +111,46 @@ makeham0 <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
+#' Weibull mortality law
+#' Note that if sigma > m, then the mode of the density is 0 and hx is a 
+#' non-increasing function of x, while if sigma < m, then the mode is 
+#' greater than 0 and hx is an increasing function.
+#' m > 0 is a measure of location
+#' sigma > 0 is measure of dispersion
+#' @keywords internal
+#' 
+weibull <- function(x, par = NULL){
+  model_info <- 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)'
+  # default parameters
+  if (is.null(par)) { par[1] = 2; par[2] = 1 }
+  names(par) <- c('sigma', 'm')
+  # Compute hazard
+  hx <- 1/par['sigma'] * (x/par['m'])^(par['m']/par['sigma'] - 1)
+  Hx <- (x/par['m'])^(par['m']/par['sigma'])
+  return(as.list(environment()))
+}
+
+#' Inverse-Weibull mortality law
+#' The Inverse-Weibull proves useful for modeling the teenage years, 
+#' because the logarithm of h(x) is a very concave function.
+#' m > 0 is a measure of location
+#' sigma > 0 is measure of dispersion
+#' @keywords internal
+#' 
+invweibull <- function(x, par = NULL){
+  model_info <- 'Inverse-Weibull: 
+  h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)'
+  # default parameters
+  if (is.null(par)) { par[1] = 2; par[2] = 1 }
+  names(par) <- c('sigma', 'm')
+  # Compute hazard
+  mu1 <- 1/par['sigma'] * (x/par['m'])^(-par['m']/par['sigma'] - 1)
+  mu2 <- exp((x/par['m'])^(-par['m']/par['sigma'])) - 1
+  hx <- mu1 / mu2
+  Hx <- -log(1 - exp(-(x/par['m'])^(-par['m']/par['sigma'])))
+  return(as.list(environment()))
+}
+
 
 #' Kannisto mortality law
 #' @keywords internal
@@ -173,7 +213,6 @@ heligman_pollard <- function(x, par = NULL){
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
-
 
 
 #' Thiele mortality law

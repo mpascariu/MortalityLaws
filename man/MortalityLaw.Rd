@@ -5,7 +5,7 @@
 \title{Fit mortality law}
 \usage{
 MortalityLaw(x, mx = NULL, Dx = NULL, Ex = NULL, law, how = "poissonL",
-  parS = NULL, ...)
+  parS = NULL, fit.this.x = x, ...)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -27,6 +27,10 @@ and Least square errors \code{LSE}.}
 
 \item{parS}{Starting parameters used in optimization process (optional)}
 
+\item{fit.this.x}{select the ages to be cosidered in model fitting. By default 
+fit.this.x = x. One may want exculde from the fitting procedure say the 
+advance ages were the data is sparse.}
+
 \item{...}{Other argumnets}
 }
 \value{
@@ -45,8 +49,8 @@ Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
 mx <- HMD.test.data$mx[paste(ages), paste(yr)]
 
 model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
-model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LSE')
-model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LAE')
+model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
+model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
 model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
  
 model1

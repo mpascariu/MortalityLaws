@@ -13,6 +13,9 @@
 #' Least absolute errors \code{LAE};
 #' and Least square errors \code{LSE}.
 #' @param parS Starting parameters used in optimization process (optional)
+#' @param fit.this.x select the ages to be cosidered in model fitting. By default 
+#' fit.this.x = x. One may want exculde from the fitting procedure say the 
+#' advance ages were the data is sparse.
 #' @param ... Other argumnets
 #' @return A \code{MortalityLaw} object
 #' @examples 
@@ -25,8 +28,8 @@
 #' mx <- HMD.test.data$mx[paste(ages), paste(yr)]
 #' 
 #' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
-#' model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LSE')
-#' model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LAE')
+#' model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
+#' model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
 #' model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
 #'  
 #' model1
@@ -36,7 +39,8 @@
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
-                         law, how = 'poissonL', parS = NULL, ...){
+                         law, how = 'poissonL', parS = NULL, 
+                         fit.this.x = x, ...){
   # Check input
   if (is.null(parS)) { parS = choose_law(law, x)$par }
   input <- c(as.list(environment()))
@@ -74,6 +78,8 @@ choose_law <- function(law, x, par = NULL){
                  invgompertz = invgompertz(x_, par),
                  makeham0  = makeham0(x_, par),
                  makeham   = makeham(x_, par),
+                 weibull = weibull(x_, par),
+                 invweibull = invweibull(x_, par),
                  kannisto  = kannisto(x_, par),
                  opperman  = opperman(x_+1, par),
                  HP = heligman_pollard(x_, par),
@@ -105,23 +111,37 @@ objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL,
   mu <- choose_law(law, x, par_)$distribution$hx
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
-  # compute likelihoods or errors 
+  # compute likelihoods or loss functions
   output1 <- switch(fun,
-           poissonL = -(Dx * log(mu) - mu*Ex),
+           poissonL  = -(Dx * log(mu) - mu*Ex),
            binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
-           LAE = abs(mx - mu),
-           LSE = (mx - mu) ^ 2)
+           LF1 = (1 - mu/mx)^2,
+           LF2 = log(mu/mx)^2,
+           LF3 = ((mx - mu)^2)/mx,
+           LF4 = (mx - mu)^2,
+           LF5 = (mx - mu) * log(mx/mu),
+           LF6 = abs(mx - mu))
   out <- sum(output1, na.rm = TRUE)
-  if (law %in% c('thiele', 'wittstein')) out = output1
+  # because nls.lm function requires a vector we have to do the following:
+  if (law %in% c('thiele', 'wittstein')) out = output1 
   return(out)
 }
+
 
 #' Select an optimizing method
 #' @keywords internal
 #' 
 choose_optim <- function(input){
   with(as.list(input), {
-    if(law %in% c('gompertz', 'gompertz0', 'invgompertz', 
+    # Subset the data
+    select.x <- x %in% fit.this.x
+    x = x[select.x]
+    mx = mx[select.x]
+    Dx = Dx[select.x]
+    Ex = Ex[select.x]
+    # Optimize 
+    if(law %in% c('gompertz', 'gompertz0', 'invgompertz',
+                  'weibull', 'invweibull',
                   'makeham', 'makeham0', 'kannisto')){
       opt <- optim(par = log(parS), fn = objective_fun, 
                    law = law, fun = how,
@@ -133,7 +153,7 @@ choose_optim <- function(input){
       opt <- optim(par = parS, fn = objective_fun, 
                    law = law, fun = how,
                    x = x+1, mx = mx, Dx = Dx, Ex = Ex, 
-                   method = 'Nelder-Mead', gr=NULL)
+                   method = 'Nelder-Mead', gr = NULL)
       coef <- opt$par
     }
     if(law %in% c('demoivre')){

@@ -16,6 +16,7 @@ check_input <- function(input){
         }
         
         models <- c('gompertz', 'gompertz0', 'invgompertz',
+                    'weibull', 'invweibull',
                     'makeham', 'makeham0', 'kannisto', 'demoivre', 
                     'opperman', 'HP', 'thiele', 'wittstein')
         if ( !(law %in% models)) {
@@ -24,7 +25,8 @@ check_input <- function(input){
           stop()
         }
         
-        function_to_optimize <- c('poissonL', 'binomialL', 'LAE', 'LSE')
+        function_to_optimize <- c('poissonL', 'binomialL', 
+                                  'LF1', 'LF2', 'LF3', 'LF4', 'LF5', 'LF6')
         if (!(how %in% function_to_optimize)) {
           cat('Error: Choose a different function to optimize.\n')
           cat('Check one of the following options: \n', 
