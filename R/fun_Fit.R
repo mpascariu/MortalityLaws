@@ -48,6 +48,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   # Find optim coefficients
   coef <- choose_optim(input)
   # Fit mortality law
+  mli  <- choose_law_info(law)
   mlaw <- choose_law(law, x, par = coef)
   fit  <- mlaw$distribution$hx
   # Compute residuals
@@ -56,7 +57,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   # Prepare, arrange, customize output
   output <- list(input = input, coefficients = coef, fitted.values = fit, 
                  residuals = resid, distribution = mlaw$distribution, 
-                 model_info = mlaw$model_info, process_date = date())
+                 model_info = mli, process_date = date())
   output$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)
@@ -186,7 +187,34 @@ choose_optim <- function(input){
   })
 }
 
-
+#' Select info
+#' @keywords internal
+#' 
+choose_law_info <-  function(law){
+  info = switch (law,
+           demoivre    = 'DeMoivre (1725): h(x) = 1/(a-x)',
+           gompertz0   = 'Gompertz (1825): h(x) = a*exp(b*x)',
+           gompertz    = 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]',
+           invgompertz = 'Inverse-Gompertz:
+           h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
+           makeham0    = 'Makeham (1860):  h(x) = a*exp(b*x) + c',
+           makeham     = 'Makeham (1860):  h(x) = 1/sigma * exp[(x-m)/sigma)] + c',
+           opperman    = 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)',
+           thiele      = 'Thiele (1871): 
+           h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
+           wittstein   = 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
+           weibull     = 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)',
+           invweibull  = 'Inverse-Weibull: 
+           h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
+           HP          = 'Heligman-Pollard (1980): 
+           q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
+           siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
+           kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
+           carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
+           carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
+           )
+  return(info)
+}
 
 
 

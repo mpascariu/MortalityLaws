@@ -36,7 +36,6 @@ int_hazard2 <- function(x, hx){
 #' @keywords internal
 #' 
 gompertz0 <- function(x, par = NULL){
-  model_info <- 'Gompertz (1825): h(x) = a*exp(b*x)'
   # default parameters
   if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13 }
   names(par) <- letters[1:length(par)]
@@ -52,7 +51,6 @@ gompertz0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 gompertz <- function(x, par = NULL){
-  model_info <- 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]'
   # default parameters
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
   names(par) <- c('sigma', 'm')
@@ -69,8 +67,6 @@ gompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invgompertz <- function(x, par = NULL){
-  model_info <- 'Inverse-Gompertz:
-                h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]'
   # default parameters
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
   names(par) <- c('sigma', 'm')
@@ -85,7 +81,6 @@ invgompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham0 <- function(x, par = NULL){
-  model_info <- 'Makeham (1860):  h(x) = a*exp(b*x) + c'
   # default parameters
   if (is.null(par)) { par = c(.0002, .13, .001)}
   names(par) <- letters[1:length(par)]
@@ -100,7 +95,6 @@ makeham0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham <- function(x, par = NULL){
-  model_info <- 'Makeham (1860):  h(x) = 1/sigma * exp[(x-m)/sigma)] + c'
   # default parameters
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286; par[3] = 0.001 }
   names(par) <- c('sigma', 'm', 'c')
@@ -120,7 +114,6 @@ makeham <- function(x, par = NULL){
 #' @keywords internal
 #' 
 weibull <- function(x, par = NULL){
-  model_info <- 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)'
   # default parameters
   if (is.null(par)) { par = c(2, 1) }
   names(par) <- c('sigma', 'm')
@@ -139,8 +132,6 @@ weibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invweibull <- function(x, par = NULL){
-  model_info <- 'Inverse-Weibull: 
-  h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)'
   # default parameters
   if (is.null(par)) { par[1] = 10; par[2] = 25 }
   names(par) <- c('sigma', 'm')
@@ -157,7 +148,6 @@ invweibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 kannisto <- function(x, par = NULL){
-  model_info <- 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]'
   # default parameters
   if (is.null(par)) { par[1] = 0.5; par[2] = 0.13}
   names(par) <- letters[1:length(par)]
@@ -172,7 +162,6 @@ kannisto <- function(x, par = NULL){
 #' @keywords internal
 #' 
 demoivre <- function(x, par = NULL){
-  model_info <- 'DeMoivre (1725): h(x) = 1/(a-x)'
   # default parameters
   if (is.null(par)) { par = 100 }
   names(par) = 'a'
@@ -188,7 +177,6 @@ demoivre <- function(x, par = NULL){
 #' @keywords internal
 #' 
 opperman <- function(x, par = NULL){
-  model_info <- 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)'
   # default parameters
   if (is.null(par)) { par[1] = 0.004; par[2] = -0.0004; par[3] = 0.001 }
   names(par) <- letters[1:length(par)]
@@ -202,7 +190,6 @@ opperman <- function(x, par = NULL){
 #' @keywords internal
 #' 
 heligman_pollard <- function(x, par = NULL){
-  model_info <- 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)'
   # default parameters
   if (is.null(par)) {par = c(.0005, .004, .08, .001, 10, 17, .00005, 1.1)}
   names(par) <- letters[1:length(par)]
@@ -219,7 +206,6 @@ heligman_pollard <- function(x, par = NULL){
 #' @keywords internal
 #' 
 thiele <- function(x, par = NULL){
-  model_info <- 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)'
   # default parameters
   if (is.null(par)) {par = c(.02474, .3, .004, .5, 25, .0001, .13)}
   names(par) <- letters[1:length(par)]
@@ -237,7 +223,6 @@ thiele <- function(x, par = NULL){
 #' @keywords internal
 #' 
 wittstein <- function(x, par = NULL){
-  model_info <- 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]'
   # default parameters
   if (is.null(par)) {par = c(1.5, 1, .5, 100)}
   names(par) <- c('a', 'm', 'n', 'M')
@@ -252,7 +237,6 @@ wittstein <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere1 <- function(x, par = NULL){
-  model_info = 'Carriere1: Weibull + Inverse-Weibull + Gompertz'
   if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 10, 25, 7.692308, 49.82286)}
   names(par) <- c('p1', 'sigma1', 'm1',
                   'p2', 'sigma2', 'm2', 
@@ -278,7 +262,6 @@ carriere1 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere2 <- function(x, par = NULL){
-  model_info = 'Carriere2: Weibull + Inverse-Gompertz + Gompertz'
   if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 7.69, 49.82, 7.69, 49.82)}
   names(par) <- c('p1', 'sigma1', 'm1',
                   'p2', 'sigma2', 'm2', 
@@ -304,7 +287,6 @@ carriere2 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 siler <- function(x, par = NULL){
-  model_info = 'Siler: h(x) = a*exp(-b*x) + c + d*exp(e*x)'
   # default parameters
   if (is.null(par)) { par = c(.0002, .13, .001, .001, .013) }
   names(par) <- letters[1:length(par)]
