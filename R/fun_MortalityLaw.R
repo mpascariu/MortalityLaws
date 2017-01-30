@@ -35,14 +35,15 @@ int_hazard2 <- function(x, hx){
 #' Gompertz mortality law
 #' @keywords internal
 #' 
-gompertz <- function(x, par = NULL){
+gompertz0 <- function(x, par = NULL){
   model_info <- 'Gompertz (1825): h(x) = a*exp(b*x)'
   # default parameters
   if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13 }
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx  <- par['a']*exp(par['b']*x)
-  Hx  <- par['a']/par['b'] * (exp(par['b']*x) - 1)
+  hx  <- with(as.list(par), a*exp(b*x) )
+  Hx  <- with(as.list(par), a/b * (exp(b*x) - 1) )
+  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -50,14 +51,15 @@ gompertz <- function(x, par = NULL){
 #' Gompertz mortality law - informative parametrization
 #' @keywords internal
 #' 
-gompertz0 <- function(x, par = NULL){
+gompertz <- function(x, par = NULL){
   model_info <- 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]'
   # default parameters
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
   names(par) <- c('sigma', 'm')
   # Compute distribution functions
-  hx <- (1/par['sigma']) * exp( (x-par['m'])/par['sigma'] )
-  Hx <- exp(-par['m']/par['sigma']) * (exp(x/par['sigma']) - 1)
+  hx <- with(as.list(par), (1/sigma) * exp((x-m)/sigma) )
+  Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -73,41 +75,39 @@ invgompertz <- function(x, par = NULL){
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
   names(par) <- c('sigma', 'm')
   # Compute distribution functions
-  mu1 <- 1/par['sigma'] * exp(-(x-par['m'])/par['sigma'])
-  mu2 <- exp(exp(-(x-par['m'])/par['sigma'])) - 1
-  hx  <- mu1 / mu2
-  
-  mu3 <- 1 - exp(-exp(-(x-par['m'])/par['sigma']))
-  mu4 <- 1 - exp(-exp(par['m']/par['sigma']))
-  Hx  <- -log(mu3/mu4)
+  hx = with(as.list(par),  (1- exp(-(x-m)/sigma)) / (exp(-(x-m)/sigma) - 1) )
+  Sx = with(as.list(par),  (1 - exp(-exp(-(x-m)/sigma))) / (1 - exp(-exp(m/sigma))) )
+  Hx = -log(Sx)
   return(as.list(environment()))
 }
 
 #' Makeham mortality law
 #' @keywords internal
 #' 
-makeham <- function(x, par = NULL){
+makeham0 <- function(x, par = NULL){
   model_info <- 'Makeham (1860):  h(x) = a*exp(b*x) + c'
   # default parameters
-  if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13; par[3] = 0.001 }
+  if (is.null(par)) { par = c(.0002, .13, .001)}
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx  <- par['a']*exp(par['b']*x) + par['c']
-  Hx  <- par['a']/par['b'] * (exp(par['b']*x) - 1) + x*par['c']
+  hx <- with(as.list(par), a*exp(b*x) + c )
+  Hx <- with(as.list(par), a/b * (exp(b*x) - 1) + x*c )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
 #' Makeham mortality law - informative parametrization
 #' @keywords internal
 #' 
-makeham0 <- function(x, par = NULL){
+makeham <- function(x, par = NULL){
   model_info <- 'Makeham (1860):  h(x) = 1/sigma * exp[(x-m)/sigma)] + c'
   # default parameters
   if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286; par[3] = 0.001 }
   names(par) <- c('sigma', 'm', 'c')
   # Compute hazard
-  hx <- (1/par['sigma']) * exp( (x-par['m'])/par['sigma'] ) + par['c']
-  Hx <- exp(-par['m']/par['sigma']) * (exp(x/par['sigma']) - 1) + x*par['c']
+  hx <- with(as.list(par), (1/sigma) * exp((x-m)/sigma) + c )
+  Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) + x*c )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -122,16 +122,17 @@ makeham0 <- function(x, par = NULL){
 weibull <- function(x, par = NULL){
   model_info <- 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)'
   # default parameters
-  if (is.null(par)) { par[1] = 2; par[2] = 1 }
+  if (is.null(par)) { par = c(2, 1) }
   names(par) <- c('sigma', 'm')
   # Compute hazard
-  hx <- 1/par['sigma'] * (x/par['m'])^(par['m']/par['sigma'] - 1)
-  Hx <- (x/par['m'])^(par['m']/par['sigma'])
+  hx <- with(as.list(par), 1/sigma * (x/m)^(m/sigma - 1) )
+  Hx <- with(as.list(par), (x/m)^(m/sigma) )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
 #' Inverse-Weibull mortality law
-#' The Inverse-Weibull proves useful for modeling the teenage years, 
+#' The Inverse-Weibull proves useful for modeling the childood and teenage years, 
 #' because the logarithm of h(x) is a very concave function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
@@ -141,13 +142,13 @@ invweibull <- function(x, par = NULL){
   model_info <- 'Inverse-Weibull: 
   h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)'
   # default parameters
-  if (is.null(par)) { par[1] = 2; par[2] = 1 }
+  if (is.null(par)) { par[1] = 10; par[2] = 25 }
   names(par) <- c('sigma', 'm')
   # Compute hazard
-  mu1 <- 1/par['sigma'] * (x/par['m'])^(-par['m']/par['sigma'] - 1)
-  mu2 <- exp((x/par['m'])^(-par['m']/par['sigma'])) - 1
-  hx <- mu1 / mu2
-  Hx <- -log(1 - exp(-(x/par['m'])^(-par['m']/par['sigma'])))
+  hx = with(as.list(par), 1/sigma * (x/m)^(-m/sigma - 1) / 
+                          (exp((x/m)^(-m/sigma)) - 1) )
+  Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -161,8 +162,8 @@ kannisto <- function(x, par = NULL){
   if (is.null(par)) { par[1] = 0.5; par[2] = 0.13}
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx <- par['a']*exp(par['b']*x) / (1 + par['a']*exp(par['b']*x))
-  Hx <- 1/par['a'] * log( (1 + par['a']*exp(par['b']*x)) / (1 + par['a']) )
+  hx <- with(as.list(par), a*exp(b*x) / (1 + a*exp(b*x)) )
+  Hx <- with(as.list(par), 1/a * log( (1 + a*exp(b*x)) / (1 + a) ) )
   return(as.list(environment()))
 }
 
@@ -192,7 +193,7 @@ opperman <- function(x, par = NULL){
   if (is.null(par)) { par[1] = 0.004; par[2] = -0.0004; par[3] = 0.001 }
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  hx = par['a']/sqrt(x) + par['b'] + par['c']*(x^(1/3))
+  hx = with(as.list(par), a/sqrt(x) + b + c*(x^(1/3)) )
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
@@ -206,10 +207,9 @@ heligman_pollard <- function(x, par = NULL){
   if (is.null(par)) {par = c(.0005, .004, .08, .001, 10, 17, .00005, 1.1)}
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  mu1 = par['a']^((x+par['b'])^par['c'])
-  mu2 = par['d']*exp(-par['e']*(log(x/par['f']))^2)
-  mu3 = par['g']*par['h']^x
-  hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
+  mu1 = with(as.list(par), a^((x+b)^c) + g*h^x)
+  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  hx = ifelse(x == 0, mu1, mu1 + mu2)
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
@@ -224,9 +224,9 @@ thiele <- function(x, par = NULL){
   if (is.null(par)) {par = c(.02474, .3, .004, .5, 25, .0001, .13)}
   names(par) <- letters[1:length(par)]
   # Compute distribution functions
-  mu1 = par['a']*exp(-par['b']*x)
-  mu2 = par['c']*exp(-.5*par['d']*(x-par['e'])^2)
-  mu3 = par['f']*exp(par['g']*x)
+  mu1 = with(as.list(par), a*exp(-b*x) )
+  mu2 = with(as.list(par), c*exp(-.5*d*(x-e)^2) )
+  mu3 = with(as.list(par), f*exp(g*x) )
   hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   Hx = cumsum(hx)
   return(as.list(environment()))
@@ -237,21 +237,82 @@ thiele <- function(x, par = NULL){
 #' @keywords internal
 #' 
 wittstein <- function(x, par = NULL){
-  model_info <- 'Wittstein (1883): q(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]'
+  model_info <- 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]'
   # default parameters
   if (is.null(par)) {par = c(1.5, 1, .5, 100)}
   names(par) <- c('a', 'm', 'n', 'M')
   # Compute distribution functions
-  mu1 = (1/par['m'])*par['a']^-((par['m']*x)^par['n'])
-  mu2 = par['a']^-((par['M']-x)^par['n'])
-  hx = mu1 + mu2
+  hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M-x)^n) )
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
 
+#' Carriere mortality law
+#' Carriere1 = weibull + invweibull + gompertz
+#' @keywords internal
+#' 
+carriere1 <- function(x, par = NULL){
+  model_info = 'Carriere1: Weibull + Inverse-Weibull + Gompertz'
+  if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 10, 25, 7.692308, 49.82286)}
+  names(par) <- c('p1', 'sigma1', 'm1',
+                  'p2', 'sigma2', 'm2', 
+                        'sigma3', 'm3')
+  # Compute distribution functions
+  S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
+  S_iwei = invweibull(x, par[c('sigma1', 'm1')])$Sx
+  S_gom  = gompertz(x, par[c('sigma3', 'm3')])$Sx
+  
+  f1 <- max(0, min(par['p1'], 1))
+  f2 <- max(0, min(par['p2'], 1))
+  f3 <- 1 - f1 - f2
+  
+  Sx = f1*S_wei + f2*S_iwei + f3*S_gom
+  Hx = -log(Sx)
+  hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  #This one is not quite correct.
+  return(as.list(environment()))
+}
+
+#' Carriere mortality law
+#' Carriere2 = weibull + invgompertz + gompertz
+#' @keywords internal
+#' 
+carriere2 <- function(x, par = NULL){
+  model_info = 'Carriere2: Weibull + Inverse-Gompertz + Gompertz'
+  if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 7.69, 49.82, 7.69, 49.82)}
+  names(par) <- c('p1', 'sigma1', 'm1',
+                  'p2', 'sigma2', 'm2', 
+                        'sigma3', 'm3')
+  # Compute distribution functions
+  S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
+  S_igom = invgompertz(x, par[c('sigma2', 'm2')])$Sx
+  S_gom  = gompertz(x, par[c('sigma3', 'm3')])$Sx
+  
+  f1 <- max(0, min(par['p1'], 1))
+  f2 <- max(0, min(par['p2'], 1))
+  f3 <- 1 - f1 - f2
+  
+  Sx = f1*S_wei + f2*S_igom + f3*S_gom
+  Hx = -log(Sx)
+  hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  #This one is not quite correct.
+  return(as.list(environment()))
+}
 
 
-
+#' Siler mortality law
+#' @keywords internal
+#' 
+siler <- function(x, par = NULL){
+  model_info = 'Siler: h(x) = a*exp(-b*x) + c + d*exp(e*x)'
+  # default parameters
+  if (is.null(par)) { par = c(.0002, .13, .001, .001, .013) }
+  names(par) <- letters[1:length(par)]
+  # compute hazard
+  hx = with(as.list(par), a*exp(-b*x) + c + d*exp(e*x))
+  Hx = cumsum(hx)
+  return(as.list(environment()))
+}
 
 
 

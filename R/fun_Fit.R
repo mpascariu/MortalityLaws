@@ -70,6 +70,8 @@ choose_law <- function(law, x, par = NULL){
   # Order and scale the x vector
   x <- unique(x[order(x)])
   x_ <- x - min(x)
+  law1 = c('weibull', 'invweibull', 'opperman', 'carriere1', 'carriere2')
+  if (law %in% law1 & min(x) == 0) x_ = x_ + 1
   # Mortality law
   mlaw <- switch(law,
                  demoivre  = demoivre(x_, par),
@@ -78,13 +80,16 @@ choose_law <- function(law, x, par = NULL){
                  invgompertz = invgompertz(x_, par),
                  makeham0  = makeham0(x_, par),
                  makeham   = makeham(x_, par),
-                 weibull = weibull(x_, par),
+                 weibull   = weibull(x_, par),
                  invweibull = invweibull(x_, par),
-                 kannisto  = kannisto(x_, par),
-                 opperman  = opperman(x_+1, par),
+                 kannisto   = kannisto(x_, par),
+                 opperman   = opperman(x_, par),
                  HP = heligman_pollard(x_, par),
-                 thiele = thiele(x_, par),
-                 wittstein = wittstein(x_, par)
+                 thiele    = thiele(x_, par),
+                 wittstein = wittstein(x_, par),
+                 siler     = siler(x_, par),
+                 carriere1 = carriere1(x_, par),
+                 carriere2 = carriere2(x_, par)
   )
   hx <- mlaw$hx
   Hx <- mlaw$Hx
@@ -141,8 +146,8 @@ choose_optim <- function(input){
     Ex = Ex[select.x]
     # Optimize 
     if(law %in% c('gompertz', 'gompertz0', 'invgompertz',
-                  'weibull', 'invweibull',
-                  'makeham', 'makeham0', 'kannisto')){
+                  'weibull', 'invweibull', 'carriere1', 'carriere2',
+                  'makeham', 'makeham0', 'kannisto', 'siler')){
       opt <- optim(par = log(parS), fn = objective_fun, 
                    law = law, fun = how,
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 

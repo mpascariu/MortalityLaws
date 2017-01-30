@@ -2,12 +2,12 @@
 % Please edit documentation in R/fun_MortalityLaw.R
 \name{gompertz}
 \alias{gompertz}
-\title{Gompertz mortality law}
+\title{Gompertz mortality law - informative parametrization}
 \usage{
 gompertz(x, par = NULL)
 }
 \description{
-Gompertz mortality law
+Gompertz mortality law - informative parametrization
 }
 \keyword{internal}
 

@@ -3,7 +3,7 @@
 \name{invweibull}
 \alias{invweibull}
 \title{Inverse-Weibull mortality law
-The Inverse-Weibull proves useful for modeling the teenage years, 
+The Inverse-Weibull proves useful for modeling the childood and teenage years, 
 because the logarithm of h(x) is a very concave function.
 m > 0 is a measure of location
 sigma > 0 is measure of dispersion}
@@ -12,7 +12,7 @@ invweibull(x, par = NULL)
 }
 \description{
 Inverse-Weibull mortality law
-The Inverse-Weibull proves useful for modeling the teenage years, 
+The Inverse-Weibull proves useful for modeling the childood and teenage years, 
 because the logarithm of h(x) is a very concave function.
 m > 0 is a measure of location
 sigma > 0 is measure of dispersion
