@@ -1,35 +1,4 @@
 
-#' Integarte hazard funcion
-#' @keywords internal
-#' 
-int_hazard <- function(x, par, ux){
-  Hx <- NULL
-  for(j in 1:length(x)){
-    Hx[j] <- integrate(ux, x[1], x[j], par = par)$value
-  }
-  return(Hx)
-}
-
-int_hazard2 <- function(x, hx){
-  mult   = 10
-  lhx    = log(hx)
-  hx_num = spline(x, lhx, n = mult*length(x))
-  x2     = hx_num$x 
-  hxfun  = splinefun(x2, exp(hx_num$y))
-  Hx <- NULL
-  for(j in 1:length(x2)){
-    Hx[j] <- integrate(hxfun, x2[1], x2[j])$value
-  }
-  Hx = Hx[seq(1, length(x2), by = mult)+9]
-  return(Hx)
-}
-
-# Compute distribution functions
-# ux = function(x, par){ (1/par[1]) * exp( (x-par[2])/par[1] ) }
-# hx <- ux(x, par)
-# Hx <- int_hazard(x, par, ux)
-# Hx <- int_hazard2(x, hx)
-
 # ---- LAWS ---------------------------------------
 
 #' Gompertz mortality law
@@ -300,6 +269,37 @@ siler <- function(x, par = NULL){
 
 
 
+# ======================================================================
+#' Integarte hazard funcion
+#' @keywords internal
+#' 
+int_hazard <- function(x, par, ux){
+  Hx <- NULL
+  for(j in 1:length(x)){
+    Hx[j] <- integrate(ux, x[1], x[j], par = par)$value
+  }
+  return(Hx)
+}
+
+int_hazard2 <- function(x, hx){
+  mult   = 10
+  lhx    = log(hx)
+  hx_num = spline(x, lhx, n = mult*length(x))
+  x2     = hx_num$x 
+  hxfun  = splinefun(x2, exp(hx_num$y))
+  Hx <- NULL
+  for(j in 1:length(x2)){
+    Hx[j] <- integrate(hxfun, x2[1], x2[j])$value
+  }
+  Hx = Hx[seq(1, length(x2), by = mult)+9]
+  return(Hx)
+}
+
+# Compute distribution functions
+# ux = function(x, par){ (1/par[1]) * exp( (x-par[2])/par[1] ) }
+# hx <- ux(x, par)
+# Hx <- int_hazard(x, par, ux)
+# Hx <- int_hazard2(x, hx)
 
 
 

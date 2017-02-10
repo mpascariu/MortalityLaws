@@ -46,7 +46,11 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   input <- c(as.list(environment()))
   check_input(input)
   # Find optim coefficients
-  coef <- choose_optim(input)
+  opt_ <- choose_optim(input)
+  coef <- opt_$coef
+  AIC  <- opt_$AIC
+  BIC  <- opt_$BIC
+  logLikelihood <- opt_$logLikelihood
   # Fit mortality law
   mli  <- choose_law_info(law)
   mlaw <- choose_law(law, x, par = coef)
@@ -55,9 +59,10 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   if (!is.null(Dx)) { mx = Dx/Ex }
   resid <- mx - fit
   # Prepare, arrange, customize output
-  output <- list(input = input, coefficients = coef, fitted.values = fit, 
+  output <- list(input = input, coefficients = coef, AIC = AIC, BIC = BIC,
+                 logLikelihood = logLikelihood, fitted.values = fit, 
                  residuals = resid, distribution = mlaw$distribution, 
-                 model_info = mli, process_date = date())
+                 model_info = mli, fn_opt = opt_$fn_opt, process_date = date())
   output$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)
@@ -119,14 +124,14 @@ objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL,
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
   # compute likelihoods or loss functions
   output1 <- switch(fun,
-           poissonL  = -(Dx * log(mu) - mu*Ex),
-           binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
-           LF1 = (1 - mu/mx)^2,
-           LF2 = log(mu/mx)^2,
-           LF3 = ((mx - mu)^2)/mx,
-           LF4 = (mx - mu)^2,
-           LF5 = (mx - mu) * log(mx/mu),
-           LF6 = abs(mx - mu))
+                    poissonL  = -(Dx * log(mu) - mu*Ex),
+                    binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
+                    LF1 = (1 - mu/mx)^2,
+                    LF2 = log(mu/mx)^2,
+                    LF3 = ((mx - mu)^2)/mx,
+                    LF4 = (mx - mu)^2,
+                    LF5 = (mx - mu) * log(mx/mu),
+                    LF6 = abs(mx - mu))
   out <- sum(output1, na.rm = TRUE)
   # because nls.lm function requires a vector we have to do the following:
   if (law %in% c('thiele', 'wittstein')) out = output1 
@@ -154,6 +159,7 @@ choose_optim <- function(input){
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 
                    method = 'Nelder-Mead')
       coef <- exp(opt$par)
+      opt$fnvalue <- opt$value
     }
     if(law %in% c('opperman')){
       opt <- optim(par = parS, fn = objective_fun, 
@@ -161,12 +167,14 @@ choose_optim <- function(input){
                    x = x+1, mx = mx, Dx = Dx, Ex = Ex, 
                    method = 'Nelder-Mead', gr = NULL)
       coef <- opt$par
+      opt$fnvalue <- opt$value
     }
     if(law %in% c('demoivre')){
       opt <- optimize(f = objective_fun, law = law, fun = how,
                       x = x, mx = mx, Dx = Dx, Ex = Ex,
                       lower = 20, upper = 150, maximum = FALSE)
       coef <- opt$minimum
+      opt$fnvalue <- opt$objective
     }
     if(law %in% c('HP')){
       opt <- nlminb(start = log(parS), objective = objective_fun,
@@ -174,16 +182,30 @@ choose_optim <- function(input){
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
                     control = list(eval.max = 5000, iter.max = 5000))
       coef <- exp(opt$par)
+      opt$fnvalue <- opt$objective
     }
     if(law %in% c('thiele', 'wittstein')){
       opt <- nls.lm(par = log(parS), fn = objective_fun,
                     law = law, fun = how,
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
                     control = nls.lm.control(nprint = 0,
-                    maxfev = 10000, maxiter = 1024))
+                              maxfev = 10000, maxiter = 1024))
       coef <- exp(opt$par)
+      opt$fnvalue <- sum(opt$fvec)
     }
-    return(coef)
+    llik <- opt$fnvalue
+    AIC  <- 2*length(parS) - 2*llik
+    BIC  <- log(length(x)) * length(parS) - 2*llik
+    
+    if(!(how %in% c('poissonL', 'binomialL'))){ 
+      llik = NA 
+      AIC  = NA
+      BIC  = NA
+    }
+    
+    out <- list(coef = coef, logLikelihood = llik, AIC = AIC, 
+                BIC = BIC, fn_opt = opt)
+    return(out)
   })
 }
 
@@ -192,36 +214,22 @@ choose_optim <- function(input){
 #' 
 choose_law_info <-  function(law){
   info = switch (law,
-           demoivre    = 'DeMoivre (1725): h(x) = 1/(a-x)',
-           gompertz0   = 'Gompertz (1825): h(x) = a*exp(b*x)',
-           gompertz    = 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]',
-           invgompertz = 'Inverse-Gompertz:
-           h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
-           makeham0    = 'Makeham (1860):  h(x) = a*exp(b*x) + c',
-           makeham     = 'Makeham (1860):  h(x) = 1/sigma * exp[(x-m)/sigma)] + c',
-           opperman    = 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)',
-           thiele      = 'Thiele (1871): 
-           h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
-           wittstein   = 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
-           weibull     = 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)',
-           invweibull  = 'Inverse-Weibull: 
-           h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
-           HP          = 'Heligman-Pollard (1980): 
-           q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
-           siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
-           kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
-           carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
-           carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
-           )
+                 demoivre    = 'DeMoivre (1725): h(x) = 1/(a-x)',
+                 gompertz0   = 'Gompertz (1825): h(x) = a*exp(b*x)',
+                 gompertz    = 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]',
+                 invgompertz = 'Inverse-Gompertz: h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
+                 makeham0    = 'Makeham (1860): h(x) = a*exp(b*x) + c',
+                 makeham     = 'Makeham (1860): h(x) = 1/sigma * exp[(x-m)/sigma)] + c',
+                 opperman    = 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)',
+                 thiele      = 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
+                 wittstein   = 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
+                 weibull     = 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)',
+                 invweibull  = 'Inverse-Weibull: h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
+                 HP          = 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
+                 siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
+                 kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
+                 carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
+                 carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
+                 )
   return(info)
 }
-
-
-
-
-
-
-
-
-
-

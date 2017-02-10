@@ -21,6 +21,9 @@ summary.MortalityLaw <- function(object, ...) {
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   cat('\nCoefficients:\n')
   print(round(object$coefficients, 5))
+  cat('\nLog-Likelihood = ', round(object$logLikelihood, 2),
+      ' AIC = ', round(object$AIC, 2), 
+      ' BIC = ', round(object$BIC, 2))
 }
 
 #' @keywords internal
