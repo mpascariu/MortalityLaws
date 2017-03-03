@@ -1,4 +1,4 @@
-# Data in the package
+# Data in the package.
 
 #' England and Wales demographic data
 #'
