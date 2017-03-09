@@ -11,4 +11,3 @@ objective_fun(par, x, Dx = NULL, Ex = NULL, mx = NULL, law,
 Function to be optimize
 }
 \keyword{internal}
-

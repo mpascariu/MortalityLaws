@@ -10,4 +10,3 @@ mx_qx(ux, x, out = "qx")
 This is a description
 }
 \keyword{internal}
-

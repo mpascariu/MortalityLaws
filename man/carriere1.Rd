@@ -12,4 +12,3 @@ Carriere mortality law
 Carriere1 = weibull + invweibull + gompertz
 }
 \keyword{internal}
-

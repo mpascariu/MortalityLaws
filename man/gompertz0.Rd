@@ -10,4 +10,3 @@ gompertz0(x, par = NULL)
 Gompertz mortality law
 }
 \keyword{internal}
-

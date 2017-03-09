@@ -10,4 +10,3 @@ kannisto(x, par = NULL)
 Kannisto mortality law
 }
 \keyword{internal}
-

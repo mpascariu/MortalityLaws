@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Mortality Laws
-Version: 0.6.4
+Version: 0.6.5
 Author: Marius Pascariu
 Maintainer: Marius Pascariu <mpascariu@outlook.com>
 Description: Fit and compare the most popular human mortality laws.
@@ -12,8 +12,7 @@ Imports:
   graphics,
   minpack.lm,
   RCurl,
-  pbapply,
-  psych
+  pbapply
 Suggests: 
  ggplot2
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

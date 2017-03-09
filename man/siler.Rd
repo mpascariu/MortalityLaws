@@ -10,4 +10,3 @@ siler(x, par = NULL)
 Siler mortality law
 }
 \keyword{internal}
-

@@ -58,4 +58,3 @@ HMD_LT_f <- ReadHMD(cntr, interval, what = "LT_f",
 HMD_LT_f
 } 
 }
-

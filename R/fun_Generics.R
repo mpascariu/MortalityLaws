@@ -5,7 +5,7 @@
 #' @export
 print.MortalityLaw <- function(x, ...) {
   cat('Model:\n')
-  cat(x$model_info, '\n')
+  cat(x$model.info, '\n')
   cat('\nCoefficients:\n')
   print(round(x$coefficients, 5))
 }
@@ -14,9 +14,9 @@ print.MortalityLaw <- function(x, ...) {
 #' @export
 summary.MortalityLaw <- function(object, ...) {
   cat('Model:\n')
-  cat(object$model_info, '\n')
-  cat('\nCall:\n')
-  print(object$call)
+  cat(object$model.info, '\n')
+  # cat('\nCall:\n')
+  # print(object$call)
   cat('\nDeviance Residuals:\n')
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   cat('\nCoefficients:\n')
@@ -85,5 +85,5 @@ print.ReadHMD <- function(x, ...){
   cat('Download Date:', x$download.date, '\n')
   cat('Type of data:', x$input$what, '\n')
   cat('Countries included:', x$input$countries, '\n\nData:\n')
-  print(headTail(x$data, hlength = 8, tlength = 8))
+  print(head_tail(x$data, hlength = 8, tlength = 8))
 }

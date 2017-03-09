@@ -1,14 +1,10 @@
-
 # ---- LAWS ---------------------------------------
 
 #' Gompertz mortality law
 #' @keywords internal
 #' 
 gompertz0 <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 0.0002; par[2] = 0.13 }
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
+  if (is.null(par)) { par = choose_Spar('gompertz0') }
   hx  <- with(as.list(par), a*exp(b*x) )
   Hx  <- with(as.list(par), a/b * (exp(b*x) - 1) )
   Sx  <- exp(-Hx)
@@ -20,11 +16,8 @@ gompertz0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 gompertz <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
-  names(par) <- c('sigma', 'm')
-  # Compute distribution functions
-  hx <- with(as.list(par), (1/sigma) * exp((x-m)/sigma) )
+  if (is.null(par)) { par = choose_Spar('gompertz') }
+  hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) )
   Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) )
   Sx <- exp(-Hx)
   return(as.list(environment()))
@@ -36,12 +29,11 @@ gompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invgompertz <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286 }
-  names(par) <- c('sigma', 'm')
-  # Compute distribution functions
-  hx = with(as.list(par),  (1- exp(-(x-m)/sigma)) / (exp(-(x-m)/sigma) - 1) )
-  Sx = with(as.list(par),  (1 - exp(-exp(-(x-m)/sigma))) / (1 - exp(-exp(m/sigma))) )
+  if (is.null(par)) { par = choose_Spar('invgompertz') }
+  hx = with(as.list(par), 
+            1/sigma * exp(-(x - m)/sigma) / (exp(exp(-(x - m)/sigma)) - 1)  )
+  Sx = with(as.list(par),  
+            (1 - exp(-exp(-(x - m)/sigma))) / (1 - exp(-exp(m/sigma))) )
   Hx = -log(Sx)
   return(as.list(environment()))
 }
@@ -50,10 +42,7 @@ invgompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham0 <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par = c(.0002, .13, .001)}
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
+  if (is.null(par)) { par = choose_Spar('makeham0') }
   hx <- with(as.list(par), a*exp(b*x) + c )
   Hx <- with(as.list(par), a/b * (exp(b*x) - 1) + x*c )
   Sx <- exp(-Hx)
@@ -64,11 +53,8 @@ makeham0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 7.692308; par[2] = 49.82286; par[3] = 0.001 }
-  names(par) <- c('sigma', 'm', 'c')
-  # Compute hazard
-  hx <- with(as.list(par), (1/sigma) * exp((x-m)/sigma) + c )
+  if (is.null(par)) { par = choose_Spar('makeham') }
+  hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) + c )
   Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) + x*c )
   Sx <- exp(-Hx)
   return(as.list(environment()))
@@ -83,10 +69,7 @@ makeham <- function(x, par = NULL){
 #' @keywords internal
 #' 
 weibull <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par = c(2, 1) }
-  names(par) <- c('sigma', 'm')
-  # Compute hazard
+  if (is.null(par)) { par = choose_Spar('weibull') }
   hx <- with(as.list(par), 1/sigma * (x/m)^(m/sigma - 1) )
   Hx <- with(as.list(par), (x/m)^(m/sigma) )
   Sx <- exp(-Hx)
@@ -101,10 +84,7 @@ weibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invweibull <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 10; par[2] = 25 }
-  names(par) <- c('sigma', 'm')
-  # Compute hazard
+  if (is.null(par)) { par = choose_Spar('invweibull') }
   hx = with(as.list(par), 1/sigma * (x/m)^(-m/sigma - 1) / 
                           (exp((x/m)^(-m/sigma)) - 1) )
   Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
@@ -117,12 +97,10 @@ invweibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 kannisto <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 0.5; par[2] = 0.13}
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
+  if (is.null(par)) { par = choose_Spar('kannisto') }
   hx <- with(as.list(par), a*exp(b*x) / (1 + a*exp(b*x)) )
   Hx <- with(as.list(par), 1/a * log( (1 + a*exp(b*x)) / (1 + a) ) )
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -131,13 +109,11 @@ kannisto <- function(x, par = NULL){
 #' @keywords internal
 #' 
 demoivre <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par = 100 }
-  names(par) = 'a'
-  # Compute hazard
+  if (is.null(par)) { par = choose_Spar('demoivre') }
   vsmall = 1e-10 # very small number
-  hx <- 1/(par-x) + vsmall
+  hx <- 1/(par - x) + vsmall
   Hx <- cumsum(hx)
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -146,27 +122,23 @@ demoivre <- function(x, par = NULL){
 #' @keywords internal
 #' 
 opperman <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par[1] = 0.004; par[2] = -0.0004; par[3] = 0.001 }
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
+  if (is.null(par)) { par = choose_Spar('oppperman') }
   hx = with(as.list(par), a/sqrt(x) + b + c*(x^(1/3)) )
   Hx = cumsum(hx)
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
 #' Heligman-Pollard mortality law
 #' @keywords internal
 #' 
-heligman_pollard <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) {par = c(.0005, .004, .08, .001, 10, 17, .00005, 1.1)}
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
-  mu1 = with(as.list(par), a^((x+b)^c) + g*h^x)
+HP <- function(x, par = NULL){
+  if (is.null(par)) { par = choose_Spar('HP') }
+  mu1 = with(as.list(par), a^((x + b)^c) + g*h^x)
   mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
   hx = ifelse(x == 0, mu1, mu1 + mu2)
   Hx = cumsum(hx)
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -175,15 +147,13 @@ heligman_pollard <- function(x, par = NULL){
 #' @keywords internal
 #' 
 thiele <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) {par = c(.02474, .3, .004, .5, 25, .0001, .13)}
-  names(par) <- letters[1:length(par)]
-  # Compute distribution functions
+  if (is.null(par)) { par = choose_Spar('thiele') }
   mu1 = with(as.list(par), a*exp(-b*x) )
-  mu2 = with(as.list(par), c*exp(-.5*d*(x-e)^2) )
+  mu2 = with(as.list(par), c*exp(-.5*d*(x - e)^2) )
   mu3 = with(as.list(par), f*exp(g*x) )
   hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   Hx = cumsum(hx)
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -192,12 +162,10 @@ thiele <- function(x, par = NULL){
 #' @keywords internal
 #' 
 wittstein <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) {par = c(1.5, 1, .5, 100)}
-  names(par) <- c('a', 'm', 'n', 'M')
-  # Compute distribution functions
-  hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M-x)^n) )
+  if (is.null(par)) { par = choose_Spar('wittstein') }
+  hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M - x)^n) )
   Hx = cumsum(hx)
+  Sx <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -206,10 +174,7 @@ wittstein <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere1 <- function(x, par = NULL){
-  if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 10, 25, 7.692308, 49.82286)}
-  names(par) <- c('p1', 'sigma1', 'm1',
-                  'p2', 'sigma2', 'm2', 
-                        'sigma3', 'm3')
+  if (is.null(par)) { par = choose_Spar('carriere1') }
   # Compute distribution functions
   S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
   S_iwei = invweibull(x, par[c('sigma1', 'm1')])$Sx
@@ -222,7 +187,6 @@ carriere1 <- function(x, par = NULL){
   Sx = f1*S_wei + f2*S_iwei + f3*S_gom
   Hx = -log(Sx)
   hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
-  #This one is not quite correct.
   return(as.list(environment()))
 }
 
@@ -231,10 +195,7 @@ carriere1 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere2 <- function(x, par = NULL){
-  if (is.null(par)) {par = c(0.01, 2, 1, 0.01, 7.69, 49.82, 7.69, 49.82)}
-  names(par) <- c('p1', 'sigma1', 'm1',
-                  'p2', 'sigma2', 'm2', 
-                        'sigma3', 'm3')
+  if (is.null(par)) { par = choose_Spar('carriere2') }
   # Compute distribution functions
   S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
   S_igom = invgompertz(x, par[c('sigma2', 'm2')])$Sx
@@ -247,7 +208,6 @@ carriere2 <- function(x, par = NULL){
   Sx = f1*S_wei + f2*S_igom + f3*S_gom
   Hx = -log(Sx)
   hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
-  #This one is not quite correct.
   return(as.list(environment()))
 }
 
@@ -256,51 +216,83 @@ carriere2 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 siler <- function(x, par = NULL){
-  # default parameters
-  if (is.null(par)) { par = c(.0002, .13, .001, .001, .013) }
-  names(par) <- letters[1:length(par)]
-  # compute hazard
+  if (is.null(par)) { par = choose_Spar('siler') }
   hx = with(as.list(par), a*exp(-b*x) + c + d*exp(e*x))
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
 
 
+# Thu Mar  9 14:53:14 2017 ------------------------------
 
-
-
-# ======================================================================
-#' Integarte hazard funcion
+#' Integarte hazard function
 #' @keywords internal
 #' 
-int_hazard <- function(x, par, ux){
+iHazard <- function(x, law, par, fun){
+  x = x + 1e-15
   Hx <- NULL
-  for(j in 1:length(x)){
-    Hx[j] <- integrate(ux, x[1], x[j], par = par)$value
+  for (j in 1:length(x)) {
+    Hx[j] <- integrate(f = fun, par = par, 
+                       subdivisions = 220L, law = law,
+                       lower = x[1], upper = x[j])$value
   }
   return(Hx)
 }
 
-int_hazard2 <- function(x, hx){
-  mult   = 10
-  lhx    = log(hx)
-  hx_num = spline(x, lhx, n = mult*length(x))
-  x2     = hx_num$x 
-  hxfun  = splinefun(x2, exp(hx_num$y))
-  Hx <- NULL
-  for(j in 1:length(x2)){
-    Hx[j] <- integrate(hxfun, x2[1], x2[j])$value
-  }
-  Hx = Hx[seq(1, length(x2), by = mult)+9]
-  return(Hx)
+
+#' Select start parameters
+#' @keywords internal
+#' 
+choose_Spar <-  function(law){
+  switch(law,
+         demoivre    = c(a = 100),
+         gompertz0   = c(a = 0.0002, b = 0.13),
+         gompertz    = c(sigma = 7.692308, m = 49.82286),
+         invgompertz = c(sigma = 7.692308, m = 49.82286),
+         makeham0    = c(a = .0002, b = .13, c = .001),
+         makeham     = c(sigma = 7.692308, m = 49.82286, c = 0.001),
+         opperman    = c(a = 0.004, b = -0.0004, c = 0.001),
+         thiele      = c(a = .02474, b = .3, c = .004, d = .5, 
+                         e = 25, f = .0001, g = .13),
+         wittstein   = c(a = 1.5, m = 1, n = .5, M = 100),
+         weibull     = c(sigma = 2, m = 1),
+         invweibull  = c(sigma = 10, m = 25),
+         HP          = c(a = .0005, b = .004, c = .08, d = .001, 
+                         e = 10, f = 17, g = .00005, h = 1.1),
+         siler       = c(a = .0002, b = .13, c = .001, 
+                         d = .001, e = .013),
+         kannisto    = c(a = 0.5, b = 0.13),
+         carriere1   = c(p1 = 0.01, sigma1 = 2, m1 = 1, 
+                         p2 = 0.01, sigma2 = 10, m2 = 25, 
+                         sigma3 = 7.69, m3 = 49.82),
+         carriere2   = c(p1 = 0.01, sigma1 = 2, m1 = 1, 
+                         p2 = 0.01, sigma2 = 7.69, m2 = 49.82, 
+                         sigma3 = 7.69, m3 = 49.82)
+  )
 }
 
-# Compute distribution functions
-# ux = function(x, par){ (1/par[1]) * exp( (x-par[2])/par[1] ) }
-# hx <- ux(x, par)
-# Hx <- int_hazard(x, par, ux)
-# Hx <- int_hazard2(x, hx)
-
-
-
+#' Select info
+#' @keywords internal
+#' 
+choose_law_info <-  function(law){
+  info = switch(law,
+                demoivre    = 'DeMoivre (1725): h(x) = 1/(a-x)',
+                gompertz0   = 'Gompertz (1825): h(x) = a*exp(b*x)',
+                gompertz    = 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]',
+                invgompertz = 'Inverse-Gompertz: h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
+                makeham0    = 'Makeham (1860): h(x) = a*exp(b*x) + c',
+                makeham     = 'Makeham (1860): h(x) = 1/sigma * exp[(x-m)/sigma)] + c',
+                opperman    = 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)',
+                thiele      = 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
+                wittstein   = 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
+                weibull     = 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)',
+                invweibull  = 'Inverse-Weibull: h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
+                HP          = 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
+                siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
+                kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
+                carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
+                carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
+  )
+  return(info)
+}
 

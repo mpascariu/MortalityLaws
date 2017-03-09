@@ -17,11 +17,9 @@ NULL
 NULL
 #' @import RCurl
 NULL
-#' @importFrom utils read.table flush.console
+#' @importFrom utils read.table flush.console head tail
 NULL
 #' @importFrom stats fitted coef optim quantile integrate spline splinefun
 NULL
 #' @importFrom pbapply startpb closepb setpb
-NULL
-#' @importFrom psych headTail
 NULL

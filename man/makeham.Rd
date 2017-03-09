@@ -10,4 +10,3 @@ makeham(x, par = NULL)
 Makeham mortality law - informative parametrization
 }
 \keyword{internal}
-

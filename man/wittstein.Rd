@@ -10,4 +10,3 @@ wittstein(x, par = NULL)
 Wittstein mortality law
 }
 \keyword{internal}
-

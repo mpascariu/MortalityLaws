@@ -10,4 +10,3 @@ makeham0(x, par = NULL)
 Makeham mortality law
 }
 \keyword{internal}
-

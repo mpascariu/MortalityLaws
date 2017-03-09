@@ -27,4 +27,3 @@ Download the actual data free of charge from \url{http://www.mortality.org}.
 \code{\link{ReadHMD}}
 }
 \keyword{datasets}
-

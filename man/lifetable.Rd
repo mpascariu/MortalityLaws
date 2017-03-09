@@ -49,4 +49,3 @@ Nx <- F_Nx[, paste(year)]
 lifetable(x = ages, mx = mx)$lt
 lifetable(x = ages, Dx = Dx, Ex = Nx)$lt
 }
-

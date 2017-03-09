@@ -58,4 +58,3 @@ ls(model1)
 summary(model1)
 plot(model1)
 }
-

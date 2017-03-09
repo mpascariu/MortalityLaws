@@ -10,4 +10,3 @@ thiele(x, par = NULL)
 Thiele mortality law
 }
 \keyword{internal}
-

@@ -18,4 +18,3 @@ m > 0 is a measure of location
 sigma > 0 is measure of dispersion
 }
 \keyword{internal}
-

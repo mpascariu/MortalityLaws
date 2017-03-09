@@ -10,4 +10,3 @@ choose_optim(input)
 Select an optimizing method
 }
 \keyword{internal}
-

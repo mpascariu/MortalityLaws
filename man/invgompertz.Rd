@@ -14,4 +14,3 @@ m - is a measure of location because it is the mode of the density, m > 0
 sigma - represents the dispersion of the density about the mode, sigma > 0
 }
 \keyword{internal}
-

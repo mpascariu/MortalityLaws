@@ -4,10 +4,9 @@
 \alias{choose_law}
 \title{Call a mortality law (model)}
 \usage{
-choose_law(law, x, par = NULL)
+choose_law(x, law, par = NULL)
 }
 \description{
 Call a mortality law (model)
 }
 \keyword{internal}
-

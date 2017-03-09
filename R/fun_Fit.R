@@ -42,7 +42,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
                          law, how = 'poissonL', parS = NULL, 
                          fit.this.x = x, ...){
   # Check input
-  if (is.null(parS)) { parS = choose_law(law, x)$par }
+  if (is.null(parS)) { parS = choose_Spar(law) }
   input <- c(as.list(environment()))
   check_input(input)
   # Find optim coefficients
@@ -53,61 +53,65 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   logLikelihood <- opt_$logLikelihood
   # Fit mortality law
   mli  <- choose_law_info(law)
-  mlaw <- choose_law(law, x, par = coef)
-  fit  <- mlaw$distribution$hx
-  # Compute residuals
+  mlaw <- choose_law(x, law, par = coef)
+  m.dist <- mort.distrib(x, law, par = coef)
+  # Fitted values and residuals
   if (!is.null(Dx)) { mx = Dx/Ex }
-  resid <- mx - fit
+  fit   = mlaw$hx
+  resid = mx - fit
   # Prepare, arrange, customize output
   output <- list(input = input, coefficients = coef, AIC = AIC, BIC = BIC,
                  logLikelihood = logLikelihood, fitted.values = fit, 
-                 residuals = resid, distribution = mlaw$distribution, 
-                 model_info = mli, fn_opt = opt_$fn_opt, process_date = date())
+                 residuals = resid, numerical.approx = m.dist,
+                 model.info = mli, optimization.object = opt_$fn_opt, 
+                 process.date = date())
   output$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)
 }
 
 # -------------------------------------------------------------
-#' Call a mortality law (model)
 #' @keywords internal
 #' 
-choose_law <- function(law, x, par = NULL){
+mort.distrib <- function(x, law, par) {
+  x_ <- compute_x(x, law)$x_
+  x_full <- compute_x(x, law)$x_full
+  hxfun <- function(law, x, par) eval(call(law, x, par))$hx
+  
+  hx_ = hxfun(law, x_full, par)
+  Hx_ = iHazard(x = x_full, law, par, fun = hxfun)
+  Sx0 = exp(-Hx_)
+  fx_ = (hx_ * Sx0) / sum(hx_ * Sx0)  # making sure that PDF sum up to 1.
+  Sx_ = fx_ / hx_
+  Fx_ = 1 - Sx_
+  out <- data.frame(x = 0:110, x_fit = x_full, 
+                   hx = hx_, Hx = Hx_, fx = fx_, 
+                   Fx = Fx_, Sx = Sx_)
+  return(out)
+}
+
+#' @keywords internal
+#' 
+compute_x <- function(x, law){
   # Order and scale the x vector
   x <- unique(x[order(x)])
   x_ <- x - min(x)
   law1 = c('weibull', 'invweibull', 'opperman', 'carriere1', 'carriere2')
   if (law %in% law1 & min(x) == 0) x_ = x_ + 1
-  # Mortality law
-  mlaw <- switch(law,
-                 demoivre  = demoivre(x_, par),
-                 gompertz0 = gompertz0(x_, par),
-                 gompertz  = gompertz(x_, par),
-                 invgompertz = invgompertz(x_, par),
-                 makeham0  = makeham0(x_, par),
-                 makeham   = makeham(x_, par),
-                 weibull   = weibull(x_, par),
-                 invweibull = invweibull(x_, par),
-                 kannisto   = kannisto(x_, par),
-                 opperman   = opperman(x_, par),
-                 HP = heligman_pollard(x_, par),
-                 thiele    = thiele(x_, par),
-                 wittstein = wittstein(x_, par),
-                 siler     = siler(x_, par),
-                 carriere1 = carriere1(x_, par),
-                 carriere2 = carriere2(x_, par)
-  )
+  x_full <- (min(x_ - x)):(max(x_) + 110 - max(x))
+  return(as.list(environment()))
+}
+
+# -------------------------------------------------------------
+#' Call a mortality law (model)
+#' @keywords internal
+#' 
+choose_law <- function(x, law, par = NULL){
+  x_ <- compute_x(x, law)$x_
+  mlaw <- eval(call(law, x_, par)) # Mortality law
+  par <- mlaw$par
   hx <- mlaw$hx
-  Hx <- mlaw$Hx
-  Sx <- exp(-Hx)
-  fx <- hx * Sx
-  Fx <- 1 - Sx
-  if (min(x) != 0) {Hx[1] = Fx[1] = Sx[1] = NA}
-  foo <- data.frame(x, x_fit = x_, hx, Hx, fx, Fx, Sx)
-  # Output
-  out <- list(model_info = mlaw$model_info, 
-              par = mlaw$par, distribution = foo)
-  return(out)
+  return(as.list(environment()))
 }
 
 #' Function to be optimize
@@ -117,9 +121,9 @@ objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL,
                           law, fun = 'poissonL'){
   #parameters
   par_ <- exp(par)
-  if(law %in% c('demoivre', 'opperman')) par_ = par
+  if (law %in% c('demoivre', 'opperman')) par_ = par
   # compute input
-  mu <- choose_law(law, x, par_)$distribution$hx
+  mu <- choose_law(x, law, par_)$hx
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
   # compute likelihoods or loss functions
@@ -151,9 +155,9 @@ choose_optim <- function(input){
     Dx = Dx[select.x]
     Ex = Ex[select.x]
     # Optimize 
-    if(law %in% c('gompertz', 'gompertz0', 'invgompertz',
+    if (law %in% c('gompertz', 'gompertz0', 'invgompertz',
                   'weibull', 'invweibull', 'carriere1', 'carriere2',
-                  'makeham', 'makeham0', 'kannisto', 'siler')){
+                  'makeham', 'makeham0', 'kannisto', 'siler')) {
       opt <- optim(par = log(parS), fn = objective_fun, 
                    law = law, fun = how,
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 
@@ -161,22 +165,22 @@ choose_optim <- function(input){
       coef <- exp(opt$par)
       opt$fnvalue <- opt$value
     }
-    if(law %in% c('opperman')){
+    if (law %in% c('opperman')) {
       opt <- optim(par = parS, fn = objective_fun, 
                    law = law, fun = how,
-                   x = x+1, mx = mx, Dx = Dx, Ex = Ex, 
+                   x = x + 1, mx = mx, Dx = Dx, Ex = Ex, 
                    method = 'Nelder-Mead', gr = NULL)
       coef <- opt$par
       opt$fnvalue <- opt$value
     }
-    if(law %in% c('demoivre')){
+    if (law %in% c('demoivre')) {
       opt <- optimize(f = objective_fun, law = law, fun = how,
                       x = x, mx = mx, Dx = Dx, Ex = Ex,
                       lower = 20, upper = 150, maximum = FALSE)
       coef <- opt$minimum
       opt$fnvalue <- opt$objective
     }
-    if(law %in% c('HP')){
+    if (law %in% c('HP')) {
       opt <- nlminb(start = log(parS), objective = objective_fun,
                     law = law, fun = how,
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
@@ -184,7 +188,7 @@ choose_optim <- function(input){
       coef <- exp(opt$par)
       opt$fnvalue <- opt$objective
     }
-    if(law %in% c('thiele', 'wittstein')){
+    if (law %in% c('thiele', 'wittstein')) {
       opt <- nls.lm(par = log(parS), fn = objective_fun,
                     law = law, fun = how,
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
@@ -197,7 +201,7 @@ choose_optim <- function(input){
     AIC  <- 2*length(parS) - 2*llik
     BIC  <- log(length(x)) * length(parS) - 2*llik
     
-    if(!(how %in% c('poissonL', 'binomialL'))){ 
+    if (!(how %in% c('poissonL', 'binomialL'))) { 
       llik = NA 
       AIC  = NA
       BIC  = NA
@@ -209,27 +213,4 @@ choose_optim <- function(input){
   })
 }
 
-#' Select info
-#' @keywords internal
-#' 
-choose_law_info <-  function(law){
-  info = switch (law,
-                 demoivre    = 'DeMoivre (1725): h(x) = 1/(a-x)',
-                 gompertz0   = 'Gompertz (1825): h(x) = a*exp(b*x)',
-                 gompertz    = 'Gompertz (1825): h(x) = 1/sigma * exp[(x-m)/sigma)]',
-                 invgompertz = 'Inverse-Gompertz: h(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
-                 makeham0    = 'Makeham (1860): h(x) = a*exp(b*x) + c',
-                 makeham     = 'Makeham (1860): h(x) = 1/sigma * exp[(x-m)/sigma)] + c',
-                 opperman    = 'Opperman (1870): h(x) = a*x^(-1/2) + b + c*x^(1/3)',
-                 thiele      = 'Thiele (1871): h(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
-                 wittstein   = 'Wittstein (1883): h(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
-                 weibull     = 'Weibull (1939): h(x) = 1/sigma * (x/m)^(m/sigma - 1)',
-                 invweibull  = 'Inverse-Weibull: h(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
-                 HP          = 'Heligman-Pollard (1980): q(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
-                 siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
-                 kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
-                 carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
-                 carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
-                 )
-  return(info)
-}
+

@@ -10,4 +10,3 @@ gompertz(x, par = NULL)
 Gompertz mortality law - informative parametrization
 }
 \keyword{internal}
-

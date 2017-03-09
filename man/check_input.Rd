@@ -10,4 +10,3 @@ check_input(input)
 Function to check input data in MortalityLaw
 }
 \keyword{internal}
-

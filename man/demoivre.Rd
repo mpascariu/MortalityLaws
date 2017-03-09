@@ -10,4 +10,3 @@ demoivre(x, par = NULL)
 DeMoivre mortality law
 }
 \keyword{internal}
-
