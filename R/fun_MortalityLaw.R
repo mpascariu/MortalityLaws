@@ -85,9 +85,10 @@ weibull <- function(x, par = NULL){
 #' 
 invweibull <- function(x, par = NULL){
   if (is.null(par)) { par = choose_Spar('invweibull') }
-  hx = with(as.list(par), 1/sigma * (x/m)^(-m/sigma - 1) / 
-                          (exp((x/m)^(-m/sigma)) - 1) )
-  Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
+  hx <- with(as.list(par), 
+            (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
+  Hx <- with(as.list(par), 
+             -log(1 - exp(-(x/m)^(-m/sigma))) )
   Sx <- exp(-Hx)
   return(as.list(environment()))
 }
@@ -115,13 +116,14 @@ demoivre <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-
 #' Opperman mortality law
 #' @keywords internal
 #' 
 opperman <- function(x, par = NULL){
   if (is.null(par)) { par = choose_Spar('oppperman') }
-  hx = with(as.list(par), a/sqrt(x) + b + c*(x^(1/3)) )
+  x = x + 1
+  hx = with(as.list(par), a/sqrt(x) - b + c*(x^(1/3)) )
+  hx = pmax(0, hx)
   Hx = cumsum(hx)
   Sx <- exp(-Hx)
   return(as.list(environment()))
@@ -150,7 +152,7 @@ thiele <- function(x, par = NULL){
   mu3 = with(as.list(par), f*exp(g*x) )
   hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   Hx = cumsum(hx)
-  Sx <- exp(-Hx)
+  Sx = exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -219,20 +221,6 @@ siler <- function(x, par = NULL){
 
 # Thu Mar  9 14:53:14 2017 ------------------------------
 
-#' Integarte hazard function
-#' @keywords internal
-#' 
-iHazard <- function(x, law, par, fun){
-  x = x + 1e-15
-  Hx <- NULL
-  for (j in 1:length(x)) {
-    Hx[j] <- integrate(f = fun, par = par, 
-                       subdivisions = 2*length(x), law = law,
-                       lower = x[1], upper = x[j])$value
-  }
-  return(Hx)
-}
-
 
 #' Select start parameters
 #' @keywords internal
@@ -245,19 +233,19 @@ choose_Spar <-  function(law){
          invgompertz = c(sigma = 7.692308, m = 49.82286),
          makeham0    = c(a = .0002, b = .13, c = .001),
          makeham     = c(sigma = 7.692308, m = 49.82286, c = 0.001),
-         opperman    = c(a = 0.004, b = -0.0004, c = 0.001),
+         opperman    = c(a = 0.04, b = 0.0004, c = 0.001),
          thiele      = c(a = .02474, b = .3, c = .004, d = .5, 
                          e = 25, f = .0001, g = .13),
          wittstein   = c(a = 1.5, m = 1, n = .5, M = 100),
          weibull     = c(sigma = 2, m = 1),
-         invweibull  = c(sigma = 10, m = 25),
+         invweibull  = c(sigma = 10, m = 5),
          HP          = c(a = .0005, b = .004, c = .08, d = .001, 
                          e = 10, f = 17, g = .00005, h = 1.1),
          siler       = c(a = .0002, b = .13, c = .001, 
                          d = .001, e = .013),
          kannisto    = c(a = 0.5, b = 0.13),
          carriere1   = c(p1 = 0.01, sigma1 = 2, m1 = 1, 
-                         p2 = 0.01, sigma2 = 10, m2 = 25, 
+                         p2 = 0.01, sigma2 = 10, m2 = 5, 
                          sigma3 = 7.69, m3 = 49.82),
          carriere2   = c(p1 = 0.01, sigma1 = 2, m1 = 1, 
                          p2 = 0.01, sigma2 = 7.69, m2 = 49.82, 

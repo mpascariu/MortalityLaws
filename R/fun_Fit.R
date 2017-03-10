@@ -85,7 +85,7 @@ mort.distrib <- function(x, law, par) {
   hxfun <- function(law, x, par) {
     hx <- eval(call(law, x, par))$hx
     hx[is.infinite(hx)] <- max(hx[!is.infinite(hx)]) # eliminare Inf
-    # hx[hx != cummax(hx)] <- max(hx) # make vector monotonically increasing
+    hx[is.na(hx)] <- 0 # eliminate NaN to avoid error in intergation in iHazard
     return(hx)
   }
   
@@ -95,20 +95,42 @@ mort.distrib <- function(x, law, par) {
   fx_ = (hx_ * Sx0) / sum(hx_ * Sx0)  # making sure that PDF sum up to 1.
   Sx_ = fx_ / hx_
   Fx_ = 1 - Sx_
+  
+  Hx_[Hx_ == 0] <- NaN # remove artificial zero to avoid weird plots
+  fx_[fx_ == 0] <- NaN
+  Sx_[Sx_ == 0] <- NaN
+  Fx_[Fx_ == 0] <- NaN
+  hx_[hx_ == 0] <- NaN
   out <- data.frame(x = 0:110, x_fit = x_full, 
                    hx = hx_, Hx = Hx_, fx = fx_, 
                    Fx = Fx_, Sx = Sx_)
   return(out)
 }
 
+#' Integarte hazard function
+#' @keywords internal
+#' 
+iHazard <- function(x, law, par, fun){
+  x = x + 1e-15
+  Hx <- NULL
+  for (j in 1:length(x)) {
+    Hx[j] <- integrate(f = fun, par = par, 
+                       subdivisions = 2*length(x), law = law,
+                       lower = x[1], upper = x[j])$value
+  }
+  return(Hx)
+}
+
 #' @keywords internal
 #' 
 compute_x <- function(x, law){
+  law1 = c('weibull', 'invweibull', 'carriere1', 'carriere2')
+  law2 = c('thiele', 'HP', 'wittstein', 'siler')
   # Order and scale the x vector
   x <- unique(x[order(x)])
   x_ <- x - min(x)
-  law1 = c('weibull', 'invweibull', 'opperman', 'carriere1', 'carriere2')
-  if (law %in% law1 & min(x) == 0) x_ = x_ + 1
+  if (law %in% law1 & min(x) == 0) x_ = x - min(x) + 1
+  if (law %in% law2) x_ = x
   x_full <- (min(x_ - x)):(max(x_) + 110 - max(x))
   return(as.list(environment()))
 }
@@ -132,8 +154,8 @@ choose_law <- function(x, law, par = NULL){
 objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
                           law, fun = 'poissonL'){
   #parameters
-  par_ <- exp(par)
-  if (law %in% c('demoivre', 'opperman')) par_ = par
+  par_ = exp(par)
+  if (law %in% c('demoivre')) par_ = par
   # compute input
   mu <- choose_law(x, law, par_)$hx
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
@@ -167,7 +189,7 @@ choose_optim <- function(input){
     Dx = Dx[select.x]
     Ex = Ex[select.x]
     # Optimize 
-    if (law %in% c('gompertz', 'gompertz0', 'invgompertz',
+    if (law %in% c('gompertz', 'gompertz0', 'invgompertz', 'opperman',
                   'weibull', 'invweibull', 'carriere1', 'carriere2',
                   'makeham', 'makeham0', 'kannisto', 'siler')) {
       opt <- optim(par = log(parS), fn = objective_fun, 
@@ -175,14 +197,6 @@ choose_optim <- function(input){
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 
                    method = 'Nelder-Mead')
       coef <- exp(opt$par)
-      opt$fnvalue <- opt$value
-    }
-    if (law %in% c('opperman')) {
-      opt <- optim(par = parS, fn = objective_fun, 
-                   law = law, fun = how,
-                   x = x + 1, mx = mx, Dx = Dx, Ex = Ex, 
-                   method = 'Nelder-Mead', gr = NULL)
-      coef <- opt$par
       opt$fnvalue <- opt$value
     }
     if (law %in% c('demoivre')) {

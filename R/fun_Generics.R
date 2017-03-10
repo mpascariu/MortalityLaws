@@ -39,8 +39,7 @@ plot.MortalityLaw <- function(x, ...){
   
   # ----- Plot 1 -----
   par(mar = c(5, 5, 4, 1), cex.lab = 1.8, cex.axis = 1.5)
-  y = if (is.null(x$input$mx)) { x$input$Dx/x$input$Ex 
-  }else{x$input$mx }
+  y = if (is.null(x$input$mx)) x$input$Dx/x$input$Ex else x$input$mx 
   fit_y = x$fitted.values
   pos_x <- quantile(age,  p = seq(0, 1, by = 0.25), type = 1)
   pos_y <- round(quantile(log(y),  p = seq(0, 1, by = 0.25), type = 1), 1)
