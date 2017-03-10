@@ -17,21 +17,27 @@ check_input <- function(input){
         
         models <- c('gompertz', 'gompertz0', 'invgompertz',
                     'weibull', 'invweibull', 'carriere1', 'carriere2',
-                    'makeham', 'makeham0', 'kannisto', 'demoivre', 
+                    'makeham', 'makeham0', 'kannisto', #'demoivre', 
                     'opperman', 'HP', 'thiele', 'wittstein', 'siler')
         if ( !(law %in% models)) {
-          cat('Error: mortality law not available.\n')
-          cat('Check one of the following models: \n', models, sep = ' | ')
-          stop()
+          m1 <- 'Mortality law not available\n'
+          m2 <- 'Check one of the following models:\n'
+          err1 <- paste(m1, m2, paste(models, collapse = ', '))
+          stop(err1, call. = FALSE)
         }
         
         function_to_optimize <- c('poissonL', 'binomialL', 
                                   'LF1', 'LF2', 'LF3', 'LF4', 'LF5', 'LF6')
         if (!(how %in% function_to_optimize)) {
-          cat('Error: Choose a different function to optimize.\n')
-          cat('Check one of the following options: \n', 
-              function_to_optimize, sep = ' | ')
-          stop()
+          m1 <- 'Choose a different objective function to optimize\n'
+          m2 <- 'Check one of the following options:\n'
+          err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))
+          stop(err2, call. = FALSE)
         }
   })
 }
+
+
+
+
+
