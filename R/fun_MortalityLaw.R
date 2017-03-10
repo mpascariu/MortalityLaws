@@ -92,7 +92,6 @@ invweibull <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-
 #' Kannisto mortality law
 #' @keywords internal
 #' 
@@ -104,16 +103,15 @@ kannisto <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-
 #' DeMoivre mortality law
 #' @keywords internal
 #' 
 demoivre <- function(x, par = NULL){
   if (is.null(par)) { par = choose_Spar('demoivre') }
   vsmall = 1e-10 # very small number
-  hx <- 1/(par - x) + vsmall
+  hx <- pmax(1/(par - x) + vsmall, 0)
   Hx <- cumsum(hx)
-  Sx <- exp(-Hx)
+  Sx <- pmax(1 - x/par, 0)
   return(as.list(environment()))
 }
 
@@ -142,7 +140,6 @@ HP <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-
 #' Thiele mortality law
 #' @keywords internal
 #' 
@@ -156,7 +153,6 @@ thiele <- function(x, par = NULL){
   Sx <- exp(-Hx)
   return(as.list(environment()))
 }
-
 
 #' Wittstein mortality law
 #' @keywords internal
@@ -211,7 +207,6 @@ carriere2 <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-
 #' Siler mortality law
 #' @keywords internal
 #' 
@@ -221,7 +216,6 @@ siler <- function(x, par = NULL){
   Hx = cumsum(hx)
   return(as.list(environment()))
 }
-
 
 # Thu Mar  9 14:53:14 2017 ------------------------------
 
@@ -233,7 +227,7 @@ iHazard <- function(x, law, par, fun){
   Hx <- NULL
   for (j in 1:length(x)) {
     Hx[j] <- integrate(f = fun, par = par, 
-                       subdivisions = 220L, law = law,
+                       subdivisions = 2*length(x), law = law,
                        lower = x[1], upper = x[j])$value
   }
   return(Hx)
@@ -245,7 +239,7 @@ iHazard <- function(x, law, par, fun){
 #' 
 choose_Spar <-  function(law){
   switch(law,
-         demoivre    = c(a = 100),
+         demoivre    = c(a = 105),
          gompertz0   = c(a = 0.0002, b = 0.13),
          gompertz    = c(sigma = 7.692308, m = 49.82286),
          invgompertz = c(sigma = 7.692308, m = 49.82286),

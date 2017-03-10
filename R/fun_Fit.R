@@ -41,20 +41,25 @@
 MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
                          law, how = 'poissonL', parS = NULL, 
                          fit.this.x = x, ...){
-  # Check input
+  # Check input & set clock
   if (is.null(parS)) { parS = choose_Spar(law) }
   input <- c(as.list(environment()))
+  pb <- startpb(0, 4) # Start the clock!
+  on.exit(closepb(pb)) # Stop clock on exit.
   check_input(input)
+  setpb(pb, 1)
   # Find optim coefficients
   opt_ <- choose_optim(input)
   coef <- opt_$coef
   AIC  <- opt_$AIC
   BIC  <- opt_$BIC
   logLikelihood <- opt_$logLikelihood
+  setpb(pb, 2)
   # Fit mortality law
   mli  <- choose_law_info(law)
   mlaw <- choose_law(x, law, par = coef)
   m.dist <- mort.distrib(x, law, par = coef)
+  setpb(pb, 3)
   # Fitted values and residuals
   if (!is.null(Dx)) { mx = Dx/Ex }
   fit   = mlaw$hx
@@ -67,6 +72,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
                  process.date = date())
   output$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
+  setpb(pb, 4)
   return(out)
 }
 
@@ -76,7 +82,12 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
 mort.distrib <- function(x, law, par) {
   x_ <- compute_x(x, law)$x_
   x_full <- compute_x(x, law)$x_full
-  hxfun <- function(law, x, par) eval(call(law, x, par))$hx
+  hxfun <- function(law, x, par) {
+    hx <- eval(call(law, x, par))$hx
+    hx[is.infinite(hx)] <- max(hx[!is.infinite(hx)]) # eliminare Inf
+    # hx[hx != cummax(hx)] <- max(hx) # make vector monotonically increasing
+    return(hx)
+  }
   
   hx_ = hxfun(law, x_full, par)
   Hx_ = iHazard(x = x_full, law, par, fun = hxfun)
@@ -108,6 +119,7 @@ compute_x <- function(x, law){
 #' 
 choose_law <- function(x, law, par = NULL){
   x_ <- compute_x(x, law)$x_
+  if (law == 'demoivre') x_ = x
   mlaw <- eval(call(law, x_, par)) # Mortality law
   par <- mlaw$par
   hx <- mlaw$hx
@@ -174,11 +186,13 @@ choose_optim <- function(input){
       opt$fnvalue <- opt$value
     }
     if (law %in% c('demoivre')) {
-      opt <- optimize(f = objective_fun, law = law, fun = how,
-                      x = x, mx = mx, Dx = Dx, Ex = Ex,
-                      lower = 20, upper = 150, maximum = FALSE)
-      coef <- opt$minimum
-      opt$fnvalue <- opt$objective
+      # opt <- optimize(f = objective_fun, law = law, fun = how,
+      #                 x = x, mx = mx, Dx = Dx, Ex = Ex,
+      #                 lower = 20, upper = 150, maximum = FALSE)
+      opt <- list()
+      coef <- max(max(x + 1), 95)
+      opt$fnvalue <- objective_fun(x = x, mx = mx, Dx = Dx, Ex = Ex, 
+                                   par = coef, law = law, fun = how)
     }
     if (law %in% c('HP')) {
       opt <- nlminb(start = log(parS), objective = objective_fun,
