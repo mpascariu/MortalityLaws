@@ -48,6 +48,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   on.exit(closepb(pb)) # Stop clock on exit.
   check_input(input)
   setpb(pb, 1)
+  
   # Find optim coefficients
   opt_ <- choose_optim(input)
   coef <- opt_$coef
@@ -55,11 +56,13 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   BIC  <- opt_$BIC
   logLikelihood <- opt_$logLikelihood
   setpb(pb, 2)
+  
   # Fit mortality law
   mli  <- choose_law_info(law)
   mlaw <- choose_law(x, law, par = coef)
   m.dist <- mort.distrib(x, law, par = coef)
   setpb(pb, 3)
+  
   # Fitted values and residuals
   if (!is.null(Dx)) { mx = Dx/Ex }
   fit   = mlaw$hx
@@ -79,9 +82,9 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
 # -------------------------------------------------------------
 #' @keywords internal
 #' 
-mort.distrib <- function(x, law, par) {
-  x_ <- compute_x(x, law)$x_
-  x_full <- compute_x(x, law)$x_full
+mort.distrib <- function(x, law, par, ...) {
+  x_ <- compute_x(x, law, ...)$x_
+  x_full <- compute_x(x, law, ...)$x_full
   hxfun <- function(law, x, par) {
     hx <- eval(call(law, x, par))$hx
     hx[is.infinite(hx)] <- max(hx[!is.infinite(hx)]) # eliminare Inf
@@ -91,15 +94,15 @@ mort.distrib <- function(x, law, par) {
   
   hx_ = hxfun(law, x_full, par)
   Hx_ = iHazard(x = x_full, law, par, fun = hxfun)
-  Sx0 = exp(-Hx_)
-  fx_ = (hx_ * Sx0) / sum(hx_ * Sx0)  # making sure that PDF sum up to 1.
-  Sx_ = fx_ / hx_
+  Sx_ = exp(-Hx_)
+  fx_ = hx_ * Sx_
+  if (sum(fx_ > 1)) fx_ = fx_ / sum(fx_)
   Fx_ = 1 - Sx_
   
   Hx_[Hx_ == 0] <- NaN # remove artificial zero to avoid weird plots
   fx_[fx_ == 0] <- NaN
   Sx_[Sx_ == 0] <- NaN
-  Fx_[Fx_ == 0] <- NaN
+  Fx_[Fx_ == 0 & Sx_ != 1] <- NaN
   hx_[hx_ == 0] <- NaN
   out <- data.frame(x = 0:110, x_fit = x_full, 
                    hx = hx_, Hx = Hx_, fx = fx_, 
@@ -114,24 +117,24 @@ iHazard <- function(x, law, par, fun){
   x = x + 1e-15
   Hx <- NULL
   for (j in 1:length(x)) {
-    Hx[j] <- integrate(f = fun, par = par, 
-                       subdivisions = 2*length(x), law = law,
-                       lower = x[1], upper = x[j])$value
+    Hx[j] <- integrate(f = fun, par = par, subdivisions = 111L, 
+                       law = law, lower = x[1], upper = x[j])$value
   }
   return(Hx)
 }
 
 #' @keywords internal
 #' 
-compute_x <- function(x, law){
-  law1 = c('weibull', 'invweibull', 'carriere1', 'carriere2')
-  law2 = c('thiele', 'HP', 'wittstein', 'siler')
+compute_x <- function(x, law, max_x = 110, ...){
+  infant.mort.laws = c('weibull', 'invweibull', 'opperman')
+  full.mort.laws = c('thiele', 'HP', 'wittstein', 'siler', 
+                     'carriere1', 'carriere2')
   # Order and scale the x vector
   x <- unique(x[order(x)])
-  x_ <- x - min(x)
-  if (law %in% law1 & min(x) == 0) x_ = x - min(x) + 1
-  if (law %in% law2) x_ = x
-  x_full <- (min(x_ - x)):(max(x_) + 110 - max(x))
+  x_ <- x - min(x) + 1
+  if (law %in% infant.mort.laws) x_ = x + 1
+  if (law %in% full.mort.laws) x_ = x + 1
+  x_full <- (min(x_ - x)):(max(x_) + max_x - max(x))
   return(as.list(environment()))
 }
 
@@ -140,12 +143,8 @@ compute_x <- function(x, law){
 #' @keywords internal
 #' 
 choose_law <- function(x, law, par = NULL){
-  x_ <- compute_x(x, law)$x_
-  if (law == 'demoivre') x_ = x
-  mlaw <- eval(call(law, x_, par)) # Mortality law
-  par <- mlaw$par
-  hx <- mlaw$hx
-  return(as.list(environment()))
+  x_   <- compute_x(x, law)$x_
+  eval(call(law, x_, par)) # Mortality law
 }
 
 #' Function to be optimize
@@ -153,10 +152,7 @@ choose_law <- function(x, law, par = NULL){
 #' 
 objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
                           law, fun = 'poissonL'){
-  #parameters
   par_ = exp(par)
-  if (law %in% c('demoivre')) par_ = par
-  # compute input
   mu <- choose_law(x, law, par_)$hx
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
@@ -198,15 +194,6 @@ choose_optim <- function(input){
                    method = 'Nelder-Mead')
       coef <- exp(opt$par)
       opt$fnvalue <- opt$value
-    }
-    if (law %in% c('demoivre')) {
-      # opt <- optimize(f = objective_fun, law = law, fun = how,
-      #                 x = x, mx = mx, Dx = Dx, Ex = Ex,
-      #                 lower = 20, upper = 150, maximum = FALSE)
-      opt <- list()
-      coef <- max(max(x + 1), 95)
-      opt$fnvalue <- objective_fun(x = x, mx = mx, Dx = Dx, Ex = Ex, 
-                                   par = coef, law = law, fun = how)
     }
     if (law %in% c('HP')) {
       opt <- nlminb(start = log(parS), objective = objective_fun,
