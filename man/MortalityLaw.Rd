@@ -48,10 +48,11 @@ Dx <- HMD.test.data$Dx[paste(ages), paste(yr)]
 Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
 mx <- HMD.test.data$mx[paste(ages), paste(yr)]
 
-model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
-model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
-model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
-model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
+x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
+model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')
+model2 <- MortalityLaw(x, mx = mx, law = 'makeham', how = 'LF1')
+model3 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
+model4 <- MortalityLaw(x, mx = mx, law = 'gompertz', how = 'binomialL')
  
 model1
 ls(model1)

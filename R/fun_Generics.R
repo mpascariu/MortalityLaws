@@ -5,25 +5,29 @@
 #' @export
 print.MortalityLaw <- function(x, ...) {
   cat('Model:\n')
-  cat(x$model.info, '\n')
+  cat(x$info$model.info, '\n')
   cat('\nCoefficients:\n')
-  print(round(x$coefficients, 5))
+  if (all(coef(x) < 1e-3)) {
+    coeff = x$coefficients } else {coeff = round(x$coefficients, 5)}
+  print(coeff)
 }
 
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
   cat('Model:\n')
-  cat(object$model.info, '\n')
+  cat(object$info$model.info, '\n')
   # cat('\nCall:\n')
   # print(object$call)
   cat('\nDeviance Residuals:\n')
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   cat('\nCoefficients:\n')
-  print(round(object$coefficients, 5))
-  cat('\nLog-Likelihood = ', round(object$logLikelihood, 2),
-      ' AIC = ', round(object$AIC, 2), 
-      ' BIC = ', round(object$BIC, 2))
+  if (all(coef(object) < 1e-3)) {
+    coeff = object$coefficients } else {coeff = round(object$coefficients, 5)}
+  print(coeff)
+  cat('\nLog-Likelihood = ', round(object$goodness.of.fit$logLikelihood, 2),
+      ' AIC = ', round(object$goodness.of.fit$AIC, 2), 
+      ' BIC = ', round(object$goodness.of.fit$BIC, 2))
 }
 
 #' @keywords internal

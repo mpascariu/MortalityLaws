@@ -27,10 +27,11 @@
 #' Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
 #' mx <- HMD.test.data$mx[paste(ages), paste(yr)]
 #' 
-#' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
-#' model2 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
-#' model3 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
-#' model4 <- MortalityLaw(x = ages, mx = mx, law = 'gompertz', how = 'binomialL')
+#' x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
+#' model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')
+#' model2 <- MortalityLaw(x, mx = mx, law = 'makeham', how = 'LF1')
+#' model3 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
+#' model4 <- MortalityLaw(x, mx = mx, law = 'gompertz', how = 'binomialL')
 #'  
 #' model1
 #' ls(model1)
@@ -48,32 +49,25 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   on.exit(closepb(pb)) # Stop clock on exit.
   check_input(input)
   setpb(pb, 1)
-  
   # Find optim coefficients
   opt_ <- choose_optim(input)
-  coef <- opt_$coef
-  AIC  <- opt_$AIC
-  BIC  <- opt_$BIC
-  logLikelihood <- opt_$logLikelihood
+  gof  <- list(AIC = opt_$AIC, BIC = opt_$BIC, 
+               logLikelihood = opt_$logLikelihood)
   setpb(pb, 2)
-  
   # Fit mortality law
-  mli  <- choose_law_info(law)
-  mlaw <- choose_law(x, law, par = coef)
-  m.dist <- mort.distrib(x, law, par = coef)
+  mlaw <- choose_law(x, law, par = opt_$coef)
+  # m.dist <- mort.distrib(x, law, par = opt_$coef)
   setpb(pb, 3)
-  
   # Fitted values and residuals
   if (!is.null(Dx)) { mx = Dx/Ex }
   fit   = mlaw$hx
   resid = mx - fit
   # Prepare, arrange, customize output
-  output <- list(input = input, coefficients = coef, AIC = AIC, BIC = BIC,
-                 logLikelihood = logLikelihood, fitted.values = fit, 
-                 residuals = resid, numerical.approx = m.dist,
-                 model.info = mli, optimization.object = opt_$fn_opt, 
-                 process.date = date())
-  output$call <- match.call()
+  info  <- list(model.info = choose_law_info(law), process.date = date())
+  output <- list(input = input, info = info, coefficients = opt_$coef,
+                 fitted.values = fit, residuals = resid,
+                 optimization.object = opt_$fn_opt, goodness.of.fit = gof)
+  output$info$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   setpb(pb, 4)
   return(out)
@@ -83,7 +77,6 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
 #' @keywords internal
 #' 
 mort.distrib <- function(x, law, par, ...) {
-  x_ <- compute_x(x, law, ...)$x_
   x_full <- compute_x(x, law, ...)$x_full
   hxfun <- function(law, x, par) {
     hx <- eval(call(law, x, par))$hx
@@ -126,14 +119,15 @@ iHazard <- function(x, law, par, fun){
 #' @keywords internal
 #' 
 compute_x <- function(x, law, max_x = 110, ...){
-  infant.mort.laws = c('weibull', 'invweibull', 'opperman')
-  full.mort.laws = c('thiele', 'HP', 'wittstein', 'siler', 
-                     'carriere1', 'carriere2')
+  # infant.mort.laws = c('weibull', 'invweibull', 'opperman')
+  # full.mort.laws = c('thiele', 'HP', 'wittstein', 'siler', 
+                     # 'carriere1', 'carriere2')
   # Order and scale the x vector
   x <- unique(x[order(x)])
-  x_ <- x - min(x) + 1
-  if (law %in% infant.mort.laws) x_ = x + 1
-  if (law %in% full.mort.laws) x_ = x + 1
+  # x_ <- x - min(x) + 1
+  x_ = x
+  # if (law %in% infant.mort.laws) x_ = x + 1
+  # if (law %in% full.mort.laws) x_ = x + 1
   x_full <- (min(x_ - x)):(max(x_) + max_x - max(x))
   return(as.list(environment()))
 }
