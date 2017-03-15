@@ -55,7 +55,8 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
                logLikelihood = opt_$logLikelihood)
   setpb(pb, 2)
   # Fit mortality law
-  mlaw <- choose_law(x, law, par = opt_$coef)
+  x_   <- compute_x(x, law)$x_
+  mlaw <- eval(call(law, x_, par = opt_$coef)) # Mortality law
   # m.dist <- mort.distrib(x, law, par = opt_$coef)
   setpb(pb, 3)
   # Fitted values and residuals
@@ -133,21 +134,13 @@ compute_x <- function(x, law, max_x = 110, ...){
 }
 
 # -------------------------------------------------------------
-#' Call a mortality law (model)
-#' @keywords internal
-#' 
-choose_law <- function(x, law, par = NULL){
-  x_   <- compute_x(x, law)$x_
-  eval(call(law, x_, par)) # Mortality law
-}
-
 #' Function to be optimize
 #' @keywords internal
 #' 
 objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
                           law, fun = 'poissonL'){
   par_ = exp(par)
-  mu <- choose_law(x, law, par_)$hx
+  mu <- eval(call(law, x, par_))$hx
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
   # compute likelihoods or loss functions
