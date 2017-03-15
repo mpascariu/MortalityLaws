@@ -5,7 +5,7 @@
 \title{Fit mortality law}
 \usage{
 MortalityLaw(x, mx = NULL, Dx = NULL, Ex = NULL, law, how = "poissonL",
-  parS = NULL, fit.this.x = x, ...)
+  parS = NULL, fit.this.x = x, custom.law = NULL, ...)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -30,6 +30,9 @@ and Least square errors \code{LSE}.}
 \item{fit.this.x}{select the ages to be cosidered in model fitting. By default 
 fit.this.x = x. One may want exculde from the fitting procedure say the 
 advance ages were the data is sparse.}
+
+\item{custom.law}{This argument allows you to fit a model that is not defined 
+in the package. Accepts as input a function.}
 
 \item{...}{Other argumnets}
 }
@@ -58,4 +61,19 @@ model1
 ls(model1)
 summary(model1)
 plot(model1)
+
+#---------------------------------------
+# Now let's fit a mortality law that is not defined in the package, say a
+# reparametrize Gompertz in terms of modal age at death
+# hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
+
+my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
+hx  <- with(as.list(par), b*exp(b*(x-m)) )
+return(as.list(environment())) # return everything inside this function
+}
+
+model5 <- MortalityLaw(x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+summary(model5)
+plot(model5)
+
 }

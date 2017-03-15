@@ -5,7 +5,7 @@
 \title{Function to be optimize}
 \usage{
 objective_fun(par, x, Dx = NULL, Ex = NULL, mx = NULL, law,
-  fun = "poissonL")
+  fun = "poissonL", custom.law)
 }
 \description{
 Function to be optimize

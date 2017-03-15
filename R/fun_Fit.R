@@ -16,6 +16,8 @@
 #' @param fit.this.x select the ages to be cosidered in model fitting. By default 
 #' fit.this.x = x. One may want exculde from the fitting procedure say the 
 #' advance ages were the data is sparse.
+#' @param custom.law This argument allows you to fit a model that is not defined 
+#' in the package. Accepts as input a function.
 #' @param ... Other argumnets
 #' @return A \code{MortalityLaw} object
 #' @examples 
@@ -37,12 +39,31 @@
 #' ls(model1)
 #' summary(model1)
 #' plot(model1)
+#' 
+#' #---------------------------------------
+#' # Now let's fit a mortality law that is not defined in the package, say a
+#' # reparametrize Gompertz in terms of modal age at death
+#' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
+#' 
+#' my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
+#' hx  <- with(as.list(par), b*exp(b*(x-m)) )
+#' return(as.list(environment())) # return everything inside this function
+#' }
+#' 
+#' model5 <- MortalityLaw(x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+#' summary(model5)
+#' plot(model5)
+#' 
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
                          law, how = 'poissonL', parS = NULL, 
-                         fit.this.x = x, ...){
+                         fit.this.x = x, custom.law = NULL, ...){
   # Check input & set clock
+  if (!is.null(custom.law)) {
+    law = 'custom.law'
+    parS = custom.law(1)$par
+    }
   if (is.null(parS)) { parS = choose_Spar(law) }
   input <- c(as.list(environment()))
   pb <- startpb(0, 4) # Start the clock!
@@ -138,9 +159,13 @@ compute_x <- function(x, law, max_x = 110, ...){
 #' @keywords internal
 #' 
 objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
-                          law, fun = 'poissonL'){
+                          law, fun = 'poissonL', custom.law){
   par_ = exp(par)
-  mu <- eval(call(law, x, par_))$hx
+  
+  if (law == 'custom.law') { 
+    mu = custom.law(x, par = par_)$hx } else { 
+      mu = eval(call(law, x, par_))$hx
+    }
   if (!is.null(mx)) { Dx = mx; Ex = 1 }
   if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
   # compute likelihoods or loss functions
@@ -174,8 +199,8 @@ choose_optim <- function(input){
     # Optimize 
     if (law %in% c('gompertz', 'gompertz0', 'invgompertz', 'opperman',
                   'weibull', 'invweibull', 'carriere1', 'carriere2',
-                  'makeham', 'makeham0', 'kannisto', 'siler')) {
-      opt <- optim(par = log(parS), fn = objective_fun, 
+                  'makeham', 'makeham0', 'kannisto', 'siler', 'custom.law')) {
+      opt <- optim(par = log(parS), fn = objective_fun, custom.law = custom.law,
                    law = law, fun = how,
                    x = x, mx = mx, Dx = Dx, Ex = Ex, 
                    method = 'Nelder-Mead')
@@ -183,7 +208,7 @@ choose_optim <- function(input){
       opt$fnvalue <- opt$value
     }
     if (law %in% c('HP')) {
-      opt <- nlminb(start = log(parS), objective = objective_fun,
+      opt <- nlminb(start = log(parS), objective = objective_fun, custom.law = custom.law,
                     law = law, fun = how,
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
                     control = list(eval.max = 5000, iter.max = 5000))
@@ -191,7 +216,7 @@ choose_optim <- function(input){
       opt$fnvalue <- opt$objective
     }
     if (law %in% c('thiele', 'wittstein')) {
-      opt <- nls.lm(par = log(parS), fn = objective_fun,
+      opt <- nls.lm(par = log(parS), fn = objective_fun, custom.law = custom.law,
                     law = law, fun = how,
                     x = x, mx = mx, Dx = Dx, Ex = Ex,
                     control = nls.lm.control(nprint = 0,

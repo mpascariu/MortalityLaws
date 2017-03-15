@@ -18,7 +18,7 @@ check_input <- function(input){
         models <- c('gompertz', 'gompertz0', 'invgompertz',
                     'weibull', 'invweibull', 'carriere1', 'carriere2',
                     'makeham', 'makeham0', 'kannisto', #'demoivre', 
-                    'opperman', 'HP', 'thiele', 'wittstein', 'siler')
+                    'opperman', 'HP', 'thiele', 'wittstein', 'siler', 'custom.law')
         if ( !(law %in% models)) {
           m1 <- 'Mortality law not available\n'
           m2 <- 'Check one of the following models:\n'

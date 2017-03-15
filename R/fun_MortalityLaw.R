@@ -285,7 +285,8 @@ choose_law_info <-  function(law){
                 siler       = 'Siler (1979): h(x) = a*exp(-b*x) + c + d*exp(e*x)',
                 kannisto    = 'Kannisto (1992): h(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
                 carriere1   = 'Carriere1 (1992): Weibull + Inverse-Weibull + Gompertz',
-                carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz'
+                carriere2   = 'Carriere2 (1992): Weibull + Inverse-Gompertz + Gompertz',
+                custom.law  = 'Custom Model'
   )
   return(info)
 }
