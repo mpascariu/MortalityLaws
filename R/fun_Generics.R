@@ -4,7 +4,7 @@
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-  cat('Model:\n')
+  # cat('Model:\n')
   cat(x$info$model.info, '\n')
   cat('\nCoefficients:\n')
   if (all(coef(x) < 1e-3)) {
@@ -15,7 +15,7 @@ print.MortalityLaw <- function(x, ...) {
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-  cat('Model:\n')
+  # cat('Model:\n')
   cat(object$info$model.info, '\n')
   # cat('\nCall:\n')
   # print(object$call)
@@ -89,5 +89,5 @@ print.ReadHMD <- function(x, ...){
   cat('Download Date:', x$download.date, '\n')
   cat('Type of data:', x$input$what, '\n')
   cat('Countries included:', x$input$countries, '\n\nData:\n')
-  print(head_tail(x$data, hlength = 8, tlength = 8))
+  print(head_tail(x$data, hlength = 5, tlength = 5))
 }
