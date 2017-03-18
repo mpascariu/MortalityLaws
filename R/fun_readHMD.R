@@ -1,19 +1,18 @@
 # ---------------- Functions to download HMD data --------------------------- #
 
-
 #' Function for downloading data from HMD
 #'
 #' Function for downloading data for several countries in a single object 
 #' from the Human Mortality Database (\url{http://www.mortality.org})
-#' @param countries Countries
-#' @param interval Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}
 #' @param what What type of data are you looking for? We have death counts,
 #' exposures, death-rates, life tables for femlaes, life table for males,
 #' life table for total population, cohort death-rates and cohort exposures. 
-#' The codes: \code{Dx}, \code{Nx}, \code{mx}, \code{LT_f}, 
-#' \code{LT_m}, \code{LT_t}, \code{mxc} and \code{Nxc}.
+#' @param countries Countries
+#' @param interval Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}
+#'  The codes: \code{Dx}, \code{Nx}, \code{mx}, \code{LT_f}, 
+#'  \code{LT_m}, \code{LT_t}, \code{mxc} and \code{Nxc}.
 #' @param username Your HMD Username. If you don't have one you can sign up
-#' for free on Human Mortality Database website.
+#'  for free on Human Mortality Database website.
 #' @param password Your HMD password
 #' @param save Do you want to save a copy of the dataset on your local machine?
 #' @return An \code{ReadHMD} object.
@@ -21,32 +20,44 @@
 #' \dontrun{
 #' library(MortalityLaws)
 #'
-#' # Let's download demographic data for 3 countries.
-#' # First specify the username and password
-#' username <- "user@email.com"
-#' password <- "password"
-#' # Let's say that we want a 1x1 format
+#' # Let's download demographic data for 3 countries in 1x1 format 
 #' age_int  <- 1  # age interval: 1,5
 #' year_int <- 1  # year interval: 1,5,10
 #' interval <- paste0(age_int, "x", year_int)  # --> 1x1
-#' # And the 3 countries: Sweden Denmark and USA
-#' cntr     <- c('SWE', 'DNK', 'USA')  
+#' # And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
+#' cntr  <- c('SWE', 'DNK', 'USA')  
 #' 
 #' # Download death counts. We don't want to export data outside R.
-#' HMD_Dx <- ReadHMD(cntr, interval, what = "Dx", 
-#'                   username, password, save = FALSE)
-#' HMD_Dx
+#' HMD_Dx <- ReadHMD(what = "Dx",
+#'                   countries = cntr,
+#'                   interval = interval,
+#'                   username = "user@email.com",
+#'                   password = "password",
+#'                   save = FALSE)
 #' ls(HMD_Dx)
+#' HMD_Dx
 #' 
 #' # Download life tables for female population and export data.
-#' HMD_LT_f <- ReadHMD(cntr, interval, what = "LT_f",
-#'                     username, password, save = TRUE)
+#' HMD_LT_f <- ReadHMD(what = "LT_f",
+#'                     countries = cntr,
+#'                     interval = interval,
+#'                     username = "user@email.com",
+#'                     password = "password",
+#'                     save = TRUE)
 #' HMD_LT_f
 #' } 
 #' @export
-#' 
-ReadHMD <- function(countries, interval, what, 
+ReadHMD <- function(what, countries = NULL, interval = '1x1',  
                     username, password, save = TRUE){
+  # HMD country codes
+  HMDccodes <- c("AUS","AUT","BEL","BGR","BLR","CAN","CHE","CHL","CZE",
+                 "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP",
+                 "FRATNP","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
+                 "HUN","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
+                 "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
+                 "SVN","SWE","TWN","UKR","USA")
+  if (is.null(countries)) countries <- HMDccodes 
+  
   input <- list(countries = countries, interval = interval, 
                 what = what, username = username, save = save)
   # Progress bar setup
@@ -58,8 +69,8 @@ ReadHMD <- function(countries, interval, what,
   # Step 1 - Do the loop for the other countries
   for (i in 1:nr) {
       cntr_i <- countries[i] # country
-      data_i <- readHMD(country = cntr_i, interval, 
-                         what, username, password)
+      data_i <- read_hmd(what, country = cntr_i, 
+                         interval, username, password)
       data <- rbind(data, data_i)
       setpb(pb, i)
   }
@@ -68,19 +79,20 @@ ReadHMD <- function(countries, interval, what,
   # Step 2 - Write a file with the database in your working directory
   if (save == TRUE) { 
       save(input, download_date, data,
-           file = paste('HMD_', what, '_', interval, '.Rdata', sep = ''))
+           file = paste('HMD_', what, '_', 
+                        interval, '.Rdata', sep = ''))
   }
   out <- structure(class = 'ReadHMD',
-                  list(input = input, download.date = download_date, 
+                  list(input = input, 
+                       download.date = download_date, 
                        data = data))
   cat(paste('\nHMD download completed!'))
   return(out)
 }
 
-#--------------------
-# Function to download data for a specified country
+#' Function to download data for a specified country
 #' @keywords internal
-readHMD <- function(country, interval, what, username, password){
+read_hmd <- function(what, country, interval, username, password){
      whichFile <- switch(what, 
                          Dx   = paste0("Deaths_", interval, ".txt"),    # deaths
                          Nx   = paste0("Exposures_", interval, ".txt"), # exposure
@@ -92,7 +104,7 @@ readHMD <- function(country, interval, what, username, password){
                          mxc = paste0("cMx_", interval, ".txt"),    # deaths
                          Nxc = paste0("cExposures_", interval, ".txt") # exposure
      ) 
-     cat(paste("        :Downloading", country,what))
+     cat(paste("        :Downloading", country))
      path       <- paste0("http://www.mortality.org/hmd/", country, 
                          "/STATS/", whichFile)
      userpwd    <- paste0(username, ":", password)
@@ -104,6 +116,7 @@ readHMD <- function(country, interval, what, username, password){
      datCnt$Age <- if (interval == "1x1") {0:110} else datCnt$Age
      return(datCnt)
 }
+
 
 #' Summary function - display head and tail in a single data.frame
 #' The code for this function was first written for 'psych' R package

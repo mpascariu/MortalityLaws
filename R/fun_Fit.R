@@ -224,7 +224,7 @@ choose_optim <- function(input){
       coef <- exp(opt$par)
       opt$fnvalue <- sum(opt$fvec)
     }
-    llik <- opt$fnvalue
+    llik <- log(opt$fnvalue)
     AIC  <- 2*length(parS) - 2*llik
     BIC  <- log(length(x)) * length(parS) - 2*llik
     

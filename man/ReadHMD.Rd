@@ -4,16 +4,17 @@
 \alias{ReadHMD}
 \title{Function for downloading data from HMD}
 \usage{
-ReadHMD(countries, interval, what, username, password, save = TRUE)
+ReadHMD(what, countries = NULL, interval = "1x1", username, password,
+  save = TRUE)
 }
 \arguments{
-\item{countries}{Countries}
-
-\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}}
-
 \item{what}{What type of data are you looking for? We have death counts,
 exposures, death-rates, life tables for femlaes, life table for males,
-life table for total population, cohort death-rates and cohort exposures. 
+life table for total population, cohort death-rates and cohort exposures.}
+
+\item{countries}{Countries}
+
+\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}
 The codes: \code{Dx}, \code{Nx}, \code{mx}, \code{LT_f}, 
 \code{LT_m}, \code{LT_t}, \code{mxc} and \code{Nxc}.}
 
@@ -35,26 +36,31 @@ from the Human Mortality Database (\url{http://www.mortality.org})
 \dontrun{
 library(MortalityLaws)
 
-# Let's download demographic data for 3 countries.
-# First specify the username and password
-username <- "user@email.com"
-password <- "password"
-# Let's say that we want a 1x1 format
+# Let's download demographic data for 3 countries in 1x1 format 
+# (1 age - 1 year intervals)
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10
 interval <- paste0(age_int, "x", year_int)  # --> 1x1
-# And the 3 countries: Sweden Denmark and USA
+# And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
 cntr     <- c('SWE', 'DNK', 'USA')  
 
 # Download death counts. We don't want to export data outside R.
-HMD_Dx <- ReadHMD(cntr, interval, what = "Dx", 
-                  username, password, save = FALSE)
-HMD_Dx
+HMD_Dx <- ReadHMD(what = "Dx",
+                  countries = cntr,
+                  interval = interval,
+                  username = "user@email.com",
+                  password = "password",
+                  save = FALSE)
 ls(HMD_Dx)
+HMD_Dx
 
 # Download life tables for female population and export data.
-HMD_LT_f <- ReadHMD(cntr, interval, what = "LT_f",
-                    username, password, save = TRUE)
+HMD_LT_f <- ReadHMD(what = "LT_f",
+                    countries = cntr,
+                    interval = interval,
+                    username = "user@email.com",
+                    password = "password",
+                    save = TRUE)
 HMD_LT_f
 } 
 }
