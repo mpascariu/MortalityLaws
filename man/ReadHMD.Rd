@@ -10,13 +10,15 @@ ReadHMD(what, countries = NULL, interval = "1x1", username, password,
 \arguments{
 \item{what}{What type of data are you looking for? We have death counts,
 exposures, death-rates, life tables for femlaes, life table for males,
-life table for total population, cohort death-rates and cohort exposures.}
+life table for total population, cohort death-rates and cohort exposures. 
+The codes: \code{births}, \code{population}, \code{lexis},
+\code{Dx}, \code{Ex}, \code{mx}, \code{LT_f}, 
+\code{LT_m}, \code{LT_t}, \code{e0}, \code{mxc} and \code{Exc}.}
 
 \item{countries}{Countries}
 
-\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, \code{5x1}
-The codes: \code{Dx}, \code{Nx}, \code{mx}, \code{LT_f}, 
-\code{LT_m}, \code{LT_t}, \code{mxc} and \code{Nxc}.}
+\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, 
+\code{5x1}, \code{5x5}, \code{5x10}}
 
 \item{username}{Your HMD Username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
@@ -30,19 +32,18 @@ An \code{ReadHMD} object.
 }
 \description{
 Function for downloading data for several countries in a single object 
-from the Human Mortality Database (\url{http://www.mortality.org})
+from the Human Mortality Database (\url{http://www.mortality.org}).
 }
 \examples{
 \dontrun{
 library(MortalityLaws)
 
 # Let's download demographic data for 3 countries in 1x1 format 
-# (1 age - 1 year intervals)
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10
 interval <- paste0(age_int, "x", year_int)  # --> 1x1
 # And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
-cntr     <- c('SWE', 'DNK', 'USA')  
+cntr  <- c('SWE', 'DNK', 'USA')  
 
 # Download death counts. We don't want to export data outside R.
 HMD_Dx <- ReadHMD(what = "Dx",
