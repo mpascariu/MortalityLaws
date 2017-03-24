@@ -73,7 +73,7 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   # Step 1 - Do the loop for the other countries
   for (i in 1:nr) {
       cntr_i <- countries[i] # country
-      setpb(pb, i); cat(paste("        :Downloading", cntr_i))
+      setpb(pb, i); cat(paste('      :Downloading', cntr_i, '    '))
       data_i <- read_hmd(what, country = cntr_i, 
                          interval, username, password)
       data <- rbind(data, data_i)
@@ -141,18 +141,20 @@ check_input_ReadHMD <- function(x) {
              "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
              "SVN","SWE","TWN","UKR","USA")
   
-  if (!(x$interval %in% int)) stop(paste('\nThe interval', x$interval, 
-                                         'does not exist in HMD\n',
-                                         'Try one of these options:\n', 
-                                         paste(int, collapse = ', ')) )
-  if (!(x$what %in% wht)) stop(paste('\nWhat???', x$what,  
-                                      'does not exist in HMD\n',
-                                      'Try one of these options:\n', 
-                                      paste(wht, collapse = ', ')) )
-  if (!(x$countries %in% HMD.cc)) stop(paste('\nSomething is wrong in the country/coutries',  
-                                      'added by you.\n',
-                                      'Try one or more of these options:\n', 
-                                      paste(HMD.cc, collapse = ', ')) )
+  if (!(x$interval %in% int)) {
+    stop(paste('\nThe interval', x$interval,
+               'does not exist in HMD\n',
+               'Try one of these options:\n', 
+                paste(int, collapse = ', ')) )}
+  if (!(x$what %in% wht)) {
+    stop(paste(x$what, 'does not exist in HMD\n',
+               'Try one of these options:\n', 
+                paste(wht, collapse = ', ')) )}
+  if (all(!(x$countries %in% HMD.cc)) ) {
+    stop(paste('\nSomething is wrong in the country/coutries',
+               'added by you.\n',
+               'Try one or more of these options:\n', 
+               paste(HMD.cc, collapse = ', ')) )}
 }
 
 
