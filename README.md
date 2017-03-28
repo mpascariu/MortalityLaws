@@ -26,8 +26,3 @@ All functions are documented in the standard way, which means that
 once you load the package using ```library(MortalityLaws)```
 you can just type ```?MortalityLaw``` to see the help file. 
 
-
-Warning
-===============
-This is work in progress! The package might be unstable and probably 
-full of bugs. Use it at your own risk.
