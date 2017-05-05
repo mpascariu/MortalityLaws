@@ -1,4 +1,5 @@
 ^data-raw$
+^Presentation$
 ^LICENSE$
 ^.*\.Rproj$
 ^\.Rproj\.user$
