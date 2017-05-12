@@ -103,7 +103,7 @@ plot_timeline()
   \item Smooth data;
   \item Construct life tables given different type of input data ($q_x$, $m_x$, $D_x$, $E
   _x$ etc.);
-  \item Facilitate comparisons of mortality improvements accros time and ages;
+  \item Facilitate comparisons of mortality improvements across time and ages;
   \item Generate instant plots and goodness of fit measures.
   \end{itemize}
   
