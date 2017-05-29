@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Mortality Laws
-Version: 0.6.16
+Version: 0.7.0
 Author: Marius Pascariu
 Maintainer: Marius Pascariu <mpascariu@outlook.com>
 Description: Fit and compare the most popular human mortality laws.

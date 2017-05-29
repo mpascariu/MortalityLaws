@@ -1,3 +1,4 @@
+
 #' Life table function
 #' 
 #' Function to create a life table with input variables: (age, Dx, Ex) 
@@ -16,9 +17,9 @@
 #' @examples 
 #' library(MortalityLaws)
 #' 
-#' F_Dx <- HMD.test.data$Dx
-#' F_Nx <- HMD.test.data$Nx
-#' F_mx <- HMD.test.data$mx
+#' F_Dx <- ahmd$Dx
+#' F_Nx <- ahmd$Nx
+#' F_mx <- ahmd$mx
 #' 
 #' ages <- as.numeric(rownames(F_mx))
 #' year <- 1900
@@ -27,11 +28,11 @@
 #' Dx <- F_Dx[, paste(year)]
 #' Nx <- F_Nx[, paste(year)]
 #' 
-#' lifetable(x = ages, mx = mx)$lt
-#' lifetable(x = ages, Dx = Dx, Ex = Nx)$lt
+#' LifeTable(x = ages, mx = mx)$lt
+#' LifeTable(x = ages, Dx = Dx, Ex = Nx)$lt
 #' @export
 #'
-lifetable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
+LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
                       qx = NULL, lx0 = 1e+05, ax0 = 0.1){
   if (!is.null(mx)) mx[is.na(mx)] <- 0
   if (!is.null(qx)) qx[is.na(qx)] <- 0
@@ -80,17 +81,3 @@ lifetable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
 
 
 
-#' mx to qx
-#'
-#' This is a description
-#' @keywords internal
-mx_qx <- function(ux, x, out = 'qx'){
-     nmax     <- length(x)
-     n        <- rep(1,nmax)
-     ax       <- n/2
-     ax[1] <- ifelse(x[1] == 0, .1, .5)
-     vect <- switch(out,
-                     qx = ux / (1 + (1 - ax)*ux),
-                     mx = ux/(n - ux*(n - ax))  )
-     return(vect)
-}

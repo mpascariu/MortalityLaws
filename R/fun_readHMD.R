@@ -1,6 +1,6 @@
 # ---------------- Functions to download HMD data --------------------------- #
 
-#' Function for downloading data from HMD
+#' Download data from HMD
 #'
 #' Function for downloading data for several countries in a single object 
 #' from the Human Mortality Database (\url{http://www.mortality.org}).

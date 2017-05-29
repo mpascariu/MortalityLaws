@@ -47,9 +47,9 @@ library(MortalityLaws)
 
 yr <- 2010
 ages  <- 30:90
-Dx <- HMD.test.data$Dx[paste(ages), paste(yr)]
-Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
-mx <- HMD.test.data$mx[paste(ages), paste(yr)]
+Dx <- ahmd$Dx[paste(ages), paste(yr)]
+Ex <- ahmd$Nx[paste(ages), paste(yr)]
+mx <- ahmd$mx[paste(ages), paste(yr)]
 
 x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
 model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')

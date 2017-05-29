@@ -2,7 +2,7 @@
 
 #' England and Wales demographic data
 #'
-#' Dataset containing the HMD death rates (mx), death counts (Dx) 
+#' Dataset containing altered death rates (mx), death counts (Dx) 
 #' and exposures (Nx) for female population living in 
 #' England & Wales in four diffrent years: 1850, 1900, 1950 and 2010. 
 #' The data-set is provided for testing purposes only.
@@ -16,4 +16,4 @@
 #' }
 #' @source \href{http://www.mortality.org}{Human Mortality Database}  
 #' @seealso \code{\link{ReadHMD}} 
-"HMD.test.data"
+"ahmd"

@@ -4,7 +4,7 @@
 #' @keywords internal
 #' 
 gompertz0 <- function(x, par = NULL){
-  par <- bring_parameters('gompertz0', par)
+  if (is.null(par)) par <- bring_parameters('gompertz0', par)
   hx  <- with(as.list(par), a*exp(b*x) )
   Hx  <- with(as.list(par), a/b * (exp(b*x) - 1) )
   Sx  <- exp(-Hx)
@@ -16,7 +16,7 @@ gompertz0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 gompertz <- function(x, par = NULL){
-  par <- bring_parameters('gompertz', par)
+  if (is.null(par)) par <- bring_parameters('gompertz', par)
   hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) )
   Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) )
   Sx <- exp(-Hx)
@@ -29,7 +29,7 @@ gompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invgompertz <- function(x, par = NULL){
-  par <- bring_parameters('invgompertz', par)
+  if (is.null(par)) par <- bring_parameters('invgompertz', par)
   hx = with(as.list(par), 
             1/sigma * exp(-(x - m)/sigma) / (exp(exp(-(x - m)/sigma)) - 1)  )
   Sx = with(as.list(par),  
@@ -42,7 +42,7 @@ invgompertz <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham0 <- function(x, par = NULL){
-  par <- bring_parameters('makeham0', par)
+  if (is.null(par)) par <- bring_parameters('makeham0', par)
   hx <- with(as.list(par), a*exp(b*x) + c )
   Hx <- with(as.list(par), a/b * (exp(b*x) - 1) + x*c )
   Sx <- exp(-Hx)
@@ -53,7 +53,7 @@ makeham0 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 makeham <- function(x, par = NULL){
-  par <- bring_parameters('makeham', par)
+  if (is.null(par)) par <- bring_parameters('makeham', par)
   hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) + c )
   Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) + x*c )
   Sx <- exp(-Hx)
@@ -69,7 +69,7 @@ makeham <- function(x, par = NULL){
 #' @keywords internal
 #' 
 weibull <- function(x, par = NULL){
-  par <- bring_parameters('weibull', par)
+  if (is.null(par)) par <- bring_parameters('weibull', par)
   hx <- with(as.list(par), 1/sigma * (x/m)^(m/sigma - 1) )
   Hx <- with(as.list(par), (x/m)^(m/sigma) )
   Sx <- exp(-Hx)
@@ -84,7 +84,7 @@ weibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 invweibull <- function(x, par = NULL){
-  par <- bring_parameters('invweibull', par)
+  if (is.null(par)) par <- bring_parameters('invweibull', par)
   hx <- with(as.list(par), 
             (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
   Hx <- with(as.list(par), 
@@ -97,7 +97,7 @@ invweibull <- function(x, par = NULL){
 #' @keywords internal
 #' 
 kannisto <- function(x, par = NULL){
-  par <- bring_parameters('kannisto', par)
+  if (is.null(par)) par <- bring_parameters('kannisto', par)
   hx <- with(as.list(par), a*exp(b*x) / (1 + a*exp(b*x)) )
   Hx <- with(as.list(par), 1/a * log( (1 + a*exp(b*x)) / (1 + a) ) )
   Sx <- exp(-Hx)
@@ -108,7 +108,7 @@ kannisto <- function(x, par = NULL){
 #' @keywords internal
 #' 
 demoivre <- function(x, par = NULL){
-  par <- bring_parameters('demoivre', par)
+  if (is.null(par)) par <- bring_parameters('demoivre', par)
   vsmall = 1e-10 # very small number
   hx <- pmax(1/(par - x) + vsmall, 0)
   Hx <- cumsum(hx)
@@ -120,7 +120,7 @@ demoivre <- function(x, par = NULL){
 #' @keywords internal
 #' 
 opperman <- function(x, par = NULL){
-  par <- bring_parameters('opperman', par)
+  if (is.null(par)) par <- bring_parameters('opperman', par)
   x = x + 1e-10
   hx = with(as.list(par), a/sqrt(x) - b + c*(x^(1/3)) )
   hx = pmax(0, hx)
@@ -133,7 +133,7 @@ opperman <- function(x, par = NULL){
 #' @keywords internal
 #' 
 HP <- function(x, par = NULL){
-  par <- bring_parameters('HP', par)
+  if (is.null(par)) par <- bring_parameters('HP', par)
   mu1 = with(as.list(par), a^((x + b)^c) + g*h^x)
   mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
   hx = ifelse(x == 0, mu1, mu1 + mu2)
@@ -146,7 +146,7 @@ HP <- function(x, par = NULL){
 #' @keywords internal
 #' 
 thiele <- function(x, par = NULL){
-  par <- bring_parameters('thiele', par)
+  if (is.null(par)) par <- bring_parameters('thiele', par)
   mu1 = with(as.list(par), a*exp(-b*x) )
   mu2 = with(as.list(par), c*exp(-.5*d*(x - e)^2) )
   mu3 = with(as.list(par), f*exp(g*x) )
@@ -160,7 +160,7 @@ thiele <- function(x, par = NULL){
 #' @keywords internal
 #' 
 wittstein <- function(x, par = NULL){
-  par <- bring_parameters('wittstein', par)
+  if (is.null(par)) par <- bring_parameters('wittstein', par)
   hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M - x)^n) )
   Hx = cumsum(hx)
   Sx = exp(-Hx)
@@ -172,7 +172,7 @@ wittstein <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere1 <- function(x, par = NULL){
-  par <- bring_parameters('carriere1', par)
+  if (is.null(par)) par <- bring_parameters('carriere1', par)
   # Compute distribution functions
   S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
   S_iwei = invweibull(x, par[c('sigma1', 'm1')])$Sx
@@ -193,7 +193,7 @@ carriere1 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 carriere2 <- function(x, par = NULL){
-  par <- bring_parameters('carriere2', par)
+  if (is.null(par)) par <- bring_parameters('carriere2', par)
   # Compute distribution functions
   S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
   S_igom = invgompertz(x, par[c('sigma2', 'm2')])$Sx
@@ -213,7 +213,7 @@ carriere2 <- function(x, par = NULL){
 #' @keywords internal
 #' 
 siler <- function(x, par = NULL){
-  par <- bring_parameters('siler', par)
+  if (is.null(par)) par <- bring_parameters('siler', par)
   hx = with(as.list(par), a*exp(-b*x) + c + d*exp(e*x))
   Hx = cumsum(hx)
   Sx = exp(-Hx)

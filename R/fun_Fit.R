@@ -25,9 +25,9 @@
 #' 
 #' yr <- 2010
 #' ages  <- 30:90
-#' Dx <- HMD.test.data$Dx[paste(ages), paste(yr)]
-#' Ex <- HMD.test.data$Nx[paste(ages), paste(yr)]
-#' mx <- HMD.test.data$mx[paste(ages), paste(yr)]
+#' Dx <- ahmd$Dx[paste(ages), paste(yr)]
+#' Ex <- ahmd$Nx[paste(ages), paste(yr)]
+#' mx <- ahmd$mx[paste(ages), paste(yr)]
 #' 
 #' x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
 #' model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')
@@ -70,22 +70,23 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   on.exit(closepb(pb)) # Stop clock on exit.
   check_input(input)
   setpb(pb, 1)
+  
   # Find optim coefficients
   opt_ <- choose_optim(input)
   gof  <- list(AIC = opt_$AIC, BIC = opt_$BIC, 
                logLikelihood = opt_$logLikelihood)
   setpb(pb, 2)
+  
   # Fit mortality law
-  x_   <- compute_x(x, law)$x_
-  mlaw <- eval(call(law, x_, par = opt_$coef)) # Mortality law
-  # m.dist <- mort.distrib(x, law, par = opt_$coef)
-  setpb(pb, 3)
-  # Fitted values and residuals
+  x_    <- compute_x(x, law)$x_
+  mlaw  <- eval(call(law, x_, par = opt_$coef)) # Mortality law
   if (!is.null(Dx)) { mx = Dx/Ex }
-  fit   = mlaw$hx
-  resid = mx - fit
+  fit   <- mlaw$hx  # Fitted values
+  resid <- mx - fit # residuals
+  setpb(pb, 3)
+  
   # Prepare, arrange, customize output
-  info  <- list(model.info = choose_law_info(law), process.date = date())
+  info   <- list(model.info = choose_law_info(law), process.date = date())
   output <- list(input = input, info = info, coefficients = opt_$coef,
                  fitted.values = fit, residuals = resid,
                  optimization.object = opt_$fn_opt, goodness.of.fit = gof)
@@ -95,61 +96,12 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   return(out)
 }
 
-# -------------------------------------------------------------
-#' @keywords internal
-#' 
-mort.distrib <- function(x, law, par, ...) {
-  x_full <- compute_x(x, law, ...)$x_full
-  hxfun <- function(law, x, par) {
-    hx <- eval(call(law, x, par))$hx
-    hx[is.infinite(hx)] <- max(hx[!is.infinite(hx)]) # eliminare Inf
-    hx[is.na(hx)] <- 0 # eliminate NaN to avoid error in intergation in iHazard
-    return(hx)
-  }
-  
-  hx_ = hxfun(law, x_full, par)
-  Hx_ = iHazard(x = x_full, law, par, fun = hxfun)
-  Sx_ = exp(-Hx_)
-  fx_ = hx_ * Sx_
-  if (sum(fx_ > 1)) fx_ = fx_ / sum(fx_)
-  Fx_ = 1 - Sx_
-  
-  Hx_[Hx_ == 0] <- NaN # remove artificial zero to avoid weird plots
-  fx_[fx_ == 0] <- NaN
-  Sx_[Sx_ == 0] <- NaN
-  Fx_[Fx_ == 0 & Sx_ != 1] <- NaN
-  hx_[hx_ == 0] <- NaN
-  out <- data.frame(x = 0:110, x_fit = x_full, 
-                   hx = hx_, Hx = Hx_, fx = fx_, 
-                   Fx = Fx_, Sx = Sx_)
-  return(out)
-}
-
-#' Integarte hazard function
-#' @keywords internal
-#' 
-iHazard <- function(x, law, par, fun){
-  x = x + 1e-15
-  Hx <- NULL
-  for (j in 1:length(x)) {
-    Hx[j] <- integrate(f = fun, par = par, subdivisions = 111L, 
-                       law = law, lower = x[1], upper = x[j])$value
-  }
-  return(Hx)
-}
 
 #' @keywords internal
 #' 
 compute_x <- function(x, law, max_x = 110, ...){
-  # infant.mort.laws = c('weibull', 'invweibull', 'opperman')
-  # full.mort.laws = c('thiele', 'HP', 'wittstein', 'siler', 
-                     # 'carriere1', 'carriere2')
-  # Order and scale the x vector
-  x <- unique(x[order(x)])
-  # x_ <- x - min(x) + 1
-  x_ = x
-  # if (law %in% infant.mort.laws) x_ = x + 1
-  # if (law %in% full.mort.laws) x_ = x + 1
+  x      <- unique(x[order(x)])
+  x_     <- x
   x_full <- (min(x_ - x)):(max(x_) + max_x - max(x))
   return(as.list(environment()))
 }

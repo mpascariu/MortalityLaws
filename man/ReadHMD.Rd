@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_readHMD.R
 \name{ReadHMD}
 \alias{ReadHMD}
-\title{Function for downloading data from HMD}
+\title{Download data from HMD}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = TRUE)
