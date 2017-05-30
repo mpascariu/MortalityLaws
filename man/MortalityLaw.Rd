@@ -4,13 +4,15 @@
 \alias{MortalityLaw}
 \title{Fit mortality law}
 \usage{
-MortalityLaw(x, mx = NULL, Dx = NULL, Ex = NULL, law, how = "poissonL",
-  parS = NULL, fit.this.x = x, custom.law = NULL, ...)
+MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
+  how = "poissonL", parS = NULL, fit.this.x = x, custom.law = NULL, ...)
 }
 \arguments{
 \item{x}{Vector of ages}
 
 \item{mx}{Vector of age-specific death rates}
+
+\item{qx}{Vector of age-specific probabilities of death}
 
 \item{Dx}{Vector containing death counts}
 
@@ -40,27 +42,29 @@ in the package. Accepts as input a function.}
 A \code{MortalityLaw} object
 }
 \description{
-This is a description Fit mortality models
+This function can be used to fit mortality models given a set of data. 
+Using the argument \code{law} one can specify the model to be fitted. 
+So far there are more than 20 parametric model implemented.
 }
 \examples{
 library(MortalityLaws)
 
-yr <- 2010
-ages  <- 30:90
+yr <- 1950
+ages  <- 35:75
 Dx <- ahmd$Dx[paste(ages), paste(yr)]
 Ex <- ahmd$Nx[paste(ages), paste(yr)]
 mx <- ahmd$mx[paste(ages), paste(yr)]
 
-x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
-model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')
-model2 <- MortalityLaw(x, mx = mx, law = 'makeham', how = 'LF1')
-model3 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
-model4 <- MortalityLaw(x, mx = mx, law = 'gompertz', how = 'binomialL')
- 
+# Fit Makeham model
+model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
+
 model1
 ls(model1)
 summary(model1)
 plot(model1)
+
+# we can fit the same model using diffrent data and a different optimization procedure
+model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 
 #---------------------------------------
 # Now let's fit a mortality law that is not defined in the package, say a
@@ -68,12 +72,12 @@ plot(model1)
 # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
 
 my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
-hx  <- with(as.list(par), b*exp(b*(x-m)) )
-return(as.list(environment())) # return everything inside this function
+  hx  <- with(as.list(par), b*exp(b*(x - m)) )
+  return(as.list(environment())) # return everything inside this function
 }
 
-model5 <- MortalityLaw(x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
-summary(model5)
-plot(model5)
+model2 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+summary(model2)
+plot(model2)
 
 }

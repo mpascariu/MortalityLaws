@@ -129,19 +129,6 @@ opperman <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-#' Heligman-Pollard mortality law
-#' @keywords internal
-#' 
-HP <- function(x, par = NULL){
-  if (is.null(par)) par <- bring_parameters('HP', par)
-  mu1 = with(as.list(par), a^((x + b)^c) + g*h^x)
-  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
-  hx = ifelse(x == 0, mu1, mu1 + mu2)
-  Hx = cumsum(hx)
-  Sx = exp(-Hx)
-  return(as.list(environment()))
-}
-
 #' Thiele mortality law
 #' @keywords internal
 #' 
@@ -220,13 +207,62 @@ siler <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
+
+#' Heligman-Pollard mortality law - 8 parameters
+#' @keywords internal
+#' 
+HP <- function(x, par = NULL){
+  if (is.null(par)) par <- bring_parameters('HP', par)
+  mu1 = with(as.list(par), a^((x + b)^c) + g*h^x )
+  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  eta = ifelse(x == 0, mu1, mu1 + mu2)
+  hx = eta/(1 + eta) # here hx doese not represent the hazard but probabilities (qx's)
+  return(as.list(environment()))
+}
+
+#' Heligman-Pollard 2 mortality law - 8 parameters
+#' @keywords internal
+#' 
+HP2 <- function(x, par = NULL){
+  if (is.null(par)) par <- bring_parameters('HP2', par)
+  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^x)/(1 + g*h^x) )
+  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  eta = ifelse(x == 0, mu1, mu1 + mu2)
+  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  return(as.list(environment()))
+}
+
+#' Heligman-Pollard 3 mortality law - 9 parameters
+#' @keywords internal
+#' 
+HP3 <- function(x, par = NULL){
+  if (is.null(par)) par <- bring_parameters('HP3', par)
+  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^x)/(1 + k*g*h^x) )
+  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  eta = ifelse(x == 0, mu1, mu1 + mu2)
+  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  return(as.list(environment()))
+}
+
+#' Heligman-Pollard 4 mortality law - 9 parameters
+#' @keywords internal
+#' 
+HP4 <- function(x, par = NULL){
+  if (is.null(par)) par <- bring_parameters('HP4', par)
+  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^(x^k)) / (1 + g*h^(x^k)) )
+  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  eta = ifelse(x == 0, mu1, mu1 + mu2)
+  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  return(as.list(environment()))
+}
+
 # Thu Mar  9 14:53:14 2017 ------------------------------
 
 
 #' Select start parameters
 #' @keywords internal
 #' 
-choose_Spar <-  function(law){
+choose_Spar <- function(law){
   switch(law,
          demoivre    = c(a = 105),
          gompertz0   = c(a = 0.0002, b = 0.13),
@@ -242,6 +278,12 @@ choose_Spar <-  function(law){
          invweibull  = c(sigma = 10, m = 5),
          HP          = c(a = .0005, b = .004, c = .08, d = .001, 
                          e = 10, f = 17, g = .00005, h = 1.1),
+         HP2         = c(a = .0005, b = .004, c = .08, d = .001, 
+                         e = 10, f = 17, g = .00005, h = 1.1),
+         HP3         = c(a = .0005, b = .004, c = .08, d = .001, 
+                         e = 10, f = 17, g = .00005, h = 1.1, k = 1),
+         HP4         = c(a = .0005, b = .004, c = .08, d = .001, 
+                         e = 10, f = 17, g = .00005, h = 1.1, k = 1),
          siler       = c(a = .0002, b = .13, c = .001, 
                          d = .001, e = .013),
          kannisto    = c(a = 0.5, b = 0.13),
@@ -281,7 +323,10 @@ choose_law_info <-  function(law){
                 wittstein   = 'Wittstein (1883):\nh(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
                 weibull     = 'Weibull (1939):\nh(x) = 1/sigma * (x/m)^(m/sigma - 1)',
                 invweibull  = 'Inverse-Weibull:\nh(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
-                HP          = 'Heligman-Pollard (1980):\nq(x)/p(x) = a^((x+b)^c) + d*exp(-e*(log(x/f))^2) + g*h^x)',
+                HP          = 'Heligman-Pollard (1980):\nq(x)/p(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x)',
+                HP2         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x / (1+G*H^x))',
+                HP3         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x / (1+K*G*H^x))',
+                HP4         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^(x^K) / (1+G*H^(x^K))',
                 siler       = 'Siler (1979):\nh(x) = a*exp(-b*x) + c + d*exp(e*x)',
                 kannisto    = 'Kannisto (1992):\nh(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
                 carriere1   = 'Carriere1 (1992):\nWeibull + Inverse-Weibull + Gompertz',

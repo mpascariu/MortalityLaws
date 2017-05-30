@@ -2,11 +2,11 @@
 % Please edit documentation in R/fun_MortalityLaw.R
 \name{HP}
 \alias{HP}
-\title{Heligman-Pollard mortality law}
+\title{Heligman-Pollard mortality law - 8 parameters}
 \usage{
 HP(x, par = NULL)
 }
 \description{
-Heligman-Pollard mortality law
+Heligman-Pollard mortality law - 8 parameters
 }
 \keyword{internal}

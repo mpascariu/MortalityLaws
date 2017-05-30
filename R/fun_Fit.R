@@ -1,8 +1,12 @@
 #' Fit mortality law
 #'
-#' This is a description Fit mortality models
+#' This function can be used to fit mortality models given a set of data. 
+#' Using the argument \code{law} one can specify the model to be fitted. 
+#' So far there are more than 20 parametric model implemented.
+#' 
 #' @param x Vector of ages
 #' @param mx Vector of age-specific death rates
+#' @param qx Vector of age-specific probabilities of death
 #' @param Dx Vector containing death counts
 #' @param Ex Vector containing the exposed population
 #' @param law The name of the mortality law/model to be fitted. eg. \code{gompertz}, 
@@ -23,22 +27,22 @@
 #' @examples 
 #' library(MortalityLaws)
 #' 
-#' yr <- 2010
-#' ages  <- 30:90
+#' yr <- 1950
+#' ages  <- 35:75
 #' Dx <- ahmd$Dx[paste(ages), paste(yr)]
 #' Ex <- ahmd$Nx[paste(ages), paste(yr)]
 #' mx <- ahmd$mx[paste(ages), paste(yr)]
 #' 
-#' x <- ages - min(ages) + 1 # scale ages in order to obtain meaningful parameter estimates
-#' model1 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'makeham')
-#' model2 <- MortalityLaw(x, mx = mx, law = 'makeham', how = 'LF1')
-#' model3 <- MortalityLaw(x, Dx = Dx, Ex = Ex, law = 'gompertz', how = 'LF2')
-#' model4 <- MortalityLaw(x, mx = mx, law = 'gompertz', how = 'binomialL')
-#'  
+#' # Fit Makeham model
+#' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
+#' 
 #' model1
 #' ls(model1)
 #' summary(model1)
 #' plot(model1)
+#' 
+#' # we can fit the same model using diffrent data and a different optimization procedure
+#' model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 #' 
 #' #---------------------------------------
 #' # Now let's fit a mortality law that is not defined in the package, say a
@@ -46,17 +50,17 @@
 #' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
 #' 
 #' my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
-#' hx  <- with(as.list(par), b*exp(b*(x-m)) )
-#' return(as.list(environment())) # return everything inside this function
+#'   hx  <- with(as.list(par), b*exp(b*(x - m)) )
+#'   return(as.list(environment())) # return everything inside this function
 #' }
 #' 
-#' model5 <- MortalityLaw(x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
-#' summary(model5)
-#' plot(model5)
+#' model2 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+#' summary(model2)
+#' plot(model2)
 #' 
 #' @export
 #' 
-MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL, 
+MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
                          law, how = 'poissonL', parS = NULL, 
                          fit.this.x = x, custom.law = NULL, ...){
   # Check input & set clock
@@ -66,6 +70,7 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
     }
   if (is.null(parS)) { parS = choose_Spar(law) }
   input <- c(as.list(environment()))
+  
   pb <- startpb(0, 4) # Start the clock!
   on.exit(closepb(pb)) # Stop clock on exit.
   check_input(input)
@@ -80,9 +85,16 @@ MortalityLaw <- function(x, mx = NULL, Dx = NULL, Ex = NULL,
   # Fit mortality law
   x_    <- compute_x(x, law)$x_
   mlaw  <- eval(call(law, x_, par = opt_$coef)) # Mortality law
-  if (!is.null(Dx)) { mx = Dx/Ex }
-  fit   <- mlaw$hx  # Fitted values
-  resid <- mx - fit # residuals
+  
+  # Fitted values & residuals
+  fit   <- mlaw$hx
+  if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
+    if (!is.null(Dx)) qx = convertFx(Dx/Ex, x, type = 'mx', output = 'qx')
+    resid <- qx - fit
+  } else {
+    if (!is.null(Dx)) { mx = Dx/Ex }
+    resid <- mx - fit 
+  }
   setpb(pb, 3)
   
   # Prepare, arrange, customize output
@@ -110,26 +122,37 @@ compute_x <- function(x, law, max_x = 110, ...){
 #' Function to be optimize
 #' @keywords internal
 #' 
-objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, 
+objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
                           law, fun = 'poissonL', custom.law){
   par_ = exp(par)
   
-  if (law == 'custom.law') { 
-    mu = custom.law(x, par = par_)$hx } else { 
-      mu = eval(call(law, x, par_))$hx
-    }
-  if (!is.null(mx)) { Dx = mx; Ex = 1 }
-  if (!is.null(Dx)) { mx = Dx/Ex; Ex = Ex }
+  if (law == 'custom.law') { mu = custom.law(x, par = par_)$hx } 
+    else {mu = eval(call(law, x, par_))$hx }
+  
+  if (!is.null(mx)) { 
+    nu <- mx 
+    Dx <- mx 
+    Ex <- 1 
+  }
+  if (!is.null(qx)) { 
+    nu <- qx 
+    Dx <- convertFx(data = qx, x, type = 'qx', output = 'mx') 
+    Ex <- 1
+  }
+  if (!is.null(Dx)) { 
+    nu <- Dx/Ex 
+    Ex <- Ex }
+  
   # compute likelihoods or loss functions
   output1 <- switch(fun,
                     poissonL  = -(Dx * log(mu) - mu*Ex),
                     binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
-                    LF1 = (1 - mu/mx)^2,
-                    LF2 = log(mu/mx)^2,
-                    LF3 = ((mx - mu)^2)/mx,
-                    LF4 = (mx - mu)^2,
-                    LF5 = (mx - mu) * log(mx/mu),
-                    LF6 = abs(mx - mu))
+                    LF1 = (1 - mu/nu)^2,
+                    LF2 = log(mu/nu)^2,
+                    LF3 = ((nu - mu)^2)/nu,
+                    LF4 = (nu - mu)^2,
+                    LF5 = (nu - mu) * log(nu/mu),
+                    LF6 = abs(nu - mu))
   out <- sum(output1, na.rm = TRUE)
   # because nls.lm function requires a vector we have to do the following:
   if (law %in% c('thiele', 'wittstein')) out = output1 
@@ -149,33 +172,35 @@ choose_optim <- function(input){
     Dx = Dx[select.x]
     Ex = Ex[select.x]
     # Optimize 
-    if (law %in% c('gompertz', 'gompertz0', 'invgompertz', 'opperman',
-                  'weibull', 'invweibull', 'carriere1', 'carriere2',
-                  'makeham', 'makeham0', 'kannisto', 'siler', 'custom.law')) {
-      opt <- optim(par = log(parS), fn = objective_fun, custom.law = custom.law,
-                   law = law, fun = how,
-                   x = x, mx = mx, Dx = Dx, Ex = Ex, 
-                   method = 'Nelder-Mead')
-      coef <- exp(opt$par)
-      opt$fnvalue <- opt$value
-    }
-    if (law %in% c('HP')) {
-      opt <- nlminb(start = log(parS), objective = objective_fun, custom.law = custom.law,
+    if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
+      opt <- nlminb(start = log(parS), objective = objective_fun, 
+                    custom.law = custom.law,
                     law = law, fun = how,
-                    x = x, mx = mx, Dx = Dx, Ex = Ex,
+                    x = x, mx = mx, qx = qx, Dx = Dx, Ex = Ex,
                     control = list(eval.max = 5000, iter.max = 5000))
       coef <- exp(opt$par)
       opt$fnvalue <- opt$objective
+    } else {
+        if (law %in% c('thiele', 'wittstein')) {
+          opt <- nls.lm(par = log(parS), fn = objective_fun, 
+                        custom.law = custom.law,
+                        law = law, fun = how,
+                        x = x, mx = mx, qx = qx, Dx = Dx, Ex = Ex,
+                        control = nls.lm.control(nprint = 0,
+                                  maxfev = 10000, maxiter = 1024))
+          coef <- exp(opt$par)
+          opt$fnvalue <- sum(opt$fvec)
+        } else {
+          opt <- optim(par = log(parS), fn = objective_fun, 
+                       custom.law = custom.law,
+                       law = law, fun = how,
+                       x = x, mx = mx, qx = qx, Dx = Dx, Ex = Ex, 
+                       method = 'Nelder-Mead')
+          coef <- exp(opt$par)
+          opt$fnvalue <- opt$value
+        }
     }
-    if (law %in% c('thiele', 'wittstein')) {
-      opt <- nls.lm(par = log(parS), fn = objective_fun, custom.law = custom.law,
-                    law = law, fun = how,
-                    x = x, mx = mx, Dx = Dx, Ex = Ex,
-                    control = nls.lm.control(nprint = 0,
-                              maxfev = 10000, maxiter = 1024))
-      coef <- exp(opt$par)
-      opt$fnvalue <- sum(opt$fvec)
-    }
+    
     llik <- log(opt$fnvalue)
     AIC  <- 2*length(parS) - 2*llik
     BIC  <- log(length(x)) * length(parS) - 2*llik
