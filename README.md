@@ -1,7 +1,7 @@
 # MortalityLaws
-[![Packagist](https://img.shields.io/packagist/v/mpascariu/MortalityLaws.svg)]()
 [![Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
 [![license](https://img.shields.io/github/license/mpascariu/MortalityLaws.svg)]()
+[![Github file size](https://img.shields.io/github/size/mpascariu/MortalityLaws.svg)]()
 
 Fit and compare the most popular human mortality laws
 
