@@ -1,4 +1,6 @@
 # MortalityLaws
+[![Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
+
 Fit and compare the most popular human mortality laws
 
 This repository includes R code for fitting most popular human mortality laws
