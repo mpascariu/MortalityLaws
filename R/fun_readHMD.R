@@ -55,7 +55,7 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   HMD.country.codes <- c("AUS","AUT","BEL","BGR","BLR","CAN","CHE","CHL","CZE",
                  "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP",
                  "FRATNP","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
-                 "HUN","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
+                 "HUN","HRV","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
                  "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
                  "SVN","SWE","TWN","UKR","USA")
   if (is.null(countries)) countries <- HMD.country.codes
