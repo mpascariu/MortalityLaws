@@ -32,7 +32,7 @@ convertFx <- function(data, x, type, output) {
   if (type %in% c('mx', 'hx')) hx = data
   
   # Step 2. - Convert hazard rates into the specified output
-  if (output == 'fx' & type != 'fx') out = fx_from_hx(x, hx = hx)$fx else out = data
+  if (output == 'fx' & type != 'fx') out = fx_from_hx(x, hx = hx, delta = 0.25)$fx else out = data
   if (output == 'qx' & type != 'qx') out = mx_qx(ux = hx, x, out = 'qx') else out = data
   if (output %in% c('mx', 'hx')) out = hx
   
@@ -73,9 +73,22 @@ mx_qx <- function(ux, x, out = 'qx'){
 #' Functions for computing fx and the gradient from mx 
 #' @keywords internal
 #' 
-fx_from_hx <- function(x, hx) {
+fx_from_hx <- function(x, hx, delta = diff(x)[1]) {
+  # Wed Jul  5 17:42:16 2017 ------------------------------
+  # if you want to change the value of delta use 0.1 or 0.2. Higer values will not 
+  # improve much the results, lower values will slow down the algorithm. 
+  select_values <- x %in% x
+  if (delta != diff(x)[1]) {
+    long_x  = seq(x[1], x[length(x)], by = delta)
+    select_values <- long_x %in% x
+    lo = loess(hx ~ x, span = 0.1)
+    long_hx = predict(lo, long_x)
+    x  <- long_x
+    hx <- long_hx 
+  }
+  # ----------------------------------------------
+  
   n_    <- length(x)  # length of age vector
-  delta <- diff(x)[1] # length of age interval
   I     <- diag(n_)   # identity matrix
   C     <- lower.tri(I, diag = TRUE) # matrix with logicals
   C[C == 1] <- -delta 
@@ -87,15 +100,16 @@ fx_from_hx <- function(x, hx) {
   V   <- diag(as.vector(fx))
   G   <- V %*% M1
   
-  out <- list(fx = fx, gradient = G)
+  out <- list(fx = fx[select_values], gradient = G)
   return(out)
 }
+
+
 
 #' Function for obtaining hx from fx
 #' @keywords internal
 #' 
-hx_from_fx <- function(x, fx){
-  
+hx_from_fx <- function(x, fx, delta = diff(x)[1]){
   # First attempt
   start_eta = find_start_eta(fx) # eta = log(hx)
   eta_hat   = find_optim_eta(x, start_eta[[2]], fx, step = 0.1, iter = 15)
@@ -106,9 +120,10 @@ hx_from_fx <- function(x, fx){
     eta_hat = find_optim_eta(x, start_eta[[1]], fx, step = 1, iter = 100)
   }
   
-  out <- exp(eta_hat) 
+  out <- exp(eta_hat)
   return(out)
 }
+
 
 
 #' find some starting eta
@@ -196,4 +211,3 @@ iter.func <- function(x, eta, fx, lambda, iter = 100, tol = 10^-4){
   out <- as.numeric(eta)
   return(out)
 }
-

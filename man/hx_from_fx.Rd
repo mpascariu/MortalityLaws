@@ -4,7 +4,7 @@
 \alias{hx_from_fx}
 \title{Function for obtaining hx from fx}
 \usage{
-hx_from_fx(x, fx)
+hx_from_fx(x, fx, delta = diff(x)[1])
 }
 \description{
 Function for obtaining hx from fx

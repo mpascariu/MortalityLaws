@@ -4,7 +4,7 @@
 \alias{fx_from_hx}
 \title{Functions for computing fx and the gradient from mx}
 \usage{
-fx_from_hx(x, hx)
+fx_from_hx(x, hx, delta = diff(x)[1])
 }
 \description{
 Functions for computing fx and the gradient from mx
