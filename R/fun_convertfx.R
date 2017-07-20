@@ -2,8 +2,8 @@
 #' Convert the \code{"mx", "qx", "fx"} functions 
 #' 
 #' This function can be used to convert the \code{"mx", "qx", "fx"} functions between them.
-#' For example to transform a vector of age-specific death rates (mx) into a 
-#' empirical density function (fx) or 1-year probabilities of death.
+#' For example to transform a vector of age-specific death rates (\code{mx}) into a 
+#' empirical density function (\code{fx}) or 1-year probabilities of death (\code{qx}).
 #' The \code{mx/qx} conversion follows the Chiang method (Shoen, 1978).
 #' The \code{mx/fx} conversion is made using the \href{https://en.wikipedia.org/wiki/Gauss-Newton_algorithm}{Gauss-Newton algorithm}
 #' 

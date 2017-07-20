@@ -102,3 +102,19 @@ print.ReadHMD <- function(x, ...){
   cat('Countries included:', x$input$countries, '\n\nData:\n')
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }
+
+#' @keywords internal
+#' @export
+print.availableHMD <- function(x, ...) {
+  cat('Human Mortality Database (www.mortality.org)\n')
+  cat('Checked Date:', x$checked.date, '\n')
+  cat('Number of countries/populations:', length(x$countries), '\n\n')
+  cat('The list below contains the populations currently included in the HMD,\n')
+  cat('with the range of years covered by the period life tables:\n\n')
+  print(x$avalable.data)
+}
+
+
+
+
+
