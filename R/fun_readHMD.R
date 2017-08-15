@@ -107,18 +107,21 @@ read_hmd <- function(what, country, interval, username, password){
                           # Cohort data
                           mxc = paste0("cMx_", interval, ".txt"),    # deaths
                           Exc = paste0("cExposures_", interval, ".txt") # exposure
-      ) 
-    }
+      )}
   path       <- paste0("http://www.mortality.org/hmd/", country, 
                        "/STATS/", whichFile)
   userpwd    <- paste0(username, ":", password)
   txt        <- getURL(path, userpwd = userpwd)
   con        <- textConnection(txt)
-  dat        <- read.table(con, skip = 2, header = TRUE, na.strings = ".")
+  errMessage <- paste0("\nThe server could not verify that you are authorized ",
+                       "to access the requested data.\n", "Most probably you ",
+                       "supplied the wrong credentials (e.g., bad password).")
+  dat <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
+             stop(errMessage))
   close(con)
-  datCnt     <- cbind(country, dat)
-  if (interval == "1x1" & !(what %in% c('births', 'lexis', 'e0')) ) datCnt$Age = 0:110
-  return(datCnt)
+  out <- cbind(country, dat)
+  if (interval == "1x1" & !(what %in% c('births', 'lexis', 'e0')) ) out$Age = 0:110
+  return(out)
 }
 
 #' Countries
@@ -161,7 +164,7 @@ availableHMD <- function(username, password, ...) {
     dta  = rbind(dta, data.frame(country = cntr, BOP = int[1], EOP = int[2]))
   }
   
-  cd <- HMD$download.date
+  cd  <- HMD$download.date
   out <- structure(class = "availableHMD",
                    list(avalable.data = dta, countries = cts, 
                         number.of.contries = nc, checked.date = cd))
