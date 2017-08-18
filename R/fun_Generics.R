@@ -4,35 +4,32 @@
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-  # cat('Model:\n')
   cat(x$info$model.info, '\n')
   cat('\nCoefficients:\n')
-  if (all(coef(x) < 1e-3)) {
-    coeff = x$coefficients } else {coeff = round(x$coefficients, 5)}
-  print(coeff)
+  digits <- if (all(coef(x) < 1e-3)) 8 else 5
+  print(round(coef(x), digits))
 }
 
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-  # cat('Model:\n')
   cat(object$info$model.info, '\n')
-  # cat('\nCall:\n')
-  # print(object$call)
   cat('\nDeviance Residuals:\n')
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   cat('\nCoefficients:\n')
-  if (all(coef(object) < 1e-3)) {
-    coeff = object$coefficients } else {coeff = round(object$coefficients, 5)}
-  print(coeff)
-  cat('\nLog-Likelihood = ', round(object$goodness.of.fit$logLikelihood, 2),
-      ' AIC = ', round(object$goodness.of.fit$AIC, 2), 
-      ' BIC = ', round(object$goodness.of.fit$BIC, 2))
+  digits <- if (all(coef(object) < 1e-3)) 8 else 5
+  print(round(coef(object), digits ))
+  
+  cat('\nGoodness of fit:\n')
+  print(round(object$goodness.of.fit, 2))
 }
 
 #' @keywords internal
 #' @export
 plot.MortalityLaw <- function(x, ...){
+  with(x$input, if (is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
+         stop('Plot function not available for this type of object.', call. = FALSE)})
+  
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   lay_mat <- matrix(c(1, 2, 3, 1, 2, 3), ncol = 3, byrow = TRUE)
   layout(lay_mat, widths = 1.5*c(6, 6, 1.5), 

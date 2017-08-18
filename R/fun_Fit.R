@@ -22,18 +22,20 @@
 #' advance ages were the data is sparse.
 #' @param custom.law This argument allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
-#' @param ... Other argumnets
+#' @param show_pb Choose whether to display a progress bar during the fiting process. 
+#' Logical. Default value: \code{TRUE}.
 #' @return A \code{MortalityLaw} object
 #' @examples 
 #' library(MortalityLaws)
+#' 
+#' # Example 1:
+#' # Fit Makeham model for year of 1950.
 #' 
 #' yr <- 1950
 #' ages  <- 35:75
 #' Dx <- ahmd$Dx[paste(ages), paste(yr)]
 #' Ex <- ahmd$Nx[paste(ages), paste(yr)]
-#' mx <- ahmd$mx[paste(ages), paste(yr)]
 #' 
-#' # Fit Makeham model
 #' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
 #' 
 #' model1
@@ -42,9 +44,11 @@
 #' plot(model1)
 #' 
 #' # we can fit the same model using diffrent data and a different optimization procedure
+#' mx <- ahmd$mx[paste(ages), paste(yr)]
 #' model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 #' 
 #' #---------------------------------------
+#' # Example 2:
 #' # Now let's fit a mortality law that is not defined in the package, say a
 #' # reparametrize Gompertz in terms of modal age at death
 #' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
@@ -58,53 +62,88 @@
 #' summary(model2)
 #' plot(model2)
 #' 
+#' #---------------------------------------
+#' # Example 3:
+#' # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
+#' 
+#' ages  <- 0:100
+#' Dx <- ahmd$Dx[paste(ages), ]
+#' Ex <- ahmd$Nx[paste(ages), ]
+#' 
+#' model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
+#' model3
+#' 
+#' 
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
                          law, how = 'poissonL', parS = NULL, 
-                         fit.this.x = x, custom.law = NULL, ...){
-  # Check input & set clock
-  if (!is.null(custom.law)) {
-    law = 'custom.law'
-    parS = custom.law(1)$par
-    }
+                         fit.this.x = x, custom.law = NULL, show_pb = TRUE){
+  
+  if (!is.null(custom.law)) {law = 'custom.law'; parS = custom.law(1)$par}
   if (is.null(parS)) { parS = choose_Spar(law) }
   input <- c(as.list(environment()))
   
-  pb <- startpb(0, 4) # Start the clock!
-  on.exit(closepb(pb)) # Stop clock on exit.
-  check_input(input)
-  setpb(pb, 1)
-  
-  # Find optim coefficients
-  opt_ <- choose_optim(input)
-  gof  <- list(AIC = opt_$AIC, BIC = opt_$BIC, 
-               logLikelihood = opt_$logLikelihood)
-  setpb(pb, 2)
-  
-  # Fit mortality law
-  x_    <- compute_x(x, law)$x_
-  mlaw  <- eval(call(law, x_, par = opt_$coef)) # Mortality law
-  
-  # Fitted values & residuals
-  fit   <- mlaw$hx
-  if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
-    if (!is.null(Dx)) qx = convertFx(Dx/Ex, x, type = 'mx', output = 'qx')
-    resid <- qx - fit
-  } else {
-    if (!is.null(Dx)) { mx = Dx/Ex }
-    resid <- mx - fit 
+  if (!is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
+    check_input(input) # Check input
+    if (show_pb) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
+    
+    # Find optim coefficients
+    opt_ <- choose_optim(input)
+    gof  <- c(log_Likelihood = opt_$logLikelihood, 
+              AIC = opt_$AIC, BIC = opt_$BIC)
+    if (show_pb) setpb(pb, 2)
+    
+    # Fit mortality law
+    x_    <- compute_x(x, law)$x_
+    mlaw  <- eval(call(law, x_, par = opt_$coef)) # Mortality law
+    
+    # Fitted values & residuals
+    fit   <- mlaw$hx
+    if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
+      if (!is.null(Dx)) qx = convertFx(Dx/Ex, x, type = 'mx', output = 'qx')
+      resid <- qx - fit
+    } else {
+      if (!is.null(Dx)) { mx = Dx/Ex }
+      resid <- mx - fit 
+    }
+    if (show_pb) setpb(pb, 3)
+    
+    # Prepare, arrange, customize output
+    info   <- list(model.info = choose_law_info(law), process.date = date())
+    output <- list(input = input, info = info, coefficients = opt_$coef,
+                   fitted.values = fit, residuals = resid,
+                   optimization.object = opt_$fn_opt, goodness.of.fit = gof)
+    output$info$call <- match.call()
+    if (show_pb) setpb(pb, 4)
   }
-  setpb(pb, 3)
   
-  # Prepare, arrange, customize output
-  info   <- list(model.info = choose_law_info(law), process.date = date())
-  output <- list(input = input, info = info, coefficients = opt_$coef,
-                 fitted.values = fit, residuals = resid,
-                 optimization.object = opt_$fn_opt, goodness.of.fit = gof)
-  output$info$call <- match.call()
+  if (is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
+    n  <- max(unlist(lapply(list(mx, qx, Dx, Ex), FUN = ncol)))
+    if (show_pb) {pb <- startpb(0, n + 1); on.exit(closepb(pb))} # Set progress bar
+    
+    cf = fit = gof = resid <- NULL
+    for (i in 1:n) {
+      if (show_pb) setpb(pb, i)
+      mdl <- MortalityLaw(x, mx[, i], qx[, i], Dx[, i], Ex[, i], 
+                          law, how, parS, fit.this.x, custom.law, 
+                          show_pb = FALSE)
+      cf    <- rbind(cf, coef(mdl))
+      gof   <- rbind(gof, mdl$goodness.of.fit)
+      fit   <- cbind(fit, fitted(mdl))
+      resid <- cbind(resid, mdl$residuals)
+    }
+    
+    c_names <- if (!is.null(Dx)) { colnames(Dx) } else { 
+                  if (!is.null(mx)) colnames(mx) else colnames(qx) } 
+    rownames(cf) = rownames(gof) = colnames(fit) = colnames(resid) <- c_names
+    
+    output <- list(input = input, info = mdl$info, coefficients = cf,
+                   fitted.values = fit, residuals = resid,
+                   goodness.of.fit = gof)
+    if (show_pb) setpb(pb, n + 1)
+  }
   out <- structure(class = "MortalityLaw", output)
-  setpb(pb, 4)
   return(out)
 }
 
@@ -116,6 +155,16 @@ compute_x <- function(x, law, max_x = 110, ...){
   x_     <- x
   x_full <- (min(x_ - x)):(max(x_) + max_x - max(x))
   return(as.list(environment()))
+}
+
+#' @keywords internal
+#' 
+is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
+  c1 = is.matrix(mx) | is.data.frame(mx)
+  c2 = is.matrix(qx) | is.data.frame(qx)
+  c3 = is.matrix(Dx) | is.data.frame(Dx)
+  c4 = is.matrix(Ex) | is.data.frame(Ex)
+  return(any(c1, c2, c3, c4))
 }
 
 # -------------------------------------------------------------

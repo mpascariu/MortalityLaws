@@ -5,6 +5,8 @@
 check_input <- function(input){
   with(input, 
        {
+        if(!is.logical(show_pb)) stop('show_pb should be TRUE or FALSE')
+           
         if (!is.null(mx)) {
           if (length(x) != length(mx)) 
             stop('x and mx do not have the same length!')

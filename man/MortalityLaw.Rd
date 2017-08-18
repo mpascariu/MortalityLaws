@@ -5,7 +5,8 @@
 \title{Fit mortality law}
 \usage{
 MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
-  how = "poissonL", parS = NULL, fit.this.x = x, custom.law = NULL, ...)
+  how = "poissonL", parS = NULL, fit.this.x = x, custom.law = NULL,
+  show_pb = TRUE)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -36,7 +37,8 @@ advance ages were the data is sparse.}
 \item{custom.law}{This argument allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 
-\item{...}{Other argumnets}
+\item{show_pb}{Choose whether to display a progress bar during the fiting process. 
+Logical. Default value: \code{TRUE}.}
 }
 \value{
 A \code{MortalityLaw} object
@@ -49,13 +51,14 @@ So far there are more than 20 parametric model implemented.
 \examples{
 library(MortalityLaws)
 
+# Example 1:
+# Fit Makeham model for year of 1950.
+
 yr <- 1950
 ages  <- 35:75
 Dx <- ahmd$Dx[paste(ages), paste(yr)]
 Ex <- ahmd$Nx[paste(ages), paste(yr)]
-mx <- ahmd$mx[paste(ages), paste(yr)]
 
-# Fit Makeham model
 model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
 
 model1
@@ -64,9 +67,11 @@ summary(model1)
 plot(model1)
 
 # we can fit the same model using diffrent data and a different optimization procedure
+mx <- ahmd$mx[paste(ages), paste(yr)]
 model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 
 #---------------------------------------
+# Example 2:
 # Now let's fit a mortality law that is not defined in the package, say a
 # reparametrize Gompertz in terms of modal age at death
 # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
@@ -79,5 +84,17 @@ my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
 model2 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
 summary(model2)
 plot(model2)
+
+#---------------------------------------
+# Example 3:
+# Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
+
+ages  <- 0:100
+Dx <- ahmd$Dx[paste(ages), ]
+Ex <- ahmd$Nx[paste(ages), ]
+
+model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
+model3
+
 
 }
