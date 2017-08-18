@@ -95,8 +95,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     if (show_pb) setpb(pb, 2)
     
     # Fit mortality law
-    x_    <- compute_x(x, law)$x_
-    mlaw  <- eval(call(law, x_, par = opt_$coef)) # Mortality law
+    mlaw  <- eval(call(law, x, par = opt_$coef)) # Mortality law
     
     # Fitted values & residuals
     fit   <- mlaw$hx
@@ -147,15 +146,6 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   return(out)
 }
 
-
-#' @keywords internal
-#' 
-compute_x <- function(x, law, max_x = 110, ...){
-  x      <- unique(x[order(x)])
-  x_     <- x
-  x_full <- (min(x_ - x)):(max(x_) + max_x - max(x))
-  return(as.list(environment()))
-}
 
 #' @keywords internal
 #' 
