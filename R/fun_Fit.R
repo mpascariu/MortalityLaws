@@ -14,8 +14,7 @@
 #' @param how How would you like to find the parameters? Specify the function 
 #' to be optimize. Available options: the Poisson likelihood function 
 #' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-#' Least absolute errors \code{LAE};
-#' and Least square errors \code{LSE}.
+#' and other 6 loss functions. For more details check \code{\link{availableLF}}.
 #' @param parS Starting parameters used in optimization process (optional)
 #' @param fit.this.x select the ages to be cosidered in model fitting. By default 
 #' fit.this.x = x. One may want exculde from the fitting procedure say the 

@@ -25,8 +25,7 @@ MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
 \item{how}{How would you like to find the parameters? Specify the function 
 to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-Least absolute errors \code{LAE};
-and Least square errors \code{LSE}.}
+and other 6 loss functions. For more details check \code{\link{availableLF}}.}
 
 \item{parS}{Starting parameters used in optimization process (optional)}
 
