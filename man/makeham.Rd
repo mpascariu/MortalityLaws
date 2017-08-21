@@ -2,11 +2,11 @@
 % Please edit documentation in R/fun_MortalityLaw.R
 \name{makeham}
 \alias{makeham}
-\title{Makeham mortality law - informative parametrization}
+\title{Makeham mortality law}
 \usage{
 makeham(x, par = NULL)
 }
 \description{
-Makeham mortality law - informative parametrization
+Makeham mortality law
 }
 \keyword{internal}

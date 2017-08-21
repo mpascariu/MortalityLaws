@@ -18,7 +18,7 @@
 #' and other 6 loss functions. For more details check \code{\link{availableLF}} function.
 #' @param parS Starting parameters used in optimization process (optional).
 #' @param fit.this.x select the ages to be considered in model fitting. By default 
-#' fit.this.x = x. One may want exclude from the fitting procedure say the 
+#' \code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
 #' advance ages were the data is sparse.
 #' @param custom.law This argument allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
@@ -83,7 +83,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   input <- c(as.list(environment()))
   
   if (!is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
-    check_input(input) # Check input
+    check.MortalityLaw(input) # Check input
     if (show_pb) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     
     # Find optim coefficients
@@ -210,7 +210,7 @@ choose_optim <- function(input){
     Dx = Dx[select.x]
     Ex = Ex[select.x]
     # Optimize 
-    if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
+    if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki')) {
       opt <- nlminb(start = log(parS), objective = objective_fun, 
                     custom.law = custom.law,
                     law = law, fun = how,

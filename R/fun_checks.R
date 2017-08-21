@@ -2,26 +2,22 @@
 #' Function to check input data in MortalityLaw
 #' @keywords internal
 #' 
-check_input <- function(input){
+check.MortalityLaw <- function(input){
   with(input, 
        {
         if (!is.logical(show_pb)) stop('show_pb should be TRUE or FALSE')
            
         if (!is.null(mx)) {
           if (length(x) != length(mx)) 
-            stop('x and mx do not have the same length!')
+            stop('x and mx do not have the same length!', call. = FALSE)
         }
         
         if (!is.null(Dx)) {
           if (length(x) != length(Dx) | length(x) != length(Ex) ) 
-            stop('x, Dx and Ex do not have the same length!')
+            stop('x, Dx and Ex do not have the same length!', call. = FALSE)
         }
         
-        models <- c('gompertz', 'gompertz0', 'invgompertz',
-                    'weibull', 'invweibull', 'carriere1', 'carriere2',
-                    'makeham', 'makeham0', 'kannisto', #'demoivre', 
-                    'opperman', 'HP', 'HP2', 'HP3', 'HP4',
-                    'thiele', 'wittstein', 'siler', 'custom.law')
+        models <- c(as.matrix(availableLaws()$table[, 5]), 'custom.law')
         if ( !(law %in% models)) {
           m1 <- 'Mortality law not available\n'
           m2 <- 'Check one of the following models:\n'
@@ -36,6 +32,12 @@ check_input <- function(input){
           m2 <- 'Check one of the following options:\n'
           err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))
           stop(err2, call. = FALSE)
+        }
+        
+        if (law %in% c('vandermaen', 'vandermaen2', 'quadratic') & min(x) > 1) {
+         warning(paste('The x vector needs to be scaled down in order to obtain', 
+                       'meaningful estimates and a good fit. [e.g.: x <- x - min(x)]'), 
+                 call. = FALSE) 
         }
   })
 }

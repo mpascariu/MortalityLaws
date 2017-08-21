@@ -31,7 +31,7 @@ and other 6 loss functions. For more details check \code{\link{availableLF}} fun
 \item{parS}{Starting parameters used in optimization process (optional).}
 
 \item{fit.this.x}{select the ages to be considered in model fitting. By default 
-fit.this.x = x. One may want exclude from the fitting procedure say the 
+\code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
 advance ages were the data is sparse.}
 
 \item{custom.law}{This argument allows you to fit a model that is not defined 
