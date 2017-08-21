@@ -9,31 +9,32 @@
 #' @param qx Vector of age-specific probabilities of death
 #' @param Dx Vector containing death counts
 #' @param Ex Vector containing the exposed population
-#' @param law The name of the mortality law/model to be fitted. eg. \code{gompertz}, 
-#' \code{makeham}, ...
+#' @param law The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+#' \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+#' function.
 #' @param how How would you like to find the parameters? Specify the function 
 #' to be optimize. Available options: the Poisson likelihood function 
 #' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-#' and other 6 loss functions. For more details check \code{\link{availableLF}}.
-#' @param parS Starting parameters used in optimization process (optional)
-#' @param fit.this.x select the ages to be cosidered in model fitting. By default 
-#' fit.this.x = x. One may want exculde from the fitting procedure say the 
+#' and other 6 loss functions. For more details check \code{\link{availableLF}} function.
+#' @param parS Starting parameters used in optimization process (optional).
+#' @param fit.this.x select the ages to be considered in model fitting. By default 
+#' fit.this.x = x. One may want exclude from the fitting procedure say the 
 #' advance ages were the data is sparse.
 #' @param custom.law This argument allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
-#' @param show_pb Choose whether to display a progress bar during the fiting process. 
+#' @param show_pb Choose whether to display a progress bar during the fitting process. 
 #' Logical. Default value: \code{TRUE}.
 #' @return A \code{MortalityLaw} object
-#' @examples 
+#' @examples
 #' library(MortalityLaws)
 #' 
-#' # Example 1:
+#' # Example 1: ---------------------------------------
 #' # Fit Makeham model for year of 1950.
 #' 
 #' yr <- 1950
 #' ages  <- 35:75
 #' Dx <- ahmd$Dx[paste(ages), paste(yr)]
-#' Ex <- ahmd$Nx[paste(ages), paste(yr)]
+#' Ex <- ahmd$Ex[paste(ages), paste(yr)]
 #' 
 #' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
 #' 
@@ -46,8 +47,7 @@
 #' mx <- ahmd$mx[paste(ages), paste(yr)]
 #' model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 #' 
-#' #---------------------------------------
-#' # Example 2:
+#' # Example 2: ---------------------------------------
 #' # Now let's fit a mortality law that is not defined in the package, say a
 #' # reparametrize Gompertz in terms of modal age at death
 #' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
@@ -61,13 +61,12 @@
 #' summary(model2)
 #' plot(model2)
 #' 
-#' #---------------------------------------
-#' # Example 3:
+#' # Example 3: ---------------------------------------
 #' # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
 #' 
 #' ages  <- 0:100
 #' Dx <- ahmd$Dx[paste(ages), ]
-#' Ex <- ahmd$Nx[paste(ages), ]
+#' Ex <- ahmd$Ex[paste(ages), ]
 #' 
 #' model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
 #' model3
@@ -108,7 +107,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     if (show_pb) setpb(pb, 3)
     
     # Prepare, arrange, customize output
-    info   <- list(model.info = choose_law_info(law), process.date = date())
+    info   <- list(model.info = availableLaws(law)$table, process.date = date())
     output <- list(input = input, info = info, coefficients = opt_$coef,
                    fitted.values = fit, residuals = resid,
                    optimization.object = opt_$fn_opt, goodness.of.fit = gof)
@@ -256,3 +255,39 @@ choose_optim <- function(input){
 }
 
 
+
+#' Check available loss function 
+#' 
+#' The function returns information about the implemented loss function used by the 
+#' optimization procedure in \code{\link{MortalityLaw}} function. 
+#' @return An \code{availableLF} object.
+#' @examples 
+#' 
+#' availableLF()
+#' 
+#' @export
+availableLF <- function(){
+  tab <- as.data.frame(
+    matrix(c(" -[Dx * log(mu) - mu*Ex]", "poissonL",
+             " -[Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu]  ", "binomialL",
+             "  [1 - mu/ov]^2", "LF1",
+             "  log[mu/ov]^2", "LF2",
+             "  [(ov - mu)^2]/ov", "LF3",
+             "  [ov - mu]^2", "LF4",
+             "  [ov - mu] * log[ov/mu]", "LF5",
+             "  |ov - mu|", "LF6"), ncol = 2, byrow = T))
+  colnames(tab) <- c("LOSS FUNCTION", "CODE")
+  
+  legend <- c("Dx - Death counts", "Ex - Exposure", 
+              "mu - Estimated value", "ov - Observed value")
+  
+  hint <- c("Most of the functions work well with <poissonL>, however for complex",
+            "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using",
+            "other loss function (e.g. LF2). You are strongly encouraged to test",
+            "different option before deciding on the final version. The results will be",
+            "slightly different.")
+  
+  out <- structure(class = "availableLF", 
+                   list(table = tab, legend = legend, hint = hint))
+  return(out)
+} 

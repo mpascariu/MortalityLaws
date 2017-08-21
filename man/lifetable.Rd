@@ -18,7 +18,7 @@ Ex is the mid-year population aged x to x+1}
 
 \item{mx}{Age-specific death rates}
 
-\item{qx}{1-year pobability of dying between age x and x+1}
+\item{qx}{1-year probability of dying between age x and x+1}
 
 \item{lx0}{Radix}
 
@@ -35,16 +35,12 @@ or (age, mx) or (age, qx)
 \examples{
 library(MortalityLaws)
 
-F_Dx <- ahmd$Dx
-F_Nx <- ahmd$Nx
-F_mx <- ahmd$mx
-
-ages <- as.numeric(rownames(F_mx))
+ages <- as.numeric(rownames(ahmd$mx))
 year <- 1900
 
-mx <- F_mx[, paste(year)]
-Dx <- F_Dx[, paste(year)]
-Nx <- F_Nx[, paste(year)]
+mx <- ahmd$mx[, paste(year)]
+Dx <- ahmd$Dx[, paste(year)]
+Nx <- ahmd$Ex[, paste(year)]
 
 LifeTable(x = ages, mx = mx)$lt
 LifeTable(x = ages, Dx = Dx, Ex = Nx)$lt

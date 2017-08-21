@@ -19,24 +19,25 @@ MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
 
 \item{Ex}{Vector containing the exposed population}
 
-\item{law}{The name of the mortality law/model to be fitted. eg. \code{gompertz}, 
-\code{makeham}, ...}
+\item{law}{The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+\code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+function.}
 
 \item{how}{How would you like to find the parameters? Specify the function 
 to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-and other 6 loss functions. For more details check \code{\link{availableLF}}.}
+and other 6 loss functions. For more details check \code{\link{availableLF}} function.}
 
-\item{parS}{Starting parameters used in optimization process (optional)}
+\item{parS}{Starting parameters used in optimization process (optional).}
 
-\item{fit.this.x}{select the ages to be cosidered in model fitting. By default 
-fit.this.x = x. One may want exculde from the fitting procedure say the 
+\item{fit.this.x}{select the ages to be considered in model fitting. By default 
+fit.this.x = x. One may want exclude from the fitting procedure say the 
 advance ages were the data is sparse.}
 
 \item{custom.law}{This argument allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 
-\item{show_pb}{Choose whether to display a progress bar during the fiting process. 
+\item{show_pb}{Choose whether to display a progress bar during the fitting process. 
 Logical. Default value: \code{TRUE}.}
 }
 \value{
@@ -50,13 +51,13 @@ So far there are more than 20 parametric model implemented.
 \examples{
 library(MortalityLaws)
 
-# Example 1:
+# Example 1: ---------------------------------------
 # Fit Makeham model for year of 1950.
 
 yr <- 1950
 ages  <- 35:75
 Dx <- ahmd$Dx[paste(ages), paste(yr)]
-Ex <- ahmd$Nx[paste(ages), paste(yr)]
+Ex <- ahmd$Ex[paste(ages), paste(yr)]
 
 model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
 
@@ -69,8 +70,7 @@ plot(model1)
 mx <- ahmd$mx[paste(ages), paste(yr)]
 model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
 
-#---------------------------------------
-# Example 2:
+# Example 2: ---------------------------------------
 # Now let's fit a mortality law that is not defined in the package, say a
 # reparametrize Gompertz in terms of modal age at death
 # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
@@ -84,13 +84,12 @@ model2 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
 summary(model2)
 plot(model2)
 
-#---------------------------------------
-# Example 3:
+# Example 3: ---------------------------------------
 # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
 
 ages  <- 0:100
 Dx <- ahmd$Dx[paste(ages), ]
-Ex <- ahmd$Nx[paste(ages), ]
+Ex <- ahmd$Ex[paste(ages), ]
 
 model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
 model3

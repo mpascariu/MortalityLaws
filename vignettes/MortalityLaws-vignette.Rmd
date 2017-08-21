@@ -101,7 +101,7 @@ In the examples provided below we will use the test data provided in the package
 year = 1950
 ages = 0:100
 deaths <- ahmd$Dx[paste(ages), paste(year)]
-exposure <- ahmd$Nx[paste(ages), paste(year)]
+exposure <- ahmd$Ex[paste(ages), paste(year)]
 
 fit <- MortalityLaw(x = ages,
                     Dx = deaths, # vector with death counts
@@ -147,7 +147,7 @@ We have to define a function containing the desired hazard function and then usi
 year = 2010
 ages = 35:75
 deaths <- ahmd$Dx[paste(ages), paste(year)]
-exposure <- ahmd$Nx[paste(ages), paste(year)]
+exposure <- ahmd$Ex[paste(ages), paste(year)]
 
 # Here we define a function for our new model and provide start parameters
 my_gompertz <- function(x, par = c(b = 0.13, M = 45)){

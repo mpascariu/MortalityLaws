@@ -4,8 +4,8 @@
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-  cat(x$info$model.info, '\n')
-  cat('\nCoefficients:\n')
+  cat(paste(as.matrix(x$info$model.info[, c(2, 3)]), collapse = ':\n'))
+  cat('\n\nCoefficients:\n')
   digits <- if (all(coef(x) < 1e-3)) 8 else 5
   print(round(coef(x), digits))
 }
@@ -13,8 +13,8 @@ print.MortalityLaw <- function(x, ...) {
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-  cat(object$info$model.info, '\n')
-  cat('\nDeviance Residuals:\n')
+  cat(paste(as.matrix(object$info$model.info[, c(2, 3)]), collapse = ':\n'))
+  cat('\n\nDeviance Residuals:\n')
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   cat('\nCoefficients:\n')
   digits <- if (all(coef(object) < 1e-3)) 8 else 5
@@ -113,5 +113,23 @@ print.availableHMD <- function(x, ...) {
 
 
 
+#' @keywords internal
+#' @export
+print.availableLF <- function(x, ...) {
+  cat("\nLoss functions available in the package:\n\n")
+  print(x$table, right = F)
+  cat("\nLEGEND:\n")
+  cat(x$legend, sep = '\n')
+  cat("\nHINT:\n")
+  cat(x$hint, sep = '\n')
+}
 
+#' @keywords internal
+#' @export
+print.availableLaws <- function(x, ...) {
+  cat("\nMortality laws available in the package:\n\n")
+  print(x$table, right = F)
+  cat("\nLEGEND:\n")
+  print(x$legend, right = FALSE, row.names = FALSE)
+}
 

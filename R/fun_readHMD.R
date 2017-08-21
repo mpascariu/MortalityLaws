@@ -5,7 +5,7 @@
 #' Function for downloading data for several countries in a single object 
 #' from the Human Mortality Database (\url{http://www.mortality.org}).
 #' @param what What type of data are you looking for? We have death counts,
-#' exposures, death-rates, life tables for femlaes, life table for males,
+#' exposures, death-rates, life tables for females, life table for males,
 #' life table for total population, cohort death-rates and cohort exposures. 
 #' The codes: \code{births}, \code{population}, \code{lexis},
 #' \code{Dx}, \code{Ex}, \code{mx}, \code{LT_f}, 

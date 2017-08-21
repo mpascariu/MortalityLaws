@@ -307,32 +307,65 @@ bring_parameters <- function(law, par = NULL) {
 }
 
 
-#' Select info
-#' @keywords internal
+
+
+#' Check available mortality laws
 #' 
-choose_law_info <-  function(law){
-  info = switch(law,
-                demoivre    = 'DeMoivre (1725):\nh(x) = 1/(a-x)',
-                gompertz0   = 'Gompertz (1825):\nh(x) = a*exp(b*x)',
-                gompertz    = 'Gompertz (1825):\nh(x) = 1/sigma * exp[(x-m)/sigma)]',
-                invgompertz = 'Inverse-Gompertz:\nh(x) = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]',
-                makeham0    = 'Makeham (1860):\nh(x) = a*exp(b*x) + c',
-                makeham     = 'Makeham (1860):\nh(x) = 1/sigma * exp[(x-m)/sigma)] + c',
-                opperman    = 'Opperman (1870):\nh(x) = a*x^(-1/2) + b + c*x^(1/3)',
-                thiele      = 'Thiele (1871):\nh(x) = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)',
-                wittstein   = 'Wittstein (1883):\nh(x) = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]',
-                weibull     = 'Weibull (1939):\nh(x) = 1/sigma * (x/m)^(m/sigma - 1)',
-                invweibull  = 'Inverse-Weibull:\nh(x) = 1/sigma * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1)',
-                HP          = 'Heligman-Pollard (1980):\nq(x)/p(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x)',
-                HP2         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x / (1+G*H^x))',
-                HP3         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^x / (1+K*G*H^x))',
-                HP4         = 'Heligman-Pollard (1980):\nq(x) = A^((x+B)^C) + D*exp(-E*(log(x/F))^2) + G*H^(x^K) / (1+G*H^(x^K))',
-                siler       = 'Siler (1979):\nh(x) = a*exp(-b*x) + c + d*exp(e*x)',
-                kannisto    = 'Kannisto (1992):\nh(x) = a*exp(b*x) / [1 + a*exp(b*x)]',
-                carriere1   = 'Carriere1 (1992):\nWeibull + Inverse-Weibull + Gompertz',
-                carriere2   = 'Carriere2 (1992):\nWeibull + Inverse-Gompertz + Gompertz',
-                custom.law  = 'Custom Model'
-  )
-  return(info)
+#' The function returns information about the implemented parametric functions 
+#' in \code{\link{MortalityLaw}} function.
+#' @param law Default: \code{NULL}. One can substract details about a certain model
+#' by specifing its code.
+#' @return An \code{availableLaws} object.
+#' @examples 
+#' 
+#' availableLaws()
+#' 
+#' @export
+availableLaws <- function(law = NULL){
+  
+  if (is.null(law)) {
+    table <- as.data.frame(matrix(ncol = 6, byrow = T,
+              c(1825, 'Gompertz', 'mu[x] = a*exp(b*x)', 3, 'gompertz0', 'mu[x]',
+                NA, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-m)/sigma)]', 3, 'gompertz', 'mu[x]',
+                NA, 'Inverse-Gompertz', 'mu[x] = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]', 2, 'invgompertz', 'mu[x]',
+                1860, 'Makeham', 'mu[x] = a*exp(b*x) + c', 3, 'makeham0', 'mu[x]',
+                NA, 'Makeham', 'mu[x] = 1/sigma * exp[(x-m)/sigma)] + c', 3, 'makeham', 'mu[x]',
+                1870, 'Opperman', 'mu[x] = a*x^(-1/2) + b + c*x^(1/3)', 1, 'opperman', 'mu[x]',
+                1871, 'Thiele', 'mu[x] = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)', 5, 'thiele', 'mu[x]',
+                1883, 'Wittstein', 'mu[x] = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]', 5, 'wittstein', 'mu[x]',
+                1939, 'Weibull', 'mu[x] = 1/sigma * (x/m)^(m/sigma - 1)', 1, 'weibull', 'mu[x]',
+                NA, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/m)^[-m/sigma - 1] / [exp((x/m)^(-m/sigma)) - 1]', 2, 'invweibull', 'mu[x]', 
+                1979, 'Siler', 'mu[x] = a*exp(-b*x) + c + d*exp(e*x)', 5, 'siler', 'mu[x]',
+                1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x', 5, 'HP', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1+G*H^x]', 5, 'HP2', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1+K*G*H^x]', 5, 'HP3', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^(x^K) / [1+G*H^(x^K)]', 5, 'HP4', 'q[x]',
+                1992, 'Kannisto', 'mu(x) = a*exp(b*x) / [1 + a*exp(b*x)]', 4, 'Kannisto', 'mu[x]',
+                1992, 'Carriere', 'Weibull + Inverse-Weibull + Gompertz', 5, 'carriere1', '?',
+                1992, 'Carriere', 'Weibull + Inverse-Gompertz + Gompertz', 5, 'carriere2', '?')))
+    colnames(table) <- c('YEAR', 'NAME', 'MODEL', 'TYPE', 'CODE', 'FIT')
+    
+    legend <- as.data.frame(matrix(ncol = 2, byrow = T, 
+                                   c(1, "Infant mortality",
+                                     2, "Accidental hump",
+                                     3, "Adult mortality",
+                                     4, "Old-age mortality",
+                                     5, "Full age range")))
+    colnames(legend) <- c("TYPE", "Coverage" )
+  }
+  
+  if (!is.null(law)) {
+    A <- availableLaws() 
+    table <- A$table[A$table$CODE %in% law, ]
+    legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]
+  }
+  
+  out <- structure(class = "availableLaws", 
+                   list(table = table, legend = legend))
+  return(out)
 }
+
+
+
+
 

@@ -9,7 +9,7 @@ ReadHMD(what, countries = NULL, interval = "1x1", username, password,
 }
 \arguments{
 \item{what}{What type of data are you looking for? We have death counts,
-exposures, death-rates, life tables for femlaes, life table for males,
+exposures, death-rates, life tables for females, life table for males,
 life table for total population, cohort death-rates and cohort exposures. 
 The codes: \code{births}, \code{population}, \code{lexis},
 \code{Dx}, \code{Ex}, \code{mx}, \code{LT_f}, 
