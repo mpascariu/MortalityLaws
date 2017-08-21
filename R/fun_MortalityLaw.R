@@ -322,7 +322,6 @@ bring_parameters <- function(law, par = NULL) {
 #' 
 #' @export
 availableLaws <- function(law = NULL){
-  
   if (is.null(law)) {
     table <- as.data.frame(matrix(ncol = 6, byrow = T,
               c(1825, 'Gompertz', 'mu[x] = a*exp(b*x)', 3, 'gompertz0', 'mu[x]',
@@ -341,8 +340,8 @@ availableLaws <- function(law = NULL){
                 1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1+K*G*H^x]', 5, 'HP3', 'q[x]',
                 1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^(x^K) / [1+G*H^(x^K)]', 5, 'HP4', 'q[x]',
                 1992, 'Kannisto', 'mu(x) = a*exp(b*x) / [1 + a*exp(b*x)]', 4, 'Kannisto', 'mu[x]',
-                1992, 'Carriere', 'Weibull + Inverse-Weibull + Gompertz', 5, 'carriere1', '?',
-                1992, 'Carriere', 'Weibull + Inverse-Gompertz + Gompertz', 5, 'carriere2', '?')))
+                1992, 'Carriere', 'l[x] = p1*l[x](weibull) + p2*l[x](invweibull) + p3*l[x](gompertz)', 5, 'carriere1', 'q[x]',
+                1992, 'Carriere', 'l[x] = p1*l[x](weibull) + p2*l[x](invgompertz) + p3*l[x](gompertz)', 5, 'carriere2', 'q[x]')))
     colnames(table) <- c('YEAR', 'NAME', 'MODEL', 'TYPE', 'CODE', 'FIT')
     
     legend <- as.data.frame(matrix(ncol = 2, byrow = T, 

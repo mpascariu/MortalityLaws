@@ -39,3 +39,23 @@ check_input <- function(input){
         }
   })
 }
+
+#' @keywords internal
+#' 
+check.convertFx <- function(input) {
+  with(input, {
+   if (type == output) warning("type == output. The output is the same as the input!")
+   val <- c("mx", "qx", "fx")
+   if (!(type %in% val)) stop("<type> argument accepts the following values: ", 
+                              paste(val, collapse = ", "), call. = FALSE)
+   if (!(output %in% val)) stop("<output> argument accepts the following values: ", 
+                                paste(val, collapse = ", "), call. = FALSE)
+   if (is.matrix(data) | is.data.frame(data)) {
+     if (length(x) != nrow(data)) stop("The number of rows in <data> should be equal with the length of <x>", 
+                                       call. = FALSE)
+   } else {
+     if (length(x) != length(data)) stop("The length of <x> and <data> should be equal.", call. = FALSE)
+   }
+  })
+}
+

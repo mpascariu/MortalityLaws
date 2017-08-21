@@ -18,11 +18,10 @@ convertFx(data, x, type, output)
 \code{"mx", "qx", "fx"}.}
 
 \item{output}{What type of data do you want to obtain? Accepted values: 
-\code{"mx", "qx", "fx", "all"}. If \code{"all"} is specified then
-a data.frame with values for all functions is returned.}
+\code{"mx", "qx", "fx"}.}
 }
 \value{
-A vector ar a data.frame with values for the specified functions.
+A vector or a data.frame with values for the specified functions.
 }
 \description{
 This function can be used to convert the \code{"mx", "qx", "fx"} functions between them.
@@ -34,8 +33,18 @@ The \code{mx/fx} conversion is made using the \href{https://en.wikipedia.org/wik
 \examples{
 library(MortalityLaws)
 
-x <- 0:105
+# Example 1: ---------------------------------------
+# Estimate hazard rates (mx) starting from a density (fx)
+x   <- 0:105
 fxT <- dlogis(x, location = 45, scale = 6) # true fx
 hxE <- convertFx(data = fxT, x, type = 'fx', output = 'mx') # estimated hazard
+
+
+# Example 2: ---------------------------------------
+# Estimate death probabilities (qx) starting from hazard rates (mx). 
+# Use a data.frame as input. 
+mx <- ahmd$mx
+x  <- as.numeric(rownames(mx))
+qx <- convertFx(data = mx, x, type = 'mx', output = 'qx')
 
 }

@@ -65,10 +65,10 @@
 #' # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
 #' 
 #' ages  <- 0:100
-#' Dx <- ahmd$Dx[paste(ages), ]
-#' Ex <- ahmd$Ex[paste(ages), ]
+#' mx <- ahmd$mx[paste(ages), ] # select data
+#' qx <- convertFx(mx, x = ages, type = 'mx', output = 'qx') # transform mx into qx
 #' 
-#' model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
+#' model3 = MortalityLaw(x = ages, qx = qx, law = 'HP', how = 'LF2') # fit qx values
 #' model3
 #' 
 #' 
@@ -97,7 +97,8 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     
     # Fitted values & residuals
     fit   <- mlaw$hx
-    if (law %in% c('HP', 'HP2', 'HP3', 'HP4')) {
+    aLaws <- availableLaws()$table
+    if (law %in% aLaws[aLaws$FIT == 'q[x]', 'CODE']) {
       if (!is.null(Dx)) qx = convertFx(Dx/Ex, x, type = 'mx', output = 'qx')
       resid <- qx - fit
     } else {
@@ -107,7 +108,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     if (show_pb) setpb(pb, 3)
     
     # Prepare, arrange, customize output
-    info   <- list(model.info = availableLaws(law)$table, process.date = date())
+    info   <- list(model.info = aLaws[aLaws$CODE == law, ], process.date = date())
     output <- list(input = input, info = info, coefficients = opt_$coef,
                    fitted.values = fit, residuals = resid,
                    optimization.object = opt_$fn_opt, goodness.of.fit = gof)

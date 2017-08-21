@@ -88,10 +88,10 @@ plot(model2)
 # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
 
 ages  <- 0:100
-Dx <- ahmd$Dx[paste(ages), ]
-Ex <- ahmd$Ex[paste(ages), ]
+mx <- ahmd$mx[paste(ages), ] # select data
+qx <- convertFx(mx, x = ages, type = 'mx', output = 'qx') # transform mx into qx
 
-model3 = MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'HP', how = 'LF2')
+model3 = MortalityLaw(x = ages, qx = qx, law = 'HP', how = 'LF2') # fit qx values
 model3
 
 

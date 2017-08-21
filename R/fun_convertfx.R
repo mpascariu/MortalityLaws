@@ -12,36 +12,46 @@
 #' @param type What type of data did you add as input? Accepted values: 
 #' \code{"mx", "qx", "fx"}.
 #' @param output What type of data do you want to obtain? Accepted values: 
-#' \code{"mx", "qx", "fx", "all"}. If \code{"all"} is specified then
-#' a data.frame with values for all functions is returned.
+#' \code{"mx", "qx", "fx"}. 
 #' @source Schoen, R. Demography (1978) 15: 625. doi:10.2307/2061212
-#' @return A vector ar a data.frame with values for the specified functions. 
+#' @return A vector or a data.frame with values for the specified functions. 
 #' @examples 
 #' library(MortalityLaws)
-#' 
-#' x <- 0:105
+#'
+#' # Example 1: ---------------------------------------
+#' # Estimate hazard rates (mx) starting from a density (fx)
+#' x   <- 0:105
 #' fxT <- dlogis(x, location = 45, scale = 6) # true fx
 #' hxE <- convertFx(data = fxT, x, type = 'fx', output = 'mx') # estimated hazard
+#' 
+#' 
+#' # Example 2: ---------------------------------------
+#' # Estimate death probabilities (qx) starting from hazard rates (mx). 
+#' # Use a data.frame as input. 
+#' mx <- ahmd$mx
+#' x  <- as.numeric(rownames(mx))
+#' qx <- convertFx(data = mx, x, type = 'mx', output = 'qx')
 #' 
 #' @export
 #' 
 convertFx <- function(data, x, type, output) {
-  # Step 1. - Convert everything to hazard rates (or age specific death rates)
-  if (type == 'fx') hx = hx_from_fx(x, fx = data)
-  if (type == 'qx') hx = mx_qx(ux = data, x, out = 'mx')
-  if (type %in% c('mx', 'hx')) hx = data
+  input <- c(as.list(environment()))
+  check.convertFx(input)
   
-  # Step 2. - Convert hazard rates into the specified output
-  if (output == 'fx' & type != 'fx') out = fx_from_hx(x, hx = hx, delta = 0.25)$fx else out = data
-  if (output == 'qx' & type != 'qx') out = mx_qx(ux = hx, x, out = 'qx') else out = data
-  if (output %in% c('mx', 'hx')) out = hx
-  
-  if (output == 'all') {
-    fx  <- fx_from_hx(x, hx = hx)$fx
-    qx  <- mx_qx(ux = hx, x, out = 'qx')
-    out <- data.frame(mx = hx, qx = qx, fx = fx)
+  if (is.data.frame(data) | is.matrix(data)) {
+    out <- data*0
+    for (i in 1:ncol(data)) out[, i] = convertFx(data[, i], x, type, output)
+  } else {
+    # Step 1. - Convert everything to hazard rates (or age specific death rates)
+    if (type == 'fx') hx = hx_from_fx(x, fx = data)
+    if (type == 'qx') hx = mx_qx(ux = data, x, out = 'mx')
+    if (type %in% c('mx', 'hx')) hx = data
+    
+    # Step 2. - Convert hazard rates into the specified output
+    if (output == 'fx' & type != 'fx') out = fx_from_hx(x, hx = hx, delta = 0.25)$fx else out = data
+    if (output == 'qx' & type != 'qx') out = mx_qx(ux = hx, x, out = 'qx') else out = data
+    if (output %in% c('mx', 'hx')) out = hx
   }
-  
   return(out)
 }
 
