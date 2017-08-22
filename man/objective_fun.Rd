@@ -4,8 +4,7 @@
 \alias{objective_fun}
 \title{Function to be optimize}
 \usage{
-objective_fun(par, x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, law,
-  fun = "poissonL", custom.law)
+objective_fun(par, x, Dx, Ex, mx, qx, law, fun, custom.law)
 }
 \description{
 Function to be optimize

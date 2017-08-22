@@ -86,14 +86,12 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     check.MortalityLaw(input) # Check input
     if (show_pb) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     
-    # Find optim coefficients
-    opt_ <- choose_optim(input)
+    opt_ <- choose_optim(input) # Find optim coefficients
     gof  <- c(log_Likelihood = opt_$logLikelihood, 
               AIC = opt_$AIC, BIC = opt_$BIC)
     if (show_pb) setpb(pb, 2)
     
-    # Fit mortality law
-    mlaw  <- eval(call(law, x, par = opt_$coef)) # Mortality law
+    mlaw  <- eval(call(law, x, par = opt_$coef)) # Fit mortality law
     
     # Fitted values & residuals
     fit   <- mlaw$hx
@@ -160,8 +158,8 @@ is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
 #' Function to be optimize
 #' @keywords internal
 #' 
-objective_fun <- function(par, x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
-                          law, fun = 'poissonL', custom.law){
+objective_fun <- function(par, x, Dx, Ex, mx, qx,
+                          law, fun, custom.law){
   par_ = exp(par)
   
   if (law == 'custom.law') { mu = custom.law(x, par = par_)$hx } 

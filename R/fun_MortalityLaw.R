@@ -30,10 +30,8 @@ gompertz0 <- function(x, par = NULL){
 #' 
 invgompertz <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('invgompertz', par)
-  hx = with(as.list(par), 
-            1/sigma * exp(-(x - m)/sigma) / (exp(exp(-(x - m)/sigma)) - 1)  )
-  Sx = with(as.list(par),  
-            (1 - exp(-exp(-(x - m)/sigma))) / (1 - exp(-exp(m/sigma))) )
+  hx = with(as.list(par), 1/sigma * exp(-(x - m)/sigma) / (exp(exp(-(x - m)/sigma)) - 1))
+  Sx = with(as.list(par), (1 - exp(-exp(-(x - m)/sigma))) / (1 - exp(-exp(m/sigma))))
   Hx = -log(Sx)
   return(as.list(environment()))
 }
@@ -87,8 +85,7 @@ invweibull <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('invweibull', par)
   hx <- with(as.list(par), 
             (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
-  Hx <- with(as.list(par), 
-             -log(1 - exp(-(x/m)^(-m/sigma))) )
+  Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
   Sx <- exp(-Hx)
   return(as.list(environment()))
 }
@@ -104,28 +101,14 @@ kannisto <- function(x, par = NULL){
   return(as.list(environment()))
 }
 
-#' DeMoivre mortality law
-#' @keywords internal
-#' 
-demoivre <- function(x, par = NULL){
-  if (is.null(par)) par <- bring_parameters('demoivre', par)
-  vsmall = 1e-10 # very small number
-  hx <- pmax(1/(par - x) + vsmall, 0)
-  Hx <- cumsum(hx)
-  Sx <- pmax(1 - x/par, 0)
-  return(as.list(environment()))
-}
-
 #' Opperman mortality law
 #' @keywords internal
 #' 
 opperman <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('opperman', par)
-  x = x + 1e-10
-  hx = with(as.list(par), a/sqrt(x) - b + c*(x^(1/3)) )
+  x = x + 1
+  hx = with(as.list(par), a/sqrt(x) - b + c*sqrt(x))
   hx = pmax(0, hx)
-  Hx = cumsum(hx)
-  Sx = exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -346,19 +329,6 @@ kostaki <- function(x, par = NULL){
 }
 
 
-# #' @keywords internal
-# #'
-# rogerslittle <- function(x, par = NULL){
-#   if (is.null(par)) par <- bring_parameters('rogerslittle', par)
-#   pr = as.list(par)
-#   m1 = with(pr, A0 + A1*exp(-a1*x))
-#   m2 = with(pr, A2*exp(-a2*(x - u2) - exp(-b2*(x - u2))))
-#   m3 = with(pr, A3*exp(-a3*(x - u3) - exp(-b3*(x - u3))))
-#   m4 = with(pr, A4*exp(a4*x))
-#   hx <- m1 + m2 + m3 + m4
-#   return(as.list(environment()))
-# }
-
 
 # ------------------------------
 
@@ -443,7 +413,7 @@ availableLaws <- function(law = NULL){
                 NaN, 'Inverse-Gompertz', 'mu[x] = [1- exp(-(x-m)/sigma)] / [exp(-(x-m)/sigma) - 1]', 2, 'invgompertz', 'mu[x]',
                 1860, 'Makeham', 'mu[x] = a*exp(b*x) + c', 3, 'makeham', 'mu[x]',
                 NaN, 'Makeham', 'mu[x] = 1/sigma * exp[(x-m)/sigma)] + c', 3, 'makeham0', 'mu[x]',
-                1870, 'Opperman', 'mu[x] = a*x^(-1/2) + b + c*x^(1/3)', 1, 'opperman', 'mu[x]',
+                1870, 'Opperman', 'mu[x] = a/sqrt(x) - b + c*sqrt(x)', 1, 'opperman', 'mu[x]',
                 1871, 'Thiele', 'mu[x] = a*exp(-b*x) + c*exp[-.5d*(x-e)^2] + f*exp(g*x)', 6, 'thiele', 'mu[x]',
                 1883, 'Wittstein', 'q[x] = (1/m)*a^-[(m*x)^n] + a^-[(M-x)^n]', 6, 'wittstein', 'q[x]',
                 1932, 'Perks', 'mu[x] = [A + B*C^x] / [B*C^-x + 1 + D*C^x]', 3, 'perks', 'mu[x]',

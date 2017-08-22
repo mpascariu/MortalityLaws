@@ -25,8 +25,7 @@ check.MortalityLaw <- function(input){
           stop(err1, call. = FALSE)
         }
         
-        function_to_optimize <- c('poissonL', 'binomialL', 
-                                  'LF1', 'LF2', 'LF3', 'LF4', 'LF5', 'LF6')
+        function_to_optimize <- availableLF()$table[, 'CODE']
         if (!(how %in% function_to_optimize)) {
           m1 <- 'Choose a different objective function to optimize\n'
           m2 <- 'Check one of the following options:\n'
@@ -36,7 +35,7 @@ check.MortalityLaw <- function(input){
         
         if (law %in% c('vandermaen', 'vandermaen2', 'quadratic') & min(x) > 1) {
          warning(paste('The x vector needs to be scaled down in order to obtain', 
-                       'meaningful estimates and a good fit. [e.g.: x <- x - min(x)]'), 
+                       'meaningful estimates and a good fit. [e.g.: x = x - min(x)]'), 
                  call. = FALSE) 
         }
   })
@@ -53,10 +52,12 @@ check.convertFx <- function(input) {
    if (!(output %in% val)) stop("<output> argument accepts the following values: ", 
                                 paste(val, collapse = ", "), call. = FALSE)
    if (is.matrix(data) | is.data.frame(data)) {
-     if (length(x) != nrow(data)) stop("The number of rows in <data> should be equal with the length of <x>", 
-                                       call. = FALSE)
+     if (length(x) != nrow(data)) {
+       stop("The number of rows in <data> should be equal with the length of <x>", 
+            call. = FALSE)}
    } else {
-     if (length(x) != length(data)) stop("The length of <x> and <data> should be equal.", call. = FALSE)
+     if (length(x) != length(data)) {
+       stop("The length of <x> and <data> should be equal.", call. = FALSE)}
    }
   })
 }
