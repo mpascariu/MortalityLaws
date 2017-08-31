@@ -4,8 +4,7 @@
 \alias{LifeTable}
 \title{Life table function}
 \usage{
-LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx0 = 1e+05,
-  ax0 = 0.1)
+LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx0 = 1e+05)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -20,17 +19,20 @@ Ex is the mid-year population aged x to x+1}
 
 \item{qx}{1-year probability of dying between age x and x+1}
 
-\item{lx0}{Radix}
-
-\item{ax0}{average time spent between age 0 and age 1 of those how died 
-in age 0. For x > 0  we assume an uniform distribution of deaths (UDD).}
+\item{lx0}{Radix. Default: 10^5.}
 }
 \value{
 Life Tables
 }
 \description{
-Function to create a life table with input variables: (age, Dx, Ex) 
-or (age, mx) or (age, qx)
+Simple function to create complete life table with input variables: 
+(\code{age, Dx, Ex}) or (\code{age, mx}) or (\code{age, qx}).
+}
+\details{
+The function doesn't know how to deal 
+with abridge life tables (errors might be expected). You may find a solution 
+for this and much more please in the \href{https://github.com/jschoeley/pash}{pash} 
+R package on GitHub.
 }
 \examples{
 library(MortalityLaws)
