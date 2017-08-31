@@ -89,23 +89,18 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     opt_ <- choose_optim(input) # Find optim coefficients
     gof  <- c(log_Likelihood = opt_$logLikelihood, 
               AIC = opt_$AIC, BIC = opt_$BIC)
+    mlaw <- eval(call(law, x, par = opt_$coef)) # Fit mortality law
     if (show_pb) setpb(pb, 2)
-    
-    mlaw  <- eval(call(law, x, par = opt_$coef)) # Fit mortality law
     
     # Fitted values & residuals
     fit   <- mlaw$hx
-    aLaws <- availableLaws()$table
-    if (law %in% aLaws[aLaws$FIT == 'q[x]', 'CODE']) {
-      if (!is.null(Dx)) qx = convertFx(Dx/Ex, x, type = 'mx', output = 'qx')
-      resid <- qx - fit
-    } else {
-      if (!is.null(Dx)) { mx = Dx/Ex }
-      resid <- mx - fit 
-    }
+    if (!is.null(qx) & is.null(mx) & is.null(Dx) & is.null(Ex)) resid = qx - fit 
+    if (!is.null(mx) & is.null(qx) & is.null(Dx) & is.null(Ex)) resid = mx - fit 
+    if (is.null(mx) & is.null(qx) & !is.null(Dx) & !is.null(Ex)) resid = Dx/Ex - fit 
     if (show_pb) setpb(pb, 3)
     
     # Prepare, arrange, customize output
+    aLaws  <- availableLaws()$table
     info   <- list(model.info = aLaws[aLaws$CODE == law, ], process.date = date())
     output <- list(input = input, info = info, coefficients = opt_$coef,
                    fitted.values = fit, residuals = resid,
@@ -158,26 +153,23 @@ is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
 #' Function to be optimize
 #' @keywords internal
 #' 
-objective_fun <- function(par, x, Dx, Ex, mx, qx,
+objective_fun <- function(par, x, mx, qx, Dx, Ex,
                           law, fun, custom.law){
   par_ = exp(par)
+  if (law == 'custom.law') mu = custom.law(x, par = par_)$hx 
+  if (law != 'custom.law') mu = eval(call(law, x, par_))$hx
   
-  if (law == 'custom.law') { mu = custom.law(x, par = par_)$hx } 
-    else {mu = eval(call(law, x, par_))$hx }
-  
-  if (!is.null(mx)) { 
+  if (!is.null(mx) & is.null(qx) & is.null(Dx) ) { 
     nu <- mx 
     Dx <- mx 
     Ex <- 1 
   }
-  if (!is.null(qx)) { 
+  if (!is.null(qx) & is.null(mx) & is.null(Dx)) { 
     nu <- qx 
     Dx <- convertFx(data = qx, x, type = 'qx', output = 'mx') 
     Ex <- 1
   }
-  if (!is.null(Dx)) { 
-    nu <- Dx/Ex 
-    Ex <- Ex }
+  if (!is.null(Dx) & !is.null(Ex)) nu <- Dx/Ex 
   
   # compute likelihoods or loss functions
   output1 <- switch(fun,
@@ -203,7 +195,8 @@ choose_optim <- function(input){
   with(as.list(input), {
     # Subset the data
     select.x <- x %in% fit.this.x
-    x = x[select.x]
+    x  = x[select.x]
+    qx = qx[select.x]
     mx = mx[select.x]
     Dx = Dx[select.x]
     Ex = Ex[select.x]

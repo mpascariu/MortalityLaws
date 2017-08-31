@@ -196,10 +196,10 @@ siler <- function(x, par = NULL){
 #' 
 HP <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('HP', par)
-  mu1 = with(as.list(par), a^((x + b)^c) + g*h^x )
-  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  mu1 = with(as.list(par), A^((x + B)^C) + G*H^x )
+  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta/(1 + eta) # here hx doese not represent the hazard but probabilities (qx's)
+  hx = eta/(1 + eta)
   return(as.list(environment()))
 }
 
@@ -208,10 +208,10 @@ HP <- function(x, par = NULL){
 #' 
 HP2 <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('HP2', par)
-  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^x)/(1 + g*h^x) )
-  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + G*H^x) )
+  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  hx = eta
   return(as.list(environment()))
 }
 
@@ -220,10 +220,10 @@ HP2 <- function(x, par = NULL){
 #' 
 HP3 <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('HP3', par)
-  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^x)/(1 + k*g*h^x) )
-  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + K*G*H^x) )
+  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  hx = eta
   return(as.list(environment()))
 }
 
@@ -232,10 +232,10 @@ HP3 <- function(x, par = NULL){
 #' 
 HP4 <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('HP4', par)
-  mu1 = with(as.list(par), a^((x + b)^c) + (g*h^(x^k)) / (1 + g*h^(x^k)) )
-  mu2 = with(as.list(par), d*exp(-e*(log(x/f))^2) )
+  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^(x^K)) / (1 + G*H^(x^K)) )
+  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta # here hx doese not represent the hazard but probabilities (qx's)
+  hx = eta 
   return(as.list(environment()))
 }
 
@@ -350,14 +350,14 @@ choose_Spar <- function(law){
          wittstein   = c(a = 1.5, m = 1, n = .5, M = 100),
          weibull     = c(sigma = 2, m = 1),
          invweibull  = c(sigma = 10, m = 5),
-         HP          = c(a = .0005, b = .004, c = .08, d = .001, 
-                         e = 10, f = 17, g = .00005, h = 1.1),
-         HP2         = c(a = .0005, b = .004, c = .08, d = .001, 
-                         e = 10, f = 17, g = .00005, h = 1.1),
-         HP3         = c(a = .0005, b = .004, c = .08, d = .001, 
-                         e = 10, f = 17, g = .00005, h = 1.1, k = 1),
-         HP4         = c(a = .0005, b = .004, c = .08, d = .001, 
-                         e = 10, f = 17, g = .00005, h = 1.1, k = 1),
+         HP          = c(A = .0005, B = .004, C = .08, D = .001, 
+                         E = 10, F_ = 17, G = .00005, H = 1.1),
+         HP2         = c(A = .0005, B = .004, C = .08, D = .001, 
+                         E = 10, F_ = 17, G = .00005, H = 1.1),
+         HP3         = c(A = .0005, B = .004, C = .08, D = .001, 
+                         E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
+         HP4         = c(A = .0005, B = .004, C = .08, D = .001, 
+                         E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
          siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
          kannisto    = c(a = 0.5, b = 0.13),
          carriere1   = c(p1 = 0.003, sigma1 = 15, m1 = 2.7, 
@@ -425,10 +425,10 @@ availableLaws <- function(law = NULL){
                 1961, 'Beard', 'mu[x] = [A*exp(B^x)] / [1 + K*A*exp(B^x)]', 4, 'beard', 'mu[x]',
                 1961, 'Makeham-Beard', 'mu[x] = [A*exp(B^x)] / [1 + K*A*exp(B^x)] + C', 4, 'makehambeard', 'mu[x]',
                 1979, 'Siler', 'mu[x] = A*exp(-B*x) + C + D*exp(E*x)', 6, 'siler', 'mu[x]',
-                1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x', 6, 'HP', 'q[x]',
-                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1+G*H^x]', 6, 'HP2', 'q[x]',
-                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1+K*G*H^x]', 6, 'HP3', 'q[x]',
-                1980, 'Heligman-Pollard', 'q[x] = A^[(x+B)^C] + D*exp[-E*log(x/F)^2] + G*H^(x^K) / [1+G*H^(x^K)]', 6, 'HP4', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x', 6, 'HP', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x / [1 + G H^x]', 6, 'HP2', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x / [1 + K*G*H^x]', 6, 'HP3', 'q[x]',
+                1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^(x^K) / [1 + G*H^(x^K)]', 6, 'HP4', 'q[x]',
                 1983, 'Rogers-Planck', 'q[x] = A0 + A1*exp[-a*x] + A2*exp[b*(x - u) - exp(-c*(x - u))] + A3*exp[d*x]', 6, 'rogersplanck', 'q[x]',
                 1987, 'Martinelle', 'mu[x] = [A*exp(B*x) + C] / [1 + D*exp(B*x)] + K*exp(B*x)', 6, 'martinelle', 'mu[x]',
                 1992, 'Kannisto', 'mu[x] = A*exp(B*x) / [1 + A*exp(B*x)]', 5, 'kannisto', 'mu[x]',

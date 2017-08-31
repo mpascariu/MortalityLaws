@@ -5,7 +5,9 @@
 #' @export
 print.MortalityLaw <- function(x, ...) {
   cat(paste(as.matrix(x$info$model.info[, c(2, 3)]), collapse = ':\n'))
-  cat('\n\nCoefficients:\n')
+  fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
+  cat('\n\nFitted values:', fv)
+  cat('\nCoefficients :\n')
   digits <- if (all(coef(x) < 1e-3)) 8 else 5
   print(round(coef(x), digits))
 }
@@ -14,14 +16,22 @@ print.MortalityLaw <- function(x, ...) {
 #' @export
 summary.MortalityLaw <- function(object, ...) {
   cat(paste(as.matrix(object$info$model.info[, c(2, 3)]), collapse = ':\n'))
-  cat('\n\nDeviance Residuals:\n')
+  cat("\n\nCall: ")
+  print(object$info$call)
+  cat('\nDeviance Residuals:\n')
   print(round(summary(as.vector(as.matrix(object$residuals))), 5))
+  
+  fv <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
+  cat('\nFitted values:', fv)
   cat('\nCoefficients:\n')
   digits <- if (all(coef(object) < 1e-3)) 8 else 5
   print(round(coef(object), digits ))
   
-  cat('\nGoodness of fit:\n')
-  print(round(object$goodness.of.fit, 2))
+  how <- object$input$how
+  if (how %in% c('poissonL, binomialL')) {
+    cat('\nGoodness of fit:\n')
+    print(round(object$goodness.of.fit, 2))
+  }
 }
 
 #' @keywords internal
