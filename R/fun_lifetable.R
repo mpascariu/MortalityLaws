@@ -15,6 +15,8 @@
 #' @param mx Age-specific death rates
 #' @param qx 1-year probability of dying between age x and x+1
 #' @param lx0 Radix. Default: 10^5.
+#' @param ax0 average time spent between age 0 and age 1 of those how died 
+#' in age 0. For x > 0  we assume an uniform distribution of deaths (UDD).
 #' @return Life Tables
 #' @examples 
 #' library(MortalityLaws)
@@ -30,7 +32,7 @@
 #' LifeTable(x = ages, Dx = Dx, Ex = Nx)$lt
 #' @export
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
-                      qx = NULL, lx0 = 1e+05){
+                      qx = NULL, lx0 = 1e+05, ax0 = 0.1){
   if (!is.null(mx)) mx[is.na(mx)] <- 0
   if (!is.null(qx)) qx[is.na(qx)] <- 0
   if (!is.null(Ex)) Ex[is.na(Ex) | Ex == 0] <- 0.01
@@ -42,6 +44,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
   if (!is.null(qx)) ax = -n/qx - n/log(1 - qx) + n
   if (!is.null(mx)) ax = n + 1/mx - n/(1 - exp(-n*mx))
   if (!is.null(Dx) & !is.null(Ex)) ax = n + 1/(Dx/Ex) - n/(1 - exp(-n*Dx/Ex))
+  if (min(x) == 0) ax[1] <- ax0
   
   mx <- if (length(Dx) > 0) { Dx/Ex } else { 
     if (is.null(mx)) convertFx(qx, x, type = 'qx', output = 'mx') else mx
