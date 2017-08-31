@@ -160,13 +160,11 @@ objective_fun <- function(par, x, mx, qx, Dx, Ex,
   if (law != 'custom.law') mu = eval(call(law, x, par_))$hx
   
   if (!is.null(mx) & is.null(qx) & is.null(Dx) ) { 
-    nu <- mx 
-    Dx <- mx 
+    nu <- Dx <- mx 
     Ex <- 1 
   }
   if (!is.null(qx) & is.null(mx) & is.null(Dx)) { 
-    nu <- qx 
-    Dx <- convertFx(data = qx, x, type = 'qx', output = 'mx') 
+    nu <- Dx <- qx 
     Ex <- 1
   }
   if (!is.null(Dx) & !is.null(Ex)) nu <- Dx/Ex 
