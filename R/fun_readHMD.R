@@ -66,25 +66,23 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   data <- data.frame() 
   # Step 1 - Do the loop for the other countries
   for (i in 1:nr) {
-      cntr_i <- countries[i] # country
-      setpb(pb, i); cat(paste('      :Downloading', cntr_i, '    '))
-      data_i <- read_hmd(what, country = cntr_i, 
-                         interval, username, password)
-      data <- rbind(data, data_i)
+      setpb(pb, i); cat(paste('      :Downloading', countries[i], '    '))
+      data_i <- read_hmd(what, country = countries[i], interval, username, password)
+      data   <- rbind(data, data_i)
   }
   download_date <- date()
   
   # Step 2 - Write a file with the database in your working directory
   if (save == TRUE) { 
-      save(input, download_date, data,
-           file = paste('HMD_', what, '_', 
-                        interval, '.Rdata', sep = ''))
+    file_name <- paste0('HMD_', what, '_', interval, '.Rdata')
+    save(input, download_date, data, file = file_name)
   }
-  out <- structure(class = 'ReadHMD',
-                  list(input = input, data = data,
-                       download.date = download_date))
+  out <- list(input = input, data = data, download.date = download_date)
+  out <- structure(class = 'ReadHMD', out)
+  
   setpb(pb, nr + 1)
-  cat(paste('\nHMD download completed!'))
+  message(paste('\nHMD download completed!'))
+  if (save == TRUE) message(paste(file_name, 'is saved in your working directory:\n', getwd()))
   return(out)
 }
 

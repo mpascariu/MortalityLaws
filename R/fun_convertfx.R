@@ -62,12 +62,15 @@ convertFx <- function(data, x, type, output) {
 mx_qx <- function(ux, x, out = 'qx'){
   n <- diff(x) # Width of age interval 
   n <- c(n, n[length(x) - 1])
-  if (out == 'qx') ax = n + 1/ux - n/(1 - exp(-n*ux))
-  if (out == 'mx') ax = -n/ux - n/log(1 - ux) + n
   
-  vect <- switch(out,
-                 qx = n*ux / (1 + (n - ax)*ux),
-                 mx = ux/(n - ux*(n - ax))  )
+  if (out == 'qx') {
+    ax   = n + 1/ux - n/(1 - exp(-n*ux))
+    vect = n*ux / (1 + (n - ax)*ux)
+  }
+  if (out == 'mx') {
+    ax   = -n/ux - n/log(1 - ux) + n
+    vect = ux/(n - ux*(n - ax))
+  }
   return(vect)
 }
 

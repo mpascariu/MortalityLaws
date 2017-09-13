@@ -121,8 +121,6 @@ thiele <- function(x, par = NULL){
   mu2 = with(as.list(par), c*exp(-.5*d*(x - e)^2) )
   mu3 = with(as.list(par), f*exp(g*x) )
   hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
-  Hx = cumsum(hx)
-  Sx = exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -132,8 +130,6 @@ thiele <- function(x, par = NULL){
 wittstein <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('wittstein', par)
   hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M - x)^n) )
-  Hx = cumsum(hx)
-  Sx = exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -185,8 +181,6 @@ carriere2 <- function(x, par = NULL){
 siler <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('siler', par)
   hx = with(as.list(par), A*exp(-B*x) + C + D*exp(E*x))
-  Hx = cumsum(hx)
-  Sx = exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -244,8 +238,6 @@ HP4 <- function(x, par = NULL){
 perks <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('perks', par)
   hx  <- with(as.list(par), (A + B*C^x) / (B*(C^-x) + 1 + D*C^x) )
-  Hx  <- cumsum(hx)
-  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -263,8 +255,6 @@ beard <- function(x, par = NULL){
 makehambeard <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('makehambeard', par)
   hx  <- with(as.list(par), A*exp(B*x) / (1 + K*A*exp(B*x)) + C)
-  Hx  <- cumsum(hx)
-  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -273,8 +263,6 @@ makehambeard <- function(x, par = NULL){
 vandermaen <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('vandermaen', par)
   hx  <- with(as.list(par), A + B*x + C*(x^2) + I/(N - x))
-  Hx  <- cumsum(hx)
-  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -283,8 +271,6 @@ vandermaen <- function(x, par = NULL){
 vandermaen2 <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('vandermaen2', par)
   hx  <- with(as.list(par), A + B*x + I/(N - x) )
-  Hx  <- cumsum(hx)
-  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 
@@ -293,8 +279,6 @@ vandermaen2 <- function(x, par = NULL){
 quadratic <- function(x, par = NULL){
   if (is.null(par)) par <- bring_parameters('quadratic', par)
   hx  <- with(as.list(par), A + B*x + C*(x^2))
-  Hx  <- cumsum(hx)
-  Sx  <- exp(-Hx)
   return(as.list(environment()))
 }
 

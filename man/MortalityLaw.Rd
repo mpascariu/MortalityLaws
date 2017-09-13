@@ -55,7 +55,7 @@ library(MortalityLaws)
 # Fit Makeham model for year of 1950.
 
 yr <- 1950
-ages  <- 35:75
+ages  <- 45:75
 Dx <- ahmd$Dx[paste(ages), paste(yr)]
 Ex <- ahmd$Ex[paste(ages), paste(yr)]
 

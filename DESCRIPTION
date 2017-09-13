@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Mortality Laws
-Version: 0.8.6
+Version: 0.8.7
 Author: Marius Pascariu
 Maintainer: Marius Pascariu <mpascariu@outlook.com>
 Collaborator: Vladimir Canudas-Romo
@@ -14,10 +14,11 @@ Imports:
   minpack.lm,
   RCurl,
   pbapply
-Suggests: 
+Suggests:
   ggplot2,
   knitr,
   rmarkdown,
-  diagram
+  diagram,
+  testthat
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

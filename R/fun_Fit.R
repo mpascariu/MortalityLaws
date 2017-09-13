@@ -32,7 +32,7 @@
 #' # Fit Makeham model for year of 1950.
 #' 
 #' yr <- 1950
-#' ages  <- 35:75
+#' ages  <- 45:75
 #' Dx <- ahmd$Dx[paste(ages), paste(yr)]
 #' Ex <- ahmd$Ex[paste(ages), paste(yr)]
 #' 
@@ -117,8 +117,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     for (i in 1:n) {
       if (show_pb) setpb(pb, i)
       mdl <- MortalityLaw(x, mx[, i], qx[, i], Dx[, i], Ex[, i], 
-                          law, how, parS, fit.this.x, custom.law, 
-                          show_pb = FALSE)
+                          law, how, parS, fit.this.x, custom.law, show_pb = FALSE)
       cf    <- rbind(cf, coef(mdl))
       gof   <- rbind(gof, mdl$goodness.of.fit)
       fit   <- cbind(fit, fitted(mdl))
@@ -273,7 +272,7 @@ availableLF <- function(){
   
   hint <- c("Most of the functions work well with <poissonL>, however for complex",
             "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using",
-            "other loss function (e.g. LF2). You are strongly encouraged to test",
+            "other loss functions (e.g. LF2). You are strongly encouraged to test",
             "different option before deciding on the final version. The results will be",
             "slightly different.")
   

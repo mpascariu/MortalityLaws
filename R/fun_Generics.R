@@ -138,7 +138,7 @@ print.availableLF <- function(x, ...) {
 #' @export
 print.availableLaws <- function(x, ...) {
   cat("\nMortality laws available in the package:\n\n")
-  print(x$table, right = F)
+  print(x$table[, 1:5], right = F)
   cat("\nLEGEND:\n")
   print(x$legend, right = FALSE, row.names = FALSE)
 }
