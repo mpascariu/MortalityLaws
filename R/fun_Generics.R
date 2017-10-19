@@ -8,7 +8,7 @@ print.MortalityLaw <- function(x, ...) {
   fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
   cat('\n\nFitted values:', fv)
   cat('\nCoefficients :\n')
-  digits <- if (all(coef(x) < 1e-3)) 8 else 5
+  digits <- if (all(coef(x) < 1e-3)) 6 else 4
   print(round(coef(x), digits))
 }
 
@@ -24,11 +24,11 @@ summary.MortalityLaw <- function(object, ...) {
   fv <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
   cat('\nFitted values:', fv)
   cat('\nCoefficients:\n')
-  digits <- if (all(coef(object) < 1e-3)) 8 else 5
+  digits <- if (all(coef(object) < 1e-3)) 7 else 5
   print(round(coef(object), digits ))
   
-  how <- object$input$how
-  if (how %in% c('poissonL, binomialL')) {
+  opt.method <- object$input$opt.method
+  if (opt.method %in% c('poissonL, binomialL')) {
     cat('\nGoodness of fit:\n')
     print(round(object$goodness.of.fit, 2))
   }

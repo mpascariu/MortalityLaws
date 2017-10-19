@@ -44,37 +44,16 @@ convertFx <- function(data, x, type, output) {
   } else {
     # Step 1. - Convert everything to hazard rates (or age specific death rates)
     if (type == 'fx') hx = hx_from_fx(x, fx = data)
-    if (type == 'qx') hx = mx_qx(ux = data, x, out = 'mx')
+    if (type == 'qx') hx = mx_qx(x , ux = data, out = 'mx')
     if (type %in% c('mx', 'hx')) hx = data
     
     # Step 2. - Convert hazard rates into the specified output
     if (output == 'fx' & type != 'fx') out = fx_from_hx(x, hx = hx, delta = 0.25)$fx else out = data
-    if (output == 'qx' & type != 'qx') out = mx_qx(ux = hx, x, out = 'qx') else out = data
+    if (output == 'qx' & type != 'qx') out = mx_qx(x, ux = hx, out = 'qx') else out = data
     if (output %in% c('mx', 'hx')) out = hx
   }
   return(out)
 }
-
-
-#' mx to qx
-#'
-#' @keywords internal
-mx_qx <- function(ux, x, out = 'qx'){
-  n <- diff(x) # Width of age interval 
-  n <- c(n, n[length(x) - 1])
-  
-  if (out == 'qx') {
-    ax   = n + 1/ux - n/(1 - exp(-n*ux))
-    vect = n*ux / (1 + (n - ax)*ux)
-  }
-  if (out == 'mx') {
-    ax   = -n/ux - n/log(1 - ux) + n
-    vect = ux/(n - ux*(n - ax))
-  }
-  return(vect)
-}
-
-
 
 
 # ----------------------------------------------

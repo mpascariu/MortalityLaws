@@ -26,7 +26,7 @@ check.MortalityLaw <- function(input){
         }
         
         function_to_optimize <- availableLF()$table[, 'CODE']
-        if (!(how %in% function_to_optimize)) {
+        if (!(opt.method %in% function_to_optimize)) {
           m1 <- 'Choose a different objective function to optimize\n'
           m2 <- 'Check one of the following options:\n'
           err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))

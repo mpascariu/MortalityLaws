@@ -4,8 +4,8 @@
 \alias{LifeTable}
 \title{Life table function}
 \usage{
-LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx0 = 1e+05,
-  ax0 = 0.1)
+LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
+  sex = "total", lx0 = 1e+05)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -16,38 +16,46 @@ represents the number of deaths during the year to persons aged x to x+1}
 \item{Ex}{Vector containing the exposure in the period. 
 Ex is the mid-year population aged x to x+1}
 
-\item{mx}{Age-specific death rates}
+\item{mx}{age-specific death rates}
 
-\item{qx}{1-year probability of dying between age x and x+1}
+\item{qx}{probability of dying between age x and x+n}
 
-\item{lx0}{Radix. Default: 10^5.}
+\item{sex}{sex of the population considered here. This argument affects the 
+first two values in the life table ax column. The values are computed based 
+on Coale-Demeny method and are sligthly different for males than for females.}
 
-\item{ax0}{average time spent between age 0 and age 1 of those how died 
-in age 0. For x > 0  we assume an uniform distribution of deaths (UDD).}
+\item{lx0}{Radix. Default: 100 000}
 }
 \value{
-Life Tables
+The output is of class \code{lifetable} with the components:
+
+\item{lt}{ computed life table with rounded values}
+
+\item{lt.exact}{ computed life table}
+
+\item{process_date}{ time stamp}
 }
 \description{
-Simple function to create complete life table with input variables: 
-(\code{age, Dx, Ex}) or (\code{age, mx}) or (\code{age, qx}).
-}
-\details{
-The function doesn't know how to deal 
-with abridge life tables (errors might be expected). You may find a solution 
-for this and much more please in the \href{https://github.com/jschoeley/pash}{pash} 
-R package on GitHub.
+Function to create a life table with various choices of 2 input vectors: 
+\code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
 }
 \examples{
-library(MortalityLaws)
-
-ages <- as.numeric(rownames(ahmd$mx))
+#' # Example 1 --- Full life table --------------
+x <- as.numeric(rownames(ahmd$mx))
 year <- 1900
 
 mx <- ahmd$mx[, paste(year)]
 Dx <- ahmd$Dx[, paste(year)]
-Nx <- ahmd$Ex[, paste(year)]
+Ex <- ahmd$Ex[, paste(year)]
 
-LifeTable(x = ages, mx = mx)$lt
-LifeTable(x = ages, Dx = Dx, Ex = Nx)$lt
+LifeTable(x, mx = mx)
+LifeTable(x, Dx = Dx, Ex = Ex)
+
+# Example 2 --- Abridge life table ------------
+x  = c(0, 1, seq(5, 110, by = 5))
+mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
+       .004, .005, .006, .0093, .0129, .019, .031, .049, 
+       .084, .129, .180, .2354, .3085, .390, .478, .551)
+lt = LifeTable(x, mx = mx, sex = "female")
+lt
 }

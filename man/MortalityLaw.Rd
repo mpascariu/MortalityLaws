@@ -4,9 +4,9 @@
 \alias{MortalityLaw}
 \title{Fit mortality law}
 \usage{
-MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
-  how = "poissonL", parS = NULL, fit.this.x = x, custom.law = NULL,
-  show_pb = TRUE)
+MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
+  law = NULL, opt.method = "poissonL", parS = NULL, fit.this.x = x,
+  custom.law = NULL, show_pb = TRUE)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -23,7 +23,7 @@ MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, law,
 \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
 function.}
 
-\item{how}{How would you like to find the parameters? Specify the function 
+\item{opt.method}{How would you like to find the parameters? Specify the function 
 to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
 and other 6 loss functions. For more details check \code{\link{availableLF}} function.}
@@ -68,7 +68,7 @@ plot(model1)
 
 # we can fit the same model using diffrent data and a different optimization procedure
 mx <- ahmd$mx[paste(ages), paste(yr)]
-model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', how = 'LF1')
+model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', opt.method = 'LF1')
 
 # Example 2: ---------------------------------------
 # Now let's fit a mortality law that is not defined in the package, say a
@@ -91,7 +91,7 @@ ages  <- 0:100
 mx <- ahmd$mx[paste(ages), ] # select data
 qx <- convertFx(mx, x = ages, type = 'mx', output = 'qx') # transform mx into qx
 
-model3 = MortalityLaw(x = ages, qx = qx, law = 'HP', how = 'LF2') # fit qx values
+model3 = MortalityLaw(x = ages, qx = qx, law = 'HP', opt.method = 'LF2') # fit qx values
 model3
 
 
