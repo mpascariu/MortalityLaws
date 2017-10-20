@@ -204,3 +204,4 @@ iter.func <- function(x, eta, fx, lambda, iter = 100, tol = 10^-4){
   out <- as.numeric(eta)
   return(out)
 }
+

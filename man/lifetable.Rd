@@ -4,8 +4,8 @@
 \alias{LifeTable}
 \title{Life table function}
 \usage{
-LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
-  sex = "total", lx0 = 1e+05)
+LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
+  dx = NULL, sex = "total", lx0 = 1e+05)
 }
 \arguments{
 \item{x}{Vector of ages}
@@ -19,6 +19,10 @@ Ex is the mid-year population aged x to x+1}
 \item{mx}{age-specific death rates}
 
 \item{qx}{probability of dying between age x and x+n}
+
+\item{lx}{probability to survive up until age x}
+
+\item{dx}{life table death counts at age x}
 
 \item{sex}{sex of the population considered here. This argument affects the 
 first two values in the life table ax column. The values are computed based 
@@ -40,16 +44,21 @@ Function to create a life table with various choices of 2 input vectors:
 \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
 }
 \examples{
-#' # Example 1 --- Full life table --------------
-x <- as.numeric(rownames(ahmd$mx))
-year <- 1900
+# Example 1 --- Full life table --------------
+ 
+y  <- 1900
+x  <- as.numeric(rownames(ahmd$mx))
+Dx <- ahmd$Dx[, paste(y)]
+Ex <- ahmd$Ex[, paste(y)]
 
-mx <- ahmd$mx[, paste(year)]
-Dx <- ahmd$Dx[, paste(year)]
-Ex <- ahmd$Ex[, paste(year)]
+LT1 <- LifeTable(x, Dx = Dx, Ex = Ex)
+LT2 <- LifeTable(x, mx = LT1$lt.exact$mx)
+LT3 <- LifeTable(x, qx = LT1$lt.exact$qx)
+LT4 <- LifeTable(x, lx = LT1$lt.exact$lx)
+LT5 <- LifeTable(x, dx = LT1$lt.exact$dx)
 
-LifeTable(x, mx = mx)
-LifeTable(x, Dx = Dx, Ex = Ex)
+LT1
+ls(LT5) 
 
 # Example 2 --- Abridge life table ------------
 x  = c(0, 1, seq(5, 110, by = 5))
