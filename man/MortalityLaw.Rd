@@ -92,5 +92,4 @@ mx <- ahmd$mx[paste(x), ] # select data
 M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2') # fit qx values
 M3
 
-
 }

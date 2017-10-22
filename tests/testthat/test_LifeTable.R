@@ -3,6 +3,7 @@ rm(list = ls())
 # Example 1 --- Full life table -----------------
 y  <- 1900
 x  <- as.numeric(rownames(ahmd$mx))
+
 Dx <- ahmd$Dx[, paste(y)]
 Ex <- ahmd$Ex[, paste(y)]
 
@@ -18,9 +19,9 @@ LT3
 LT4
 LT5
 
-
 mx = ahmd$mx
-LTs = LifeTable(x, mx = mx)
+LTs = LifeTable(x, mx = ahmd$mx)
+LTs
 expect_warning(LifeTable(x, mx = mx))
 
 
@@ -30,6 +31,7 @@ mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004,
        .004, .005, .006, .0093, .0129, .019, .031, .049,
        .084, .129, .180, .2354, .3085, .390, .478, .551)
 LT6 = LifeTable(x, mx = mx, sex = "female")
+LT6
 
 # TESTS ----------------------------------------------
 
@@ -58,3 +60,5 @@ test_that("Identical LTs", {
   expect_identical(round(LT1$lt$ex,2), round(LT4$lt$ex, 2))
   expect_identical(round(LT1$lt$ex,2), round(LT5$lt$ex, 2))
 })
+
+

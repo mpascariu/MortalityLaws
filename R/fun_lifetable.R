@@ -22,7 +22,7 @@
 #' @return \item{lt.exact}{ computed life table}
 #' @return \item{process_date}{ time stamp}
 #' @examples 
-#' # Example 1 --- Full life table --------------
+#' # Example 1 --- Full life tables with different inputs ---
 #'  
 #' y  <- 1900
 #' x  <- as.numeric(rownames(ahmd$mx))
@@ -38,13 +38,19 @@
 #' LT1
 #' ls(LT5) 
 #' 
-#' # Example 2 --- Abridge life table ------------
+#' # Example 2 --- Compute multiple life tables at once ---
+#' 
+#' LTs = LifeTable(x, mx = ahmd$mx)
+#' LTs
+#' 
+#' # Example 3 --- Abridge life table ------------
 #' x  = c(0, 1, seq(5, 110, by = 5))
 #' mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
 #'        .004, .005, .006, .0093, .0129, .019, .031, .049, 
 #'        .084, .129, .180, .2354, .3085, .390, .478, .551)
 #' lt = LifeTable(x, mx = mx, sex = "female")
 #' lt
+#' 
 #' @export
 #'
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
@@ -54,7 +60,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
   
-  if (X$cls == "numeric") {
+  if (X$class.numeric) {
     LT    <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0))
   } else {
     LT = NULL
@@ -77,7 +83,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
 #' @keywords internal
 #' @export
 LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
-  my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+  my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
   N        <- length(x)
   nx       <- c(diff(x), Inf)
@@ -132,19 +138,34 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
 #' @keywords internal
 #' 
 find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
-  my_case <- !unlist(lapply(list(Dx, Ex, mx, qx, lx, dx), is.null))
   
+  dta     <- list(Dx, Ex, mx, qx, lx, dx)
+  my_case <- !unlist(lapply(dta, is.null))
   if (sum(my_case[c(1, 2)]) == 1) stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = FALSE)
   
+  rn <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
+  cn <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
+  mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn,cn),
+                data = c(T,T,F,F,F,F, 
+                         F,F,T,F,F,F,
+                         F,F,F,T,F,F,
+                         F,F,F,F,T,F,
+                         F,F,F,F,F,T))
+    
   case = "C0"
-  if (all(my_case == c(T,T,F,F,F,F))) case = "C1_DxEx" 
-  if (all(my_case == c(F,F,T,F,F,F))) case = "C2_mx"
-  if (all(my_case == c(F,F,F,T,F,F))) case = "C3_qx" 
-  if (all(my_case == c(F,F,F,F,T,F))) case = "C4_lx" 
-  if (all(my_case == c(F,F,F,F,F,T))) case = "C5_dx" 
+  for (i in 1:nrow(mat)) if (all(my_case == mat[i, ])) case <- rn[i]
   if (case == "C0") stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", call. = F)
   
-  return(case)
+  n = c_names = NA
+  NT <- any("numeric" %in% unlist(lapply(dta, class)))
+  if (!NT) { 
+    dt <- dta[mat[case,]][[1]]
+    n  <- ncol(dt) 
+    c_names <- colnames(dt) 
+  }
+  
+  out <- list(case = case, class.numeric = NT,  n = n, c_names = c_names)
+  return(out)
 }
 
 
@@ -161,8 +182,9 @@ mx_qx <- function(x, ux, out = "qx"){
   if (out == "qx") {
     eta = 1 - exp(-nx*ux)
     eta[is.na(ux)] <- 1
-    eta[x >= 100 & ux == 0] <- 1
-    eta[N] <- 1
+    eta[x >= 100 & ux == 0]  <- 1
+    if (max(x) > 100) eta[N] <- 1
+    # eta[N] <- 1
   }
   if (out == "mx") {
     eta = -log(1 - ux)/nx
@@ -219,30 +241,24 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 #' 
 LifeTable.check <- function(input) {
   with(input, {
-    C    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+    fmc  <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+    C    <- fmc$case
     SMS1 <- "contains missing values."
     SMS2 <- "NA's were replaced with"
     
-    n = c_names = NA
     if (C == "C1_DxEx") {
-      cls <- class(Dx)
-      if (cls != "numeric") { n = ncol(Dx); c_names = colnames(Dx) } 
       if (any(is.na(Dx))) warning(paste("'Dx'", SMS1, SMS2, 0), call. = F)
       if (any(is.na(Ex))) warning(paste("'Ex'", SMS1, SMS2, 0.01), call. = F)
       Dx[is.na(Dx)] <- 0
       Ex[is.na(Ex) | Ex == 0] <- 0.01
     }
     if (C == "C2_mx") {
-      cls <- class(mx)
-      if (cls != "numeric") { n = ncol(mx); c_names = colnames(mx) } 
       if (any(is.na(mx))) {
-        warning(paste("'mx'", SMS1, SMS2, max(mx, na.rm = T)), call. = F)
+        warning(paste("'mx'", SMS1, SMS2, "maximum obeserved mx:", max(mx, na.rm = T)), call. = F)
         mx[is.na(mx)] <- max(mx, na.rm = T)
       }
     }
     if (C == "C3_qx") {
-      cls <- class(qx)
-      if (cls != "numeric") { n = ncol(qx); c_names = colnames(qx) } 
       c1 <- is.na(qx[length(qx)])
       c2 <- is.na(qx[x >= 100])
       if (any(c1)) {
@@ -255,19 +271,16 @@ LifeTable.check <- function(input) {
       }
     }
     if (C == "C4_lx") {
-      cls <- class(lx)
-      if (cls != "numeric") { n = ncol(lx); c_names = colnames(lx) } 
+      if (any(is.na(lx))) warning(paste("'lx'", SMS1, SMS2, 0), call. = F)
       lx[is.na(lx) & x >= 100] <- 0
     }
     if (C == "C5_dx") {
-      cls <- class(dx)
-      if (cls != "numeric") { n = ncol(dx); c_names = colnames(dx) } 
       if (any(is.na(dx))) warning(paste("'dx'", SMS1, SMS2, 0), call. = F)
       dx[is.na(dx)] <- 0
     }
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
                 lx = lx, dx = dx, sex = sex, lx0 = lx0, 
-                cls = cls, n = n, c_names = c_names)
+                class.numeric = fmc$class.numeric, n = fmc$n, c_names = fmc$c_names)
     return(out)
   })
 }

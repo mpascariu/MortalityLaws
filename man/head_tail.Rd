@@ -3,12 +3,12 @@
 \name{head_tail}
 \alias{head_tail}
 \title{Summary function - display head and tail in a single data.frame
-The code for this function was first written for 'psych' R package}
+The original code for this function was first written for 'psych' R package}
 \usage{
 head_tail(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE)
 }
 \description{
 Summary function - display head and tail in a single data.frame
-The code for this function was first written for 'psych' R package
+The original code for this function was first written for 'psych' R package
 }
 \keyword{internal}

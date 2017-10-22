@@ -1,5 +1,3 @@
-
-
 #' @keywords internal
 #' @export
 plot.MortalityLaw <- function(x, ...){
@@ -22,11 +20,7 @@ plot.MortalityLaw <- function(x, ...){
   if (!is.null(x$input$qx)) {
     y = x$input$qx 
   } else {
-    if (is.null(x$input$mx)) {
-      y = x$input$Dx/x$input$Ex
-    } else {
-      y = x$input$mx
-      }
+    y = with(x$input, if (is.null(mx)) Dx/Ex else mx)
   }  
   
   fit_y = x$fitted.values
@@ -65,19 +59,16 @@ plot.MortalityLaw <- function(x, ...){
 }
 
 
-
-
 #' Summary function - display head and tail in a single data.frame
-#' The code for this function was first written for 'psych' R package
+#' The original code for this function was first written for 'psych' R package
 #' @keywords internal
-head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE) 
-{
+head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
   if (is.data.frame(x) | is.matrix(x)) {
     if (is.matrix(x)) x = data.frame(unclass(x))
     nvar <- dim(x)[2]
     dots <- rep("...", nvar)
-    h <- data.frame(head(x, hlength))
-    t <- data.frame(tail(x, tlength))
+    h    <- data.frame(head(x, hlength))
+    t    <- data.frame(tail(x, tlength))
     for (i in 1:nvar) {
       if (is.numeric(h[1, i])) {
         h[i] <- round(h[i], digits)
@@ -86,15 +77,12 @@ head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE)
         dots[i] <- NA
       }
     }
-    head.tail <- if (ellipsis) rbind(h, ... = dots, t) else rbind(h, t)
-    
+    out <- if (ellipsis) rbind(h, ... = dots, t) else rbind(h, t)
   } else {
     h <- head(x, hlength)
     t <- tail(x, tlength)
-    head.tail <- paste(paste(h, collapse = " "), "...   ...", 
-                       paste(t, collapse = " "))
+    out <- paste(paste(h, collapse = " "), "...   ...", paste(t, collapse = " "))
   }
-  
-  return(head.tail)
+  return(out)
 }
 

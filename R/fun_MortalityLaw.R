@@ -69,7 +69,6 @@
 #' M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2') # fit qx values
 #' M3
 #' 
-#' 
 #' @export
 #' 
 MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
@@ -265,7 +264,6 @@ check.MortalityLaw <- function(input){
            err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))
            stop(err2, call. = FALSE)
          }
-         
          if (law %in% c('vandermaen', 'vandermaen2', 'quadratic') & min(x) > 1) {
            warning(paste('The x vector needs to be scaled down in order to obtain', 
                          'meaningful estimates and a good fit. [e.g.: x = x - min(x)]'), 

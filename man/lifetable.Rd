@@ -46,7 +46,7 @@ Function to create a life table with various choices of 2 input vectors:
 \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
 }
 \examples{
-# Example 1 --- Full life table --------------
+# Example 1 --- Full life tables with different inputs ---
  
 y  <- 1900
 x  <- as.numeric(rownames(ahmd$mx))
@@ -62,11 +62,17 @@ LT5 <- LifeTable(x, dx = LT1$lt$dx)
 LT1
 ls(LT5) 
 
-# Example 2 --- Abridge life table ------------
+# Example 2 --- Compute multiple life tables at once ---
+
+LTs = LifeTable(x, mx = ahmd$mx)
+LTs
+
+# Example 3 --- Abridge life table ------------
 x  = c(0, 1, seq(5, 110, by = 5))
 mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
        .004, .005, .006, .0093, .0129, .019, .031, .049, 
        .084, .129, .180, .2354, .3085, .390, .478, .551)
 lt = LifeTable(x, mx = mx, sex = "female")
 lt
+
 }
