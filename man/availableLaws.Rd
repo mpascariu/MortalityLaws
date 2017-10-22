@@ -14,7 +14,7 @@ a certain model by specifing its codename.}
 The output is of \code{"availableLaws"} class.
 }
 \description{
-The function returns information about the implemented parametric functions 
+The function returns information about the parametric models that can be called and fitted
 in \code{\link{MortalityLaw}} function. For a comprehensiv review of the 
 most important mortality laws Tabeau (2001) is a good starting point.
 }
