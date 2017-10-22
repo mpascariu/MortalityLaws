@@ -8,17 +8,17 @@ LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
   dx = NULL, sex = NULL, lx0 = 1e+05)
 }
 \arguments{
-\item{x}{Vector of ages}
+\item{x}{vector of age at the beginning of the age classes}
 
-\item{Dx}{Vector containing death counts. An element of the vector, Dx, 
-represents the number of deaths during the year to persons aged x to x+1}
+\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Vector containing the exposure in the period. 
-Ex is the mid-year population aged x to x+1}
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+mid-year population aged x to x+n}
 
 \item{mx}{age-specific death rates}
 
-\item{qx}{probability of dying between age x and x+n}
+\item{qx}{probability of dying between age x and x+n.}
 
 \item{lx}{probability to survive up until age x}
 
@@ -26,8 +26,8 @@ Ex is the mid-year population aged x to x+1}
 
 \item{sex}{sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
-IF sex is specified the values are computed based on Coale-Demeny method 
-and are sligthly different for males than for females. 
+If sex is specified the values are computed based on Coale-Demeny method 
+and are slightly different for males than for females. 
 Options: \code{NULL, males, females, total}.}
 
 \item{lx0}{Radix. Default: 100 000}
@@ -37,13 +37,18 @@ The output is of class \code{lifetable} with the components:
 
 \item{lt}{ computed life table with rounded values}
 
-\item{lt.exact}{ computed life table}
+\item{call}{ a call in which all of the specified arguments are 
+specified by their full names.}
 
 \item{process_date}{ time stamp}
 }
 \description{
 Function to create a life table with various choices of 2 input vectors: 
 \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
+}
+\details{
+The input data can be of an object of class: 
+\code{numeric}, \code{matrix} or \code{data.frame}.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ---
@@ -68,6 +73,7 @@ LTs = LifeTable(x, mx = ahmd$mx)
 LTs
 
 # Example 3 --- Abridge life table ------------
+
 x  = c(0, 1, seq(5, 110, by = 5))
 mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
        .004, .005, .006, .0093, .0129, .019, .031, .049, 

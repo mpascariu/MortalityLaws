@@ -17,12 +17,13 @@
 #' for free on Human Mortality Database website.
 #' @param password Your HMD password
 #' @param save Do you want to save a copy of the dataset on your local machine?
-#' @return An \code{ReadHMD} object.
+#' @return An \code{ReadHMD} object that contains:
+#' @return \item{input}{ a list with the input data (except the password)}
+#' @return \item{data}{ data downloaded from HMD}
+#' @return \item{download.date}{ time stamp}
 #' @examples
 #' \dontrun{
-#' library(MortalityLaws)
-#'
-#' # Let's download demographic data for 3 countries in 1x1 format 
+#' # Download demographic data for 3 countries in 1x1 format 
 #' age_int  <- 1  # age interval: 1,5
 #' year_int <- 1  # year interval: 1,5,10
 #' interval <- paste0(age_int, "x", year_int)  # --> 1x1
@@ -54,8 +55,8 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   # HMD country codes
   if (is.null(countries)) countries <- HMDcountries()
   
-  input <- list(countries = countries, interval = interval, 
-                what = what, username = username, save = save)
+  input <- list(what = what, countries = countries, interval = interval, 
+                username = username, save = save)
   check_input_ReadHMD(input)
   # Progress bar setup
   nr <- length(countries)

@@ -9,15 +9,17 @@ MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   custom.law = NULL, show_pb = TRUE)
 }
 \arguments{
-\item{x}{Vector of ages}
+\item{x}{vector of age at the beginning of the age classes}
 
-\item{mx}{Vector of age-specific death rates}
+\item{mx}{age-specific death rates}
 
-\item{qx}{Vector of age-specific probabilities of death}
+\item{qx}{probability of dying between age x and x+n.}
 
-\item{Dx}{Vector containing death counts}
+\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Vector containing the exposed population}
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+mid-year population aged x to x+n}
 
 \item{law}{The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
@@ -41,12 +43,24 @@ in the package. Accepts as input a function.}
 Logical. Default value: \code{TRUE}.}
 }
 \value{
-A \code{MortalityLaw} object
+The output is of \code{"MortalityLaw"} class with the components:
+
+\item{input}{ a list with arguments provided in input. Saved for convenience}
+
+\item{info}{ short information about the model}
+
+\item{coefficients}{ the estimated coefficients}
+
+\item{fitted.values}{The fitted values of the selected model}
+
+\item{residuals}{residuals}
+
+\item{goodness.of.fit}{a list containing goodness of fit measures}
 }
 \description{
 This function can be used to fit mortality models given a set of data. 
 Using the argument \code{law} one can specify the model to be fitted. 
-So far there are more than 20 parametric model implemented.
+So far there are 27 parametric model implemented.
 }
 \examples{
 library(MortalityLaws)
@@ -89,7 +103,7 @@ plot(M2)
 
 x  <- 0:100
 mx <- ahmd$mx[paste(x), ] # select data
-M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2') # fit qx values
+M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 M3
 
 }

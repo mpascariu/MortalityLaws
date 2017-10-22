@@ -28,7 +28,13 @@ for free on Human Mortality Database website.}
 \item{save}{Do you want to save a copy of the dataset on your local machine?}
 }
 \value{
-An \code{ReadHMD} object.
+An \code{ReadHMD} object that contains:
+
+\item{input}{ a list with the input data (except the password)}
+
+\item{data}{ data downloaded from HMD}
+
+\item{download.date}{ time stamp}
 }
 \description{
 Function for downloading data for several countries in a single object 
@@ -36,9 +42,7 @@ from the Human Mortality Database (\url{http://www.mortality.org}).
 }
 \examples{
 \dontrun{
-library(MortalityLaws)
-
-# Let's download demographic data for 3 countries in 1x1 format 
+# Download demographic data for 3 countries in 1x1 format 
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10
 interval <- paste0(age_int, "x", year_int)  # --> 1x1

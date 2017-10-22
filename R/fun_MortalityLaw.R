@@ -2,13 +2,9 @@
 #'
 #' This function can be used to fit mortality models given a set of data. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
-#' So far there are more than 20 parametric model implemented.
+#' So far there are 27 parametric model implemented.
 #' 
-#' @param x Vector of ages
-#' @param mx Vector of age-specific death rates
-#' @param qx Vector of age-specific probabilities of death
-#' @param Dx Vector containing death counts
-#' @param Ex Vector containing the exposed population
+#' @inheritParams LifeTable
 #' @param law The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 #' \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
 #' function.
@@ -24,7 +20,13 @@
 #' in the package. Accepts as input a function.
 #' @param show_pb Choose whether to display a progress bar during the fitting process. 
 #' Logical. Default value: \code{TRUE}.
-#' @return A \code{MortalityLaw} object
+#' @return The output is of \code{"MortalityLaw"} class with the components:
+#' @return \item{input}{ a list with arguments provided in input. Saved for convenience}
+#' @return \item{info}{ short information about the model}
+#' @return \item{coefficients}{ the estimated coefficients}
+#' @return \item{fitted.values}{The fitted values of the selected model}
+#' @return \item{residuals}{residuals} 
+#' @return \item{goodness.of.fit}{a list containing goodness of fit measures} 
 #' @examples
 #' library(MortalityLaws)
 #' 
@@ -66,7 +68,7 @@
 #' 
 #' x  <- 0:100
 #' mx <- ahmd$mx[paste(x), ] # select data
-#' M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2') # fit qx values
+#' M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 #' M3
 #' 
 #' @export
@@ -99,10 +101,6 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     # Prepare, arrange, customize output
     aLaws  <- availableLaws()$table
     info   <- list(model.info = aLaws[aLaws$CODE == law, ], process.date = date())
-    output <- list(input = input, info = info, coefficients = cf,
-                   fitted.values = fit, residuals = resid,
-                   optimization.object = opt_$fn_opt, goodness.of.fit = gof)
-    output$info$call <- match.call()
     if (show_pb) setpb(pb, 4)
   }
   
@@ -124,12 +122,13 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     c_names <- if (!is.null(Dx)) { colnames(Dx) } else { 
                   if (!is.null(mx)) colnames(mx) else colnames(qx) } 
     rownames(cf) = rownames(gof) = colnames(fit) = colnames(resid) <- c_names
-    
-    output <- list(input = input, info = mdl$info, coefficients = cf,
-                   fitted.values = fit, residuals = resid,
-                   goodness.of.fit = gof)
+    info <- mdl$info
     if (show_pb) setpb(pb, n + 1)
   }
+  output <- list(input = input, info = info, coefficients = cf,
+                 fitted.values = fit, residuals = resid,
+                 goodness.of.fit = gof)
+  output$info$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)
 }

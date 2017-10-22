@@ -1,8 +1,8 @@
 Package: MortalityLaws
 Type: Package
 Title: Mortality Laws
-Version: 0.9.3
-Author: Marius Pascariu
+Version: 1.0.0
+Author: Marius Dan Pascariu
 Maintainer: Marius Pascariu <mpascariu@outlook.com>
 Collaborator: Vladimir Canudas-Romo
 Description: Fit and compare the most popular human mortality laws.
@@ -10,15 +10,12 @@ License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.0.0)
 Imports:
-  graphics,
   minpack.lm,
   RCurl,
   pbapply
 Suggests:
-  ggplot2,
   knitr,
   rmarkdown,
-  diagram,
   testthat
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr

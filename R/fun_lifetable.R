@@ -2,24 +2,28 @@
 #' 
 #' Function to create a life table with various choices of 2 input vectors: 
 #' \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
-#' @param x Vector of ages
-#' @param Dx Vector containing death counts. An element of the vector, Dx, 
-#' represents the number of deaths during the year to persons aged x to x+1 
-#' @param Ex Vector containing the exposure in the period. 
-#' Ex is the mid-year population aged x to x+1 
+#'  
+#' @details The input data can be of an object of class: 
+#' \code{numeric}, \code{matrix} or \code{data.frame}.
+#' @param x vector of age at the beginning of the age classes
+#' @param Dx object containing death counts. An element of the \code{Dx} object, 
+#' represents the number of deaths during the year to persons aged x to x+n. 
+#' @param Ex Exposure in the period. \code{Ex} can be approximated by the 
+#' mid-year population aged x to x+n
 #' @param mx age-specific death rates
-#' @param qx probability of dying between age x and x+n
+#' @param qx probability of dying between age x and x+n. 
 #' @param lx probability to survive up until age x
 #' @param dx life table death counts at age x
 #' @param sex sex of the population considered here. Default: \code{NULL}. 
 #' This argument affects the first two values in the life table ax column. 
-#' IF sex is specified the values are computed based on Coale-Demeny method 
-#' and are sligthly different for males than for females. 
+#' If sex is specified the values are computed based on Coale-Demeny method 
+#' and are slightly different for males than for females. 
 #' Options: \code{NULL, males, females, total}.
 #' @param lx0 Radix. Default: 100 000
 #' @return The output is of class \code{lifetable} with the components:
 #' @return \item{lt}{ computed life table with rounded values}
-#' @return \item{lt.exact}{ computed life table}
+#' @return \item{call}{ a call in which all of the specified arguments are 
+#' specified by their full names.}
 #' @return \item{process_date}{ time stamp}
 #' @examples 
 #' # Example 1 --- Full life tables with different inputs ---
@@ -44,6 +48,7 @@
 #' LTs
 #' 
 #' # Example 3 --- Abridge life table ------------
+#' 
 #' x  = c(0, 1, seq(5, 110, by = 5))
 #' mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
 #'        .004, .005, .006, .0093, .0129, .019, .031, .049, 
@@ -72,8 +77,9 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
     }
   }
   
-  out   <- list(lt = LT, process_date = date())
-  out   <- structure(class = "LifeTable", out)
+  out <- list(lt = LT, process_date = date())
+  out <- structure(class = "LifeTable", out)
+  out$call <- match.call()
   return(out)
 }
 
@@ -151,7 +157,7 @@ find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
                          F,F,F,T,F,F,
                          F,F,F,F,T,F,
                          F,F,F,F,F,T))
-    
+  
   case = "C0"
   for (i in 1:nrow(mat)) if (all(my_case == mat[i, ])) case <- rn[i]
   if (case == "C0") stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", call. = F)
@@ -291,8 +297,8 @@ LifeTable.check <- function(input) {
 print.LifeTable <- function(x, ...){
   LT = x$lt
   lt <- with(LT, data.frame(x.int = x.int, x = x, mx = round(mx, 6), 
-              qx = round(qx, 6), ax = round(ax, 2), lx = round(lx), 
-              dx = round(dx), Lx = round(Lx), Tx = round(Tx), ex = round(ex, 2)))
+                            qx = round(qx, 6), ax = round(ax, 2), lx = round(lx), 
+                            dx = round(dx), Lx = round(Lx), Tx = round(Tx), ex = round(ex, 2)))
   if (colnames(LT)[1] == "LT") lt <- data.frame(LT = LT$LT, lt)
   dimnames(lt) <- dimnames(LT)
   nx = length(unique(LT$x))
@@ -310,6 +316,7 @@ print.LifeTable <- function(x, ...){
   cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
   print(out, row.names = FALSE)
 } 
+
 
 
 
