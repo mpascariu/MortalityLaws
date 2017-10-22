@@ -28,28 +28,26 @@
 #' @return \item{residuals}{residuals} 
 #' @return \item{goodness.of.fit}{a list containing goodness of fit measures} 
 #' @examples
-#' library(MortalityLaws)
-#' 
 #' # Example 1: ---------------------------------------
 #' # Fit Makeham model for year of 1950.
 #' 
-#' yr <- 1950
 #' x  <- 45:75
-#' Dx <- ahmd$Dx[paste(x), paste(yr)]
-#' Ex <- ahmd$Ex[paste(x), paste(yr)]
+#' Dx <- ahmd$Dx[paste(x), "1950"]
+#' Ex <- ahmd$Ex[paste(x), "1950"]
 #' 
 #' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
-#' 
 #' M1
 #' ls(M1)
 #' summary(M1)
-#' plot(M1)
-#' 
-#' # we can fit the same model using diffrent data and a different optimization procedure
-#' mx <- ahmd$mx[paste(x), paste(yr)]
-#' M1b <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
 #' 
 #' # Example 2: ---------------------------------------
+#' # we can fit the same model using diffrent data format and a different 
+#' # optimization procedure
+#' mx <- ahmd$mx[paste(x), ]
+#' M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
+#' M2
+#' 
+#' # Example 3: ---------------------------------------
 #' # Now let's fit a mortality law that is not defined in the package, say a
 #' # reparametrize Gompertz in terms of modal age at death
 #' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
@@ -59,20 +57,20 @@
 #'   return(as.list(environment())) # return everything inside this function
 #' }
 #' 
-#' M2 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
-#' summary(M2)
-#' plot(M2)
+#' M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+#' summary(M3)
 #' 
-#' # Example 3: ---------------------------------------
-#' # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
+#' # Example 4: ---------------------------------------
+#' # Fit Heligman-Pollard model for a single year in the dataset between age 0 and 100.
 #' 
 #' x  <- 0:100
-#' mx <- ahmd$mx[paste(x), ] # select data
-#' M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
-#' M3
+#' mx <- ahmd$mx[paste(x), "1950"] # select data
+#' M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
+#' M4
+#' plot(M4)
 #' 
 #' @export
-#' 
+#'
 MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
                          law = NULL, opt.method = 'poissonL', parS = NULL, 
                          fit.this.x = x, custom.law = NULL, show_pb = TRUE){

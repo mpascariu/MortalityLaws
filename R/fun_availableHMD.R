@@ -7,7 +7,6 @@
 #' @return An \code{availableHMD} object.
 #' @examples 
 #' \dontrun{
-#' library(MortalityLaws)
 #' datainfo <- available.data(username = "your_username", 
 #'                            password = "your_password")
 #' datainfo

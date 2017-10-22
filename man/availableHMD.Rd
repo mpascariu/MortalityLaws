@@ -23,7 +23,6 @@ with the range of years covered by the life tables.
 }
 \examples{
 \dontrun{
-library(MortalityLaws)
 datainfo <- available.data(username = "your_username", 
                            password = "your_password")
 datainfo

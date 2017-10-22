@@ -2,9 +2,8 @@ Package: MortalityLaws
 Type: Package
 Title: Mortality Laws
 Version: 1.0.0
-Author: Marius Dan Pascariu
-Maintainer: Marius Pascariu <mpascariu@outlook.com>
-Collaborator: Vladimir Canudas-Romo
+Author: Marius D. Pascariu
+Maintainer: Marius D. Pascariu <mpascariu@outlook.com>
 Description: Fit and compare the most popular human mortality laws.
 License: GPL-3
 LazyData: TRUE
