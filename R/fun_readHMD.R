@@ -115,7 +115,7 @@ read_hmd <- function(what, country, interval, username, password){
                        "to access the requested data.\n", "Most probably you ",
                        "supplied the wrong credentials (e.g., bad password).")
   dat <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
-             stop(errMessage))
+             stop(errMessage, call. = FALSE))
   close(con)
   out <- cbind(country, dat)
   if (interval == "1x1" & !(what %in% c('births', 'lexis', 'e0')) ) out$Age = 0:110
@@ -134,41 +134,6 @@ HMDcountries <- function() {
   HMDc
 }
 
-#' Check data availability in HMD
-#' 
-#' The function returns information about available data in HMD (period life tables etc.), 
-#' with the range of years covered by the life tables.
-#' @inheritParams ReadHMD
-#' @param ... Other parameters to be passed in \code{ReadHMD} function.
-#' @return An \code{availableHMD} object.
-#' @examples 
-#' \dontrun{
-#' library(MortalityLaws)
-#' datainfo <- available.data(username = "your_username", 
-#'                            password = "your_password")
-#' datainfo
-#' }
-#' @export
-availableHMD <- function(username, password, ...) {
-  HMD <- ReadHMD(what = 'e0', username = username, password = password, 
-                 save = FALSE, ...)
-  hmd <- HMD$data[, 1:2]
-  cts <- as.character(unique(hmd$country))
-  nc  <- length(cts)
-  dta <- NULL
-  for (i in 1:nc) {
-    cntr = cts[i]
-    int  = range(hmd[hmd$country == cntr, 2])
-    dta  = rbind(dta, data.frame(country = cntr, BOP = int[1], EOP = int[2]))
-  }
-  
-  cd  <- HMD$download.date
-  out <- structure(class = "availableHMD",
-                   list(avalable.data = dta, countries = cts, 
-                        number.of.contries = nc, checked.date = cd))
-  return(out)
-}
-
 
 #' Check input ReadHMD
 #' @keywords internal
@@ -181,58 +146,27 @@ check_input_ReadHMD <- function(x) {
     stop(paste('\nThe interval', x$interval,
                'does not exist in HMD\n',
                'Try one of these options:\n', 
-                paste(int, collapse = ', ')) )}
+                paste(int, collapse = ', ')), call. = F)}
   if (!(x$what %in% wht)) {
-    stop(paste(x$what, 'does not exist in HMD\n',
+    stop(paste("\n", x$what, 'does not exist in HMD\n',
                'Try one of these options:\n', 
-                paste(wht, collapse = ', ')) )}
+                paste(wht, collapse = ', ')), call. = F)}
   if (all(!(x$countries %in% HMDcountries())) ) {
     stop(paste('\nSomething is wrong in the country/coutries',
                'added by you.\n',
                'Try one or more of these options:\n', 
-               paste(HMDcountries(), collapse = ', ')) )}
+               paste(HMDcountries(), collapse = ', ')), call. = F)}
 }
 
-
-#' Summary function - display head and tail in a single data.frame
-#' The code for this function was first written for 'psych' R package
+# ---------------
 #' @keywords internal
-head_tail <- function(x, hlength = 4, tlength = 4, digits = 2, ellipsis = TRUE) 
-{
-  if (is.data.frame(x) | is.matrix(x)) {
-    if (is.matrix(x)) 
-      x <- data.frame(unclass(x))
-    nvar <- dim(x)[2]
-    dots <- rep("...", nvar)
-    h <- data.frame(head(x, hlength))
-    t <- data.frame(tail(x, tlength))
-    for (i in 1:nvar) {
-      if (is.numeric(h[1, i])) {
-        h[i] <- round(h[i], digits)
-        t[i] <- round(t[i], digits)
-      }
-      else {
-        dots[i] <- NA
-      }
-    }
-    if (ellipsis) {
-      head.tail <- rbind(h, ... = dots, t)
-    }
-    else {
-      head.tail <- rbind(h, t)
-    }
-  }
-  else {
-    h <- head(x, hlength)
-    t <- tail(x, tlength)
-    if (ellipsis) {
-      head.tail <- rbind(h, "...       ...", t)
-    }
-    else {
-      head.tail <- rbind(h, t)
-      head.tail <- as.matrix(head.tail)
-    }
-  }
-  return(head.tail)
+#' @export
+print.ReadHMD <- function(x, ...){
+  cat('Human Mortality Database (www.mortality.org)\n')
+  cat('Downloaded by:', x$input$username, '\n')
+  cat('Download Date:', x$download.date, '\n')
+  cat('Type of data:', x$input$what, '\n')
+  cat('Countries included:', x$input$countries, '\n\nData:\n')
+  print(head_tail(x$data, hlength = 5, tlength = 5))
 }
 

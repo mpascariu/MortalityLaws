@@ -32,20 +32,20 @@
 #' # Fit Makeham model for year of 1950.
 #' 
 #' yr <- 1950
-#' ages  <- 45:75
-#' Dx <- ahmd$Dx[paste(ages), paste(yr)]
-#' Ex <- ahmd$Ex[paste(ages), paste(yr)]
+#' x  <- 45:75
+#' Dx <- ahmd$Dx[paste(x), paste(yr)]
+#' Ex <- ahmd$Ex[paste(x), paste(yr)]
 #' 
-#' model1 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, law = 'makeham')
+#' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
 #' 
-#' model1
-#' ls(model1)
-#' summary(model1)
-#' plot(model1)
+#' M1
+#' ls(M1)
+#' summary(M1)
+#' plot(M1)
 #' 
 #' # we can fit the same model using diffrent data and a different optimization procedure
-#' mx <- ahmd$mx[paste(ages), paste(yr)]
-#' model1.1 <- MortalityLaw(x = ages, mx = mx, law = 'makeham', opt.method = 'LF1')
+#' mx <- ahmd$mx[paste(x), paste(yr)]
+#' M1b <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
 #' 
 #' # Example 2: ---------------------------------------
 #' # Now let's fit a mortality law that is not defined in the package, say a
@@ -57,19 +57,17 @@
 #'   return(as.list(environment())) # return everything inside this function
 #' }
 #' 
-#' model2 <- MortalityLaw(x = ages, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
-#' summary(model2)
-#' plot(model2)
+#' M2 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+#' summary(M2)
+#' plot(M2)
 #' 
 #' # Example 3: ---------------------------------------
 #' # Fit Heligman-Pollard model for every single year in the dataset between age 0 and 100.
 #' 
-#' ages  <- 0:100
-#' mx <- ahmd$mx[paste(ages), ] # select data
-#' qx <- convertFx(mx, x = ages, type = 'mx', output = 'qx') # transform mx into qx
-#' 
-#' model3 = MortalityLaw(x = ages, qx = qx, law = 'HP', opt.method = 'LF2') # fit qx values
-#' model3
+#' x  <- 0:100
+#' mx <- ahmd$mx[paste(x), ] # select data
+#' M3 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2') # fit qx values
+#' M3
 #' 
 #' 
 #' @export
@@ -234,38 +232,78 @@ choose_optim <- function(input){
 
 
 
-#' Check available loss function 
+#' Function to check input data in MortalityLaw
+#' @keywords internal
 #' 
-#' The function returns information about the implemented loss function used by the 
-#' optimization procedure in \code{\link{MortalityLaw}} function. 
-#' @return An \code{availableLF} object.
-#' @examples 
-#' 
-#' availableLF()
-#' 
+check.MortalityLaw <- function(input){
+  with(input, 
+       {
+         if (!is.logical(show_pb)) stop('show_pb should be TRUE or FALSE')
+         
+         if (!is.null(mx)) {
+           if (length(x) != length(mx)) 
+             stop('x and mx do not have the same length!', call. = FALSE)
+         }
+         
+         if (!is.null(Dx)) {
+           if (length(x) != length(Dx) | length(x) != length(Ex) ) 
+             stop('x, Dx and Ex do not have the same length!', call. = FALSE)
+         }
+         
+         models <- c(as.matrix(availableLaws()$table[, 5]), 'custom.law')
+         if ( !(law %in% models)) {
+           m1 <- 'Mortality law not available\n'
+           m2 <- 'Check one of the following models:\n'
+           err1 <- paste(m1, m2, paste(models, collapse = ', '))
+           stop(err1, call. = FALSE)
+         }
+         
+         function_to_optimize <- availableLF()$table[, 'CODE']
+         if (!(opt.method %in% function_to_optimize)) {
+           m1 <- 'Choose a different objective function to optimize\n'
+           m2 <- 'Check one of the following options:\n'
+           err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))
+           stop(err2, call. = FALSE)
+         }
+         
+         if (law %in% c('vandermaen', 'vandermaen2', 'quadratic') & min(x) > 1) {
+           warning(paste('The x vector needs to be scaled down in order to obtain', 
+                         'meaningful estimates and a good fit. [e.g.: x = x - min(x)]'), 
+                   call. = FALSE) 
+         }
+       })
+}
+
+
+#' @keywords internal
 #' @export
-availableLF <- function(){
-  tab <- as.data.frame(
-    matrix(c("L = -[Dx * log(mu) - mu*Ex]", "poissonL",
-             "L = -[Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu]  ", "binomialL",
-             "L =  [1 - mu/ov]^2", "LF1",
-             "L =  log[mu/ov]^2", "LF2",
-             "L =  [(ov - mu)^2]/ov", "LF3",
-             "L =  [ov - mu]^2", "LF4",
-             "L =  [ov - mu] * log[ov/mu]", "LF5",
-             "L =  |ov - mu|", "LF6"), ncol = 2, byrow = T))
-  colnames(tab) <- c("LOSS FUNCTION", "CODE")
+print.MortalityLaw <- function(x, ...) {
+  cat(paste(as.matrix(x$info$model.info[, c(2, 3)]), collapse = ':\n'))
+  fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
+  cat('\n\nFitted values:', fv)
+  cat('\nCoefficients :\n')
+  digits <- if (all(coef(x) < 1e-3)) 6 else 4
+  print(round(coef(x), digits))
+}
+
+#' @keywords internal
+#' @export
+summary.MortalityLaw <- function(object, ...) {
+  cat(paste(as.matrix(object$info$model.info[, c(2, 3)]), collapse = ':\n'))
+  cat("\n\nCall: ")
+  print(object$info$call)
+  cat('\nDeviance Residuals:\n')
+  print(round(summary(as.vector(as.matrix(object$residuals))), 5))
   
-  legend <- c("Dx - Death counts", "Ex - Exposure", 
-              "mu - Estimated value", "ov - Observed value")
+  fv <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
+  cat('\nFitted values:', fv)
+  cat('\nCoefficients:\n')
+  digits <- if (all(coef(object) < 1e-3)) 7 else 5
+  print(round(coef(object), digits ))
   
-  hint <- c("Most of the functions work well with <poissonL>, however for complex",
-            "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using",
-            "other loss functions (e.g. LF2). You are strongly encouraged to test",
-            "different option before deciding on the final version. The results will be",
-            "slightly different.")
-  
-  out <- structure(class = "availableLF", 
-                   list(table = tab, legend = legend, hint = hint))
-  return(out)
-} 
+  opt.method <- object$input$opt.method
+  if (opt.method %in% c('poissonL, binomialL')) {
+    cat('\nGoodness of fit:\n')
+    print(round(object$goodness.of.fit, 2))
+  }
+}

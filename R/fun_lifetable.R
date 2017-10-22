@@ -11,9 +11,11 @@
 #' @param qx probability of dying between age x and x+n
 #' @param lx probability to survive up until age x
 #' @param dx life table death counts at age x
-#' @param sex sex of the population considered here. This argument affects the 
-#' first two values in the life table ax column. The values are computed based 
-#' on Coale-Demeny method and are sligthly different for males than for females. 
+#' @param sex sex of the population considered here. Default: \code{NULL}. 
+#' This argument affects the first two values in the life table ax column. 
+#' IF sex is specified the values are computed based on Coale-Demeny method 
+#' and are sligthly different for males than for females. 
+#' Options: \code{NULL, males, females, total}.
 #' @param lx0 Radix. Default: 100 000
 #' @return The output is of class \code{lifetable} with the components:
 #' @return \item{lt}{ computed life table with rounded values}
@@ -28,10 +30,10 @@
 #' Ex <- ahmd$Ex[, paste(y)]
 #' 
 #' LT1 <- LifeTable(x, Dx = Dx, Ex = Ex)
-#' LT2 <- LifeTable(x, mx = LT1$lt.exact$mx)
-#' LT3 <- LifeTable(x, qx = LT1$lt.exact$qx)
-#' LT4 <- LifeTable(x, lx = LT1$lt.exact$lx)
-#' LT5 <- LifeTable(x, dx = LT1$lt.exact$dx)
+#' LT2 <- LifeTable(x, mx = LT1$lt$mx)
+#' LT3 <- LifeTable(x, qx = LT1$lt$qx)
+#' LT4 <- LifeTable(x, lx = LT1$lt$lx)
+#' LT5 <- LifeTable(x, dx = LT1$lt$dx)
 #'
 #' LT1
 #' ls(LT5) 
@@ -47,59 +49,26 @@
 #'
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
                       qx = NULL, lx = NULL, dx = NULL,
-                      sex = "total", lx0 = 1e+05){
+                      sex = NULL, lx0 = 1e+05){
+  
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
   
-  LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0))
-  lt <- data.frame(x = x, mx = round(LT$mx, 8), qx = round(LT$qx, 8), 
-                   ax = round(LT$ax, 2), lx = round(LT$lx), dx = round(LT$dx), 
-                   Lx = round(LT$Lx), Tx = round(LT$Tx), ex = round(LT$ex, 2))
-  out <- list(lt = lt, lt.exact = LT, process_date = date())
-  out <- structure(class = "LifeTable", out)
+  if (X$cls == "numeric") {
+    LT    <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0))
+  } else {
+    LT = NULL
+    for (i in 1:X$n) {
+      LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
+                                    qx[,i], lx[,i], dx[,i], sex, lx0))
+      LTi <- cbind(LT = X$c_names[i], LTi)
+      LT  <- rbind(LT, LTi)
+    }
+  }
   
+  out   <- list(lt = LT, process_date = date())
+  out   <- structure(class = "LifeTable", out)
   return(out)
-}
-
-#' Check LifeTable input 
-#' @keywords internal
-#' 
-LifeTable.check <- function(input) {
-  with(input, {
-    C    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
-    SMS1 <- "contains missing values"
-    SMS2 <- "NA's were replaced with 0."
-    
-    if (C == "C1_DxEx") {
-      if (any(is.na(Dx))) warning(paste("'Dx'", SMS1, SMS2), call. = F)
-      if (any(is.na(Ex))) warning(paste("'Ex'", SMS1, SMS2), call. = F)
-      Dx[is.na(Dx)] <- 0
-      Ex[is.na(Ex) | Ex == 0] <- 0.01
-    }
-    if (C == "C2_mx") {
-      c1 <- is.na(mx[x <  100])
-      c2 <- is.na(mx[x >= 100])
-      if (any(c1)) stop(paste("'mx'", SMS1), call. = F)
-      if (any(c2)) {
-        warning(paste("'mx'", SMS1, SMS2), call. = F)
-        mx[c2] <- max(mx, na.rm = T)
-      }
-    }
-    if (C == "C3_qx") {
-      qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)
-      qx[is.na(qx) & x <  100] <- 1
-    }
-    if (C == "C4_lx") {
-      lx[is.na(lx) & x >= 100] <- 0
-    }
-    if (C == "C5_dx") {
-      if (any(is.na(dx))) warning(paste("'dx'", SMS1, SMS2), call. = F)
-      dx[is.na(dx)] <- 0
-    }
-    out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
-                lx = lx, dx = dx, sex = sex, lx0 = lx0)
-    return(out)
-  })
 }
 
 #' LifeTable.core
@@ -107,9 +76,7 @@ LifeTable.check <- function(input) {
 #' @inheritParams LifeTable
 #' @keywords internal
 #' @export
-LifeTable.core <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
-                           qx = NULL, lx = NULL, dx = NULL,
-                           sex, lx0 = 1e+05){
+LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
   my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
   N        <- length(x)
@@ -134,30 +101,30 @@ LifeTable.core <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
   if (my.case == "C4_lx") {
     dx <- c(rev(diff(rev(lx))), 0)
     qx <- dx/lx
+    qx[is.na(qx) & x >= 100] <- 1
     mx <- mx_qx(x, qx, out = "mx")
   }
   if (my.case == "C5_dx") {
     lx <- rev(cumsum(rev(dx)))
     qx <- dx/lx
+    qx[is.na(qx) & x >= 100] <- 1
     mx <- mx_qx(x, qx, out = "mx")
   }
   
-  ax       <- coale.demeny.ax(x, mx, qx, sex)
-  Lx       <- nx*lx - (nx - ax)*dx
-  Lx[N]    <- ax[N]*dx[N]
+  ax    <- compute.ax(x, mx, qx) 
+  if (!is.null(sex)) ax <- coale.demeny.ax(x, mx, ax, sex)
+  Lx    <- nx*lx - (nx - ax)*dx
+  Lx[N] <- ax[N]*dx[N]
   Lx[is.na(Lx)] <- 0
-  Tx       <- rev(cumsum(rev(Lx)))
-  ex       <- Tx/(lx - dx*(ax/nx))
+  Tx    <- rev(cumsum(rev(Lx)))
+  ex    <- Tx/(lx - dx*(ax/nx))
   ex[is.na(ex)] <- 0
-  ex[N]   <- if (ex[N - 1] == 0) 0 else ax[N]
+  ex[N] <- if (ex[N - 1] == 0) 0 else ax[N]
   
-  out <- data.frame(x = x, mx = mx, qx = qx, ax = ax,
+  out <- data.frame(x.int = gr_names, x = x, mx = mx, qx = qx, ax = ax,
                     lx = lx, dx = dx, Lx = Lx, Tx = Tx, ex = ex)
-  rownames(out) <- gr_names
   return(out)
 }
-
-
 
 
 #' Function that determintes the case/problem we have to solve
@@ -207,24 +174,31 @@ mx_qx <- function(x, ux, out = "qx"){
   return(eta)
 }
 
-#' Find ax indicator using the Coale-Demeny coefficients
+
+#' Find ax indicator
 #' 
-#' ax - the point in the age internal where 50% of the deaths have already occurred
+#' @return \code{ax} - the point in the age internal where 50% of the deaths 
+#' have already occurred
 #' @keywords internal
-#' 
-coale.demeny.ax <- function(x, mx, qx, sex) {
-  if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = F)
-  
+compute.ax <- function(x, mx, qx) {
   nx <- c(diff(x), Inf)
   N  <- length(x)
-  f  <- nx[1:2] / c(1, 4)
-  m0 <- mx[1]
   ax <- nx + 1/mx - nx/qx
   for (i in 1:(N - 1)) { 
     if (is.infinite(ax[i + 1]) | is.na(ax[i + 1])) ax[i + 1] = ax[i]
   }
-  
-  # Here we adjust the first two values to account for infant mortality more accurately
+  return(ax)
+}
+
+
+#' Find ax[1:2] indicators using Coale-Demeny coefficients
+#' Here we adjust the first two values of ax to account for infant mortality more accurately
+#' 
+#' @keywords internal
+coale.demeny.ax <- function(x, mx, ax, sex) {
+  if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = F)
+  nx <- c(diff(x), Inf)
+  m0 <- mx[1]
   a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684*m0)
   a1M <- ifelse(m0 >= 0.107, 0.330, 1.651 - 2.816*m0)
   a0F <- ifelse(m0 >= 0.107, 0.350, 0.053 + 2.800*m0)
@@ -232,6 +206,7 @@ coale.demeny.ax <- function(x, mx, qx, sex) {
   a0T <- (a0M + a0F)/2
   a1T <- (a1M + a1F)/2
   
+  f  <- nx[1:2] / c(1, 4)
   if (sex == "male")   ax[1:2] <- c(a0M, a1M) * f
   if (sex == "female") ax[1:2] <- c(a0F, a1F) * f
   if (sex == "total")  ax[1:2] <- c(a0T, a1T) * f
@@ -239,11 +214,90 @@ coale.demeny.ax <- function(x, mx, qx, sex) {
   return(ax) 
 }
 
+#' Check LifeTable input 
+#' @keywords internal
+#' 
+LifeTable.check <- function(input) {
+  with(input, {
+    C    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+    SMS1 <- "contains missing values."
+    SMS2 <- "NA's were replaced with"
+    
+    n = c_names = NA
+    if (C == "C1_DxEx") {
+      cls <- class(Dx)
+      if (cls != "numeric") { n = ncol(Dx); c_names = colnames(Dx) } 
+      if (any(is.na(Dx))) warning(paste("'Dx'", SMS1, SMS2, 0), call. = F)
+      if (any(is.na(Ex))) warning(paste("'Ex'", SMS1, SMS2, 0.01), call. = F)
+      Dx[is.na(Dx)] <- 0
+      Ex[is.na(Ex) | Ex == 0] <- 0.01
+    }
+    if (C == "C2_mx") {
+      cls <- class(mx)
+      if (cls != "numeric") { n = ncol(mx); c_names = colnames(mx) } 
+      if (any(is.na(mx))) {
+        warning(paste("'mx'", SMS1, SMS2, max(mx, na.rm = T)), call. = F)
+        mx[is.na(mx)] <- max(mx, na.rm = T)
+      }
+    }
+    if (C == "C3_qx") {
+      cls <- class(qx)
+      if (cls != "numeric") { n = ncol(qx); c_names = colnames(qx) } 
+      c1 <- is.na(qx[length(qx)])
+      c2 <- is.na(qx[x >= 100])
+      if (any(c1)) {
+        warning(paste("ultimate 'qx' is NA. It is replaces with 1."), call. = F)
+        qx[length(qx)] <- 1
+      }
+      if (any(c2)) {
+        warning(paste("'qx'", SMS1, SMS2, max(qx, na.rm = T)), call. = F)
+        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)
+      }
+    }
+    if (C == "C4_lx") {
+      cls <- class(lx)
+      if (cls != "numeric") { n = ncol(lx); c_names = colnames(lx) } 
+      lx[is.na(lx) & x >= 100] <- 0
+    }
+    if (C == "C5_dx") {
+      cls <- class(dx)
+      if (cls != "numeric") { n = ncol(dx); c_names = colnames(dx) } 
+      if (any(is.na(dx))) warning(paste("'dx'", SMS1, SMS2, 0), call. = F)
+      dx[is.na(dx)] <- 0
+    }
+    out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
+                lx = lx, dx = dx, sex = sex, lx0 = lx0, 
+                cls = cls, n = n, c_names = c_names)
+    return(out)
+  })
+}
+
 #' Print lifetable
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){
-  cat("\nLife Table\n\n")
-  tab = head_tail(x$lt, digits = 6, hlength = 5, tlength = 5, ...)
-  print(tab)
+  LT = x$lt
+  lt <- with(LT, data.frame(x.int = x.int, x = x, mx = round(mx, 6), 
+              qx = round(qx, 6), ax = round(ax, 2), lx = round(lx), 
+              dx = round(dx), Lx = round(Lx), Tx = round(Tx), ex = round(ex, 2)))
+  if (colnames(LT)[1] == "LT") lt <- data.frame(LT = LT$LT, lt)
+  dimnames(lt) <- dimnames(LT)
+  nx = length(unique(LT$x))
+  nlt = nrow(LT) / nx
+  out = head_tail(lt, hlength = 6, tlength = 3, ...)
+  
+  step = diff(LT$x)
+  step = step[step > 0]
+  type1 <- if (all(step == 1)) "Full" else "Abridge"
+  type2 <- if (nlt == 1) "Life Table" else "Life Tables"
+  
+  cat("\n", type1, " ", type2, "\n\n", sep = "")
+  cat("Number of life tables:", nlt, "\n")
+  cat("Dimension:", nrow(LT), "x", ncol(LT), "\n")
+  cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
+  print(out, row.names = FALSE)
 } 
+
+
+
+
