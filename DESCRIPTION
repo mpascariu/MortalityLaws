@@ -1,10 +1,13 @@
 Package: MortalityLaws
 Type: Package
-Title: Mortality Laws
+Title: Mortality Laws, Life Tables and HMD
 Version: 1.0.0
 Author: Marius D. Pascariu
 Maintainer: Marius D. Pascariu <mpascariu@outlook.com>
-Description: Fit and compare the most popular human mortality laws.
+Description: This package includes R code for fitting the most popular human 
+  mortality 'laws', and for building full/abridge life tables given various 
+  input indices. An elegant function for downloading data from Human Mortality 
+  Database (www.mortality.org) was implemented as well.  
 License: GPL-3
 LazyData: TRUE
 Depends: R (>= 3.0.0)
@@ -13,8 +16,5 @@ Imports:
   RCurl,
   pbapply
 Suggests:
-  knitr,
-  rmarkdown,
   testthat
 RoxygenNote: 6.0.1
-VignetteBuilder: knitr

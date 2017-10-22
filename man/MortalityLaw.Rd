@@ -58,9 +58,27 @@ The output is of \code{"MortalityLaw"} class with the components:
 \item{goodness.of.fit}{a list containing goodness of fit measures}
 }
 \description{
-This function can be used to fit mortality models given a set of data. 
+This function can be used to fit parametric mortality models given a set of data. 
 Using the argument \code{law} one can specify the model to be fitted. 
-So far there are 27 parametric model implemented.
+So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
+function to learn about the available options. The models can be fitted under 
+the maximum likelihood methodology of by selecting a loss function to be 
+optimised. See the implemented loss function by running 
+\code{\link{availableLF}} function.
+}
+\details{
+Depending on the complexity of the model, one of following optimization 
+strategies are employed: 
+\enumerate{
+\item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+ variables when the objective function varies smoothly and is unimodal. 
+ For details see \code{\link{optim}}}
+\item{PORT routines:}{ provides unconstrained optimization and optimization 
+subject to box constraints for complicated functions. For details check 
+\code{\link{nlminb}}}
+\item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
+For details check \code{\link{nls.lm}}}
+}
 }
 \examples{
 # Example 1: ---------------------------------------

@@ -1,9 +1,25 @@
 #' Fit mortality law
 #'
-#' This function can be used to fit mortality models given a set of data. 
+#' This function can be used to fit parametric mortality models given a set of data. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
-#' So far there are 27 parametric model implemented.
+#' So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
+#' function to learn about the available options. The models can be fitted under 
+#' the maximum likelihood methodology of by selecting a loss function to be 
+#' optimised. See the implemented loss function by running 
+#' \code{\link{availableLF}} function.
 #' 
+#' @details Depending on the complexity of the model, one of following optimization 
+#' strategies are employed: 
+#' \enumerate{
+#' \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+#'  variables when the objective function varies smoothly and is unimodal. 
+#'  For details see \code{\link{optim}}}
+#' \item{PORT routines:}{ provides unconstrained optimization and optimization 
+#' subject to box constraints for complicated functions. For details check 
+#' \code{\link{nlminb}}}
+#' \item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
+#' For details check \code{\link{nls.lm}}}
+#' }
 #' @inheritParams LifeTable
 #' @param law The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 #' \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
@@ -118,7 +134,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     }
     
     c_names <- if (!is.null(Dx)) { colnames(Dx) } else { 
-                  if (!is.null(mx)) colnames(mx) else colnames(qx) } 
+      if (!is.null(mx)) colnames(mx) else colnames(qx) } 
     rownames(cf) = rownames(gof) = colnames(fit) = colnames(resid) <- c_names
     info <- mdl$info
     if (show_pb) setpb(pb, n + 1)
@@ -302,3 +318,4 @@ summary.MortalityLaw <- function(object, ...) {
     print(round(object$goodness.of.fit, 2))
   }
 }
+

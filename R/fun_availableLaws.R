@@ -1,11 +1,12 @@
-
 #' Check available mortality laws
 #' 
 #' The function returns information about the implemented parametric functions 
-#' in \code{\link{MortalityLaw}} function.
-#' @param law Default: \code{NULL}. One can substract details about a certain model
-#' by specifing its code.
-#' @return An \code{availableLaws} object.
+#' in \code{\link{MortalityLaw}} function. For a comprehensiv review of the 
+#' most important mortality laws Tabeau (2001) is a good starting point.
+#' 
+#' @param law Optional. Default: \code{NULL}. One can substract details about 
+#' a certain model by specifing its codename.
+#' @return The output is of \code{"availableLaws"} class.
 #' @references 
 #' \enumerate{
 #' \item{Gompertz, B. (1825). \href{http://www.jstor.org/stable/107756}{On the 
@@ -20,7 +21,7 @@
 #' Rate of Mortality throughout the whole of Life, tested by a Series of 
 #' Observations made use of by the Danish Life Insurance Company of 1871.} 
 #' Journal of the Institute of Actuaries and Assurance Magazine, 16(5), 313-329.}
-#' \item{Wittstein, T. (1883). \href{https://doi.org/10.1017/S2046167400045973}{
+#' \item{Wittstein, T. (1883). \href{https://www.cambridge.org/core/journals/journal-of-the-institute-of-actuaries/article/the-mathematical-law-of-mortality/57A7403B578C84769A463EA2BC2F7ECD}{
 #' The Mathematical Law of Mortality.} 
 #' Journal of the Institute of Actuaries and Assurance Magazine, 24(3), 153-173.}
 #' \item{Perks, W. (1932). \href{https://doi.org/10.1017/S0020268100046680}{
