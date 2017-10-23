@@ -15,8 +15,7 @@
 "ahmd"
 
 
-# #' MortalityLaws: A package for fitting the most important mortality laws
-
+# Imports
 #' @import graphics
 #' @import minpack.lm
 #' @import RCurl
