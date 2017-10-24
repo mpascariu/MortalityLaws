@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{gompertz}
 \alias{gompertz}
-\title{Gompertz mortality law}
+\title{Gompertz Mortality Law}
 \usage{
 gompertz(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Gompertz mortality law
+Gompertz Mortality Law
+}
+\examples{
+gompertz(x = 45:90)
 }
 \keyword{internal}

@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{makeham0}
 \alias{makeham0}
-\title{Makeham mortality law - informative parametrization}
+\title{Makeham Mortality Law - informative parametrization}
 \usage{
 makeham0(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Makeham mortality law - informative parametrization
+Makeham Mortality Law - informative parametrization
+}
+\examples{
+makeham0(x = 45:90)
 }
 \keyword{internal}

@@ -1,4 +1,4 @@
-#' Check available mortality laws
+#' Check Available Mortality Laws
 #' 
 #' The function returns information about the parametric models that can be called and fitted
 #' in \code{\link{MortalityLaw}} function. For a comprehensiv review of the 
@@ -6,7 +6,9 @@
 #' 
 #' @param law Optional. Default: \code{NULL}. One can substract details about 
 #' a certain model by specifing its codename.
-#' @return The output is of \code{"availableLaws"} class.
+#' @return The output is of \code{"availableLaws"} class with the components:
+#' @return \item{table}{ a table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
+#' @return \item{legend}{ a table with details about the section of the mortality curve }
 #' @references 
 #' \enumerate{
 #' \item{Gompertz, B. (1825). \href{http://www.jstor.org/stable/107756}{On the 
@@ -75,14 +77,14 @@ availableLaws <- function(law = NULL){
                                     NaN, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/m)^[-m/sigma - 1] / [exp((x/m)^(-m/sigma)) - 1]', 2, 'invweibull', 'mu[x]', 
                                     1943, 'Van der Maen', 'mu[x] = A + B*x + C*x^2 + I/[N - x]', 4, 'vandermaen', 'mu[x]',
                                     1943, 'Van der Maen', 'mu[x] = A + B*x + I/[N - x]', 5, 'vandermaen2', 'mu[x]',
-                                    NaN, 'Quadratic', 'mu[x] = A + B*x + C*[x^2]', 5, 'quadratic', 'mu[x]',
+                                    NaN, 'Quadratic', 'mu[x] = A + B*x + C*x^2', 5, 'quadratic', 'mu[x]',
                                     1961, 'Beard', 'mu[x] = [A*exp(B^x)] / [1 + K*A*exp(B^x)]', 4, 'beard', 'mu[x]',
                                     1961, 'Makeham-Beard', 'mu[x] = [A*exp(B^x)] / [1 + K*A*exp(B^x)] + C', 4, 'makehambeard', 'mu[x]',
                                     1979, 'Siler', 'mu[x] = A*exp(-B*x) + C + D*exp(E*x)', 6, 'siler', 'mu[x]',
                                     1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x', 6, 'HP', 'q[x]',
-                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x / [1 + G H^x]', 6, 'HP2', 'q[x]',
-                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x / [1 + K*G*H^x]', 6, 'HP3', 'q[x]',
-                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^(x^K) / [1 + G*H^(x^K)]', 6, 'HP4', 'q[x]',
+                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1 + G*H^x]', 6, 'HP2', 'q[x]',
+                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D*exp[-E*log(x/F)^2] + G*H^x / [1 + K*G*H^x]', 6, 'HP3', 'q[x]',
+                                    1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D*exp[-E*log(x/F)^2] + G*H^(x^K) / [1 + G*H^(x^K)]', 6, 'HP4', 'q[x]',
                                     1983, 'Rogers-Planck', 'q[x] = A0 + A1*exp[-a*x] + A2*exp[b*(x - u) - exp(-c*(x - u))] + A3*exp[d*x]', 6, 'rogersplanck', 'q[x]',
                                     1987, 'Martinelle', 'mu[x] = [A*exp(B*x) + C] / [1 + D*exp(B*x)] + K*exp(B*x)', 6, 'martinelle', 'mu[x]',
                                     1992, 'Carriere', 'l[x] = p1*l[x](weibull) + p2*l[x](invweibull) + p3*l[x](gompertz)', 6, 'carriere1', 'q[x]',
@@ -99,7 +101,7 @@ availableLaws <- function(law = NULL){
                                      4, "Adult and/or old-age mortality",
                                      5, "Old-age mortality",
                                      6, "Full age range")))
-    colnames(legend) <- c("TYPE", "Coverage" )
+    colnames(legend) <- c("TYPE", "Coverage")
   }
   
   if (!is.null(law)) {
@@ -110,16 +112,19 @@ availableLaws <- function(law = NULL){
     legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]
   }
   
-  out <- structure(class = "availableLaws", 
-                   list(table = table, legend = legend))
+  out <- structure(class = "availableLaws", list(table = table, legend = legend))
   return(out)
 }
 
+
+#' Print availableLaws
+#' @param x an object of class \code{"availableLaws"}
+#' @param ... further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.availableLaws <- function(x, ...) {
   cat("\nMortality laws available in the package:\n\n")
-  print(x$table[, 1:5], right = F)
+  print(x$table[, 1:5], right = FALSE, row.names = FALSE)
   cat("\nLEGEND:\n")
   print(x$legend, right = FALSE, row.names = FALSE)
 }

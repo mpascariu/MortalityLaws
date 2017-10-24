@@ -1,3 +1,8 @@
+
+#' Plot Function for MortalityLaw
+#' @param x an object of class MortalityLaw
+#' @param ... Arguments to be passed to methods, such as graphical 
+#' parameters (see \code{\link{par}}).
 #' @keywords internal
 #' @export
 plot.MortalityLaw <- function(x, ...){
@@ -61,6 +66,12 @@ plot.MortalityLaw <- function(x, ...){
 
 #' Summary function - display head and tail in a single data.frame
 #' The original code for this function was first written for 'psych' R package
+#' here we have modified it a bit
+#' @param x A matrix or data frame or free text
+#' @param hlength The number of lines at the beginning to show
+#' @param tlength The number of lines at the end to show
+#' @param digits Round off the data to digits
+#' @param ellipsis eparate the head and tail with dots
 #' @keywords internal
 head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
   if (is.data.frame(x) | is.matrix(x)) {

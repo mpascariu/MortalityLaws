@@ -2,43 +2,44 @@
 % Please edit documentation in R/fun_readHMD.R
 \name{ReadHMD}
 \alias{ReadHMD}
-\title{Download data from HMD}
+\title{Download Data from HMD}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = TRUE)
 }
 \arguments{
-\item{what}{What type of data are you looking for? We have death counts,
+\item{what}{what type of data are you looking for? There are death counts,
 exposures, death-rates, life tables for females, life table for males,
 life table for total population, cohort death-rates and cohort exposures. 
-The codes: \code{births}, \code{population}, \code{lexis},
-\code{Dx}, \code{Ex}, \code{mx}, \code{LT_f}, 
-\code{LT_m}, \code{LT_t}, \code{e0}, \code{mxc} and \code{Exc}.}
+The codes: \code{births}, \code{population}, \code{lexis}, \code{Dx}, 
+\code{Ex}, \code{mx}, \code{LT_f}, \code{LT_m}, \code{LT_t}, \code{e0}, 
+\code{mxc} and \code{Exc}.}
 
-\item{countries}{Countries}
+\item{countries}{HMD country codes.}
 
-\item{interval}{Interval: \code{1x1}, \code{1x5}, \code{1x10}, 
-\code{5x1}, \code{5x5}, \code{5x10}}
+\item{interval}{HMD data format: (age interval x year interval).
+Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
+\code{5x1}, \code{5x5}, \code{5x10}.}
 
-\item{username}{Your HMD Username. If you don't have one you can sign up
+\item{username}{your HMD username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
 
-\item{password}{Your HMD password}
+\item{password}{your HMD password.}
 
-\item{save}{Do you want to save a copy of the dataset on your local machine?}
+\item{save}{do you want to save a copy of the dataset on your local machine?}
 }
 \value{
 An \code{ReadHMD} object that contains:
 
-\item{input}{ a list with the input data (except the password)}
+\item{input}{ list with the input data (except the password)}
 
 \item{data}{ data downloaded from HMD}
 
 \item{download.date}{ time stamp}
 }
 \description{
-Function for downloading data for several countries in a single object 
-from the Human Mortality Database (\url{http://www.mortality.org}).
+Download data for different countries and regions in a single object 
+from the \href{http://www.mortality.org}{Human Mortality Database}.
 }
 \examples{
 \dontrun{

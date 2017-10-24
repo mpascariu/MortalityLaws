@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{kannisto}
 \alias{kannisto}
-\title{Kannisto mortality law}
+\title{Kannisto Mortality Law}
 \usage{
 kannisto(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Kannisto mortality law
+Kannisto Mortality Law
+}
+\examples{
+kannisto(x = 85:120)
 }
 \keyword{internal}

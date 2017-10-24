@@ -9,7 +9,7 @@ x  <- 45:75
 Dx <- ahmd$Dx[paste(x), paste(yr)]
 Ex <- ahmd$Ex[paste(x), paste(yr)]
 
-M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
+M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 48:72)
 expect_false(is.null(plot(M1)))
 
 # Example 2: ---------------------------------------

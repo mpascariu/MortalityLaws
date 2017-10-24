@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{gompertz0}
 \alias{gompertz0}
-\title{Gompertz mortality law - informative parametrization}
+\title{Gompertz Mortality Law - informative parametrization}
 \usage{
 gompertz0(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Gompertz mortality law - informative parametrization
+Gompertz Mortality Law - informative parametrization
+}
+\examples{
+gompertz0(x = 45:90)
 }
 \keyword{internal}

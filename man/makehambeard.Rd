@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{makehambeard}
 \alias{makehambeard}
-\title{makehambeard}
+\title{Makeham-Beard Model}
 \usage{
 makehambeard(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-makehambeard
+Makeham-Beard Model
+}
+\examples{
+makehambeard(x = 0:100)
 }
 \keyword{internal}

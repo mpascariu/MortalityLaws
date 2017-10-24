@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{HP4}
 \alias{HP4}
-\title{Heligman-Pollard 4 mortality law - 9 parameters}
+\title{Heligman-Pollard 4 Mortality Law - 9 parameters}
 \usage{
 HP4(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Heligman-Pollard 4 mortality law - 9 parameters
+Heligman-Pollard 4 Mortality Law - 9 parameters
+}
+\examples{
+HP4(x = 0:100)
 }
 \keyword{internal}

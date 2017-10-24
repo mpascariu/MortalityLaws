@@ -2,11 +2,11 @@
 % Please edit documentation in R/fun_readHMD.R
 \name{HMDcountries}
 \alias{HMDcountries}
-\title{Countries}
+\title{Country codes}
 \usage{
 HMDcountries()
 }
 \description{
-Countries
+Country codes
 }
 \keyword{internal}

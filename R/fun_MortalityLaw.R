@@ -1,4 +1,4 @@
-#' Fit mortality law
+#' Fit Mortality Laws
 #'
 #' This function can be used to fit parametric mortality models given a set of data. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
@@ -21,67 +21,82 @@
 #' For details check \code{\link{nls.lm}}}
 #' }
 #' @inheritParams LifeTable
-#' @param law The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+#' @param law the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 #' \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
 #' function.
-#' @param opt.method How would you like to find the parameters? Specify the function 
+#' @param opt.method how would you like to find the parameters? Specify the function 
 #' to be optimize. Available options: the Poisson likelihood function 
 #' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
 #' and other 6 loss functions. For more details check \code{\link{availableLF}} function.
-#' @param parS Starting parameters used in optimization process (optional).
+#' @param parS starting parameters used in optimization process (optional).
 #' @param fit.this.x select the ages to be considered in model fitting. By default 
 #' \code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
 #' advance ages were the data is sparse.
-#' @param custom.law This argument allows you to fit a model that is not defined 
+#' @param custom.law allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
-#' @param show_pb Choose whether to display a progress bar during the fitting process. 
-#' Logical. Default value: \code{TRUE}.
+#' @param show choose whether to display a progress bar during the fitting process. 
+#' Logical. Default: \code{TRUE}.
 #' @return The output is of \code{"MortalityLaw"} class with the components:
-#' @return \item{input}{ a list with arguments provided in input. Saved for convenience}
+#' @return \item{input}{ list with arguments provided in input. Saved for convenience}
 #' @return \item{info}{ short information about the model}
-#' @return \item{coefficients}{ the estimated coefficients}
-#' @return \item{fitted.values}{The fitted values of the selected model}
-#' @return \item{residuals}{residuals} 
-#' @return \item{goodness.of.fit}{a list containing goodness of fit measures} 
+#' @return \item{coefficients}{ estimated coefficients}
+#' @return \item{fitted.values}{ fitted values of the selected model}
+#' @return \item{residuals}{ residuals} 
+#' @return \item{goodness.of.fit}{ list containing goodness of fit measures like 
+#' AIC, BIC and log-Likelihood} 
 #' @examples
-#' # Example 1: ---------------------------------------
-#' # Fit Makeham model for year of 1950.
+#' # Example 1: ---
+#' # Fit Makeham Model for Year of 1950.
 #' 
 #' x  <- 45:75
 #' Dx <- ahmd$Dx[paste(x), "1950"]
 #' Ex <- ahmd$Ex[paste(x), "1950"]
 #' 
-#' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
+#' M1 <- MortalityLaw(x = x, 
+#'                    Dx = Dx, 
+#'                    Ex = Ex, 
+#'                    law = 'makeham')
 #' M1
 #' ls(M1)
 #' summary(M1)
 #' 
-#' # Example 2: ---------------------------------------
-#' # we can fit the same model using diffrent data format and a different 
-#' # optimization procedure
+#' # Example 2: ---
+#' # We can fit the same model using diffrent data 
+#' # format and a different optimization method
 #' mx <- ahmd$mx[paste(x), ]
-#' M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
+#' M2 <- MortalityLaw(x = x, 
+#'                    mx = mx, 
+#'                    law = 'makeham', 
+#'                    opt.method = 'LF1')
 #' M2
 #' 
-#' # Example 3: ---------------------------------------
-#' # Now let's fit a mortality law that is not defined in the package, say a
-#' # reparametrize Gompertz in terms of modal age at death
-#' # hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
+#' # Example 3: ---
+#' # Now let's fit a mortality law that is not defined 
+#' # in the package, say a reparametrize Gompertz in 
+#' # terms of modal age at death
+#' # hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 #' 
 #' my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
 #'   hx  <- with(as.list(par), b*exp(b*(x - m)) )
-#'   return(as.list(environment())) # return everything inside this function
+#'   return(as.list(environment()))
 #' }
 #' 
-#' M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+#' M3 <- MortalityLaw(x = x,
+#'                    Dx = Dx, 
+#'                    Ex = Ex, 
+#'                    custom.law = my_gompertz) 
 #' summary(M3)
 #' 
-#' # Example 4: ---------------------------------------
-#' # Fit Heligman-Pollard model for a single year in the dataset between age 0 and 100.
+#' # Example 4: ---
+#' # Fit Heligman-Pollard model for a single 
+#' # year in the dataset between age 0 and 100.
 #' 
 #' x  <- 0:100
 #' mx <- ahmd$mx[paste(x), "1950"] # select data
-#' M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
+#' M4 <- MortalityLaw(x = x, 
+#'                    mx = mx, 
+#'                    law = 'HP', 
+#'                    opt.method = 'LF2')
 #' M4
 #' plot(M4)
 #' 
@@ -89,7 +104,7 @@
 #'
 MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
                          law = NULL, opt.method = 'poissonL', parS = NULL, 
-                         fit.this.x = x, custom.law = NULL, show_pb = TRUE){
+                         fit.this.x = x, custom.law = NULL, show = TRUE){
   if (!is.null(custom.law)) {
     law  <- 'custom.law'
     parS <- custom.law(1)$par 
@@ -98,35 +113,35 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   
   if (!is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
     check.MortalityLaw(input) # Check input
-    if (show_pb) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
+    if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     
     opt_ <- choose_optim(input) # Find optim coefficients
     gof  <- c(log_Likelihood = opt_$logLikelihood, AIC = opt_$AIC, BIC = opt_$BIC)
     cf   <- exp(opt_$fn_opt$par) 
     fit  <- opt_$hx
-    if (show_pb) setpb(pb, 2)
+    if (show) setpb(pb, 2)
     
     # Fitted values & residuals
     if (!is.null(qx) & is.null(mx) & is.null(Dx) & is.null(Ex)) resid = qx - fit 
     if (!is.null(mx) & is.null(qx) & is.null(Dx) & is.null(Ex)) resid = mx - fit 
     if ( is.null(mx) & is.null(qx) & !is.null(Dx) & !is.null(Ex)) resid = Dx/Ex - fit 
-    if (show_pb) setpb(pb, 3)
+    if (show) setpb(pb, 3)
     
     # Prepare, arrange, customize output
     aLaws  <- availableLaws()$table
     info   <- list(model.info = aLaws[aLaws$CODE == law, ], process.date = date())
-    if (show_pb) setpb(pb, 4)
+    if (show) setpb(pb, 4)
   }
   
   if (is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
     n  <- max(unlist(lapply(list(mx, qx, Dx, Ex), FUN = ncol)))
-    if (show_pb) {pb <- startpb(0, n + 1); on.exit(closepb(pb))} # Set progress bar
+    if (show) {pb <- startpb(0, n + 1); on.exit(closepb(pb))} # Set progress bar
     
     cf = fit = gof = resid <- NULL
     for (i in 1:n) {
-      if (show_pb) setpb(pb, i)
+      if (show) setpb(pb, i)
       mdl <- MortalityLaw(x, mx[, i], qx[, i], Dx[, i], Ex[, i], 
-                          law, opt.method, parS, fit.this.x, custom.law, show_pb = FALSE)
+                          law, opt.method, parS, fit.this.x, custom.law, show = FALSE)
       cf    <- rbind(cf, coef(mdl))
       gof   <- rbind(gof, mdl$goodness.of.fit)
       fit   <- cbind(fit, fitted(mdl))
@@ -137,7 +152,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
       if (!is.null(mx)) colnames(mx) else colnames(qx) } 
     rownames(cf) = rownames(gof) = colnames(fit) = colnames(resid) <- c_names
     info <- mdl$info
-    if (show_pb) setpb(pb, n + 1)
+    if (show) setpb(pb, n + 1)
   }
   output <- list(input = input, info = info, coefficients = cf,
                  fitted.values = fit, residuals = resid,
@@ -148,8 +163,9 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
 }
 
 
+#' is.matrix.or.data.frame?
+#' @inheritParams MortalityLaw
 #' @keywords internal
-#' 
 is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
   c1 = is.matrix(mx) | is.data.frame(mx)
   c2 = is.matrix(qx) | is.data.frame(qx)
@@ -158,10 +174,11 @@ is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
   return(any(c1, c2, c3, c4))
 }
 
-# -------------------------------------------------------------
-#' Function to be optimize
+
+
+#' Function to be Optimize
+#' @inheritParams MortalityLaw
 #' @keywords internal
-#' 
 objective_fun <- function(par, x, mx, qx, Dx, Ex,
                           law, opt.method, custom.law){
   par_ <- exp(par)
@@ -171,7 +188,6 @@ objective_fun <- function(par, x, mx, qx, Dx, Ex,
   if (!is.null(mx) & is.null(qx) & is.null(Dx)) nu = Dx <- mx 
   if (!is.null(qx) & is.null(mx) & is.null(Dx)) nu = Dx <- qx 
   if (!is.null(Dx) & !is.null(Ex)) nu <- Dx/Ex 
-  
   
   # compute likelihoods or loss functions
   loss <- switch(opt.method,
@@ -195,20 +211,21 @@ objective_fun <- function(par, x, mx, qx, Dx, Ex,
 
 
 #' Select an optimizing method
+#' @param input list of all inputs collected from MortalityLaw function
 #' @keywords internal
 #' 
 choose_optim <- function(input){
   with(as.list(input), {
     # Subset the data
     select.x <- x %in% fit.this.x
-    x  = x[select.x]
     qx = qx[select.x]
     mx = mx[select.x]
     Dx = Dx[select.x]
     Ex = Ex[select.x]
     if (is.null(parS)) parS <- bring_parameters(law, parS)
     # Optimize 
-    foo <- function(k) objective_fun(par = k, x, mx, qx, Dx, Ex, law, opt.method, custom.law)
+    foo <- function(k) objective_fun(par = k, x = fit.this.x, mx, qx, Dx, Ex, 
+                                     law, opt.method, custom.law)
     
     if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki')) {
       opt <- nlminb(start = log(parS), objective = foo, 
@@ -223,12 +240,11 @@ choose_optim <- function(input){
       opt$fnvalue <- opt$value
     }
     
-    cf <- exp(opt$par)
-    hx <- do.call(law, list(x = x, par = cf))$hx
-    
+    cf   <- exp(opt$par)
+    hx   <- do.call(law, list(x = x, par = cf))$hx
     llik <- log(opt$fnvalue)
     AIC  <- 2*length(parS) - 2*llik
-    BIC  <- log(length(x)) * length(parS) - 2*llik
+    BIC  <- log(length(fit.this.x)) * length(parS) - 2*llik
     
     if (!(opt.method %in% c('poissonL', 'binomialL'))) { 
       llik = NA 
@@ -245,12 +261,13 @@ choose_optim <- function(input){
 
 
 #' Function to check input data in MortalityLaw
+#' @inheritParams choose_optim
 #' @keywords internal
 #' 
 check.MortalityLaw <- function(input){
   with(input, 
        {
-         if (!is.logical(show_pb)) stop('show_pb should be TRUE or FALSE')
+         if (!is.logical(show)) stop("'show' should be TRUE or FALSE")
          
          if (!is.null(mx)) {
            if (length(x) != length(mx)) 
@@ -285,7 +302,9 @@ check.MortalityLaw <- function(input){
        })
 }
 
-
+#' Print MortalityLaw
+#' @param x an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
@@ -297,6 +316,9 @@ print.MortalityLaw <- function(x, ...) {
   print(round(coef(x), digits))
 }
 
+#' Summary MortalityLaw
+#' @param x an object of class \code{"MortalityLaw"}
+#' @param ... additional arguments affecting the summary produced.
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {

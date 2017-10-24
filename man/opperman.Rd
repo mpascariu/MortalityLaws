@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{opperman}
 \alias{opperman}
-\title{Opperman mortality law}
+\title{Opperman Mortality Law}
 \usage{
 opperman(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Opperman mortality law
+Opperman Mortality Law
+}
+\examples{
+opperman(x = 1:25)
 }
 \keyword{internal}

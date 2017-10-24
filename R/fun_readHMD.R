@@ -1,26 +1,27 @@
-# ---------------- Functions to download HMD data --------------------------- #
-
-#' Download data from HMD
-#'
-#' Function for downloading data for several countries in a single object 
-#' from the Human Mortality Database (\url{http://www.mortality.org}).
-#' @param what What type of data are you looking for? We have death counts,
+#' Download Data from HMD
+#' 
+#' Download data for different countries and regions in a single object 
+#' from the \href{http://www.mortality.org}{Human Mortality Database}.
+#' 
+#' @param what what type of data are you looking for? There are death counts,
 #' exposures, death-rates, life tables for females, life table for males,
 #' life table for total population, cohort death-rates and cohort exposures. 
-#' The codes: \code{births}, \code{population}, \code{lexis},
-#' \code{Dx}, \code{Ex}, \code{mx}, \code{LT_f}, 
-#' \code{LT_m}, \code{LT_t}, \code{e0}, \code{mxc} and \code{Exc}.
-#' @param countries Countries
-#' @param interval Interval: \code{1x1}, \code{1x5}, \code{1x10}, 
-#' \code{5x1}, \code{5x5}, \code{5x10}
-#' @param username Your HMD Username. If you don't have one you can sign up
+#' The codes: \code{births}, \code{population}, \code{lexis}, \code{Dx}, 
+#' \code{Ex}, \code{mx}, \code{LT_f}, \code{LT_m}, \code{LT_t}, \code{e0}, 
+#' \code{mxc} and \code{Exc}.
+#' @param countries HMD country codes.
+#' @param interval HMD data format: (age interval x year interval).
+#' Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
+#' \code{5x1}, \code{5x5}, \code{5x10}.
+#' @param username your HMD username. If you don't have one you can sign up
 #' for free on Human Mortality Database website.
-#' @param password Your HMD password
-#' @param save Do you want to save a copy of the dataset on your local machine?
+#' @param password your HMD password.
+#' @param save do you want to save a copy of the dataset on your local machine?
 #' @return An \code{ReadHMD} object that contains:
-#' @return \item{input}{ a list with the input data (except the password)}
+#' @return \item{input}{ list with the input data (except the password)}
 #' @return \item{data}{ data downloaded from HMD}
 #' @return \item{download.date}{ time stamp}
+#' @export
 #' @examples
 #' \dontrun{
 #' # Download demographic data for 3 countries in 1x1 format 
@@ -54,7 +55,6 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
                     username, password, save = TRUE){
   # HMD country codes
   if (is.null(countries)) countries <- HMDcountries()
-  
   input <- list(what = what, countries = countries, interval = interval, 
                 username = username, save = save)
   check_input_ReadHMD(input)
@@ -87,7 +87,9 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   return(out)
 }
 
-#' Function to download data for a specified country
+#' Function to Download Data for a one Country
+#' @inheritParams ReadHMD
+#' @param country HMD country code for the selected country. Character.
 #' @keywords internal
 read_hmd <- function(what, country, interval, username, password){
   if (what == 'e0' & interval == '1x1') {
@@ -123,7 +125,7 @@ read_hmd <- function(what, country, interval, username, password){
   return(out)
 }
 
-#' Countries
+#' Country codes
 #' @keywords internal
 HMDcountries <- function() {
   HMDc <- c("AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE",
@@ -137,6 +139,7 @@ HMDcountries <- function() {
 
 
 #' Check input ReadHMD
+#' @param x a list containing the input arguments from ReadHMD function
 #' @keywords internal
 check_input_ReadHMD <- function(x) {
   int <- c('1x1', '1x5', '1x10', '5x1', '5x5','5x10')
@@ -159,7 +162,10 @@ check_input_ReadHMD <- function(x) {
                paste(HMDcountries(), collapse = ', ')), call. = F)}
 }
 
-# ---------------
+
+#' Print ReadHMD
+#' @param x an object of class \code{"ReadHMD"}
+#' @param ... further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.ReadHMD <- function(x, ...){

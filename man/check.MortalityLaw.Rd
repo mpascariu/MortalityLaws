@@ -6,6 +6,9 @@
 \usage{
 check.MortalityLaw(input)
 }
+\arguments{
+\item{input}{list of all inputs collected from MortalityLaw function}
+}
 \description{
 Function to check input data in MortalityLaw
 }

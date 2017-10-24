@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_availableLaws.R
 \name{availableLaws}
 \alias{availableLaws}
-\title{Check available mortality laws}
+\title{Check Available Mortality Laws}
 \usage{
 availableLaws(law = NULL)
 }
@@ -11,7 +11,11 @@ availableLaws(law = NULL)
 a certain model by specifing its codename.}
 }
 \value{
-The output is of \code{"availableLaws"} class.
+The output is of \code{"availableLaws"} class with the components:
+
+\item{table}{ a table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
+
+\item{legend}{ a table with details about the section of the mortality curve }
 }
 \description{
 The function returns information about the parametric models that can be called and fitted

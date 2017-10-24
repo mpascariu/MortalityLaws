@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{siler}
 \alias{siler}
-\title{Siler mortality law}
+\title{Siler Mortality Law}
 \usage{
 siler(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Siler mortality law
+Siler Mortality Law
+}
+\examples{
+siler(x = 0:100)
 }
 \keyword{internal}

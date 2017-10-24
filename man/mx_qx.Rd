@@ -7,7 +7,11 @@
 mx_qx(x, ux, out = "qx")
 }
 \arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
 \item{ux}{a vector of mx or qx}
+
+\item{out}{type of the output: mx or qx}
 }
 \description{
 Function to convert mx into qx and back, using the constant force of 

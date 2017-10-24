@@ -2,13 +2,22 @@
 % Please edit documentation in R/fun_Laws.R
 \name{carriere1}
 \alias{carriere1}
-\title{Carriere mortality law
+\title{Carriere Mortality Law
 Carriere1 = weibull + invweibull + gompertz}
 \usage{
 carriere1(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Carriere mortality law
+Carriere Mortality Law
 Carriere1 = weibull + invweibull + gompertz
+}
+\examples{
+carriere1(x = 0:100)
 }
 \keyword{internal}

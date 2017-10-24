@@ -1,6 +1,11 @@
 # ---- LAWS ---------------------------------------
 
-#' Gompertz mortality law
+#' Gompertz Mortality Law
+#' 
+#' @param x vector of age at the beginning of the age classes
+#' @param par parameters of the selected model. If NULL the 
+#' \code{\link{bring_parameters}} function will provide default values.
+#' @examples gompertz(x = 45:90)
 #' @keywords internal
 #' @export
 gompertz <- function(x, par = NULL){
@@ -12,7 +17,9 @@ gompertz <- function(x, par = NULL){
 }
 
 
-#' Gompertz mortality law - informative parametrization
+#' Gompertz Mortality Law - informative parametrization
+#' @inheritParams gompertz
+#' @examples gompertz0(x = 45:90)
 #' @keywords internal
 #' @export
 gompertz0 <- function(x, par = NULL){
@@ -23,9 +30,11 @@ gompertz0 <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Inverse-Gompertz mortality law - informative parametrization
+#' Inverse-Gompertz Mortality Law - informative parametrization
 #' m - is a measure of location because it is the mode of the density, m > 0
 #' sigma - represents the dispersion of the density about the mode, sigma > 0
+#' @inheritParams gompertz
+#' @examples invgompertz(x = 15:25)
 #' @keywords internal
 #' @export
 invgompertz <- function(x, par = NULL){
@@ -36,7 +45,9 @@ invgompertz <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Makeham mortality law
+#' Makeham Mortality Law
+#' @inheritParams gompertz
+#' @examples makeham(x = 45:90)
 #' @keywords internal
 #' @export
 makeham <- function(x, par = NULL){
@@ -47,7 +58,9 @@ makeham <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Makeham mortality law - informative parametrization
+#' Makeham Mortality Law - informative parametrization
+#' @inheritParams gompertz
+#' @examples makeham0(x = 45:90)
 #' @keywords internal
 #' @export
 makeham0 <- function(x, par = NULL){
@@ -58,12 +71,14 @@ makeham0 <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Weibull mortality law
+#' Weibull Mortality Law
 #' Note that if sigma > m, then the mode of the density is 0 and hx is a 
 #' non-increasing function of x, while if sigma < m, then the mode is 
 #' greater than 0 and hx is an increasing function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
+#' @inheritParams gompertz
+#' @examples weibull(x = 1:20)
 #' @keywords internal
 #' @export
 weibull <- function(x, par = NULL){
@@ -74,11 +89,13 @@ weibull <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Inverse-Weibull mortality law
+#' Inverse-Weibull Mortality Law
 #' The Inverse-Weibull proves useful for modeling the childood and teenage years, 
 #' because the logarithm of h(x) is a very concave function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
+#' @inheritParams gompertz
+#' @examples invweibull(x = 1:20)
 #' @keywords internal
 #' @export
 invweibull <- function(x, par = NULL){
@@ -90,7 +107,9 @@ invweibull <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Kannisto mortality law
+#' Kannisto Mortality Law
+#' @inheritParams gompertz
+#' @examples kannisto(x = 85:120)
 #' @keywords internal
 #' @export
 kannisto <- function(x, par = NULL){
@@ -101,7 +120,9 @@ kannisto <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Opperman mortality law
+#' Opperman Mortality Law
+#' @inheritParams gompertz
+#' @examples opperman(x = 1:25)
 #' @keywords internal
 #' @export
 opperman <- function(x, par = NULL){
@@ -112,7 +133,9 @@ opperman <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Thiele mortality law
+#' Thiele Mortality Law
+#' @inheritParams gompertz
+#' @examples thiele(x = 0:100)
 #' @keywords internal
 #' @export
 thiele <- function(x, par = NULL){
@@ -124,7 +147,9 @@ thiele <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Wittstein mortality law
+#' Wittstein Mortality Law
+#' @inheritParams gompertz
+#' @examples wittstein(x = 0:100)
 #' @keywords internal
 #' @export
 wittstein <- function(x, par = NULL){
@@ -133,8 +158,10 @@ wittstein <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Carriere mortality law
+#' Carriere Mortality Law
 #' Carriere1 = weibull + invweibull + gompertz
+#' @inheritParams gompertz
+#' @examples carriere1(x = 0:100)
 #' @keywords internal
 #' @export
 carriere1 <- function(x, par = NULL){
@@ -154,8 +181,10 @@ carriere1 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Carriere mortality law
+#' Carriere Mortality Law
 #' Carriere2 = weibull + invgompertz + gompertz
+#' @inheritParams gompertz
+#' @examples carriere2(x = 0:100)
 #' @keywords internal
 #' @export
 carriere2 <- function(x, par = NULL){
@@ -175,7 +204,9 @@ carriere2 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Siler mortality law
+#' Siler Mortality Law
+#' @inheritParams gompertz
+#' @examples siler(x = 0:100)
 #' @keywords internal
 #' @export
 siler <- function(x, par = NULL){
@@ -185,7 +216,9 @@ siler <- function(x, par = NULL){
 }
 
 
-#' Heligman-Pollard mortality law - 8 parameters
+#' Heligman-Pollard Mortality Law - 8 parameters
+#' @inheritParams gompertz
+#' @examples HP(x = 0:100)
 #' @keywords internal
 #' @export
 HP <- function(x, par = NULL){
@@ -197,7 +230,9 @@ HP <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Heligman-Pollard 2 mortality law - 8 parameters
+#' Heligman-Pollard 2 Mortality Law - 8 parameters
+#' @inheritParams gompertz
+#' @examples HP2(x = 0:100)
 #' @keywords internal
 #' @export
 HP2 <- function(x, par = NULL){
@@ -209,7 +244,9 @@ HP2 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Heligman-Pollard 3 mortality law - 9 parameters
+#' Heligman-Pollard 3 Mortality Law - 9 parameters
+#' @inheritParams gompertz
+#' @examples HP3(x = 0:100)
 #' @keywords internal
 #' @export
 HP3 <- function(x, par = NULL){
@@ -221,7 +258,9 @@ HP3 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Heligman-Pollard 4 mortality law - 9 parameters
+#' Heligman-Pollard 4 Mortality Law - 9 parameters
+#' @inheritParams gompertz
+#' @examples HP4(x = 0:100)
 #' @keywords internal
 #' @export
 HP4 <- function(x, par = NULL){
@@ -233,7 +272,9 @@ HP4 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' perks
+#' Perks Model
+#' @inheritParams gompertz
+#' @examples perks(x = 50:100)
 #' @keywords internal
 #' @export
 perks <- function(x, par = NULL){
@@ -243,7 +284,9 @@ perks <- function(x, par = NULL){
 }
 
 
-#' beard
+#' Beard Model
+#' @inheritParams gompertz
+#' @examples beard(x = 50:100)
 #' @keywords internal
 #' @export
 beard <- function(x, par = NULL){
@@ -253,7 +296,9 @@ beard <- function(x, par = NULL){
 }
 
 
-#' makehambeard
+#' Makeham-Beard Model
+#' @inheritParams gompertz
+#' @examples makehambeard(x = 0:100)
 #' @keywords internal
 #' @export
 makehambeard <- function(x, par = NULL){
@@ -263,7 +308,9 @@ makehambeard <- function(x, par = NULL){
 }
 
 
-#' vandermaen
+#' Van der Maen Model
+#' @inheritParams gompertz
+#' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
 vandermaen <- function(x, par = NULL){
@@ -273,7 +320,9 @@ vandermaen <- function(x, par = NULL){
 }
 
 
-#' vandermaen2
+#' Van der Maen 2 Model
+#' @inheritParams gompertz
+#' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
 vandermaen2 <- function(x, par = NULL){
@@ -282,7 +331,9 @@ vandermaen2 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' quadratic
+#' Quadratic Model
+#' @inheritParams gompertz
+#' @examples quadratic(x = 0:100)
 #' @keywords internal
 #' @export
 quadratic <- function(x, par = NULL){
@@ -291,7 +342,9 @@ quadratic <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' martinelle
+#' Martinelle Model
+#' @inheritParams gompertz
+#' @examples martinelle(x = 0:100)
 #' @keywords internal
 #' @export
 martinelle <- function(x, par = NULL){
@@ -301,7 +354,9 @@ martinelle <- function(x, par = NULL){
 }
 
 
-#' rogersplanck
+#' Rogers-Planck Model
+#' @inheritParams gompertz
+#' @examples rogersplanck(x = 0:100)
 #' @keywords internal
 #' @export
 rogersplanck <- function(x, par = NULL){
@@ -311,7 +366,9 @@ rogersplanck <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' kostaki
+#' Kostaki Model
+#' @inheritParams gompertz
+#' @examples kostaki(x = 0:100)
 #' @keywords internal
 #' @export
 kostaki <- function(x, par = NULL){
@@ -327,9 +384,9 @@ kostaki <- function(x, par = NULL){
 
 
 # ------------------------------
-#' Select start parameters
+#' Select Start Parameters
+#' @inheritParams MortalityLaw
 #' @keywords internal
-#' 
 choose_Spar <- function(law){
   switch(law,
          demoivre    = c(a = 105),
@@ -374,13 +431,14 @@ choose_Spar <- function(law){
   )
 }
 
-#' Bring or rename start parameters in the law functions
+#' Bring or Rename Start Parameters in the Law Functions
+#' @inheritParams MortalityLaw
+#' @inheritParams gompertz
 #' @keywords internal
-#' 
 bring_parameters <- function(law, par = NULL) {
   Spar <- choose_Spar(law)
   if (is.null(par)) par <- Spar
-  # If 'par' is provided, just give them a name
+  # If 'par' is provided, just give them a name anyway
   names(par) <- names(Spar) 
   return(par)
 }

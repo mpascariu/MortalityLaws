@@ -6,6 +6,9 @@
 \usage{
 check_input_ReadHMD(x)
 }
+\arguments{
+\item{x}{a list containing the input arguments from ReadHMD function}
+}
 \description{
 Check input ReadHMD
 }

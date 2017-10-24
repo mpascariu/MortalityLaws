@@ -2,11 +2,16 @@
 % Please edit documentation in R/fun_Laws.R
 \name{choose_Spar}
 \alias{choose_Spar}
-\title{Select start parameters}
+\title{Select Start Parameters}
 \usage{
 choose_Spar(law)
 }
+\arguments{
+\item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+\code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+function.}
+}
 \description{
-Select start parameters
+Select Start Parameters
 }
 \keyword{internal}

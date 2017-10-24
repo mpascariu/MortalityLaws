@@ -2,11 +2,19 @@
 % Please edit documentation in R/fun_Laws.R
 \name{bring_parameters}
 \alias{bring_parameters}
-\title{Bring or rename start parameters in the law functions}
+\title{Bring or Rename Start Parameters in the Law Functions}
 \usage{
 bring_parameters(law, par = NULL)
 }
+\arguments{
+\item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+\code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+function.}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Bring or rename start parameters in the law functions
+Bring or Rename Start Parameters in the Law Functions
 }
 \keyword{internal}

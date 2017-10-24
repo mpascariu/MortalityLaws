@@ -6,6 +6,13 @@
 \usage{
 compute.ax(x, mx, qx)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{mx}{age-specific death rates}
+
+\item{qx}{probability of dying between age x and x+n.}
+}
 \value{
 \code{ax} - the point in the age internal where 50% of the deaths 
 have already occurred

@@ -12,7 +12,7 @@ LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0)
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
 \item{mx}{age-specific death rates}
@@ -29,7 +29,7 @@ If sex is specified the values are computed based on Coale-Demeny method
 and are slightly different for males than for females. 
 Options: \code{NULL, males, females, total}.}
 
-\item{lx0}{Radix. Default: 100 000}
+\item{lx0}{radix. Default: 100 000}
 }
 \description{
 LifeTable.core

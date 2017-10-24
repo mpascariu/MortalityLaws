@@ -2,11 +2,11 @@
 % Please edit documentation in R/fun_MortalityLaw.R
 \name{MortalityLaw}
 \alias{MortalityLaw}
-\title{Fit mortality law}
+\title{Fit Mortality Laws}
 \usage{
 MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   law = NULL, opt.method = "poissonL", parS = NULL, fit.this.x = x,
-  custom.law = NULL, show_pb = TRUE)
+  custom.law = NULL, show = TRUE)
 }
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
@@ -18,44 +18,45 @@ MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
-\item{law}{The name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
+\item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
 function.}
 
-\item{opt.method}{How would you like to find the parameters? Specify the function 
+\item{opt.method}{how would you like to find the parameters? Specify the function 
 to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
 and other 6 loss functions. For more details check \code{\link{availableLF}} function.}
 
-\item{parS}{Starting parameters used in optimization process (optional).}
+\item{parS}{starting parameters used in optimization process (optional).}
 
 \item{fit.this.x}{select the ages to be considered in model fitting. By default 
 \code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
 advance ages were the data is sparse.}
 
-\item{custom.law}{This argument allows you to fit a model that is not defined 
+\item{custom.law}{allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 
-\item{show_pb}{Choose whether to display a progress bar during the fitting process. 
-Logical. Default value: \code{TRUE}.}
+\item{show}{choose whether to display a progress bar during the fitting process. 
+Logical. Default: \code{TRUE}.}
 }
 \value{
 The output is of \code{"MortalityLaw"} class with the components:
 
-\item{input}{ a list with arguments provided in input. Saved for convenience}
+\item{input}{ list with arguments provided in input. Saved for convenience}
 
 \item{info}{ short information about the model}
 
-\item{coefficients}{ the estimated coefficients}
+\item{coefficients}{ estimated coefficients}
 
-\item{fitted.values}{The fitted values of the selected model}
+\item{fitted.values}{ fitted values of the selected model}
 
-\item{residuals}{residuals}
+\item{residuals}{ residuals}
 
-\item{goodness.of.fit}{a list containing goodness of fit measures}
+\item{goodness.of.fit}{ list containing goodness of fit measures like 
+AIC, BIC and log-Likelihood}
 }
 \description{
 This function can be used to fit parametric mortality models given a set of data. 
@@ -81,44 +82,58 @@ For details check \code{\link{nls.lm}}}
 }
 }
 \examples{
-# Example 1: ---------------------------------------
-# Fit Makeham model for year of 1950.
+# Example 1: ---
+# Fit Makeham Model for Year of 1950.
 
 x  <- 45:75
 Dx <- ahmd$Dx[paste(x), "1950"]
 Ex <- ahmd$Ex[paste(x), "1950"]
 
-M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
+M1 <- MortalityLaw(x = x, 
+                   Dx = Dx, 
+                   Ex = Ex, 
+                   law = 'makeham')
 M1
 ls(M1)
 summary(M1)
 
-# Example 2: ---------------------------------------
-# we can fit the same model using diffrent data format and a different 
-# optimization procedure
+# Example 2: ---
+# We can fit the same model using diffrent data 
+# format and a different optimization method
 mx <- ahmd$mx[paste(x), ]
-M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
+M2 <- MortalityLaw(x = x, 
+                   mx = mx, 
+                   law = 'makeham', 
+                   opt.method = 'LF1')
 M2
 
-# Example 3: ---------------------------------------
-# Now let's fit a mortality law that is not defined in the package, say a
-# reparametrize Gompertz in terms of modal age at death
-# hx = b*exp(b*(x-m))  (here b and m are the parameters to be estimated)
+# Example 3: ---
+# Now let's fit a mortality law that is not defined 
+# in the package, say a reparametrize Gompertz in 
+# terms of modal age at death
+# hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 
 my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
   hx  <- with(as.list(par), b*exp(b*(x - m)) )
-  return(as.list(environment())) # return everything inside this function
+  return(as.list(environment()))
 }
 
-M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+M3 <- MortalityLaw(x = x,
+                   Dx = Dx, 
+                   Ex = Ex, 
+                   custom.law = my_gompertz) 
 summary(M3)
 
-# Example 4: ---------------------------------------
-# Fit Heligman-Pollard model for a single year in the dataset between age 0 and 100.
+# Example 4: ---
+# Fit Heligman-Pollard model for a single 
+# year in the dataset between age 0 and 100.
 
 x  <- 0:100
 mx <- ahmd$mx[paste(x), "1950"] # select data
-M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
+M4 <- MortalityLaw(x = x, 
+                   mx = mx, 
+                   law = 'HP', 
+                   opt.method = 'LF2')
 M4
 plot(M4)
 

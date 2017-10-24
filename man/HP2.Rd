@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{HP2}
 \alias{HP2}
-\title{Heligman-Pollard 2 mortality law - 8 parameters}
+\title{Heligman-Pollard 2 Mortality Law - 8 parameters}
 \usage{
 HP2(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Heligman-Pollard 2 mortality law - 8 parameters
+Heligman-Pollard 2 Mortality Law - 8 parameters
+}
+\examples{
+HP2(x = 0:100)
 }
 \keyword{internal}

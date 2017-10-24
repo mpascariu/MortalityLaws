@@ -1,9 +1,9 @@
-#' Check data availability in HMD
+#' Check Data Availability in HMD
 #' 
 #' The function returns information about available data in HMD (period life tables etc.), 
 #' with the range of years covered by the life tables.
 #' @inheritParams ReadHMD
-#' @param ... Other parameters to be passed in \code{ReadHMD} function.
+#' @param ... other parameters to be passed in \code{ReadHMD} function.
 #' @return An \code{availableHMD} object.
 #' @examples 
 #' \dontrun{
@@ -32,7 +32,9 @@ availableHMD <- function(username, password, ...) {
   return(out)
 }
 
-
+#' Print for availableHMD
+#' @param x an object of class \code{"availableHMD"}
+#' @param ... further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.availableHMD <- function(x, ...) {

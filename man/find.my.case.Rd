@@ -7,6 +7,21 @@ It also performes some checks}
 \usage{
 find.my.case(Dx, Ex, mx, qx, lx, dx)
 }
+\arguments{
+\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+represents the number of deaths during the year to persons aged x to x+n.}
+
+\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
+mid-year population aged x to x+n}
+
+\item{mx}{age-specific death rates}
+
+\item{qx}{probability of dying between age x and x+n.}
+
+\item{lx}{probability to survive up until age x}
+
+\item{dx}{life table death counts at age x}
+}
 \description{
 Function that determintes the case/problem we have to solve
 It also performes some checks

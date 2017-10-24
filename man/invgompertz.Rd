@@ -2,15 +2,24 @@
 % Please edit documentation in R/fun_Laws.R
 \name{invgompertz}
 \alias{invgompertz}
-\title{Inverse-Gompertz mortality law - informative parametrization
+\title{Inverse-Gompertz Mortality Law - informative parametrization
 m - is a measure of location because it is the mode of the density, m > 0
 sigma - represents the dispersion of the density about the mode, sigma > 0}
 \usage{
 invgompertz(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Inverse-Gompertz mortality law - informative parametrization
+Inverse-Gompertz Mortality Law - informative parametrization
 m - is a measure of location because it is the mode of the density, m > 0
 sigma - represents the dispersion of the density about the mode, sigma > 0
+}
+\examples{
+invgompertz(x = 15:25)
 }
 \keyword{internal}

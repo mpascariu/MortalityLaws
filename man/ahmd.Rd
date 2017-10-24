@@ -3,7 +3,7 @@
 \docType{data}
 \name{ahmd}
 \alias{ahmd}
-\title{England and Wales demographic data}
+\title{England and Wales Demographic Data}
 \format{An object of class \code{list} of length 3.}
 \source{
 \href{http://www.mortality.org}{Human Mortality Database}
@@ -19,6 +19,9 @@ The data-set is provided for testing purposes only.
 Download the actual data free of charge from \url{http://www.mortality.org}.
 Once a username and a password is created on the website the function
 \code{\link{ReadHMD}} can be used for downloading.
+}
+\examples{
+head(ahmd$mx) 
 }
 \seealso{
 \code{\link{ReadHMD}}

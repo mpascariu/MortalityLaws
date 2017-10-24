@@ -6,6 +6,9 @@
 \usage{
 choose_optim(input)
 }
+\arguments{
+\item{input}{list of all inputs collected from MortalityLaw function}
+}
 \description{
 Select an optimizing method
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_LifeTable.R
 \name{LifeTable}
 \alias{LifeTable}
-\title{Life table function}
+\title{Life Table Function}
 \usage{
 LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
   dx = NULL, sex = NULL, lx0 = 1e+05)
@@ -13,7 +13,7 @@ LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
 \item{mx}{age-specific death rates}
@@ -30,7 +30,7 @@ If sex is specified the values are computed based on Coale-Demeny method
 and are slightly different for males than for females. 
 Options: \code{NULL, males, females, total}.}
 
-\item{lx0}{Radix. Default: 100 000}
+\item{lx0}{radix. Default: 100 000}
 }
 \value{
 The output is of class \code{lifetable} with the components:
@@ -43,7 +43,7 @@ specified by their full names.}
 \item{process_date}{ time stamp}
 }
 \description{
-Function to create a life table with various choices of 2 input vectors: 
+Function to create a full or abridge life table with various choices of 2 input vectors: 
 \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
 }
 \details{

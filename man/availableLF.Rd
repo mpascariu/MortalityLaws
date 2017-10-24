@@ -2,12 +2,16 @@
 % Please edit documentation in R/fun_availableLF.R
 \name{availableLF}
 \alias{availableLF}
-\title{Check available loss function}
+\title{Check Available Loss Function}
 \usage{
 availableLF()
 }
 \value{
-An \code{availableLF} object.
+A list of class \code{availableLF} with the components:
+
+\item{table}{ table with loss funtions and codes to be used in \code{\link{MortalityLaw}}}
+
+\item{legend}{ table with details about the used abreviation}
 }
 \description{
 The function returns information about the implemented loss function used by the 

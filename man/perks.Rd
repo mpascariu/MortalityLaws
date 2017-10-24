@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{perks}
 \alias{perks}
-\title{perks}
+\title{Perks Model}
 \usage{
 perks(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-perks
+Perks Model
+}
+\examples{
+perks(x = 50:100)
 }
 \keyword{internal}

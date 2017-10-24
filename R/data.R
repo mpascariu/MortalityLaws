@@ -1,6 +1,6 @@
 # Data in the package.
 
-#' England and Wales demographic data
+#' England and Wales Demographic Data
 #'
 #' Dataset containing altered death rates (mx), death counts (Dx) 
 #' and exposures (Ex) for female population living in 
@@ -11,16 +11,16 @@
 #' \code{\link{ReadHMD}} can be used for downloading.
 #' 
 #' @source \href{http://www.mortality.org}{Human Mortality Database}  
-#' @seealso \code{\link{ReadHMD}} 
+#' @seealso \code{\link{ReadHMD}}
+#' @examples head(ahmd$mx) 
 "ahmd"
 
 
-# Imports
+# Imports -----
+
 #' @import graphics
-#' @import minpack.lm
-#' @import RCurl
-#' @importFrom utils read.table flush.console head tail
-#' @importFrom stats fitted coef optim quantile integrate spline splinefun
-#' loess predict
+#' @importFrom RCurl getURL
+#' @importFrom utils read.table head tail
+#' @importFrom stats fitted coef optim predict quantile
 #' @importFrom pbapply startpb closepb setpb
 NULL

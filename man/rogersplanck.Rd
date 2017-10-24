@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{rogersplanck}
 \alias{rogersplanck}
-\title{rogersplanck}
+\title{Rogers-Planck Model}
 \usage{
 rogersplanck(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-rogersplanck
+Rogers-Planck Model
+}
+\examples{
+rogersplanck(x = 0:100)
 }
 \keyword{internal}

@@ -1,6 +1,6 @@
-#' Life table function
+#' Life Table Function
 #' 
-#' Function to create a life table with various choices of 2 input vectors: 
+#' Function to create a full or abridge life table with various choices of 2 input vectors: 
 #' \code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
 #'  
 #' @details The input data can be of an object of class: 
@@ -8,7 +8,7 @@
 #' @param x vector of age at the beginning of the age classes
 #' @param Dx object containing death counts. An element of the \code{Dx} object, 
 #' represents the number of deaths during the year to persons aged x to x+n. 
-#' @param Ex Exposure in the period. \code{Ex} can be approximated by the 
+#' @param Ex exposure in the period. \code{Ex} can be approximated by the 
 #' mid-year population aged x to x+n
 #' @param mx age-specific death rates
 #' @param qx probability of dying between age x and x+n. 
@@ -19,7 +19,7 @@
 #' If sex is specified the values are computed based on Coale-Demeny method 
 #' and are slightly different for males than for females. 
 #' Options: \code{NULL, males, females, total}.
-#' @param lx0 Radix. Default: 100 000
+#' @param lx0 radix. Default: 100 000
 #' @return The output is of class \code{lifetable} with the components:
 #' @return \item{lt}{ computed life table with rounded values}
 #' @return \item{call}{ a call in which all of the specified arguments are 
@@ -141,6 +141,7 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
 
 #' Function that determintes the case/problem we have to solve
 #' It also performes some checks
+#' @inheritParams LifeTable
 #' @keywords internal
 #' 
 find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
@@ -179,7 +180,9 @@ find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
 #'
 #' Function to convert mx into qx and back, using the constant force of 
 #' mortality assumption (CFM).
+#' @inheritParams LifeTable
 #' @param ux a vector of mx or qx
+#' @param out type of the output: mx or qx
 #' @keywords internal
 mx_qx <- function(x, ux, out = "qx"){
   if (!(out %in% c("qx", "mx"))) stop("out must be: 'qx' or 'mx'", call. = FALSE)
@@ -205,6 +208,7 @@ mx_qx <- function(x, ux, out = "qx"){
 
 #' Find ax indicator
 #' 
+#' @inheritParams LifeTable
 #' @return \code{ax} - the point in the age internal where 50% of the deaths 
 #' have already occurred
 #' @keywords internal
@@ -222,6 +226,7 @@ compute.ax <- function(x, mx, qx) {
 #' Find ax[1:2] indicators using Coale-Demeny coefficients
 #' Here we adjust the first two values of ax to account for infant mortality more accurately
 #' 
+#' @inheritParams LifeTable
 #' @keywords internal
 coale.demeny.ax <- function(x, mx, ax, sex) {
   if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = F)
@@ -243,8 +248,8 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 }
 
 #' Check LifeTable input 
+#' @param input a list containing the input arguments of the LifeTable functions
 #' @keywords internal
-#' 
 LifeTable.check <- function(input) {
   with(input, {
     fmc  <- find.my.case(Dx, Ex, mx, qx, lx, dx)
@@ -291,7 +296,9 @@ LifeTable.check <- function(input) {
   })
 }
 
-#' Print lifetable
+#' Print LifeTable
+#' @param x an object of class \code{"LifeTable"}
+#' @param ... further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){

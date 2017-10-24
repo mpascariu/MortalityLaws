@@ -2,17 +2,17 @@
 % Please edit documentation in R/fun_availableHMD.R
 \name{availableHMD}
 \alias{availableHMD}
-\title{Check data availability in HMD}
+\title{Check Data Availability in HMD}
 \usage{
 availableHMD(username, password, ...)
 }
 \arguments{
-\item{username}{Your HMD Username. If you don't have one you can sign up
+\item{username}{your HMD username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
 
-\item{password}{Your HMD password}
+\item{password}{your HMD password.}
 
-\item{...}{Other parameters to be passed in \code{ReadHMD} function.}
+\item{...}{other parameters to be passed in \code{ReadHMD} function.}
 }
 \value{
 An \code{availableHMD} object.

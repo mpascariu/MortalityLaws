@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{vandermaen2}
 \alias{vandermaen2}
-\title{vandermaen2}
+\title{Van der Maen 2 Model}
 \usage{
 vandermaen2(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-vandermaen2
+Van der Maen 2 Model
+}
+\examples{
+vandermaen(x = 0:100)
 }
 \keyword{internal}

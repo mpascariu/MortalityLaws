@@ -2,11 +2,20 @@
 % Please edit documentation in R/fun_Laws.R
 \name{wittstein}
 \alias{wittstein}
-\title{Wittstein mortality law}
+\title{Wittstein Mortality Law}
 \usage{
 wittstein(x, par = NULL)
 }
+\arguments{
+\item{x}{vector of age at the beginning of the age classes}
+
+\item{par}{parameters of the selected model. If NULL the 
+\code{\link{bring_parameters}} function will provide default values.}
+}
 \description{
-Wittstein mortality law
+Wittstein Mortality Law
+}
+\examples{
+wittstein(x = 0:100)
 }
 \keyword{internal}

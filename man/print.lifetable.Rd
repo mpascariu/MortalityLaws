@@ -2,11 +2,16 @@
 % Please edit documentation in R/fun_LifeTable.R
 \name{print.LifeTable}
 \alias{print.LifeTable}
-\title{Print lifetable}
+\title{Print LifeTable}
 \usage{
 \method{print}{LifeTable}(x, ...)
 }
+\arguments{
+\item{x}{an object of class \code{"LifeTable"}}
+
+\item{...}{further arguments passed to or from other methods.}
+}
 \description{
-Print lifetable
+Print LifeTable
 }
 \keyword{internal}
