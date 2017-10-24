@@ -76,14 +76,15 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
   
-  if (X$class.numeric) {
+  if (X$iclass == "numeric") {
     LT    <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0))
   } else {
     LT = NULL
-    for (i in 1:X$n) {
+    for (i in 1:X$nLT) {
       LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
                                     qx[,i], lx[,i], dx[,i], sex, lx0))
-      LTi <- cbind(LT = X$c_names[i], LTi)
+      LTname <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
+      LTi <- cbind(LT = LTname, LTi)
       LT  <- rbind(LT, LTi)
     }
   }
@@ -156,15 +157,15 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
 }
 
 
-#' Function that determintes the case/problem we have to solve
-#' It also performes some checks
+#' Function that identifies the case/problem we have to solve
+#' It also performs several checks
 #' @inheritParams LifeTable
 #' @keywords internal
 #' 
-find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
-  
-  dta     <- list(Dx, Ex, mx, qx, lx, dx)
-  my_case <- !unlist(lapply(dta, is.null))
+find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL, 
+                         qx = NULL, lx = NULL, dx = NULL) {
+  input   <- c(as.list(environment()))
+  my_case <- !unlist(lapply(input, is.null))
   if (sum(my_case[c(1, 2)]) == 1) stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = FALSE)
   
   rn <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
@@ -175,22 +176,29 @@ find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
                          F,F,F,T,F,F,
                          F,F,F,F,T,F,
                          F,F,F,F,F,T))
-  
   case = "C0"
   for (i in 1:nrow(mat)) if (all(my_case == mat[i, ])) case <- rn[i]
   if (case == "C0") stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", call. = F)
   
-  n = c_names = NA
-  NT <- any(unlist(lapply(dta, class)) == "numeric")
-  if (!NT) { 
-    dt <- dta[mat[case,]][[1]]
-    n  <- ncol(dt) 
-    c_names <- colnames(dt) 
+  X        <- input[my_case][[1]]
+  my_class <- class(X)
+  Aclasses <- c("numeric", "matrix", "data.frame", NULL)
+  L1       <- my_class %in% Aclasses
+  if (!L1) stop(paste0("The class of the input should be: ", 
+                       paste(Aclasses, collapse = ", ")), call. = F)
+  
+  if (my_class %in% Aclasses[2:3]) {
+    nLT     <- ncol(X)     # number of LTs to be created
+    LTnames <- colnames(X) #the names to be assigned to LTs
+  } else {
+    nLT = LTnames <- NA
   }
   
-  out <- list(case = case, class.numeric = NT,  n = n, c_names = c_names)
+  out <- list(case = case, iclass = my_class, nLT = nLT, LTnames = LTnames)
   return(out)
 }
+
+
 
 #' mx to qx
 #'
@@ -268,8 +276,8 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 #' @keywords internal
 LifeTable.check <- function(input) {
   with(input, {
-    fmc  <- find.my.case(Dx, Ex, mx, qx, lx, dx)
-    C    <- fmc$case
+    Y    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+    C    <- Y$case
     SMS1 <- "contains missing values."
     SMS2 <- "NA's were replaced with"
     
@@ -285,7 +293,7 @@ LifeTable.check <- function(input) {
     }
     if (C == "C2_mx") {
       if (any(is.na(mx))) {
-        warning(paste("'mx'", SMS1, SMS2, "maximum obeserved mx:", max(mx, na.rm = T)), call. = F)
+        warning(paste("'mx'", SMS1, SMS2, "maximum observed mx:", max(mx, na.rm = T)), call. = F)
         mx[is.na(mx)] <- max(mx, na.rm = T)
       }
     }
@@ -311,7 +319,7 @@ LifeTable.check <- function(input) {
     }
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
                 lx = lx, dx = dx, sex = sex, lx0 = lx0, 
-                class.numeric = fmc$class.numeric, n = fmc$n, c_names = fmc$c_names)
+                iclass = Y$iclass, nLT = Y$nLT, LTnames = Y$LTnames)
     return(out)
   })
 }
@@ -343,8 +351,3 @@ print.LifeTable <- function(x, ...){
   cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
   print(out, row.names = FALSE)
 } 
-
-
-
-
-

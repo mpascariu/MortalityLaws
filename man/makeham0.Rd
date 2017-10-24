@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_Laws.R
 \name{makeham0}
 \alias{makeham0}
-\title{Makeham Mortality Law - informative parametrization}
+\title{Makeham Mortality Law - informative parameterization}
 \usage{
 makeham0(x, par = NULL)
 }
@@ -13,7 +13,7 @@ makeham0(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Makeham Mortality Law - informative parametrization
+Makeham Mortality Law - informative parameterization
 }
 \examples{
 makeham0(x = 45:90)

@@ -6,9 +6,9 @@
 #' @keywords internal
 #' @export
 plot.MortalityLaw <- function(x, ...){
-  with(x$input, if (is.matrix.or.data.frame(Dx, Ex, mx, qx)) {
-         stop("Plot function not available for multiple mortality curves", 
-              call. = FALSE)})
+  with(x$input, if (find.my.case(Dx, Ex, mx, qx)$iclass != "numeric") {
+    stop("Plot function not available for multiple mortality curves", 
+         call. = FALSE)})
   
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   lay_mat <- matrix(c(1, 2, 3, 1, 2, 3), ncol = 3, byrow = TRUE)
@@ -71,7 +71,7 @@ plot.MortalityLaw <- function(x, ...){
 #' @param hlength The number of lines at the beginning to show
 #' @param tlength The number of lines at the end to show
 #' @param digits Round off the data to digits
-#' @param ellipsis eparate the head and tail with dots
+#' @param ellipsis separate the head and tail with dots
 #' @keywords internal
 head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
   if (is.data.frame(x) | is.matrix(x)) {

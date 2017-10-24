@@ -2,10 +2,11 @@
 % Please edit documentation in R/fun_LifeTable.R
 \name{find.my.case}
 \alias{find.my.case}
-\title{Function that determintes the case/problem we have to solve
-It also performes some checks}
+\title{Function that identifies the case/problem we have to solve
+It also performs several checks}
 \usage{
-find.my.case(Dx, Ex, mx, qx, lx, dx)
+find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
+  dx = NULL)
 }
 \arguments{
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
@@ -23,7 +24,7 @@ mid-year population aged x to x+n}
 \item{dx}{life table death counts at age x}
 }
 \description{
-Function that determintes the case/problem we have to solve
-It also performes some checks
+Function that identifies the case/problem we have to solve
+It also performs several checks
 }
 \keyword{internal}

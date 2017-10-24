@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_Laws.R
 \name{invgompertz}
 \alias{invgompertz}
-\title{Inverse-Gompertz Mortality Law - informative parametrization}
+\title{Inverse-Gompertz Mortality Law - informative parameterization}
 \usage{
 invgompertz(x, par = NULL)
 }

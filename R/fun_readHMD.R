@@ -70,9 +70,9 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
   data <- data.frame() 
   # Step 1 - Do the loop for the other countries
   for (i in 1:nr) {
-      setpb(pb, i); cat(paste('      :Downloading', countries[i], '    '))
-      data_i <- read_hmd(what, country = countries[i], interval, username, password)
-      data   <- rbind(data, data_i)
+    setpb(pb, i); cat(paste('      :Downloading', countries[i], '    '))
+    data_i <- read_hmd(what, country = countries[i], interval, username, password)
+    data   <- rbind(data, data_i)
   }
   download_date <- date()
   
@@ -132,11 +132,11 @@ read_hmd <- function(what, country, interval, username, password){
 #' @keywords internal
 HMDcountries <- function() {
   HMDc <- c("AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE",
-           "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP",
-           "FRATNP","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
-           "HUN","HRV","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
-           "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
-           "SVN","SWE","TWN","USA","UKR")
+            "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP",
+            "FRATNP","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
+            "HUN","HRV","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
+            "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
+            "SVN","SWE","TWN","USA","UKR")
   HMDc
 }
 
@@ -147,19 +147,19 @@ HMDcountries <- function() {
 check_input_ReadHMD <- function(x) {
   int <- c('1x1', '1x5', '1x10', '5x1', '5x5','5x10')
   wht <- c('births', 'population', 'lexis', 'Dx', 'Ex', 'mx', 
-            'LT_f', 'LT_m', 'LT_t', 'e0', 'mxc', 'Exc')
+           'LT_f', 'LT_m', 'LT_t', 'e0', 'mxc', 'Exc')
   
   if (!(x$interval %in% int)) {
     stop(paste('\nThe interval', x$interval,
                'does not exist in HMD\n',
                'Try one of these options:\n', 
-                paste(int, collapse = ', ')), call. = F)}
+               paste(int, collapse = ', ')), call. = F)}
   if (!(x$what %in% wht)) {
     stop(paste("\n", x$what, 'does not exist in HMD\n',
                'Try one of these options:\n', 
-                paste(wht, collapse = ', ')), call. = F)}
+               paste(wht, collapse = ', ')), call. = F)}
   if (all(!(x$countries %in% HMDcountries())) ) {
-    stop(paste('\nSomething is wrong in the country/coutries',
+    stop(paste('\nSomething is wrong in the country/countries',
                'added by you.\n',
                'Try one or more of these options:\n', 
                paste(HMDcountries(), collapse = ', ')), call. = F)}
@@ -179,4 +179,3 @@ print.ReadHMD <- function(x, ...){
   cat('Countries included:', x$input$countries, '\n\nData:\n')
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }
-

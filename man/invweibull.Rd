@@ -13,7 +13,7 @@ invweibull(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-The Inverse-Weibull proves useful for modeling the childood and teenage years, 
+The Inverse-Weibull proves useful for modelling the childhood and teenage years, 
 because the logarithm of h(x) is a concave function.
 m > 0 is a measure of location
 sigma > 0 is measure of dispersion

@@ -17,7 +17,7 @@ gompertz <- function(x, par = NULL){
 }
 
 
-#' Gompertz Mortality Law - informative parametrization
+#' Gompertz Mortality Law - informative parameterization
 #' @inheritParams gompertz
 #' @examples gompertz0(x = 45:90)
 #' @keywords internal
@@ -30,7 +30,7 @@ gompertz0 <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Inverse-Gompertz Mortality Law - informative parametrization
+#' Inverse-Gompertz Mortality Law - informative parameterization
 #' 
 #' m - is a measure of location because it is the mode of the density, m > 0
 #' sigma - represents the dispersion of the density about the mode, sigma > 0
@@ -59,7 +59,7 @@ makeham <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Makeham Mortality Law - informative parametrization
+#' Makeham Mortality Law - informative parameterization
 #' @inheritParams gompertz
 #' @examples makeham0(x = 45:90)
 #' @keywords internal
@@ -94,7 +94,7 @@ weibull <- function(x, par = NULL){
 
 #' Inverse-Weibull Mortality Law
 #' 
-#' The Inverse-Weibull proves useful for modeling the childood and teenage years, 
+#' The Inverse-Weibull proves useful for modelling the childhood and teenage years, 
 #' because the logarithm of h(x) is a concave function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
@@ -105,7 +105,7 @@ weibull <- function(x, par = NULL){
 invweibull <- function(x, par = NULL){
   par <- bring_parameters('invweibull', par)
   hx <- with(as.list(par), 
-            (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
+             (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
   Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
@@ -450,7 +450,3 @@ bring_parameters <- function(law, par = NULL) {
   names(par) <- names(Spar) 
   return(par)
 }
-
-
-
-

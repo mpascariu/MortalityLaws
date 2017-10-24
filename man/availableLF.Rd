@@ -9,9 +9,9 @@ availableLF()
 \value{
 A list of class \code{availableLF} with the components:
 
-\item{table}{ table with loss funtions and codes to be used in \code{\link{MortalityLaw}}}
+\item{table}{ table with loss functions and codes to be used in \code{\link{MortalityLaw}}}
 
-\item{legend}{ table with details about the used abreviation}
+\item{legend}{ table with details about the used abbreviation}
 }
 \description{
 The function returns information about the implemented loss function used by the 

@@ -17,7 +17,7 @@ head_tail(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE)
 
 \item{digits}{Round off the data to digits}
 
-\item{ellipsis}{eparate the head and tail with dots}
+\item{ellipsis}{separate the head and tail with dots}
 }
 \description{
 Summary function - display head and tail in a single data.frame

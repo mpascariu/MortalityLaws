@@ -20,13 +20,13 @@ mid-year population aged x to x+n}
 \item{qx}{probability of dying between age x and x+n.}
 
 \item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
-\code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+\code{makeham}, ... To investigate all the possible options, see \code{\link{availableLaws}}
 function.}
 
 \item{opt.method}{how would you like to find the parameters? Specify the function 
 to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-and other 6 loss functions. For more details check \code{\link{availableLF}} function.}
+and other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
 
 \item{custom.law}{allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}

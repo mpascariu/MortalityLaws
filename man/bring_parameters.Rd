@@ -8,7 +8,7 @@ bring_parameters(law, par = NULL)
 }
 \arguments{
 \item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
-\code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
+\code{makeham}, ... To investigate all the possible options, see \code{\link{availableLaws}}
 function.}
 
 \item{par}{parameters of the selected model. If NULL the 

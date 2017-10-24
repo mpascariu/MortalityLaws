@@ -7,8 +7,8 @@
 availableLaws(law = NULL)
 }
 \arguments{
-\item{law}{Optional. Default: \code{NULL}. One can substract details about 
-a certain model by specifing its codename.}
+\item{law}{Optional. Default: \code{NULL}. One can subtract details about 
+a certain model by specifying its codename.}
 }
 \value{
 The output is of \code{"availableLaws"} class with the components:
@@ -19,7 +19,7 @@ The output is of \code{"availableLaws"} class with the components:
 }
 \description{
 The function returns information about the parametric models that can be called and fitted
-in \code{\link{MortalityLaw}} function. For a comprehensiv review of the 
+in \code{\link{MortalityLaw}} function. For a comprehensive review of the 
 most important mortality laws Tabeau (2001) is a good starting point.
 }
 \examples{

@@ -1,11 +1,11 @@
 #' Check Available Mortality Laws
 #' 
 #' The function returns information about the parametric models that can be called and fitted
-#' in \code{\link{MortalityLaw}} function. For a comprehensiv review of the 
+#' in \code{\link{MortalityLaw}} function. For a comprehensive review of the 
 #' most important mortality laws Tabeau (2001) is a good starting point.
 #' 
-#' @param law Optional. Default: \code{NULL}. One can substract details about 
-#' a certain model by specifing its codename.
+#' @param law Optional. Default: \code{NULL}. One can subtract details about 
+#' a certain model by specifying its codename.
 #' @return The output is of \code{"availableLaws"} class with the components:
 #' @return \item{table}{ a table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
 #' @return \item{legend}{ a table with details about the section of the mortality curve }
@@ -107,7 +107,7 @@ availableLaws <- function(law = NULL){
   if (!is.null(law)) {
     A <- availableLaws()
     if (!(law %in% A$table$CODE)) stop("The specified 'law' is not available.",
-                            "Run 'availableLaws()' to see the available models.", call. = F)
+                                       "Run 'availableLaws()' to see the available models.", call. = F)
     table <- A$table[A$table$CODE %in% law, ]
     legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]
   }
@@ -128,3 +128,4 @@ print.availableLaws <- function(x, ...) {
   cat("\nLEGEND:\n")
   print(x$legend, right = FALSE, row.names = FALSE)
 }
+

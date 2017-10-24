@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: c(
   person(given = "Marius D.", family = "Pascariu", role = c("aut", "cre"), 
          email = "mpascariu@outlook.com"),
