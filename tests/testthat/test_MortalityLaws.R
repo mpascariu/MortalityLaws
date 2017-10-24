@@ -49,17 +49,18 @@ testMortalityLaw(M2)
 testMortalityLaw(M3)
 testMortalityLaw(M4)
 
-
-
 # ----------------------------------------------
 # Test that all the laws return positive values
 L <- availableLaws()
 laws <- L$table$CODE
 
 for (i in laws) {
-  hx = eval(call(i, x = 1:20))$hx
+  hx = eval(call(i, x = 1:100))$hx
   cond = all(hx >= 0)
   cat(i, ": ", cond, sep = "", "\n")
   expect_true(cond)
+  
+  cond2 = any(is.na(hx))
+  expect_false(cond2)
 }
 

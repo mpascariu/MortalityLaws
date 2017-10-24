@@ -4,7 +4,7 @@
 #' 
 #' @param x vector of age at the beginning of the age classes
 #' @param par parameters of the selected model. If NULL the 
-#' \code{\link{bring_parameters}} function will provide default values.
+#' default values will be assigned automatically.
 #' @examples gompertz(x = 45:90)
 #' @keywords internal
 #' @export
@@ -31,6 +31,7 @@ gompertz0 <- function(x, par = NULL){
 }
 
 #' Inverse-Gompertz Mortality Law - informative parametrization
+#' 
 #' m - is a measure of location because it is the mode of the density, m > 0
 #' sigma - represents the dispersion of the density about the mode, sigma > 0
 #' @inheritParams gompertz
@@ -72,6 +73,7 @@ makeham0 <- function(x, par = NULL){
 }
 
 #' Weibull Mortality Law
+#' 
 #' Note that if sigma > m, then the mode of the density is 0 and hx is a 
 #' non-increasing function of x, while if sigma < m, then the mode is 
 #' greater than 0 and hx is an increasing function.
@@ -90,8 +92,9 @@ weibull <- function(x, par = NULL){
 }
 
 #' Inverse-Weibull Mortality Law
+#' 
 #' The Inverse-Weibull proves useful for modeling the childood and teenage years, 
-#' because the logarithm of h(x) is a very concave function.
+#' because the logarithm of h(x) is a concave function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
 #' @inheritParams gompertz
@@ -159,6 +162,7 @@ wittstein <- function(x, par = NULL){
 }
 
 #' Carriere Mortality Law
+#' 
 #' Carriere1 = weibull + invweibull + gompertz
 #' @inheritParams gompertz
 #' @examples carriere1(x = 0:100)
@@ -182,6 +186,7 @@ carriere1 <- function(x, par = NULL){
 }
 
 #' Carriere Mortality Law
+#' 
 #' Carriere2 = weibull + invgompertz + gompertz
 #' @inheritParams gompertz
 #' @examples carriere2(x = 0:100)
@@ -431,7 +436,7 @@ choose_Spar <- function(law){
   )
 }
 
-#' Bring or Rename Start Parameters in the Law Functions
+#' Bring or Rename Starting Parameters in the Law Functions
 #' @inheritParams MortalityLaw
 #' @inheritParams gompertz
 #' @keywords internal

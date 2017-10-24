@@ -4,18 +4,18 @@
 \alias{is.matrix.or.data.frame}
 \title{is.matrix.or.data.frame?}
 \usage{
-\method{is.matrix}{or.data.frame}(mx, qx, Dx, Ex)
+\method{is.matrix}{or.data.frame}(Dx, Ex, mx, qx)
 }
 \arguments{
-\item{mx}{age-specific death rates}
-
-\item{qx}{probability of dying between age x and x+n.}
-
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
+
+\item{mx}{age-specific death rates}
+
+\item{qx}{probability of dying between age x and x+n.}
 }
 \description{
 is.matrix.or.data.frame?

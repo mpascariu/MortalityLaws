@@ -10,7 +10,7 @@ gompertz0(x, par = NULL)
 \item{x}{vector of age at the beginning of the age classes}
 
 \item{par}{parameters of the selected model. If NULL the 
-\code{\link{bring_parameters}} function will provide default values.}
+default values will be assigned automatically.}
 }
 \description{
 Gompertz Mortality Law - informative parametrization

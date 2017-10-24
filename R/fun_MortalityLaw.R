@@ -1,13 +1,22 @@
 #' Fit Mortality Laws
 #'
-#' This function can be used to fit parametric mortality models given a set of data. 
+#' Fit parametric mortality models given a set of input data which can be 
+#' represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
+#' or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
 #' So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
 #' function to learn about the available options. The models can be fitted under 
-#' the maximum likelihood methodology of by selecting a loss function to be 
+#' the maximum likelihood methodology or by selecting a loss function to be 
 #' optimised. See the implemented loss function by running 
 #' \code{\link{availableLF}} function.
-#' 
+#' @usage 
+#' MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
+#'                 law = NULL, 
+#'                 opt.method = "poissonL", 
+#'                 parS = NULL, 
+#'                 fit.this.x = x,
+#'                 custom.law = NULL, 
+#'                 show = TRUE)
 #' @details Depending on the complexity of the model, one of following optimization 
 #' strategies are employed: 
 #' \enumerate{
@@ -102,7 +111,7 @@
 #' 
 #' @export
 #'
-MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL, 
+MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
                          law = NULL, opt.method = 'poissonL', parS = NULL, 
                          fit.this.x = x, custom.law = NULL, show = TRUE){
   if (!is.null(custom.law)) {
@@ -111,7 +120,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
   }
   input <- c(as.list(environment()))
   
-  if (!is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
+  if (!is.matrix.or.data.frame(Dx, Ex, mx, qx)) {
     check.MortalityLaw(input) # Check input
     if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     
@@ -133,14 +142,14 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
     if (show) setpb(pb, 4)
   }
   
-  if (is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
-    n  <- max(unlist(lapply(list(mx, qx, Dx, Ex), FUN = ncol)))
+  if (is.matrix.or.data.frame(Dx, Ex, mx, qx)) {
+    n  <- max(unlist(lapply(list(Dx, Ex, mx, qx), FUN = ncol)))
     if (show) {pb <- startpb(0, n + 1); on.exit(closepb(pb))} # Set progress bar
     
     cf = fit = gof = resid <- NULL
     for (i in 1:n) {
       if (show) setpb(pb, i)
-      mdl <- MortalityLaw(x, mx[, i], qx[, i], Dx[, i], Ex[, i], 
+      mdl <- MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
                           law, opt.method, parS, fit.this.x, custom.law, show = FALSE)
       cf    <- rbind(cf, coef(mdl))
       gof   <- rbind(gof, mdl$goodness.of.fit)
@@ -166,7 +175,7 @@ MortalityLaw <- function(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
 #' is.matrix.or.data.frame?
 #' @inheritParams MortalityLaw
 #' @keywords internal
-is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
+is.matrix.or.data.frame <- function(Dx, Ex, mx, qx) {
   c1 = is.matrix(mx) | is.data.frame(mx)
   c2 = is.matrix(qx) | is.data.frame(qx)
   c3 = is.matrix(Dx) | is.data.frame(Dx)
@@ -179,7 +188,7 @@ is.matrix.or.data.frame <- function(mx, qx, Dx, Ex) {
 #' Function to be Optimize
 #' @inheritParams MortalityLaw
 #' @keywords internal
-objective_fun <- function(par, x, mx, qx, Dx, Ex,
+objective_fun <- function(par, x, Dx, Ex, mx, qx,
                           law, opt.method, custom.law){
   par_ <- exp(par)
   mu   <- eval(call(law, x, par_))$hx
@@ -224,7 +233,7 @@ choose_optim <- function(input){
     Ex = Ex[select.x]
     if (is.null(parS)) parS <- bring_parameters(law, parS)
     # Optimize 
-    foo <- function(k) objective_fun(par = k, x = fit.this.x, mx, qx, Dx, Ex, 
+    foo <- function(k) objective_fun(par = k, x = fit.this.x, Dx, Ex, mx, qx,
                                      law, opt.method, custom.law)
     
     if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki')) {

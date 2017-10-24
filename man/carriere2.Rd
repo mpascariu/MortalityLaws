@@ -2,8 +2,7 @@
 % Please edit documentation in R/fun_Laws.R
 \name{carriere2}
 \alias{carriere2}
-\title{Carriere Mortality Law
-Carriere2 = weibull + invgompertz + gompertz}
+\title{Carriere Mortality Law}
 \usage{
 carriere2(x, par = NULL)
 }
@@ -11,10 +10,9 @@ carriere2(x, par = NULL)
 \item{x}{vector of age at the beginning of the age classes}
 
 \item{par}{parameters of the selected model. If NULL the 
-\code{\link{bring_parameters}} function will provide default values.}
+default values will be assigned automatically.}
 }
 \description{
-Carriere Mortality Law
 Carriere2 = weibull + invgompertz + gompertz
 }
 \examples{

@@ -2,18 +2,20 @@
 % Please edit documentation in R/fun_readHMD.R
 \name{ReadHMD}
 \alias{ReadHMD}
-\title{Download Data from HMD}
+\title{Download Mortality and Population Data (HMD)}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = TRUE)
 }
 \arguments{
-\item{what}{what type of data are you looking for? There are death counts,
-exposures, death-rates, life tables for females, life table for males,
-life table for total population, cohort death-rates and cohort exposures. 
-The codes: \code{births}, \code{population}, \code{lexis}, \code{Dx}, 
-\code{Ex}, \code{mx}, \code{LT_f}, \code{LT_m}, \code{LT_t}, \code{e0}, 
-\code{mxc} and \code{Exc}.}
+\item{what}{what type of data are you looking for? There are available:
+birth records \code{"births"}, death counts \code{"Dx"}, 
+deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
+exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
+life tables for females \code{"LT_f"}, life tables for males \code{"LT_m"},
+life tables both sexes combined \code{"LT_t"}, 
+life expectancy at birth \code{"e0"},
+cohort death-rates \code{"mxc"} and cohort exposures \code{"Exc"}.}
 
 \item{countries}{HMD country codes.}
 
@@ -38,8 +40,9 @@ An \code{ReadHMD} object that contains:
 \item{download.date}{ time stamp}
 }
 \description{
-Download data for different countries and regions in a single object 
-from the \href{http://www.mortality.org}{Human Mortality Database}.
+Download detailed mortality and population data for different countries 
+and regions in a single object from the \href{http://www.mortality.org}{
+Human Mortality Database}.
 }
 \examples{
 \dontrun{

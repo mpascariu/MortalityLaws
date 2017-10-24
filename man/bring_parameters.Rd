@@ -2,7 +2,7 @@
 % Please edit documentation in R/fun_Laws.R
 \name{bring_parameters}
 \alias{bring_parameters}
-\title{Bring or Rename Start Parameters in the Law Functions}
+\title{Bring or Rename Starting Parameters in the Law Functions}
 \usage{
 bring_parameters(law, par = NULL)
 }
@@ -12,9 +12,9 @@ bring_parameters(law, par = NULL)
 function.}
 
 \item{par}{parameters of the selected model. If NULL the 
-\code{\link{bring_parameters}} function will provide default values.}
+default values will be assigned automatically.}
 }
 \description{
-Bring or Rename Start Parameters in the Law Functions
+Bring or Rename Starting Parameters in the Law Functions
 }
 \keyword{internal}

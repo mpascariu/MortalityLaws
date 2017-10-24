@@ -1,14 +1,17 @@
-#' Download Data from HMD
+#' Download Mortality and Population Data (HMD)
 #' 
-#' Download data for different countries and regions in a single object 
-#' from the \href{http://www.mortality.org}{Human Mortality Database}.
+#' Download detailed mortality and population data for different countries 
+#' and regions in a single object from the \href{http://www.mortality.org}{
+#' Human Mortality Database}.
 #' 
-#' @param what what type of data are you looking for? There are death counts,
-#' exposures, death-rates, life tables for females, life table for males,
-#' life table for total population, cohort death-rates and cohort exposures. 
-#' The codes: \code{births}, \code{population}, \code{lexis}, \code{Dx}, 
-#' \code{Ex}, \code{mx}, \code{LT_f}, \code{LT_m}, \code{LT_t}, \code{e0}, 
-#' \code{mxc} and \code{Exc}.
+#' @param what what type of data are you looking for? There are available:
+#' birth records \code{"births"}, death counts \code{"Dx"}, 
+#' deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
+#' exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
+#' life tables for females \code{"LT_f"}, life tables for males \code{"LT_m"},
+#' life tables both sexes combined \code{"LT_t"}, 
+#' life expectancy at birth \code{"e0"},
+#' cohort death-rates \code{"mxc"} and cohort exposures \code{"Exc"}. 
 #' @param countries HMD country codes.
 #' @param interval HMD data format: (age interval x year interval).
 #' Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 

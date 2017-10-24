@@ -2,11 +2,7 @@
 % Please edit documentation in R/fun_Laws.R
 \name{invweibull}
 \alias{invweibull}
-\title{Inverse-Weibull Mortality Law
-The Inverse-Weibull proves useful for modeling the childood and teenage years, 
-because the logarithm of h(x) is a very concave function.
-m > 0 is a measure of location
-sigma > 0 is measure of dispersion}
+\title{Inverse-Weibull Mortality Law}
 \usage{
 invweibull(x, par = NULL)
 }
@@ -14,12 +10,11 @@ invweibull(x, par = NULL)
 \item{x}{vector of age at the beginning of the age classes}
 
 \item{par}{parameters of the selected model. If NULL the 
-\code{\link{bring_parameters}} function will provide default values.}
+default values will be assigned automatically.}
 }
 \description{
-Inverse-Weibull Mortality Law
 The Inverse-Weibull proves useful for modeling the childood and teenage years, 
-because the logarithm of h(x) is a very concave function.
+because the logarithm of h(x) is a concave function.
 m > 0 is a measure of location
 sigma > 0 is measure of dispersion
 }

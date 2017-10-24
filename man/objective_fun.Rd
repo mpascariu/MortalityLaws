@@ -4,20 +4,20 @@
 \alias{objective_fun}
 \title{Function to be Optimize}
 \usage{
-objective_fun(par, x, mx, qx, Dx, Ex, law, opt.method, custom.law)
+objective_fun(par, x, Dx, Ex, mx, qx, law, opt.method, custom.law)
 }
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
-
-\item{mx}{age-specific death rates}
-
-\item{qx}{probability of dying between age x and x+n.}
 
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
+
+\item{mx}{age-specific death rates}
+
+\item{qx}{probability of dying between age x and x+n.}
 
 \item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}

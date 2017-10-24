@@ -4,8 +4,13 @@
 \alias{LifeTable}
 \title{Life Table Function}
 \usage{
-LifeTable(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
-  dx = NULL, sex = NULL, lx0 = 1e+05)
+LifeTable(x, Dx = NULL, Ex = NULL,
+             mx = NULL,
+             qx = NULL,
+             lx = NULL,
+             dx = NULL,
+             sex = NULL,
+             lx0 = 1e+05)
 }
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
@@ -33,9 +38,9 @@ Options: \code{NULL, males, females, total}.}
 \item{lx0}{radix. Default: 100 000}
 }
 \value{
-The output is of class \code{lifetable} with the components:
+The output is of class \code{LifeTable} with the components:
 
-\item{lt}{ computed life table with rounded values}
+\item{lt}{ computed life table}
 
 \item{call}{ a call in which all of the specified arguments are 
 specified by their full names.}
@@ -43,8 +48,11 @@ specified by their full names.}
 \item{process_date}{ time stamp}
 }
 \description{
-Function to create a full or abridge life table with various choices of 2 input vectors: 
-\code{(x, Dx, Ex)} or \code{(x, mx)} or \code{(x, qx)}.
+Construct either a full or abridge life table with various input choices like:
+death counts and mid-interval population estimates \code{(Dx, Ex)} or 
+age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
+or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
+If one of these options are specified, the other can be ignored.
 }
 \details{
 The input data can be of an object of class: 

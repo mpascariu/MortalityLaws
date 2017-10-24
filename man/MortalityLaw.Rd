@@ -4,22 +4,26 @@
 \alias{MortalityLaw}
 \title{Fit Mortality Laws}
 \usage{
-MortalityLaw(x, mx = NULL, qx = NULL, Dx = NULL, Ex = NULL,
-  law = NULL, opt.method = "poissonL", parS = NULL, fit.this.x = x,
-  custom.law = NULL, show = TRUE)
+MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
+                law = NULL, 
+                opt.method = "poissonL", 
+                parS = NULL, 
+                fit.this.x = x,
+                custom.law = NULL, 
+                show = TRUE)
 }
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
-
-\item{mx}{age-specific death rates}
-
-\item{qx}{probability of dying between age x and x+n.}
 
 \item{Dx}{object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
+
+\item{mx}{age-specific death rates}
+
+\item{qx}{probability of dying between age x and x+n.}
 
 \item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
 \code{makeham}, ... To investigate all the possible options see \code{\link{availableLaws}}
@@ -59,11 +63,13 @@ The output is of \code{"MortalityLaw"} class with the components:
 AIC, BIC and log-Likelihood}
 }
 \description{
-This function can be used to fit parametric mortality models given a set of data. 
+Fit parametric mortality models given a set of input data which can be 
+represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
+or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 Using the argument \code{law} one can specify the model to be fitted. 
 So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
 function to learn about the available options. The models can be fitted under 
-the maximum likelihood methodology of by selecting a loss function to be 
+the maximum likelihood methodology or by selecting a loss function to be 
 optimised. See the implemented loss function by running 
 \code{\link{availableLF}} function.
 }

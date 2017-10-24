@@ -52,6 +52,7 @@ foo.test.lt(LT2)
 foo.test.lt(LT3)
 foo.test.lt(LT4)
 foo.test.lt(LT5)
+foo.test.lt(LT6)
 foo.test.lt(LTs)
 
 test_that("Identical LTs", {
