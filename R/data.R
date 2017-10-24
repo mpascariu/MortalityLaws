@@ -18,9 +18,10 @@
 
 # Imports -----
 
-#' @import graphics
+#' @import graphics 
+#' @import minpack.lm
 #' @importFrom RCurl getURL
 #' @importFrom utils read.table head tail
-#' @importFrom stats fitted coef optim predict quantile
+#' @importFrom stats fitted coef optim predict quantile nlminb 
 #' @importFrom pbapply startpb closepb setpb
 NULL

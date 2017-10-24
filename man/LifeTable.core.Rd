@@ -27,7 +27,7 @@ mid-year population aged x to x+n}
 This argument affects the first two values in the life table ax column. 
 If sex is specified the values are computed based on Coale-Demeny method 
 and are slightly different for males than for females. 
-Options: \code{NULL, males, females, total}.}
+Options: \code{NULL, male, female, total}.}
 
 \item{lx0}{radix. Default: 100 000}
 }

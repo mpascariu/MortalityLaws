@@ -86,6 +86,7 @@ makeham0 <- function(x, par = NULL){
 weibull <- function(x, par = NULL){
   par <- bring_parameters('weibull', par)
   hx <- with(as.list(par), 1/sigma * (x/m)^(m/sigma - 1) )
+  hx[x == 0] <- 1
   Hx <- with(as.list(par), (x/m)^(m/sigma) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
@@ -175,11 +176,12 @@ carriere1 <- function(x, par = NULL){
   S_iwei = invweibull(x, par[c('sigma1', 'm1')])$Sx
   S_gom  = gompertz0(x, par[c('sigma3', 'm3')])$Sx
   
-  f1 <- max(0, min(par['p1'], 1))
-  f2 <- max(0, min(par['p2'], 1))
+  f1 <- par['p1'] <- max(0.0001, min(par['p1'], 1))
+  f2 <- par['p2'] <- max(0.0001, min(par['p2'], 1))
   f3 <- 1 - f1 - f2
   
   Sx = f1*S_wei + f2*S_iwei + f3*S_gom
+  Sx = pmax(0, pmin(1, Sx))
   Hx = -log(Sx)
   hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
   return(list(hx = hx, par = par))
@@ -199,11 +201,12 @@ carriere2 <- function(x, par = NULL){
   S_igom = invgompertz(x, par[c('sigma2', 'm2')])$Sx
   S_gom  = gompertz0(x, par[c('sigma3', 'm3')])$Sx
   
-  f1 <- max(0, min(par['p1'], 1))
-  f2 <- max(0, min(par['p2'], 1))
+  f1 <- par['p1'] <- max(0.0001, min(par['p1'], 1))
+  f2 <- par['p2'] <- max(0.0001, min(par['p2'], 1))
   f3 <- 1 - f1 - f2
   
   Sx = f1*S_wei + f2*S_igom + f3*S_gom
+  Sx = pmax(0, pmin(1, Sx))
   Hx = -log(Sx)
   hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
   return(list(hx = hx, par = par))

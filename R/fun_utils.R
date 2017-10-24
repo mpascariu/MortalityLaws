@@ -6,9 +6,9 @@
 #' @keywords internal
 #' @export
 plot.MortalityLaw <- function(x, ...){
-  with(x$input, if (is.matrix.or.data.frame(mx, qx, Dx, Ex)) {
-         stop("Plot function not available if the input",
-              "is of class 'matrix' or 'data.frame'", call. = FALSE)})
+  with(x$input, if (is.matrix.or.data.frame(Dx, Ex, mx, qx)) {
+         stop("Plot function not available for multiple mortality curves", 
+              call. = FALSE)})
   
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   lay_mat <- matrix(c(1, 2, 3, 1, 2, 3), ncol = 3, byrow = TRUE)

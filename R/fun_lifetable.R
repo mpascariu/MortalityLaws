@@ -29,7 +29,7 @@
 #' This argument affects the first two values in the life table ax column. 
 #' If sex is specified the values are computed based on Coale-Demeny method 
 #' and are slightly different for males than for females. 
-#' Options: \code{NULL, males, females, total}.
+#' Options: \code{NULL, male, female, total}.
 #' @param lx0 radix. Default: 100 000
 #' @return The output is of class \code{LifeTable} with the components:
 #' @return \item{lt}{ computed life table}
@@ -106,28 +106,34 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
   nx       <- c(diff(x), Inf)
   
   if (my.case == "C1_DxEx") {
+    Dx <- as.numeric(Dx)
+    Ex <- as.numeric(Ex)
     mx <- Dx/Ex 
     qx <- mx_qx(x, mx, out = "qx")
     lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
     dx <- lx * qx
   }
   if (my.case == "C2_mx") {
+    mx <- as.numeric(mx)
     qx <- mx_qx(x, mx, out = "qx")
     lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
     dx <- lx * qx
   }
   if (my.case == "C3_qx") {
+    qx <- as.numeric(qx)
     mx <- mx_qx(x, qx, out = "mx")
     lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
     dx <- lx * qx
   }
   if (my.case == "C4_lx") {
+    lx <- as.numeric(lx)
     dx <- c(rev(diff(rev(lx))), 0)
     qx <- dx/lx
     qx[is.na(qx) & x >= 100] <- 1
     mx <- mx_qx(x, qx, out = "mx")
   }
   if (my.case == "C5_dx") {
+    dx <- as.numeric(dx)
     lx <- rev(cumsum(rev(dx)))
     qx <- dx/lx
     qx[is.na(qx) & x >= 100] <- 1
@@ -175,7 +181,7 @@ find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
   if (case == "C0") stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", call. = F)
   
   n = c_names = NA
-  NT <- any("numeric" %in% unlist(lapply(dta, class)))
+  NT <- any(unlist(lapply(dta, class)) == "numeric")
   if (!NT) { 
     dt <- dta[mat[case,]][[1]]
     n  <- ncol(dt) 
@@ -185,7 +191,6 @@ find.my.case <- function(Dx, Ex, mx, qx, lx, dx) {
   out <- list(case = case, class.numeric = NT,  n = n, c_names = c_names)
   return(out)
 }
-
 
 #' mx to qx
 #'
@@ -268,6 +273,10 @@ LifeTable.check <- function(input) {
     SMS1 <- "contains missing values."
     SMS2 <- "NA's were replaced with"
     
+    if (!is.null(sex)) {
+      if (!(sex %in% c("male", "female", "total"))) 
+        stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.", call. = F)
+    }
     if (C == "C1_DxEx") {
       if (any(is.na(Dx))) warning(paste("'Dx'", SMS1, SMS2, 0), call. = F)
       if (any(is.na(Ex))) warning(paste("'Ex'", SMS1, SMS2, 0.01), call. = F)

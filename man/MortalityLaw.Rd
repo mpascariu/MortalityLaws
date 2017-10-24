@@ -61,6 +61,9 @@ The output is of \code{"MortalityLaw"} class with the components:
 
 \item{goodness.of.fit}{ list containing goodness of fit measures like 
 AIC, BIC and log-Likelihood}
+
+\item{opt.diagnosis}{ the resulted optimization object useful for 
+checking the convergence etc.}
 }
 \description{
 Fit parametric mortality models given a set of input data which can be 
@@ -101,7 +104,9 @@ M1 <- MortalityLaw(x = x,
                    law = 'makeham')
 M1
 ls(M1)
+coef(M1)
 summary(M1)
+plot(M1)
 
 # Example 2: ---
 # We can fit the same model using diffrent data 

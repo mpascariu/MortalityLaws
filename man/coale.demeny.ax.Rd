@@ -16,7 +16,7 @@ coale.demeny.ax(x, mx, ax, sex)
 This argument affects the first two values in the life table ax column. 
 If sex is specified the values are computed based on Coale-Demeny method 
 and are slightly different for males than for females. 
-Options: \code{NULL, males, females, total}.}
+Options: \code{NULL, male, female, total}.}
 }
 \description{
 Find ax[1:2] indicators using Coale-Demeny coefficients
