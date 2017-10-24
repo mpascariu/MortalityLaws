@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.0.0
+Version: 1.0.1
 Author: Marius D. Pascariu
 Maintainer: Marius D. Pascariu <mpascariu@outlook.com>
 Description: Fit the most popular human mortality 'laws', and construct 
