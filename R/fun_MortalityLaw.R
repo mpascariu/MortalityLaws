@@ -71,13 +71,15 @@
 #' ls(M1)
 #' coef(M1)
 #' summary(M1)
+#' predict(M1, x = 25:95)
 #' plot(M1)
 #' 
 #' # Example 2: ---
-#' # We can fit the same model using different data 
-#' # format and a different optimization method
+#' # We can fit the same model using a different data 
+#' # format and a different optimization method. Also we can scale down 'x'.
 #' mx <- ahmd$mx[paste(x), ]
-#' M2 <- MortalityLaw(x = x, 
+#' x.scaled <- x - min(x) + 1
+#' M2 <- MortalityLaw(x = x.scaled, 
 #'                    mx = mx, 
 #'                    law = 'makeham', 
 #'                    opt.method = 'LF1')
@@ -100,6 +102,7 @@
 #'                    custom.law = my_gompertz) 
 #' summary(M3)
 #' 
+#' #' 
 #' # Example 4: ---
 #' # Fit Heligman-Pollard model for a single 
 #' # year in the dataset between age 0 and 100.

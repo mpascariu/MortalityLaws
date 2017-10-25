@@ -10,8 +10,8 @@
 #' @export
 gompertz <- function(x, par = NULL){
   par <- bring_parameters('gompertz', par)
-  hx  <- with(as.list(par), a*exp(b*x) )
-  Hx  <- with(as.list(par), a/b * (exp(b*x) - 1) )
+  hx  <- with(as.list(par), A*exp(B*x) )
+  Hx  <- with(as.list(par), A/B * (exp(B*x) - 1) )
   Sx  <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -24,8 +24,8 @@ gompertz <- function(x, par = NULL){
 #' @export
 gompertz0 <- function(x, par = NULL){
   par <- bring_parameters('gompertz0', par)
-  hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) )
-  Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) )
+  hx <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) )
+  Hx <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -40,8 +40,8 @@ gompertz0 <- function(x, par = NULL){
 #' @export
 invgompertz <- function(x, par = NULL){
   par <- bring_parameters('invgompertz', par)
-  hx = with(as.list(par), 1/sigma * exp(-(x - m)/sigma) / (exp(exp(-(x - m)/sigma)) - 1))
-  Sx = with(as.list(par), (1 - exp(-exp(-(x - m)/sigma))) / (1 - exp(-exp(m/sigma))))
+  hx = with(as.list(par), 1/sigma * exp(-(x - M)/sigma) / (exp(exp(-(x - M)/sigma)) - 1))
+  Sx = with(as.list(par), (1 - exp(-exp(-(x - M)/sigma))) / (1 - exp(-exp(M/sigma))))
   Hx = -log(Sx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -53,8 +53,8 @@ invgompertz <- function(x, par = NULL){
 #' @export
 makeham <- function(x, par = NULL){
   par <- bring_parameters('makeham', par)
-  hx <- with(as.list(par), a*exp(b*x) + c )
-  Hx <- with(as.list(par), a/b * (exp(b*x) - 1) + x*c )
+  hx <- with(as.list(par), A*exp(B*x) + C)
+  Hx <- with(as.list(par), A/B * (exp(B*x) - 1) + x*C )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par))
 }
@@ -66,8 +66,8 @@ makeham <- function(x, par = NULL){
 #' @export
 makeham0 <- function(x, par = NULL){
   par <- bring_parameters('makeham0', par)
-  hx <- with(as.list(par), (1/sigma) * exp((x - m)/sigma) + c )
-  Hx <- with(as.list(par), exp(-m/sigma) * (exp(x/sigma) - 1) + x*c)
+  hx <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) + C)
+  Hx <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) + x*C)
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -85,9 +85,9 @@ makeham0 <- function(x, par = NULL){
 #' @export
 weibull <- function(x, par = NULL){
   par <- bring_parameters('weibull', par)
-  hx <- with(as.list(par), 1/sigma * (x/m)^(m/sigma - 1) )
+  hx <- with(as.list(par), 1/sigma * (x/M)^(M/sigma - 1) )
   hx[x == 0] <- 1
-  Hx <- with(as.list(par), (x/m)^(m/sigma) )
+  Hx <- with(as.list(par), (x/M)^(M/sigma) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -105,8 +105,8 @@ weibull <- function(x, par = NULL){
 invweibull <- function(x, par = NULL){
   par <- bring_parameters('invweibull', par)
   hx <- with(as.list(par), 
-             (1/sigma) * (x/m)^(-m/sigma - 1) / (exp((x/m)^(-m/sigma)) - 1) )
-  Hx <- with(as.list(par), -log(1 - exp(-(x/m)^(-m/sigma))) )
+             (1/sigma) * (x/M)^(-M/sigma - 1) / (exp((x/M)^(-M/sigma)) - 1) )
+  Hx <- with(as.list(par), -log(1 - exp(-(x/M)^(-M/sigma))) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
@@ -118,8 +118,8 @@ invweibull <- function(x, par = NULL){
 #' @export
 kannisto <- function(x, par = NULL){
   par <- bring_parameters('kannisto', par)
-  hx <- with(as.list(par), a*exp(b*x) / (1 + a*exp(b*x)) )
-  Hx <- with(as.list(par), 1/a * log( (1 + a*exp(b*x)) / (1 + a) ) )
+  hx <- with(as.list(par), A*exp(B*x) / (1 + A*exp(B*x)) )
+  Hx <- with(as.list(par), 1/A * log( (1 + B*exp(B*x)) / (1 + A) ) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par))
 }
@@ -132,7 +132,7 @@ kannisto <- function(x, par = NULL){
 opperman <- function(x, par = NULL){
   par <- bring_parameters('opperman', par)
   x = x + 1
-  hx = with(as.list(par), a/sqrt(x) - b + c*sqrt(x))
+  hx = with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
   hx = pmax(0, hx)
   return(list(hx = hx, par = par))
 }
@@ -144,9 +144,9 @@ opperman <- function(x, par = NULL){
 #' @export
 thiele <- function(x, par = NULL){
   par <- bring_parameters('thiele', par)
-  mu1 = with(as.list(par), a*exp(-b*x) )
-  mu2 = with(as.list(par), c*exp(-.5*d*(x - e)^2) )
-  mu3 = with(as.list(par), f*exp(g*x) )
+  mu1 = with(as.list(par), A*exp(-B*x) )
+  mu2 = with(as.list(par), C*exp(-.5*D*(x - E)^2) )
+  mu3 = with(as.list(par), F_*exp(G*x) )
   hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   return(list(hx = hx, par = par))
 }
@@ -158,7 +158,7 @@ thiele <- function(x, par = NULL){
 #' @export
 wittstein <- function(x, par = NULL){
   par <- bring_parameters('wittstein', par)
-  hx = with(as.list(par), (1/m)*a^-((m*x)^n) + a^-((M - x)^n) )
+  hx = with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
   return(list(hx = hx, par = par))
 }
 
@@ -172,12 +172,12 @@ wittstein <- function(x, par = NULL){
 carriere1 <- function(x, par = NULL){
   par <- bring_parameters('carriere1', par)
   # Compute distribution functions
-  S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
-  S_iwei = invweibull(x, par[c('sigma1', 'm1')])$Sx
-  S_gom  = gompertz0(x, par[c('sigma3', 'm3')])$Sx
+  S_wei  = weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_iwei = invweibull(x, par[c('sigma1', 'M2')])$Sx
+  S_gom  = gompertz0(x, par[c('sigma3', 'M3')])$Sx
   
-  f1 <- par['p1'] <- max(0.0001, min(par['p1'], 1))
-  f2 <- par['p2'] <- max(0.0001, min(par['p2'], 1))
+  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
+  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
   
   Sx = f1*S_wei + f2*S_iwei + f3*S_gom
@@ -197,12 +197,12 @@ carriere1 <- function(x, par = NULL){
 carriere2 <- function(x, par = NULL){
   par <- bring_parameters('carriere2', par)
   # Compute distribution functions
-  S_wei  = weibull(x, par[c('sigma1', 'm1')])$Sx
-  S_igom = invgompertz(x, par[c('sigma2', 'm2')])$Sx
-  S_gom  = gompertz0(x, par[c('sigma3', 'm3')])$Sx
+  S_wei  = weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_igom = invgompertz(x, par[c('sigma2', 'M2')])$Sx
+  S_gom  = gompertz0(x, par[c('sigma3', 'M3')])$Sx
   
-  f1 <- par['p1'] <- max(0.0001, min(par['p1'], 1))
-  f2 <- par['p2'] <- max(0.0001, min(par['p2'], 1))
+  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
+  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
   
   Sx = f1*S_wei + f2*S_igom + f3*S_gom
@@ -370,7 +370,7 @@ martinelle <- function(x, par = NULL){
 rogersplanck <- function(x, par = NULL){
   par <- bring_parameters('rogersplanck', par)
   hx <- with(as.list(par),   
-             A0 + A1*exp(-a*x) + A2*exp(b*(x - u) - exp(-c*(x - u))) + A3*exp(d*x))
+             A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
   return(list(hx = hx, par = par))
 }
 
@@ -397,18 +397,18 @@ kostaki <- function(x, par = NULL){
 #' @keywords internal
 choose_Spar <- function(law){
   switch(law,
-         demoivre    = c(a = 105),
-         gompertz    = c(a = 0.0002, b = 0.13),
-         gompertz0   = c(sigma = 7.692308, m = 49.82286),
-         invgompertz = c(sigma = 7.692308, m = 49.82286),
-         makeham     = c(a = .0002, b = .13, c = .001),
-         makeham0    = c(sigma = 7.692308, m = 49.82286, c = 0.001),
-         opperman    = c(a = 0.04, b = 0.0004, c = 0.001),
-         thiele      = c(a = .02474, b = .3, c = .004, d = .5, 
-                         e = 25, f = .0001, g = .13),
-         wittstein   = c(a = 1.5, m = 1, n = .5, M = 100),
-         weibull     = c(sigma = 2, m = 1),
-         invweibull  = c(sigma = 10, m = 5),
+         demoivre    = c(A = 105),
+         gompertz    = c(A = .0002, B = 0.13),
+         gompertz0   = c(sigma = 7.7, M = 49),
+         invgompertz = c(sigma = 7.7, M = 49),
+         makeham     = c(A = .0002, B = .13, C = .001),
+         makeham0    = c(sigma = 7.692308, M = 49, C = .001),
+         opperman    = c(A = .04, B = .0004, C = .001),
+         thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
+                         E = 25, F_ = .0001, G = .13),
+         wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
+         weibull     = c(sigma = 2, M = 1),
+         invweibull  = c(sigma = 10, M = 5),
          HP          = c(A = .0005, B = .004, C = .08, D = .001, 
                          E = 10, F_ = 17, G = .00005, H = 1.1),
          HP2         = c(A = .0005, B = .004, C = .08, D = .001, 
@@ -418,24 +418,24 @@ choose_Spar <- function(law){
          HP4         = c(A = .0005, B = .004, C = .08, D = .001, 
                          E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
          siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
-         kannisto    = c(a = 0.5, b = 0.13),
-         carriere1   = c(p1 = 0.003, sigma1 = 15, m1 = 2.7, 
-                         p2 = 0.007, sigma2 = 6, m2 = 3, 
-                         sigma3 = 9.5, m3 = 88),
-         carriere2   = c(p1 = 0.01, sigma1 = 2, m1 = 1, 
-                         p2 = 0.01, sigma2 = 7.69, m2 = 49.82, 
-                         sigma3 = 7.69, m3 = 49.82),
+         kannisto    = c(A = 0.5, B = 0.13),
+         carriere1   = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
+                         P2 = .007, sigma2 = 6, M2 = 3, 
+                         sigma3 = 9.5, M3 = 88),
+         carriere2   = c(P1 = .01, sigma1 = 2, M1 = 1, 
+                         P2 = .01, sigma2 = 7, M2 = 49, 
+                                   sigma3 = 7, M3 = 49),
          perks        = c(A = .002, B = .13, C = .01, D = .01),
          beard        = c(A = .002, B = .13, K = 1),
          makehambeard = c(A = .002, B = .13, C = .01, K = 1),
-         vandermaen   = c(A = 0.01, B = 1, C = 0.01, I = 100, N = 200),
-         vandermaen2  = c(A = 0.01, B = 1, I = 100, N = 200),
-         quadratic    = c(A = 0.01, B = 1, C = 0.01),
-         martinelle   = c(A = .001, B = 0.13, C = .001, D = 0.1, K = .001),
+         vandermaen   = c(A = .01, B = 1, C = .01, I = 100, N = 200),
+         vandermaen2  = c(A = .01, B = 1, I = 100, N = 200),
+         quadratic    = c(A = .01, B = 1, C = .01),
+         martinelle   = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
          rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
-                          a = 2, b = .001, c = 100, d = .1, u = 0.33),
+                          A = 2, B = .001, C = 100, D = .1, U = .33),
          kostaki      = c(A = .0005, B = .01, C = .10, D = .001, 
-                          E1 = 3, E2 = 0.1, F_ = 25, G = .00005, H = 1.1)
+                          E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1)
   )
 }
 
