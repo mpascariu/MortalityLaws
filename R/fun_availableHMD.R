@@ -5,10 +5,12 @@
 #' @inheritParams ReadHMD
 #' @param ... other parameters to be passed in \code{ReadHMD} function.
 #' @return An \code{availableHMD} object.
+#' @seealso \code{\link{ReadHMD}}
 #' @examples 
 #' \dontrun{
-#' datainfo <- available.data(username = "your_username", 
-#'                            password = "your_password")
+#' # This will take few seconds...
+#' datainfo <- availableHMD(username = "your_username", 
+#'                          password = "your_password")
 #' datainfo
 #' }
 #' @export

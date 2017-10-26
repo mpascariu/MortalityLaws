@@ -23,8 +23,12 @@ with the range of years covered by the life tables.
 }
 \examples{
 \dontrun{
-datainfo <- available.data(username = "your_username", 
-                           password = "your_password")
+# This will take few seconds...
+datainfo <- availableHMD(username = "your_username", 
+                         password = "your_password")
 datainfo
 }
+}
+\seealso{
+\code{\link{ReadHMD}}
 }

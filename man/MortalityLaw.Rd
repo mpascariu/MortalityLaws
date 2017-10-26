@@ -110,8 +110,8 @@ predict(M1, x = 25:95)
 plot(M1)
 
 # Example 2: ---
-# We can fit the same model using a different data 
-# format and a different optimization method. Also we can scale down 'x'.
+# We can fit the same model using a different data format 
+# and a different optimization method. Also we can scale down 'x'.
 mx <- ahmd$mx[paste(x), ]
 x.scaled <- x - min(x) + 1
 M2 <- MortalityLaw(x = x.scaled, 
@@ -126,8 +126,10 @@ M2
 # terms of modal age at death
 # hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 
-my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
-  hx  <- with(as.list(par), b*exp(b*(x - m)) )
+# A function with 'x' and 'par' as input has to be defined, which returns at least
+# an object called 'hx' (hazard rate).
+my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
+  hx  <- with(as.list(par), b*exp(b*(x - M)) )
   return(as.list(environment()))
 }
 
@@ -136,8 +138,9 @@ M3 <- MortalityLaw(x = x,
                    Ex = Ex, 
                    custom.law = my_gompertz) 
 summary(M3)
+# predict M3 for different ages
+predict(M3, x = 85:130)
 
-#' 
 # Example 4: ---
 # Fit Heligman-Pollard model for a single 
 # year in the dataset between age 0 and 100.
@@ -150,5 +153,4 @@ M4 <- MortalityLaw(x = x,
                    opt.method = 'LF2')
 M4
 plot(M4)
-
 }

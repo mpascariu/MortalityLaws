@@ -75,8 +75,8 @@
 #' plot(M1)
 #' 
 #' # Example 2: ---
-#' # We can fit the same model using a different data 
-#' # format and a different optimization method. Also we can scale down 'x'.
+#' # We can fit the same model using a different data format 
+#' # and a different optimization method. Also we can scale down 'x'.
 #' mx <- ahmd$mx[paste(x), ]
 #' x.scaled <- x - min(x) + 1
 #' M2 <- MortalityLaw(x = x.scaled, 
@@ -91,8 +91,10 @@
 #' # terms of modal age at death
 #' # hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 #' 
-#' my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
-#'   hx  <- with(as.list(par), b*exp(b*(x - m)) )
+#' # A function with 'x' and 'par' as input has to be defined, which returns at least
+#' # an object called 'hx' (hazard rate).
+#' my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
+#'   hx  <- with(as.list(par), b*exp(b*(x - M)) )
 #'   return(as.list(environment()))
 #' }
 #' 
@@ -101,8 +103,9 @@
 #'                    Ex = Ex, 
 #'                    custom.law = my_gompertz) 
 #' summary(M3)
+#' # predict M3 for different ages
+#' predict(M3, x = 85:130)
 #' 
-#' #' 
 #' # Example 4: ---
 #' # Fit Heligman-Pollard model for a single 
 #' # year in the dataset between age 0 and 100.
@@ -115,7 +118,6 @@
 #'                    opt.method = 'LF2')
 #' M4
 #' plot(M4)
-#' 
 #' @export
 #'
 MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
@@ -145,8 +147,14 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     if (C == "C3_qx")   resid = qx - fit 
     if (show) setpb(pb, 3)
     # Prepare, arrange, customize output
-    aLaws  <- availableLaws()$table
-    info   <- list(model.info = aLaws[aLaws$CODE == law, ], process.date = date())
+    if (law == "custom.law") {
+      model.info <- "CUSTOM MORTALITY LAW"
+    } else {
+      availLaws  <- availableLaws()$table
+      model.info <- data.frame(availLaws[availLaws$CODE == law, ], row.names = "")    
+    }
+    
+    info   <- list(model.info = model.info, process.date = date())
     if (show) setpb(pb, 4)
     
   } else {
@@ -345,7 +353,12 @@ print.MortalityLaw <- function(x, ...) {
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-  mi   <- as.matrix(object$info$model.info[, c(2, 3)])
+  law  <- object$input$law
+  if (law == "custom.law") {
+    mi <- "CUSTOM MORTALITY LAW"
+  } else {
+    mi   <- as.matrix(object$info$model.info[, c(2, 3)])
+  }
   call <- object$info$call
   res  <- round(summary(as.vector(as.matrix(object$residuals))), 5)
   fv   <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
@@ -383,13 +396,20 @@ print.summary.MortalityLaw <- function(x, ...) {
 }
 
 
-
 #' logLik function for MortalityLaw
 #' @inheritParams print.MortalityLaw
 #' @keywords internal
 #' @export
 logLik.MortalityLaw <- function(object, ...) {
   c(object$goodness.of.fit["logLik"])
+}
+
+#' AIC function for MortalityLaw
+#' @inheritParams print.MortalityLaw
+#' @keywords internal
+#' @export
+AIC.MortalityLaw <- function(object, ...) {
+  c(object$goodness.of.fit["AIC"])
 }
 
 
@@ -401,8 +421,14 @@ logLik.MortalityLaw <- function(object, ...) {
 #' @export
 predict.MortalityLaw <- function(object, x, ...){
   law <- object$input$law
-  M   <- eval(call(law, x = x, par = coef(object)))
-  hx  <- M$hx
+  
+  if (law == "custom.law") {
+    M <- object$input$custom.law
+    hx <- M(x = x, coef(object))$hx
+  } else {
+    M   <- eval(call(law, x = x, par = coef(object)))
+    hx  <- M$hx
+  }
   return(hx)
 }
 

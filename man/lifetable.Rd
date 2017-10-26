@@ -73,13 +73,17 @@ LT4 <- LifeTable(x, lx = LT1$lt$lx)
 LT5 <- LifeTable(x, dx = LT1$lt$dx)
 
 LT1
+LT5
 ls(LT5) 
 
 # Example 2 --- Compute multiple life tables at once ---
 
 LTs = LifeTable(x, mx = ahmd$mx)
 LTs
+# A warning is printed if the input contains missing values. 
+# Some of the missing values can be handled by the function.
 
+#' 
 # Example 3 --- Abridge life table ------------
 
 x  = c(0, 1, seq(5, 110, by = 5))
