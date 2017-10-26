@@ -1,7 +1,9 @@
 # MortalityLaws
 [![Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
 [![Coverage Status](https://img.shields.io/codecov/c/github/mpascariu/MortalityLaws/master.svg)](https://codecov.io/github/mpascariu/MortalityLaws?branch=master)
+[![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)]()
 [![license](https://img.shields.io/github/license/mpascariu/MortalityLaws.svg)]()
+[![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
 
 Fit and compare the most popular human mortality laws
 
@@ -14,6 +16,13 @@ People involved in the project:
 Installation
 ============
 
+The ```MortalityLaw``` package can be installed from CRAN:
+
+```r
+install.packages("MortalityLaws")
+```
+
+The latest version is can be installed from GitHub as follows:
 1. Make sure you have the most recent version of R
 2. Run the following code in your R console 
 

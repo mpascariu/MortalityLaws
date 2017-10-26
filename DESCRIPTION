@@ -1,9 +1,9 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.0.5
+Version: 1.0.6
 Authors@R: c(
-  person(given = "Marius D.", family = "Pascariu", role = c("aut", "cre"), 
+  person("Marius D.", "Pascariu", role = c("aut", "cre"), 
          email = "mpascariu@outlook.com"),
   person("Vladimir", "Canudas-Romo", role = "ctb"))
 Maintainer: Marius D. Pascariu <mpascariu@outlook.com>
@@ -11,7 +11,7 @@ Description: Fit the most popular human mortality 'laws', and construct
   full and abridge life tables given various input indices. A mortality
   law is a parametric function that describes the dying-out process of 
   individuals in a population during a significant portion of their 
-  life spans. For a comprehensiv review of the most important mortality 
+  life spans. For a comprehensive review of the most important mortality 
   laws see Tabeau (2001) <doi:10.1007/0-306-47562-6_1>. 
   An elegant function for downloading data from Human Mortality 
   Database <http://www.mortality.org> is provided as well.  
