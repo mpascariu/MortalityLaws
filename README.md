@@ -5,18 +5,19 @@
 [![license](https://img.shields.io/github/license/mpascariu/MortalityLaws.svg)]()
 [![CRAN\_Download\_Badge](http://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
 
-Fit and compare the most popular human mortality laws
 
-This repository includes R code for fitting most popular human mortality laws
-and downloading [Human Mortality Database ](http://www.mortality.org) data.
+Fit the most popular human mortality 'laws', and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their 
+life spans. For a comprehensive review of the most important mortality laws see [Tabeau (2001)](https://doi.org/10.1007/0-306-47562-6_1). An elegant function for downloading data from [Human Mortality Database ](http://www.mortality.org) is provided as well.  
+
+
 People involved in the project:
 [Marius Pascariu](http://findresearcher.sdu.dk:8080/portal/da/person/mpascariu) and
-[Vladimir Canudas-Romo](http://www.sdu.dk/ansat/vcanudas).
+[Vladimir Canudas-Romo](https://researchers.anu.edu.au/researchers/canudas-romo-v).
 
 Installation
 ============
 
-The ```MortalityLaw``` package can be installed from CRAN:
+The ```MortalityLaws``` package can be installed from CRAN:
 
 ```r
 install.packages("MortalityLaws")
