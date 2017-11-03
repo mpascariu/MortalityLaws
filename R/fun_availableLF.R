@@ -43,10 +43,10 @@ print.availableLF <- function(x, ...) {
   cat("\nLEGEND:\n")
   cat(x$legend, sep = '\n')
   
-  message("\nHINT: Most of the functions work well with <poissonL>, however for complex\n",
-          "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using\n",
-          "other loss functions (e.g. LF2). You are strongly encouraged to test\n",
-          "different option before deciding on the final version. The results will be\n",
+  message("\nHINT: Most of the functions work well with 'poissonL', however for complex ",
+          "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using ",
+          "other loss functions (e.g. 'LF2'). You are strongly encouraged to test ",
+          "different option before deciding on the final version. The results might be ",
           "slightly different.\n")
 }
 

@@ -335,7 +335,7 @@ vandermaen <- function(x, par = NULL){
 #' @export
 vandermaen2 <- function(x, par = NULL){
   par <- bring_parameters('vandermaen2', par)
-  hx  <- with(as.list(par), A + B*x + I/(N - x) )
+  hx  <- with(as.list(par), A + B*x + I/(N - x))
   return(list(hx = hx, par = par))
 }
 
@@ -357,7 +357,7 @@ quadratic <- function(x, par = NULL){
 #' @export
 martinelle <- function(x, par = NULL){
   par <- bring_parameters('martinelle', par)
-  hx <- with(as.list(par),  (A*exp(B*x) + C) / (1 + D*exp(B*x)) + K*exp(B*x) )
+  hx <- with(as.list(par), (A*exp(B*x) + C) / (1 + D*exp(B*x)) + K*exp(B*x))
   return(list(hx = hx, par = par))
 }
 
@@ -369,8 +369,8 @@ martinelle <- function(x, par = NULL){
 #' @export
 rogersplanck <- function(x, par = NULL){
   par <- bring_parameters('rogersplanck', par)
-  hx <- with(as.list(par),   
-             A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
+  hx  <- with(as.list(par),   
+          A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
   return(list(hx = hx, par = par))
 }
 
@@ -381,72 +381,73 @@ rogersplanck <- function(x, par = NULL){
 #' @export
 kostaki <- function(x, par = NULL){
   par <- bring_parameters('kostaki', par)
-  pr = as.list(par)
-  cond1 = with(pr, x <= F_)
-  mu1 = with(pr, A^((x + B)^C) + G*H^x )
-  mu2 = with(pr, D*exp(cond1*(-(E1*log(x/F_))^2 ) + (!cond1)*(-(E2*log(x/F_))^2 )))
-  eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx  = eta/(1 + eta)
-  return(list(hx = hx, par = par))
+  with(as.list(par), {
+    # Sometimes the difference between estimated parameters E1 and E2 is
+    # very large, in which case the resulted mortality curve will exhibit 
+    # a significant artificial jump in one age grup. I am imposing a 
+    # restriction below to limit this behaviour.
+    if (E1 >= 100*E2) E2 <- E1/100 # This hack seems to work.
+
+    L   <- x <= F_    # Logical
+    mu1 <- A^((x + B)^C) + G*H^x
+    e1  <- -(E1*log(x/F_))^2
+    e2  <- -(E2*log(x/F_))^2
+    mu2 <- D*exp(L*e1 + (!L)*e2)
+    eta <- ifelse(x == 0, mu1, mu1 + mu2)
+    hx  <- eta/(1 + eta)
+    return(list(hx = hx, par = par))
+  })
 }
 
-
-# ------------------------------
-#' Select Start Parameters
-#' @inheritParams MortalityLaw
-#' @keywords internal
-choose_Spar <- function(law){
-  switch(law,
-         demoivre    = c(A = 105),
-         gompertz    = c(A = .0002, B = 0.13),
-         gompertz0   = c(sigma = 7.7, M = 49),
-         invgompertz = c(sigma = 7.7, M = 49),
-         makeham     = c(A = .0002, B = .13, C = .001),
-         makeham0    = c(sigma = 7.692308, M = 49, C = .001),
-         opperman    = c(A = .04, B = .0004, C = .001),
-         thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
-                         E = 25, F_ = .0001, G = .13),
-         wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
-         weibull     = c(sigma = 2, M = 1),
-         invweibull  = c(sigma = 10, M = 5),
-         HP          = c(A = .0005, B = .004, C = .08, D = .001, 
-                         E = 10, F_ = 17, G = .00005, H = 1.1),
-         HP2         = c(A = .0005, B = .004, C = .08, D = .001, 
-                         E = 10, F_ = 17, G = .00005, H = 1.1),
-         HP3         = c(A = .0005, B = .004, C = .08, D = .001, 
-                         E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-         HP4         = c(A = .0005, B = .004, C = .08, D = .001, 
-                         E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-         siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
-         kannisto    = c(A = 0.5, B = 0.13),
-         carriere1   = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
-                         P2 = .007, sigma2 = 6, M2 = 3, 
-                         sigma3 = 9.5, M3 = 88),
-         carriere2   = c(P1 = .01, sigma1 = 2, M1 = 1, 
-                         P2 = .01, sigma2 = 7, M2 = 49, 
-                                   sigma3 = 7, M3 = 49),
-         perks        = c(A = .002, B = .13, C = .01, D = .01),
-         beard        = c(A = .002, B = .13, K = 1),
-         makehambeard = c(A = .002, B = .13, C = .01, K = 1),
-         vandermaen   = c(A = .01, B = 1, C = .01, I = 100, N = 200),
-         vandermaen2  = c(A = .01, B = 1, I = 100, N = 200),
-         quadratic    = c(A = .01, B = 1, C = .01),
-         martinelle   = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
-         rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
-                          A = 2, B = .001, C = 100, D = .1, U = .33),
-         kostaki      = c(A = .0005, B = .01, C = .10, D = .001, 
-                          E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1)
-  )
-}
 
 #' Bring or Rename Starting Parameters in the Law Functions
 #' @inheritParams MortalityLaw
 #' @inheritParams gompertz
 #' @keywords internal
 bring_parameters <- function(law, par = NULL) {
-  Spar <- choose_Spar(law)
+  Spar <- switch(law,
+                 demoivre    = c(A = 105),
+                 gompertz    = c(A = .0002, B = 0.13),
+                 gompertz0   = c(sigma = 7.7, M = 49),
+                 invgompertz = c(sigma = 7.7, M = 49),
+                 makeham     = c(A = .0002, B = .13, C = .001),
+                 makeham0    = c(sigma = 7.692308, M = 49, C = .001),
+                 opperman    = c(A = .04, B = .0004, C = .001),
+                 thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
+                                 E = 25, F_ = .0001, G = .13),
+                 wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
+                 weibull     = c(sigma = 2, M = 1),
+                 invweibull  = c(sigma = 10, M = 5),
+                 HP          = c(A = .0005, B = .004, C = .08, D = .001, 
+                                 E = 10, F_ = 17, G = .00005, H = 1.1),
+                 HP2         = c(A = .0005, B = .004, C = .08, D = .001, 
+                                 E = 10, F_ = 17, G = .00005, H = 1.1),
+                 HP3         = c(A = .0005, B = .004, C = .08, D = .001, 
+                                 E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
+                 HP4         = c(A = .0005, B = .004, C = .08, D = .001, 
+                                 E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
+                 siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
+                 kannisto    = c(A = 0.5, B = 0.13),
+                 carriere1   = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
+                                 P2 = .007, sigma2 = 6, M2 = 3, 
+                                 sigma3 = 9.5, M3 = 88),
+                 carriere2   = c(P1 = .01, sigma1 = 2, M1 = 1, 
+                                 P2 = .01, sigma2 = 7, M2 = 49, 
+                                 sigma3 = 7, M3 = 49),
+                 perks        = c(A = .002, B = .13, C = .01, D = .01),
+                 beard        = c(A = .002, B = .13, K = 1),
+                 makehambeard = c(A = .002, B = .13, C = .01, K = 1),
+                 vandermaen   = c(A = .01, B = 1, C = .01, I = 100, N = 200),
+                 vandermaen2  = c(A = .01, B = 1, I = 100, N = 200),
+                 quadratic    = c(A = .01, B = 1, C = .01),
+                 martinelle   = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
+                 rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
+                                  A = 2, B = .001, C = 100, D = .1, U = .33),
+                 kostaki      = c(A = .0005, B = .01, C = .10, D = .001, 
+                                  E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1)
+                 )
   if (is.null(par)) par <- Spar
-  # If 'par' is provided, just give them a name anyway
+  # If 'par' is provided, just give them a name anyway.
   names(par) <- names(Spar) 
   return(par)
 }

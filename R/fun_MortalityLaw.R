@@ -136,15 +136,14 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     # Find optim coefficients
     opt <- choose_optim(input) 
+    if (show) setpb(pb, 2)
     fit <- opt$hx
     gof <- c(logLik = opt$logLik, AIC = opt$AIC, BIC = opt$BIC)
     diagnosis <- opt$fn_opt
-    cf  <- exp(diagnosis$par) 
-    if (show) setpb(pb, 2)
-    # Fitted values & residuals
-    if (C == "C1_DxEx") resid = Dx/Ex - fit 
-    if (C == "C2_mx")   resid = mx - fit 
-    if (C == "C3_qx")   resid = qx - fit 
+    cf    <- exp(diagnosis$par) 
+    resid <- switch(C, C1_DxEx = Dx/Ex - fit,
+                       C2_mx = mx - fit,
+                       C3_qx = qx - fit)
     if (show) setpb(pb, 3)
     # Prepare, arrange, customize output
     if (law == "custom.law") {
@@ -164,7 +163,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     for (i in 1:N) {
       if (show) setpb(pb, i)
       M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
-                                         law, opt.method, parS, fit.this.x, custom.law, show = FALSE))
+                  law, opt.method, parS, fit.this.x, custom.law, show = FALSE))
       fit   <- cbind(fit, fitted(M))
       gof   <- rbind(gof, M$goodness.of.fit)
       diagnosis[[i]] <- M$diagnosis
@@ -319,14 +318,14 @@ check.MortalityLaw <- function(input){
 messages.MortalityLaw <- function(input) {
   with(input, {
     if (min(x) > 1) {
-      message("\nIt would be recommended to scaled down the 'x' argument ",
-              "so that is begins with a small value [e.g.  x = x - min(x) + 1].\n",
+      message("\nRecommendation: scale down the 'x' argument ",
+              "so that is begins with a small value [e.g.  x = x - min(x) + 1]. ",
               "This is useful in order to obtain meaningful ", 
               "estimates and sometimes a better fit.")
     }
     if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki') & opt.method != "LF2") {
       message(paste("\nFor cases like", law, "the optimization method 'LF2'",
-                    " has been observed to return reliable estimates."))
+                    "has been observed to return reliable estimates."))
     }
   })
 }
@@ -342,8 +341,7 @@ print.MortalityLaw <- function(x, ...) {
   fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
   cat('\n\nFitted values:', fv)
   cat('\nCoefficients :\n')
-  digits <- if (all(coef(x) < 1e-3)) 6 else 4
-  print(round(coef(x), digits))
+  print(round(coef(x), 4))
 }
 
 
@@ -357,13 +355,12 @@ summary.MortalityLaw <- function(object, ...) {
   if (law == "custom.law") {
     mi <- "CUSTOM MORTALITY LAW"
   } else {
-    mi   <- as.matrix(object$info$model.info[, c(2, 3)])
+    mi <- as.matrix(object$info$model.info[, c(2, 3)])
   }
   call <- object$info$call
   res  <- round(summary(as.vector(as.matrix(object$residuals))), 5)
   fv   <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
-  digits <- if (all(coef(object) < 1e-3)) 7 else 5
-  cf   <- round(coef(object), digits )
+  cf   <- round(coef(object), 5)
   opt  <- object$input$opt.method
   gof  <- round(object$goodness.of.fit, 2)
   
