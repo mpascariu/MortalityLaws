@@ -4,7 +4,7 @@
 #' and regions in a single object from the \href{http://www.mortality.org}{
 #' Human Mortality Database}.
 #' 
-#' @param what what type of data are you looking for? There are available:
+#' @param what What type of data are you looking for? There are available:
 #' birth records \code{"births"}, death counts \code{"Dx"}, 
 #' deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
 #' exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
@@ -16,14 +16,14 @@
 #' @param interval HMD data format: (age interval x year interval).
 #' Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
 #' \code{5x1}, \code{5x5}, \code{5x10}.
-#' @param username your HMD username. If you don't have one you can sign up
+#' @param username Your HMD username. If you don't have one you can sign up
 #' for free on Human Mortality Database website.
-#' @param password your HMD password.
-#' @param save do you want to save a copy of the dataset on your local machine?
+#' @param password Your HMD password.
+#' @param save Do you want to save a copy of the dataset on your local machine?
 #' @return An \code{ReadHMD} object that contains:
-#' @return \item{input}{ list with the input data (except the password)}
-#' @return \item{data}{ data downloaded from HMD}
-#' @return \item{download.date}{ time stamp}
+#' @return \item{input}{List with the input data (except the password).}
+#' @return \item{data}{Data downloaded from HMD.}
+#' @return \item{download.date}{Time stamp.}
 #' @export
 #' @examples
 #' \dontrun{

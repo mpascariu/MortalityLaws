@@ -8,11 +8,11 @@ Here we adjust the first two values of ax to account for infant mortality more a
 coale.demeny.ax(x, mx, ax, sex)
 }
 \arguments{
-\item{x}{vector of age at the beginning of the age classes}
+\item{x}{Vector of age at the beginning of the age classes}
 
-\item{mx}{age-specific death rates}
+\item{mx}{Age-specific death rates.}
 
-\item{sex}{sex of the population considered here. Default: \code{NULL}. 
+\item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
 If sex is specified the values are computed based on Coale-Demeny method 
 and are slightly different for males than for females. 

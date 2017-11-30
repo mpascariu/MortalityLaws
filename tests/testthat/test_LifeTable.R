@@ -20,9 +20,7 @@ LT4
 LT5
 
 mx1 = ahmd$mx
-LT10 = LifeTable(x, mx = mx1)
-LT10
-expect_warning(LifeTable(x, mx = mx1))
+expect_warning((LT10 = LifeTable(x, mx = mx1)))
 
 
 # Example 2 --- Abridge life table ------------
@@ -39,7 +37,6 @@ LT6
 LT7
 LT8
 LT9
-
 
 x3 = c(0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70)
 dx = c(11728, 1998, 2190, 1336, 637, 1927, 420, 453, 475, 905, 1168, 

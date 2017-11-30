@@ -7,28 +7,28 @@
 objective_fun(par, x, Dx, Ex, mx, qx, law, opt.method, custom.law)
 }
 \arguments{
-\item{x}{vector of age at the beginning of the age classes}
+\item{x}{Vector of age at the beginning of the age classes}
 
-\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
-\item{mx}{age-specific death rates}
+\item{mx}{Age-specific death rates.}
 
-\item{qx}{probability of dying between age x and x+n.}
+\item{qx}{Probability of dying between age x and x+n.}
 
-\item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
-\code{makeham}, ... To investigate all the possible options, see \code{\link{availableLaws}}
-function.}
+\item{law}{The name of the mortality law/model to be fitted. e.g. 
+\code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
+see \code{\link{availableLaws}} function.}
 
-\item{opt.method}{how would you like to find the parameters? Specify the function 
-to be optimize. Available options: the Poisson likelihood function 
-\code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-and other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
+\item{opt.method}{How would you like to find the parameters? Specify the 
+function to be optimize. Available options: the Poisson likelihood function 
+\code{poissonL}; the Binomial likelihood function -\code{binomialL}; and 
+other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
 
-\item{custom.law}{allows you to fit a model that is not defined 
+\item{custom.law}{Allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 }
 \description{

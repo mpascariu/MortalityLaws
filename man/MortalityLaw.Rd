@@ -9,60 +9,65 @@ MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
                 opt.method = "poissonL", 
                 parS = NULL, 
                 fit.this.x = x,
+                scale.x = FALSE,
                 custom.law = NULL, 
                 show = TRUE)
 }
 \arguments{
-\item{x}{vector of age at the beginning of the age classes}
+\item{x}{Vector of age at the beginning of the age classes}
 
-\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
-\item{mx}{age-specific death rates}
+\item{mx}{Age-specific death rates.}
 
-\item{qx}{probability of dying between age x and x+n.}
+\item{qx}{Probability of dying between age x and x+n.}
 
-\item{law}{the name of the mortality law/model to be fitted. e.g. \code{gompertz}, 
-\code{makeham}, ... To investigate all the possible options, see \code{\link{availableLaws}}
-function.}
+\item{law}{The name of the mortality law/model to be fitted. e.g. 
+\code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
+see \code{\link{availableLaws}} function.}
 
-\item{opt.method}{how would you like to find the parameters? Specify the function 
-to be optimize. Available options: the Poisson likelihood function 
-\code{poissonL}; the Binomial likelihood function -\code{binomialL}; 
-and other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
+\item{opt.method}{How would you like to find the parameters? Specify the 
+function to be optimize. Available options: the Poisson likelihood function 
+\code{poissonL}; the Binomial likelihood function -\code{binomialL}; and 
+other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
 
-\item{parS}{starting parameters used in optimization process (optional).}
+\item{parS}{Starting parameters used in optimization process (optional).}
 
-\item{fit.this.x}{select the ages to be considered in model fitting. By default 
+\item{fit.this.x}{Select the ages to be considered in model fitting. By default 
 \code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
 advance ages were the data is sparse.}
 
-\item{custom.law}{allows you to fit a model that is not defined 
+\item{scale.x}{Logical. Scale down \code{"x"} vector so that is begins with 
+a small value. This is useful in order to obtain meaningful estimates and 
+sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) + 1}.}
+
+\item{custom.law}{Allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 
-\item{show}{choose whether to display a progress bar during the fitting process. 
+\item{show}{Choose whether to display a progress bar during the fitting process. 
 Logical. Default: \code{TRUE}.}
 }
 \value{
 The output is of \code{"MortalityLaw"} class with the components:
 
-\item{input}{ list with arguments provided in input. Saved for convenience}
+\item{input}{List with arguments provided in input. Saved for convenience}
 
-\item{info}{ short information about the model}
+\item{info}{Short information about the model}
 
-\item{coefficients}{ estimated coefficients}
+\item{coefficients}{Estimated coefficients}
 
-\item{fitted.values}{ fitted values of the selected model}
+\item{fitted.values}{Fitted values of the selected model}
 
-\item{residuals}{ residuals}
+\item{residuals}{Deviance residuals}
 
-\item{goodness.of.fit}{ list containing goodness of fit measures like 
+\item{goodness.of.fit}{List containing goodness of fit measures like 
 AIC, BIC and log-Likelihood}
 
-\item{opt.diagnosis}{ the resulted optimization object useful for 
+\item{opt.diagnosis}{Resulted optimization object useful for 
 checking the convergence etc.}
 }
 \description{
@@ -98,27 +103,33 @@ x  <- 45:75
 Dx <- ahmd$Dx[paste(x), "1950"]
 Ex <- ahmd$Ex[paste(x), "1950"]
 
-M1 <- MortalityLaw(x = x, 
-                   Dx = Dx, 
-                   Ex = Ex, 
-                   law = 'makeham')
+M1 <- MortalityLaw(x   = x, 
+                   Dx  = Dx, 
+                   Ex  = Ex, 
+                   law = 'makeham',
+                   scale.x = TRUE)
 M1
 ls(M1)
 coef(M1)
 summary(M1)
-predict(M1, x = 25:95)
+fitted(M1)
+predict(M1, x = 45:95)
 plot(M1)
+
 
 # Example 2: ---
 # We can fit the same model using a different data format 
-# and a different optimization method. Also we can scale down 'x'.
+# and a different optimization method.
+x  <- 45:75
 mx <- ahmd$mx[paste(x), ]
-x.scaled <- x - min(x) + 1
-M2 <- MortalityLaw(x = x.scaled, 
-                   mx = mx, 
+M2 <- MortalityLaw(x   = x, 
+                   mx  = mx, 
                    law = 'makeham', 
-                   opt.method = 'LF1')
+                   opt.method = 'LF1', 
+                   scale.x = TRUE)
 M2
+fitted(M2)
+predict(M2, x = 55:90)
 
 # Example 3: ---
 # Now let's fit a mortality law that is not defined 
@@ -133,13 +144,15 @@ my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
   return(as.list(environment()))
 }
 
-M3 <- MortalityLaw(x = x,
+M3 <- MortalityLaw(x  = x,
                    Dx = Dx, 
                    Ex = Ex, 
-                   custom.law = my_gompertz) 
+                   custom.law = my_gompertz,
+                   scale.x = TRUE) 
 summary(M3)
 # predict M3 for different ages
 predict(M3, x = 85:130)
+
 
 # Example 4: ---
 # Fit Heligman-Pollard model for a single 
@@ -147,8 +160,8 @@ predict(M3, x = 85:130)
 
 x  <- 0:100
 mx <- ahmd$mx[paste(x), "1950"] # select data
-M4 <- MortalityLaw(x = x, 
-                   mx = mx, 
+M4 <- MortalityLaw(x   = x, 
+                   mx  = mx, 
                    law = 'HP', 
                    opt.method = 'LF2')
 M4

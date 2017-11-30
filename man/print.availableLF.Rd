@@ -7,9 +7,9 @@
 \method{print}{availableLF}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{"availableLF"}}
+\item{x}{An object of class \code{"availableLF"}}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \description{
 Print availableLF

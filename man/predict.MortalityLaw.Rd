@@ -7,13 +7,18 @@
 \method{predict}{MortalityLaw}(object, x, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}}
 
-\item{x}{vector of ages to be considered in prediction}
+\item{x}{Vector of ages to be considered in prediction}
 
-\item{...}{additional arguments affecting the predictions produced.}
+\item{...}{Additional arguments affecting the predictions produced.}
 }
 \description{
 Predict function for MortalityLaw
 }
-\keyword{internal}
+\examples{
+# See complete example in MortalityLaw help page
+}
+\seealso{
+\code{\link{MortalityLaw}}
+}

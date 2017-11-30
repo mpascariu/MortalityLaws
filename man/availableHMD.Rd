@@ -7,12 +7,12 @@
 availableHMD(username, password, ...)
 }
 \arguments{
-\item{username}{your HMD username. If you don't have one you can sign up
+\item{username}{Your HMD username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
 
-\item{password}{your HMD password.}
+\item{password}{Your HMD password.}
 
-\item{...}{other parameters to be passed in \code{ReadHMD} function.}
+\item{...}{Other parameters to be passed in \code{ReadHMD} function.}
 }
 \value{
 An \code{availableHMD} object.

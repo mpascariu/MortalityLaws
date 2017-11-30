@@ -8,7 +8,7 @@ ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = TRUE)
 }
 \arguments{
-\item{what}{what type of data are you looking for? There are available:
+\item{what}{What type of data are you looking for? There are available:
 birth records \code{"births"}, death counts \code{"Dx"}, 
 deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
 exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
@@ -23,21 +23,21 @@ cohort death-rates \code{"mxc"} and cohort exposures \code{"Exc"}.}
 Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
 \code{5x1}, \code{5x5}, \code{5x10}.}
 
-\item{username}{your HMD username. If you don't have one you can sign up
+\item{username}{Your HMD username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
 
-\item{password}{your HMD password.}
+\item{password}{Your HMD password.}
 
-\item{save}{do you want to save a copy of the dataset on your local machine?}
+\item{save}{Do you want to save a copy of the dataset on your local machine?}
 }
 \value{
 An \code{ReadHMD} object that contains:
 
-\item{input}{ list with the input data (except the password)}
+\item{input}{List with the input data (except the password).}
 
-\item{data}{ data downloaded from HMD}
+\item{data}{Data downloaded from HMD.}
 
-\item{download.date}{ time stamp}
+\item{download.date}{Time stamp.}
 }
 \description{
 Download detailed mortality and population data for different countries 

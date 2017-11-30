@@ -7,7 +7,7 @@
 read_hmd(what, country, interval, username, password)
 }
 \arguments{
-\item{what}{what type of data are you looking for? There are available:
+\item{what}{What type of data are you looking for? There are available:
 birth records \code{"births"}, death counts \code{"Dx"}, 
 deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
 exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
@@ -22,10 +22,10 @@ cohort death-rates \code{"mxc"} and cohort exposures \code{"Exc"}.}
 Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
 \code{5x1}, \code{5x5}, \code{5x10}.}
 
-\item{username}{your HMD username. If you don't have one you can sign up
+\item{username}{Your HMD username. If you don't have one you can sign up
 for free on Human Mortality Database website.}
 
-\item{password}{your HMD password.}
+\item{password}{Your HMD password.}
 }
 \description{
 Function to Download Data for a one Country

@@ -13,9 +13,9 @@ a certain model by specifying its codename.}
 \value{
 The output is of \code{"availableLaws"} class with the components:
 
-\item{table}{ a table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
+\item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
 
-\item{legend}{ a table with details about the section of the mortality curve }
+\item{legend}{Table with details about the section of the mortality curve }
 }
 \description{
 The function returns information about the parametric models that can be called and fitted

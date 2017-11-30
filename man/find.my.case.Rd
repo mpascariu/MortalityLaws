@@ -9,19 +9,19 @@ find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
   dx = NULL)
 }
 \arguments{
-\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
-\item{mx}{age-specific death rates}
+\item{mx}{Age-specific death rates.}
 
-\item{qx}{probability of dying between age x and x+n.}
+\item{qx}{Probability of dying between age x and x+n.}
 
-\item{lx}{probability to survive up until age x}
+\item{lx}{Probability to survive up until age x.}
 
-\item{dx}{life table death counts at age x}
+\item{dx}{Life table death counts at age x}
 }
 \description{
 Function that identifies the case/problem we have to solve

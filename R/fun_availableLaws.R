@@ -7,8 +7,8 @@
 #' @param law Optional. Default: \code{NULL}. One can subtract details about 
 #' a certain model by specifying its codename.
 #' @return The output is of \code{"availableLaws"} class with the components:
-#' @return \item{table}{ a table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
-#' @return \item{legend}{ a table with details about the section of the mortality curve }
+#' @return \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
+#' @return \item{legend}{Table with details about the section of the mortality curve }
 #' @references 
 #' \enumerate{
 #' \item{Gompertz, B. (1825). \href{http://www.jstor.org/stable/107756}{On the 
@@ -118,8 +118,8 @@ availableLaws <- function(law = NULL){
 
 
 #' Print availableLaws
-#' @param x an object of class \code{"availableLaws"}
-#' @param ... further arguments passed to or from other methods.
+#' @param x An object of class \code{"availableLaws"}
+#' @param ... Further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.availableLaws <- function(x, ...) {

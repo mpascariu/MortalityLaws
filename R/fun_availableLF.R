@@ -4,8 +4,8 @@
 #' The function returns information about the implemented loss function used by the 
 #' optimization procedure in \code{\link{MortalityLaw}} function. 
 #' @return A list of class \code{availableLF} with the components:
-#' @return \item{table}{ table with loss functions and codes to be used in \code{\link{MortalityLaw}}}
-#' @return \item{legend}{ table with details about the used abbreviation}
+#' @return \item{table}{Table with loss functions and codes to be used in \code{\link{MortalityLaw}}}
+#' @return \item{legend}{Table with details about the used abbreviation}
 #' @examples 
 #' 
 #' availableLF()
@@ -33,8 +33,8 @@ availableLF <- function(){
 } 
 
 #' Print availableLF
-#' @param x an object of class \code{"availableLF"}
-#' @param ... further arguments passed to or from other methods.
+#' @param x An object of class \code{"availableLF"}
+#' @param ... Further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.availableLF <- function(x, ...) {

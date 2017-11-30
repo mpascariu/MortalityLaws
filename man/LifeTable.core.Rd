@@ -7,29 +7,29 @@
 LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0)
 }
 \arguments{
-\item{x}{vector of age at the beginning of the age classes}
+\item{x}{Vector of age at the beginning of the age classes}
 
-\item{Dx}{object containing death counts. An element of the \code{Dx} object, 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
 mid-year population aged x to x+n}
 
-\item{mx}{age-specific death rates}
+\item{mx}{Age-specific death rates.}
 
-\item{qx}{probability of dying between age x and x+n.}
+\item{qx}{Probability of dying between age x and x+n.}
 
-\item{lx}{probability to survive up until age x}
+\item{lx}{Probability to survive up until age x.}
 
-\item{dx}{life table death counts at age x}
+\item{dx}{Life table death counts at age x}
 
-\item{sex}{sex of the population considered here. Default: \code{NULL}. 
+\item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
 If sex is specified the values are computed based on Coale-Demeny method 
 and are slightly different for males than for females. 
 Options: \code{NULL, male, female, total}.}
 
-\item{lx0}{radix. Default: 100 000}
+\item{lx0}{Radix. Default: 100 000}
 }
 \description{
 LifeTable.core

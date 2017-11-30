@@ -16,26 +16,26 @@
 #'              dx = NULL,
 #'              sex = NULL,
 #'              lx0 = 1e+05)
-#' @param x vector of age at the beginning of the age classes
-#' @param Dx object containing death counts. An element of the \code{Dx} object, 
+#' @param x Vector of age at the beginning of the age classes
+#' @param Dx Object containing death counts. An element of the \code{Dx} object, 
 #' represents the number of deaths during the year to persons aged x to x+n. 
-#' @param Ex exposure in the period. \code{Ex} can be approximated by the 
+#' @param Ex Exposure in the period. \code{Ex} can be approximated by the 
 #' mid-year population aged x to x+n
-#' @param mx age-specific death rates
-#' @param qx probability of dying between age x and x+n. 
-#' @param lx probability to survive up until age x
-#' @param dx life table death counts at age x
-#' @param sex sex of the population considered here. Default: \code{NULL}. 
+#' @param mx Age-specific death rates.
+#' @param qx Probability of dying between age x and x+n. 
+#' @param lx Probability to survive up until age x.
+#' @param dx Life table death counts at age x
+#' @param sex Sex of the population considered here. Default: \code{NULL}. 
 #' This argument affects the first two values in the life table ax column. 
 #' If sex is specified the values are computed based on Coale-Demeny method 
 #' and are slightly different for males than for females. 
 #' Options: \code{NULL, male, female, total}.
-#' @param lx0 radix. Default: 100 000
+#' @param lx0 Radix. Default: 100 000
 #' @return The output is of class \code{LifeTable} with the components:
-#' @return \item{lt}{ computed life table}
-#' @return \item{call}{ a call in which all of the specified arguments are 
+#' @return \item{lt}{Computed life table}
+#' @return \item{call}{\code{Call} in which all of the specified arguments are 
 #' specified by their full names.}
-#' @return \item{process_date}{ time stamp}
+#' @return \item{process_date}{Time stamp}
 #' @examples 
 #' # Example 1 --- Full life tables with different inputs ---
 #'  

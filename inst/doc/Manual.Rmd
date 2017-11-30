@@ -1,0 +1,29 @@
+---
+title: "`MortalityLaws` User Manual"
+author: "Marius D. Pascariu"
+date: "November 29, 2017"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{MortalityLaws User Manual}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(collapse = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

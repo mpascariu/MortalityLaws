@@ -3,7 +3,7 @@
 #' The function returns information about available data in HMD (period life tables etc.), 
 #' with the range of years covered by the life tables.
 #' @inheritParams ReadHMD
-#' @param ... other parameters to be passed in \code{ReadHMD} function.
+#' @param ... Other parameters to be passed in \code{ReadHMD} function.
 #' @return An \code{availableHMD} object.
 #' @seealso \code{\link{ReadHMD}}
 #' @examples 

@@ -1,6 +1,4 @@
 rm(list = ls())
-library(MortalityLaws)
-library(testthat)
 
 # test 1: ---------------------------------------
 # Test all models on with ages
@@ -69,9 +67,7 @@ testMortalityLaw <- function(Y){
 
 
 for (i in 1:N) testMortalityLaw(Y = get(paste0("M", i)))
-for (i in 1:N) {
-  testMortalityLaw(Y = get(paste0("P", i)))
-}
+for (i in 1:N) testMortalityLaw(Y = get(paste0("P", i)))
   
 
 # test 2: ---------------------------------------
@@ -95,17 +91,14 @@ my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
   return(as.list(environment()))
 }
 
-T3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+expect_warning((T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz, scale.x = FALSE)))
 testMortalityLaw(T3)
 
 # test 4: ---------------------------------------
-# matrix input
-x   <- 0:100
-mx  <- ahmd$mx[paste(x), 1] # select data
-T4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF3') # fit qx values
-testMortalityLaw(T4)
-expect_error(MortalityLaw(x = x, mx = mx, law = 'law_not_available'))
-expect_error(MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = "LF_not_available"))
+# test for invalid laws and optimization methods
+mx  <- ahmd$mx[paste(0:100), 1] # select data
+expect_error(MortalityLaw(x = 0:100, mx = mx, law = 'law_not_available'))
+expect_error(MortalityLaw(x = 0:100, mx = mx, law = 'HP', opt.method = "LF_not_available"))
 
 
 # test 5: ---------------------------------------
