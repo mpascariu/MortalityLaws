@@ -337,7 +337,9 @@ messages.MortalityLaw <- function(input) {
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-  cat(paste(as.matrix(x$info$model.info[, c(2, 3)]), collapse = ':\n'))
+  L <- x$input$law == "custom.law"
+  info <- if (L) "CUSTOM MORTALITY LAW" else as.matrix(x$info$model.info[, c(2, 3)])
+  cat(paste(info, collapse = ':\n'))
   fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
   cat('\n\nFitted values:', fv)
   cat('\nCoefficients :\n')
@@ -418,14 +420,19 @@ AIC.MortalityLaw <- function(object, ...) {
 #' @export
 predict.MortalityLaw <- function(object, x, ...){
   law <- object$input$law
+  Par <- coef(object)
+  pn  <- names(Par)
+  Par <- if (is.matrix(Par)) Par else matrix(Par, nrow = 1)
   
   if (law == "custom.law") {
-    M <- object$input$custom.law
-    hx <- M(x = x, coef(object))$hx
+    colnames(Par) <- pn
+    M  <- object$input$custom.law
+    hx <- apply(X = Par, 1, FUN = function(X) M(x = x, par = X)$hx)
   } else {
-    M   <- eval(call(law, x = x, par = coef(object)))
-    hx  <- M$hx
+    hx <- apply(X = Par, 1, FUN = function(X) eval(call(law, x = x, par = X))$hx)
   }
+  rownames(hx) <- x
+  if (ncol(hx) == 1) hx <- as.numeric(hx)
   return(hx)
 }
 

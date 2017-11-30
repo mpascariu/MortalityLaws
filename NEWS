@@ -1,0 +1,4 @@
+version 1.0.5
+- Fix issues with minpack.lm not being imported
+version 1.0.0:
+- Fist stable version (on CRAN)
