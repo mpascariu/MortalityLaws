@@ -18,11 +18,13 @@ for (k in 1:N) {
   type <- aLaws$table$TYPE[k]
   X    <- c(ages[type][[1]])
   mx   <- ahmd$mx[paste(X), ]
-  if (min(X) > 1) X <- X - min(X) + 1
+  sx   <- ifelse(min(X) > 1, TRUE, FALSE)
   LAW  <- as.character(aLaws$table$CODE[k])
   
-  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW, opt.method = 'LF2'))
-  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW, opt.method = 'LF2'))
+  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW, 
+                                      opt.method = 'LF2', scale.x = sx))
+  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW, 
+                                      opt.method = 'LF2', scale.x = sx))
 }
 
 
@@ -33,9 +35,8 @@ testMortalityLaw <- function(Y){
     expect_output(print(summary(Y)))
     expect_true(all(fitted(Y) >= 0))
     expect_true(all(coef(Y) >= 0))
-    pred = predict(Y, 1:100)
+    pred = predict(Y, x = Y$input$x)
     expect_true(all(pred >= 0))
-    
     
     if (is.matrix(fitted(Y))) {
       expect_error(plot(Y))
@@ -54,7 +55,7 @@ for (i in 1:N) {
 for (j in 1:N) {
   testMortalityLaw(get(paste0("P", j)))
 }
-  
+
 
 # test 2: ---------------------------------------
 # fit.this.x
@@ -85,7 +86,12 @@ testMortalityLaw(T3)
 mx  <- ahmd$mx[paste(0:100), 1] # select data
 expect_error(MortalityLaw(x = 0:100, mx = mx, law = 'law_not_available'))
 expect_error(MortalityLaw(x = 0:100, mx = mx, law = 'HP', opt.method = "LF_not_available"))
+expect_message((HP4 = MortalityLaw(x = 0:100, mx = mx, law = 'HP', 
+                                  opt.method = "poissonL")))
+expect_true(is.numeric(AIC(HP4)))
+expect_true(is.numeric(logLik(HP4)))
 
+expect_error(predict(M27, x = 60:100)) # kannisto
 
 # test 5: ---------------------------------------
 # Test that all the laws return positive values
@@ -97,7 +103,6 @@ for (i in laws) {
   expect_true(all(hx >= 0))
   expect_false(any(is.na(hx)))
 }
-
 
 
 
