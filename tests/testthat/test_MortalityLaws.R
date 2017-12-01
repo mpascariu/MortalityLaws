@@ -17,32 +17,13 @@ N     <- nrow(aLaws$table)
 for (k in 1:N) {
   type <- aLaws$table$TYPE[k]
   X    <- c(ages[type][[1]])
-  mx   <- ahmd$mx[paste(X), 1]
-  if (min(X) > 1) X <- X - min(X) + 1
-  LAW  <- as.character(aLaws$table$CODE[k])
-  M    <- paste0("M", k)
-  assign(M, MortalityLaw(X, mx = mx, law = LAW, opt.method = 'LF2'))
-}
-
-# Build P models
-for (k in 1:N) {
-  type <- aLaws$table$TYPE[k]
-  X    <- c(ages[type][[1]])
   mx   <- ahmd$mx[paste(X), ]
   if (min(X) > 1) X <- X - min(X) + 1
   LAW  <- as.character(aLaws$table$CODE[k])
-  P    <- paste0("P", k)
-  assign(P, MortalityLaw(X, mx = mx, law = LAW, opt.method = 'LF2'))
+  
+  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW, opt.method = 'LF2'))
+  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW, opt.method = 'LF2'))
 }
-
-
-# for (p in 1:27) {
-#   model = paste0("M",p)
-#   print(model)
-#   plot(get(model))
-#   legend("topleft", legend = model)
-#   Sys.sleep(2)
-# }
 
 
 testMortalityLaw <- function(Y){
@@ -52,13 +33,13 @@ testMortalityLaw <- function(Y){
     expect_output(print(summary(Y)))
     expect_true(all(fitted(Y) >= 0))
     expect_true(all(coef(Y) >= 0))
-    p = predict(Y, 1:100)
-    expect_true(all(p >= 0))
+    pred = predict(Y, 1:100)
+    expect_true(all(pred >= 0))
     
     
     if (is.matrix(fitted(Y))) {
       expect_error(plot(Y))
-      expect_true(is.matrix(p))
+      expect_true(is.matrix(pred))
     } else {
       expect_false(is.null(plot(Y)))
     }
@@ -66,8 +47,13 @@ testMortalityLaw <- function(Y){
 }
 
 
-for (i in 1:N) testMortalityLaw(Y = get(paste0("M", i)))
-for (i in 1:N) testMortalityLaw(Y = get(paste0("P", i)))
+for (i in 1:N) {
+  testMortalityLaw(get(paste0("M", i)))
+}
+
+for (j in 1:N) {
+  testMortalityLaw(get(paste0("P", j)))
+}
   
 
 # test 2: ---------------------------------------
@@ -108,12 +94,8 @@ laws <- L$table$CODE
 
 for (i in laws) {
   hx = eval(call(i, x = 1:100))$hx
-  cond = all(hx >= 0)
-  cat(i, ": ", cond, sep = "", "\n")
-  expect_true(cond)
-  
-  cond2 = any(is.na(hx))
-  expect_false(cond2)
+  expect_true(all(hx >= 0))
+  expect_false(any(is.na(hx)))
 }
 
 

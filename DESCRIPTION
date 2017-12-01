@@ -24,8 +24,9 @@ Imports:
   pbapply
 Suggests:
   testthat,
-    knitr,
-    rmarkdown
+  knitr,
+  rmarkdown,
+  diagram
 URL: https://github.com/mpascariu/MortalityLaws
 BugReports: https://github.com/mpascariu/MortalityLaws/issues
 RoxygenNote: 6.0.1

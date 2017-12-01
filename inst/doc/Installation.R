@@ -2,7 +2,7 @@
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  install.packages("pclm")
+#  install.packages("MortalityLaws")
 
 ## ---- eval=FALSE---------------------------------------------------------
 #  # install.packages("devtools")

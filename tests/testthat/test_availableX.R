@@ -1,3 +1,4 @@
+rm(list = ls())
 
 AL = availableLaws()
 expect_true(class(AL) == "availableLaws")

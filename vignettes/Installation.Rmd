@@ -1,7 +1,7 @@
 ---
 title: "`MortalityLaws` Installation"
 author: "Marius D. Pascariu"
-date: "November 30, 2017"
+date: "December 1, 2017"
 output: 
   pdf_document:
     number_sections: true
@@ -23,7 +23,7 @@ The `pclm` package can be installed from [`CRAN`](https://cran.r-project.org/web
 2. Run the following code in your R console 
 
 ```{r, eval=FALSE}
-install.packages("pclm")
+install.packages("MortalityLaws")
 ```
 
 # Install development version from `GitHub`

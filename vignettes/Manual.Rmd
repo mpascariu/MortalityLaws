@@ -1,10 +1,14 @@
 ---
 title: "`MortalityLaws` User Manual"
 author: "Marius D. Pascariu"
-date: "November 29, 2017"
+date: "December 1, 2017"
 output: 
   pdf_document:
+    highlight: tango
     number_sections: true
+    toc: true
+fontsize: 11pt
+geometry: margin=1.1in
 bibliography: Mlaw_Refrences.bib
 biblio-style: "apalike"
 link-citations: true
@@ -20,12 +24,15 @@ library(knitr)
 opts_chunk$set(collapse = TRUE)
 ```
 
-# Structure
+\newpage
+
+# Package structure
 
 **MortalityLaws** in an **R** package which exploits the available optimization methods to provide tools for fitting and analyzing a wide range of complex mortality models. The package can be used to construct full and abridge life tables given various input indices and to download data from Human Mortality Database as well. The main functions in the package are: `MortalityLaw`, `LifeTable` and `ReadHMD`. The package provides also support functions like `availableLaws`, `availableLF` and `availableHMD` that return information about the mortality laws implemented in the package and loss functions used in optimization process and HMD data availability. Generic functions like `predict`, `plot`, `summary`, `fitted.values` are created for MortalityLaws objects. Small data set for testing purposes `ahmd` is saved in the package.
 
 
-```{r diagram, echo=FALSE, fig.align='center', out.width='90%', fig.width=9, fig.cap="MortalityLaws R Package Structure", fig.pos='h'}
+
+```{r diagram, echo=FALSE, message=FALSE, results='hide', fig.align='center', out.width='90%', fig.width=9, fig.cap="MortalityLaws R Package Structure", fig.pos='h'}
 library(diagram)
 
 MortalityLaws_diagram <- function(){
@@ -59,30 +66,26 @@ MortalityLaws_diagram <- function(){
 MortalityLaws_diagram()
 ```
 
-# Data
+# Downloading HMD Data
 
 Download data form Human Mortality Database [-@university_of_california_berkeley_human_2016]  using the `ReadHMD` function:
 
-```{r ReadHMD, eval=FALSE}
+```{r LoadPackages, message=FALSE}
 library(MortalityLaws)
+```
 
-country = "SWE" # HMD country code for Sweden
+```{r ReadHMD, eval=FALSE}
 
 # Download HMD data - death counts
 HMD_Dx <- ReadHMD(what = "Dx",
-                  countries = country, 
-                  interval  = "1x1", 
+                  countries = "SWE",            # HMD country code for Sweden
+                  interval  = "1x1",            # specify data format
                   username  = "user@email.com", # here add your HMD username 
                   password  = "password",       # here add your password account
-                  save = FALSE)
-
-# In the same way we download the exposures
-HMD_Ex <- ReadHMD(what = "Ex", countries = country, interval = "1x1", 
-                  username = "user@email.com", password = "password", 
-                  save = FALSE)
+                  save = FALSE)                 # save data outside R
 ```
 
-Here we download all the registered death counts `Dx` and exposure-to-risk `Ex` in Sweden from 1751 until 2014. In the same way one can download the following records: birth records `births`, deaths by Lexis triangles `lexis`, population size `population`, death-rates `mx`, life tables for females `LT_f`, life tables for males `LT_m`, life tables both sexes combined `LT_t`, life expectancy at birth `e0`, cohort death-rates `mxc` and cohort exposures `Exc` for over 39 countries and regions in different formats.
+Here we download all the registered death counts `Dx` in Sweden from 1751 until 2014. In the same way one can download the following records: birth records `births`, exposure-to-risk `Ex`,  deaths by Lexis triangles `lexis`, population size `population`, death-rates `mx`, life tables for females `LT_f`, life tables for males `LT_m`, life tables both sexes combined `LT_t`, life expectancy at birth `e0`, cohort death-rates `mxc` and cohort exposures `Exc` for over 39 countries and regions in different formats.
 
 # Model fitting and diagnosis
 Once we have data from HMD or other sources we can start analyzing it.
@@ -94,19 +97,177 @@ ages     <- 0:100
 deaths   <- ahmd$Dx[paste(ages), paste(year)]
 exposure <- ahmd$Ex[paste(ages), paste(year)]
 
-x = ages - min(ages) # scale ages in order to get meaningful parameter estimates
-
-fit <- MortalityLaw(x   = x,
-                    Dx  = deaths, # vector with death counts
+fit <- MortalityLaw(x   = ages,
+                    Dx  = deaths,   # vector with death counts
                     Ex  = exposure, # vector containing exposures
                     law = "HP",
-                    opt.method = "LF2",
-                    fit.this.x = 0:65)
+                    opt.method = "LF2")
 
-ls(fit) # inspect the output object
+```
+
+```{r}
+# inspect the output object
+ls(fit) 
+```
+
+A summary can be obtained using the `summary` function:
+```{r}
+summary(fit)
+```
+
+The standard plot helps us to investigate visually the goodness of fit.
+```{r, fig.align='center', out.width='80%', fig.width=9}
+plot(fit)
+```
+
+A model can be fitted using a subset of the data only by specifying in `fit.this.x` age range to be covered:
+```{r, fig.align='center', out.width='80%', fig.width=9}
+fit.subset <- MortalityLaw(x   = ages,
+                           Dx  = deaths,   
+                           Ex  = exposure,
+                           law = "HP",
+                           opt.method = "LF2",
+                           fit.this.x = 0:65) 
+plot(fit.subset)
+```
+The gray area on the plot showing the fitted value indicates the age range used in fitting the model.
+
+# Mortality laws in the package
+
+\begin{table}[h]
+\renewcommand{\arraystretch}{1.5}
+\caption{Parametric functions build in the MortalityLaws package}
+\begin{tabular}{lll}
+  Mortality laws  & Predictor & Code \\ \hline
+  Gompertz & $ \mu(x) = Ae^{Bx}$ & gompertz \\
+  Gompertz & $ \mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}$ & gompertz0 \\
+  Inverse-Gompertz & $ \mu(x) = {\frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}}/{\left(exp\left\{e^{\frac{-(x-M)}{\sigma }}\right\}-1\right)}$ & invgompertz\\  
+  Makeham & $ \mu(x) = Ae^{Bx} + C$ & makeham \\
+  Makeham & $ \mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\} + C$ & makeham0 \\
+  Opperman & $ \mu(x) = \frac{A}{\sqrt{x}} + B + C\sqrt[3]{x}$ & opperman \\ 
+  Thiele & $ \mu(x) = A_1e^{-B_1x} + A_2e^{-\frac{1}{2}B_2{\left(x-C\right)}^2} + A_3e^{B_3x}$ & thiele \\ 
+  Wittstein \& Bumstead & q(x) = $\frac{1}{B}A^{{-(Bx)}^N} + A^{{-(M-x)}^N}$ & wittstein \\
+  Perks & $\mu(x) = (A + BC^x) / (BC^{-x} + 1 + DC^x)$ & perks \\
+  Weibull & $\mu(x) = \frac{1}{\sigma }{\left(\frac{x}{M}\right)}^{\frac{M}{\sigma }-1}$ & weibull \\ 
+  Inverse-Weibull & $\mu(x) = {\frac{1}{\sigma }{\left(\frac{x}{M}\right)}^{-\frac{M}{\sigma }-1}}/{\left(exp\left\{{\left(\frac{x}{M}\right)}^{-\frac{M}{\sigma }}\right\}-1\right)}$ &  invweibull \\  
+  Van der Maen & $\mu(x) = A + Bx + Cx^2 + I/(N - x)$ & vandermaen \\ 
+  Van der Maen & $\mu(x) = A + Bx + I/(N - x)$ & vandermaen2 \\ 
+  Quadratic & $\mu(x) = A + Bx + Cx^2$ & quadratic \\ 
+  Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) $ & beard \\ 
+  Makeham-Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) + C$ & makehambeard \\ 
+  Siler & $\mu(x) = A_1e^{-B_1x} + A_2 + A_3e^{B_3x}$ & siler \\ 
+  Heligman - Pollard & $ q(x)/p(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+GH^x$ & HP \\ 
+  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+GH^x}$ & HP2 \\ 
+  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+KGH^x}$ & HP3 \\ 
+  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+ \frac{GH^{x^K}}{1+GH^{x^K}}$ & HP3 \\ 
+  Rogers-Planck & $q(x) = A_0 + A_1e^{-Ax} + A_2e^{\left\{B(x - U) - e^{-C(x - U)}\right\}} + A_3e^{Dx}$ & rogersplanck \\ 
+  Martinelle & $ \mu(x) = (Ae^{Bx} + C)/(1 + De^{Bx}) + Ke^{Bx}$ & martinelle \\ 
+  Carriere & $S(x) = {\psi}_1S_1(x)+\ {\psi}_2S_2\left(x\right)+\ {\psi }_3S_3\left(x\right)$ & carriere1 \\
+  Carriere & $S(x) = {\psi}_1S_1(x)+\ {\psi}_4S_4\left(x\right)+\ {\psi }_3S_3\left(x\right)$ & carriere2 \\
+  Kostaki & $ q(x)/p(x) =  A^{{(x+B)}^C}+De^{-E_{i}{({\mathrm{ln} x\ }-{\mathrm{ln} F\ })}^2}+GH^x$ & kostaki \\ 
+  Kannisto & $\mu(x) = Ae^{Bx} / (1+Ae^{Bx})+C$ & kannisto \\ \hline
+\end{tabular}
+\end{table}
+
+In **R** one can check the availability of the implemented models using `availableLaws`: 
+```{r, eval=FALSE, warning=FALSE}
+availableLaws()
+```
+See table 1.
+
+# Loss function in the package
+
+A parametric model is fitted by optimizing a loss function e.g. a likelihood function or a function that minimizes errors. In `MortalityLaws` 8 such functions are implemented and can be used to better capture different portions of a mortality curve. Check `availableLF` for more details.
+
+```{r, message=FALSE, warning=FALSE}
+availableLF()
 ```
 
 
+# Custom mortality laws
+Now let's fit a mortality law that is not defined in the package, say a reparametrize version of Gompertz in terms of modal age at death [@missov2015gompertz], 
+
+\begin{equation}
+ \mu_x = \beta e^{\beta (x-M)}.
+\end{equation}
+
+We have to define a function containing the desired hazard function and then using the `custom.law` argument it can be used in the `MortalityLaw` function.
+
+```{r}
+
+# Here we define a function for our new model and provide start parameters
+my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
+  hx  <- with(as.list(par), b*exp(b*(x - M)) )
+  # return everything inside this function
+  return(as.list(environment())) 
+}
+```
+
+```{r}
+# Select data
+year     <- 1950
+ages     <- 45:85
+deaths   <- ahmd$Dx[paste(ages), paste(year)]
+exposure <- ahmd$Ex[paste(ages), paste(year)]
+```
+
+
+```{r, warning=FALSE, results='hide'}
+# Use 'custom.law' argument to instruct the MortalityLaw function how to behave
+my_model <- MortalityLaw(x = ages,
+                         Dx = deaths, 
+                         Ex = exposure, 
+                         custom.law = my_gompertz)
+```
+
+```{r}
+summary(my_model)
+```
+
+```{r}
+plot(my_model)
+```
+
+# Full life tables
+
+Using `LifeTable` function one can build full or abridge life table with various input choices like: death counts and mid-interval population estimates (`Dx`, `Ex`) or age-specific death rates (`mx`) or death probabilities (`qx`) or survivorship curve (`lx`) or a distribution of deaths (`dx`). If one of these options are specified, the other can be ignored.
+
+```{r}
+# Life table for year of 1900
+y  <- 1900
+x  <- as.numeric(rownames(ahmd$mx))
+Dx <- ahmd$Dx[, paste(y)]
+Ex <- ahmd$Ex[, paste(y)]
+
+LT1 <- LifeTable(x, Dx = Dx, Ex = Ex)
+LT2 <- LifeTable(x, mx = LT1$lt$mx)
+LT3 <- LifeTable(x, qx = LT1$lt$qx)
+LT4 <- LifeTable(x, lx = LT1$lt$lx)
+LT5 <- LifeTable(x, dx = LT1$lt$dx)
+
+LT1
+```
+
+```{r}
+ls(LT1)
+```
+
+# Abridge life tables
+```{r}
+# Example
+x  <- c(0, 1, seq(5, 110, by = 5))
+mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
+       .004, .005, .006, .0093, .0129, .019, .031, .049, 
+       .084, .129, .180, .2354, .3085, .390, .478, .551)
+
+lt <- LifeTable(x, mx = mx, sex = "female")
+```
+
+```{r}
+lt
+```
+
+\newpage
 # Refrences
 
 
