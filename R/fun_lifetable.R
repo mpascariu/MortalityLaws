@@ -297,20 +297,24 @@ LifeTable.check <- function(input) {
     }
     if (C == "C2_mx") {
       if (any(is.na(mx))) {
-        warning(paste("'mx'", SMS1, SMS2, "maximum observed mx:", max(mx, na.rm = T)), call. = F)
+        warning(paste("'mx'", SMS1, SMS2, "maximum observed mx:", 
+                      max(mx, na.rm = T)), call. = F)
         mx[is.na(mx)] <- max(mx, na.rm = T)
       }
     }
     if (C == "C3_qx") {
       c1 <- is.na(qx[length(qx)])
-      c2 <- is.na(qx[x >= 100])
-      if (any(c1)) {
-        warning(paste("ultimate 'qx' is NA. It is replaces with 1."), call. = F)
-        qx[length(qx)] <- 1
-      }
+      n  <- length(qx)
+      c2 <- is.na(qx[-n][x[-n] >= 100])
       if (any(c2)) {
-        warning(paste("'qx'", SMS1, SMS2, max(qx, na.rm = T)), call. = F)
-        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)
+        warning(paste("'qx' contains several missing values over the age of 100.",
+                      "NA's were replaced with", round(max(qx, na.rm = T)[1], 4)), 
+                call. = F)
+        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)[1]
+      }
+      if (any(c1)) {
+        warning(paste("'qx' ultimate is NA. It is replaces with 1."), call. = F)
+        qx[length(qx)] <- 1
       }
     }
     if (C == "C4_lx") {

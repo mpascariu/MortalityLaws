@@ -68,3 +68,16 @@ test_that("Identical LTs", {
 })
 
 
+
+# ----------------------------------------------
+# Test some more warnings
+qx2 <- LT6$lt$qx
+qx2[length(qx2)] <- NA
+expect_warning(LifeTable(x2, qx = qx2, sex = NULL))
+
+qx3 <- LT1$lt$qx
+qx3[105:111] <- NA
+expect_warning(LifeTable(x, qx = qx3))
+
+
+
