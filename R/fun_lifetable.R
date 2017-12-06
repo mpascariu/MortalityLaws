@@ -15,7 +15,8 @@
 #'              lx = NULL,
 #'              dx = NULL,
 #'              sex = NULL,
-#'              lx0 = 1e+05)
+#'              lx0 = 1e+05,
+#'              ax  = NULL)
 #' @param x Vector of age at the beginning of the age classes
 #' @param Dx Object containing death counts. An element of the \code{Dx} object, 
 #' represents the number of deaths during the year to persons aged x to x+n. 
@@ -30,7 +31,11 @@
 #' If sex is specified the values are computed based on Coale-Demeny method 
 #' and are slightly different for males than for females. 
 #' Options: \code{NULL, male, female, total}.
-#' @param lx0 Radix. Default: 100 000
+#' @param lx0 Radix. Default: 100 000.
+#' @param ax Numeric scalar. Subject-time alive in age-interval for those who 
+#' die in the same interval. If \code{NULL} this will be estimated. A common 
+#' assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+#' the interval. Default: \code{NULL}.
 #' @return The output is of class \code{LifeTable} with the components:
 #' @return \item{lt}{Computed life table}
 #' @return \item{call}{\code{Call} in which all of the specified arguments are 
@@ -75,21 +80,21 @@
 #'
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
                       qx = NULL, lx = NULL, dx = NULL,
-                      sex = NULL, lx0 = 1e+05){
+                      sex = NULL, lx0 = 1e+05, ax = NULL){
   
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
   
   if (X$iclass == "numeric") {
-    LT    <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0))
+    LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax))
   } else {
     LT = NULL
     for (i in 1:X$nLT) {
       LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
-                                    qx[,i], lx[,i], dx[,i], sex, lx0))
+                                    qx[,i], lx[,i], dx[,i], sex, lx0, ax))
       LTname <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
-      LTi <- cbind(LT = LTname, LTi)
-      LT  <- rbind(LT, LTi)
+      LTi    <- cbind(LT = LTname, LTi)
+      LT     <- rbind(LT, LTi)
     }
   }
   
@@ -104,7 +109,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
 #' @inheritParams LifeTable
 #' @keywords internal
 #' @export
-LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
+LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
   N        <- length(x)
@@ -145,8 +150,13 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0){
     mx <- mx_qx(x, qx, out = "mx")
   }
   
-  ax    <- compute.ax(x, mx, qx) 
-  if (!is.null(sex)) ax <- coale.demeny.ax(x, mx, ax, sex)
+  if (is.null(ax)) {
+    ax <- compute.ax(x, mx, qx) 
+    if (!is.null(sex)) ax <- coale.demeny.ax(x, mx, ax, sex)
+  } else {
+    ax <- rep(ax, N)
+  }
+  
   Lx    <- nx*lx - (nx - ax)*dx
   Lx[N] <- ax[N]*dx[N]
   Lx[is.na(Lx)] <- 0
@@ -325,8 +335,14 @@ LifeTable.check <- function(input) {
       if (any(is.na(dx))) warning(paste("'dx'", SMS1, SMS2, 0), call. = F)
       dx[is.na(dx)] <- 0
     }
+    
+    if (!is.null(ax)) {
+      if (!is.numeric(ax)) stop("'ax' must be a numeric scalar (or NULL)", call. = F)
+      if (length(ax) != 1) stop("Provide a single values for 'ax'", call. = F)
+    }
+    
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
-                lx = lx, dx = dx, sex = sex, lx0 = lx0, 
+                lx = lx, dx = dx, sex = sex, lx0 = lx0, ax = ax,
                 iclass = Y$iclass, nLT = Y$nLT, LTnames = Y$LTnames)
     return(out)
   })

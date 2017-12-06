@@ -12,6 +12,11 @@ coale.demeny.ax(x, mx, ax, sex)
 
 \item{mx}{Age-specific death rates.}
 
+\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
+die in the same interval. If \code{NULL} this will be estimated. A common 
+assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+the interval. Default: \code{NULL}.}
+
 \item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
 If sex is specified the values are computed based on Coale-Demeny method 

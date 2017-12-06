@@ -351,9 +351,7 @@ print.MortalityLaw <- function(x, ...) {
   info <- if (L) "CUSTOM MORTALITY LAW" else as.matrix(x$info$model.info[, c(2, 3)])
   cat(paste(info, collapse = ':\n'))
   fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
-  cat('\n\nFitted values:', fv)
-  cat('\nCoefficients :\n')
-  print(round(coef(x), 4))
+  cat("\n\nFitted values:", fv, "\n")
 }
 
 
@@ -374,7 +372,14 @@ summary.MortalityLaw <- function(object, ...) {
   fv   <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
   cf   <- round(coef(object), 5)
   opt  <- object$input$opt.method
-  gof  <- round(object$goodness.of.fit, 2)
+  gof  <- round(object$goodness.of.fit, 3)
+  
+  if (!is.null(nrow(cf))) {
+    if (nrow(cf) > 4) {
+      cf  <- head_tail(cf, hlength = 2, tlength = 2)
+      gof <- head_tail(gof, hlength = 2, tlength = 2)
+    }
+  }   
   out  <- list(info = mi, call = call, opt.method = opt, goodness.of.fit = gof, 
                coefficients = cf, fv = fv, dev.resid = res)
   out  <- structure(class = "summary.MortalityLaw", out)

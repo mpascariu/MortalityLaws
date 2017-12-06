@@ -1,8 +1,10 @@
-version 1.1.0
+version 1.1.2
 - Vignettes;
 - Fix predict.MortalityLaws bug for cases where the input is of class matrix;
-- Solution for 'Kostaki' inflexion point due to correlation between parameters;
+- Solution for 'Kostaki' inflexion point due to high correlation between parameters;
 - Add 'scale.x' argument in MortalityLaw function.
+- Add 'ax' argument in LifeTable function.
+- Add 'show' argument in ReadHMD function.
 
 version 1.0.5
 - Fix issues with minpack.lm not being imported.

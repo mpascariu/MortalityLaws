@@ -1,7 +1,7 @@
 ---
 title: "`MortalityLaws` Installation"
 author: "Marius D. Pascariu"
-date: "December 1, 2017"
+date: "December 6, 2017"
 output: 
   pdf_document:
     number_sections: true
@@ -15,7 +15,7 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-The package can be installed from two different sources, `CRAN` and `GitHub`. Most people would choose the first option (see below).
+The package can be installed from two different sources, `CRAN` or `GitHub`. Most people would choose the first option (see below).
 
 # Install stable version from `CRAN`
 

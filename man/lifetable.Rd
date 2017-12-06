@@ -10,7 +10,8 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              lx = NULL,
              dx = NULL,
              sex = NULL,
-             lx0 = 1e+05)
+             lx0 = 1e+05,
+             ax  = NULL)
 }
 \arguments{
 \item{x}{Vector of age at the beginning of the age classes}
@@ -35,7 +36,12 @@ If sex is specified the values are computed based on Coale-Demeny method
 and are slightly different for males than for females. 
 Options: \code{NULL, male, female, total}.}
 
-\item{lx0}{Radix. Default: 100 000}
+\item{lx0}{Radix. Default: 100 000.}
+
+\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
+die in the same interval. If \code{NULL} this will be estimated. A common 
+assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+the interval. Default: \code{NULL}.}
 }
 \value{
 The output is of class \code{LifeTable} with the components:

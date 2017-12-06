@@ -20,10 +20,14 @@
 #' for free on Human Mortality Database website.
 #' @param password Your HMD password.
 #' @param save Do you want to save a copy of the dataset on your local machine?
+#' @param show Choose whether to display a progress bar. Logical. Default: \code{TRUE}.
 #' @return An \code{ReadHMD} object that contains:
-#' @return \item{input}{List with the input data (except the password).}
+#' @return \item{input}{List with the input values (except the password).}
 #' @return \item{data}{Data downloaded from HMD.}
 #' @return \item{download.date}{Time stamp.}
+#' @return \item{years}{Numerical vector with the years covered in the data.}
+#' @return \item{ages}{Numerical vector with ages covered in the data.}
+#' 
 #' @export
 #' @examples
 #' \dontrun{
@@ -37,56 +41,63 @@
 #' # Download death counts. We don't want to export data outside R.
 #' HMD_Dx <- ReadHMD(what = "Dx",
 #'                   countries = cntr,
-#'                   interval = interval,
-#'                   username = "user@email.com",
-#'                   password = "password",
+#'                   interval  = interval,
+#'                   username  = "user@email.com",
+#'                   password  = "password",
 #'                   save = FALSE)
 #' ls(HMD_Dx)
 #' HMD_Dx
 #' 
 #' # Download life tables for female population and export data.
-#' HMD_LT_f <- ReadHMD(what = "LT_f",
-#'                     countries = cntr,
-#'                     interval = interval,
-#'                     username = "user@email.com",
-#'                     password = "password",
-#'                     save = TRUE)
-#' HMD_LT_f
+#' LTF <- ReadHMD(what = "LT_f",
+#'                countries = cntr,
+#'                interval  = interval,
+#'                username  = "user@email.com",
+#'                password  = "password",
+#'                save = TRUE)
+#' LTF
 #' } 
 #' @export
-ReadHMD <- function(what, countries = NULL, interval = '1x1',  
-                    username, password, save = TRUE){
-  # HMD country codes
+ReadHMD <- function(what, countries = NULL, interval = "1x1",  
+                    username, password, save = TRUE, show = TRUE){
+  # Step 1 - Validate input & Progress bar setup
   if (is.null(countries)) countries <- HMDcountries()
   input <- list(what = what, countries = countries, interval = interval, 
-                username = username, save = save)
+                username = username, save = save, show = show)
   check_input_ReadHMD(input)
-  # Progress bar setup
   nr <- length(countries)
-  pb <- startpb(0, nr + 1) # Start the clock!
-  on.exit(closepb(pb)) # Stop clock on exit.
-  setpb(pb, 0)
+  if (show) {pb <- startpb(0, nr + 1); on.exit(closepb(pb)); setpb(pb, 0)}
   
-  data <- data.frame() 
-  # Step 1 - Do the loop for the other countries
+  # Step 2 - Do the loop for the other countries
+  D <- data.frame() 
   for (i in 1:nr) {
-    setpb(pb, i); cat(paste('      :Downloading', countries[i], '    '))
-    data_i <- read_hmd(what, country = countries[i], interval, username, password)
-    data   <- rbind(data, data_i)
+    if (show) {setpb(pb, i); cat(paste("      :Downloading", countries[i], "    "))}
+    D <- rbind(D, ReadHMD.core(what, country = countries[i], 
+                               interval, username, password))
   }
-  download_date <- date()
+  Y   <- sort(unique(D$Year))
+  A   <- sort(unique(D$Age))
+  fn  <- paste0("HMD_", what) # file name
+  out <- list(input = input, data = D, download.date = date(), years = Y, ages = A)
+  out <- structure(class = "ReadHMD", out)
   
-  # Step 2 - Write a file with the database in your working directory
-  if (save == TRUE) { 
-    file_name <- paste0('HMD_', what, '_', interval, '.Rdata')
-    save(input, download_date, data, file = file_name)
+  # Step 3 - Write a file with the database in your working directory
+  if (save) {
+    assign(fn, value = out)
+    save(list = fn, file = paste0(fn, ".Rdata"))
   }
-  out <- list(input = input, data = data, download.date = download_date)
-  out <- structure(class = 'ReadHMD', out)
-  
-  setpb(pb, nr + 1)
-  message(paste('\nHMD download completed!'))
-  if (save == TRUE) message(paste(file_name, 'is saved in your working directory:\n', getwd()))
+  if (show) {
+    setpb(pb, nr + 1)
+    wd  <- getwd()
+    n   <- nchar(wd)
+    wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
+    cat("\n   ")
+    if (save) {
+      message(paste(fn, "is saved in your working directory:\n  ", wd_), appendLF = F)
+      cat("\n   ")
+    }
+    message(paste("Download completed!"))
+  }
   return(out)
 }
 
@@ -94,7 +105,7 @@ ReadHMD <- function(what, countries = NULL, interval = '1x1',
 #' @inheritParams ReadHMD
 #' @param country HMD country code for the selected country. Character.
 #' @keywords internal
-read_hmd <- function(what, country, interval, username, password){
+ReadHMD.core <- function(what, country, interval, username, password){
   if (what == 'e0' & interval == '1x1') {
     whichFile = 'E0per.txt' } else {
       whichFile <- switch(what, 
@@ -173,9 +184,14 @@ check_input_ReadHMD <- function(x) {
 #' @export
 print.ReadHMD <- function(x, ...){
   cat('Human Mortality Database (www.mortality.org)\n')
-  cat('Downloaded by:', x$input$username, '\n')
-  cat('Download Date:', x$download.date, '\n')
-  cat('Type of data:', x$input$what, '\n')
-  cat('Countries included:', x$input$countries, '\n\nData:\n')
+  cat('Downloaded by :', x$input$username, '\n')
+  cat('Download Date :', x$download.date, '\n')
+  cat('Type of data  :', x$input$what, '\n')
+  cat(paste("Interval      :", x$input$interval, "\n"))
+  cat(paste("Years         :", min(x$years), "-", max(x$years), "\n"))
+  cat(paste("Ages          :", min(x$ages), "-", max(x$ages), "\n"))
+  cat("Countries     :", x$input$countries, "\n")
+  
+  cat('\nData:\n')
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }

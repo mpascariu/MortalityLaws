@@ -5,7 +5,7 @@
 \title{Download Mortality and Population Data (HMD)}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
-  save = TRUE)
+  save = TRUE, show = TRUE)
 }
 \arguments{
 \item{what}{What type of data are you looking for? There are available:
@@ -29,15 +29,21 @@ for free on Human Mortality Database website.}
 \item{password}{Your HMD password.}
 
 \item{save}{Do you want to save a copy of the dataset on your local machine?}
+
+\item{show}{Choose whether to display a progress bar. Logical. Default: \code{TRUE}.}
 }
 \value{
 An \code{ReadHMD} object that contains:
 
-\item{input}{List with the input data (except the password).}
+\item{input}{List with the input values (except the password).}
 
 \item{data}{Data downloaded from HMD.}
 
 \item{download.date}{Time stamp.}
+
+\item{years}{Numerical vector with the years covered in the data.}
+
+\item{ages}{Numerical vector with ages covered in the data.}
 }
 \description{
 Download detailed mortality and population data for different countries 
@@ -56,20 +62,20 @@ cntr  <- c('SWE', 'DNK', 'USA')
 # Download death counts. We don't want to export data outside R.
 HMD_Dx <- ReadHMD(what = "Dx",
                   countries = cntr,
-                  interval = interval,
-                  username = "user@email.com",
-                  password = "password",
+                  interval  = interval,
+                  username  = "user@email.com",
+                  password  = "password",
                   save = FALSE)
 ls(HMD_Dx)
 HMD_Dx
 
 # Download life tables for female population and export data.
-HMD_LT_f <- ReadHMD(what = "LT_f",
-                    countries = cntr,
-                    interval = interval,
-                    username = "user@email.com",
-                    password = "password",
-                    save = TRUE)
-HMD_LT_f
+LTF <- ReadHMD(what = "LT_f",
+               countries = cntr,
+               interval  = interval,
+               username  = "user@email.com",
+               password  = "password",
+               save = TRUE)
+LTF
 } 
 }
