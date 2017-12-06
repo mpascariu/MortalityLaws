@@ -13,15 +13,15 @@ find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL,
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
-mid-year population aged x to x+n}
+mid-year population aged x to x+n.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
-\item{qx}{Probability of dying between age x and x+n.}
+\item{qx}{Probability of dying in age interval [x, x+n).}
 
 \item{lx}{Probability to survive up until age x.}
 
-\item{dx}{Life table death counts at age x}
+\item{dx}{Deaths by life-table population in age interval [x, x+n).}
 }
 \description{
 Function that identifies the case/problem we have to solve

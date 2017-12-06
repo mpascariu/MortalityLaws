@@ -8,9 +8,9 @@ Here we adjust the first two values of ax to account for infant mortality more a
 coale.demeny.ax(x, mx, ax, sex)
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
 \item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
 die in the same interval. If \code{NULL} this will be estimated. A common 

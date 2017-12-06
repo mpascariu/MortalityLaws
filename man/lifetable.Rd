@@ -14,21 +14,21 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              ax  = NULL)
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
 \item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
-mid-year population aged x to x+n}
+mid-year population aged x to x+n.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
-\item{qx}{Probability of dying between age x and x+n.}
+\item{qx}{Probability of dying in age interval [x, x+n).}
 
 \item{lx}{Probability to survive up until age x.}
 
-\item{dx}{Life table death counts at age x}
+\item{dx}{Deaths by life-table population in age interval [x, x+n).}
 
 \item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
@@ -46,12 +46,12 @@ the interval. Default: \code{NULL}.}
 \value{
 The output is of class \code{LifeTable} with the components:
 
-\item{lt}{Computed life table}
+\item{lt}{Computed life table;}
 
 \item{call}{\code{Call} in which all of the specified arguments are 
-specified by their full names.}
+specified by their full names;}
 
-\item{process_date}{Time stamp}
+\item{process_date}{Time stamp.}
 }
 \description{
 Construct either a full or abridge life table with various input choices like:
@@ -89,7 +89,6 @@ LTs
 # A warning is printed if the input contains missing values. 
 # Some of the missing values can be handled by the function.
 
-#' 
 # Example 3 --- Abridge life table ------------
 
 x  = c(0, 1, seq(5, 110, by = 5))

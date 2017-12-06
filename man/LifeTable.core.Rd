@@ -7,21 +7,21 @@
 LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax)
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
 \item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
-mid-year population aged x to x+n}
+mid-year population aged x to x+n.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
-\item{qx}{Probability of dying between age x and x+n.}
+\item{qx}{Probability of dying in age interval [x, x+n).}
 
 \item{lx}{Probability to survive up until age x.}
 
-\item{dx}{Life table death counts at age x}
+\item{dx}{Deaths by life-table population in age interval [x, x+n).}
 
 \item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 

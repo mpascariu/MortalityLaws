@@ -7,11 +7,11 @@
 compute.ax(x, mx, qx)
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
-\item{qx}{Probability of dying between age x and x+n.}
+\item{qx}{Probability of dying in age interval [x, x+n).}
 }
 \value{
 \code{ax} - the point in the age internal where 50% of the deaths 

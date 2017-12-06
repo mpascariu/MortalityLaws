@@ -7,7 +7,7 @@
 mx_qx(x, ux, out = "qx")
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
 \item{ux}{a vector of mx or qx}
 

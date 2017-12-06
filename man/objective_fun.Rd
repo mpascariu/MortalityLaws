@@ -7,17 +7,17 @@
 objective_fun(par, x, Dx, Ex, mx, qx, law, opt.method, custom.law)
 }
 \arguments{
-\item{x}{Vector of age at the beginning of the age classes}
+\item{x}{Vector of ages at the beginning of the age interval.}
 
 \item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
-mid-year population aged x to x+n}
+mid-year population aged x to x+n.}
 
-\item{mx}{Age-specific death rates.}
+\item{mx}{Death rate in age interval [x, x+n).}
 
-\item{qx}{Probability of dying between age x and x+n.}
+\item{qx}{Probability of dying in age interval [x, x+n).}
 
 \item{law}{The name of the mortality law/model to be fitted. e.g. 
 \code{gompertz}, \code{makeham}, ... To investigate all the possible options, 

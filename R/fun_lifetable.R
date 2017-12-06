@@ -17,15 +17,15 @@
 #'              sex = NULL,
 #'              lx0 = 1e+05,
 #'              ax  = NULL)
-#' @param x Vector of age at the beginning of the age classes
+#' @param x Vector of ages at the beginning of the age interval.
 #' @param Dx Object containing death counts. An element of the \code{Dx} object, 
 #' represents the number of deaths during the year to persons aged x to x+n. 
 #' @param Ex Exposure in the period. \code{Ex} can be approximated by the 
-#' mid-year population aged x to x+n
-#' @param mx Age-specific death rates.
-#' @param qx Probability of dying between age x and x+n. 
+#' mid-year population aged x to x+n.
+#' @param mx Death rate in age interval [x, x+n).
+#' @param qx Probability of dying in age interval [x, x+n).
 #' @param lx Probability to survive up until age x.
-#' @param dx Life table death counts at age x
+#' @param dx Deaths by life-table population in age interval [x, x+n).
 #' @param sex Sex of the population considered here. Default: \code{NULL}. 
 #' This argument affects the first two values in the life table ax column. 
 #' If sex is specified the values are computed based on Coale-Demeny method 
@@ -37,10 +37,10 @@
 #' assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
 #' the interval. Default: \code{NULL}.
 #' @return The output is of class \code{LifeTable} with the components:
-#' @return \item{lt}{Computed life table}
+#' @return \item{lt}{Computed life table;}
 #' @return \item{call}{\code{Call} in which all of the specified arguments are 
-#' specified by their full names.}
-#' @return \item{process_date}{Time stamp}
+#' specified by their full names;}
+#' @return \item{process_date}{Time stamp.}
 #' @examples 
 #' # Example 1 --- Full life tables with different inputs ---
 #'  
@@ -66,7 +66,6 @@
 #' # A warning is printed if the input contains missing values. 
 #' # Some of the missing values can be handled by the function.
 #' 
-#' #' 
 #' # Example 3 --- Abridge life table ------------
 #' 
 #' x  = c(0, 1, seq(5, 110, by = 5))
