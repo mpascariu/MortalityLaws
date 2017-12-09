@@ -1,7 +1,7 @@
 ---
 title: "`MortalityLaws` Installation"
 author: "Marius D. Pascariu"
-date: "December 6, 2017"
+date: "December 8, 2017"
 output: 
   pdf_document:
     number_sections: true
@@ -36,7 +36,7 @@ The latest version can be installed from author's [`GitHub repository`](https://
 devtools::install_github("mpascariu/MortalityLaws")
 ```
 
-In this case you will need to have `devtools` R package already installed, otherwise uncomment the fist line and install it.
+In this case you will need to have `devtools` package already installed in order to allow R to connect to GitHub. Otherwise uncomment the fist line and install it.
 
 
 \vspace{2cm}

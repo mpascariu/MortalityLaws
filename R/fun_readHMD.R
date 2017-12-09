@@ -129,7 +129,7 @@ ReadHMD.core <- function(what, country, interval, username, password){
   txt        <- getURL(path, userpwd = userpwd)
   con        <- textConnection(txt)
   errMessage <- paste0("\nThe server could not verify that you are authorized ",
-                       "to access the requested data.\n", "Most probably you ",
+                       "to access the requested data.\nMost probably you ",
                        "supplied the wrong credentials (e.g., bad password).")
   dat <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
              stop(errMessage, call. = FALSE))
