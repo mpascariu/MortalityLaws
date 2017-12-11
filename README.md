@@ -1,10 +1,10 @@
 # MortalityLaws
 [![CRAN_Version](http://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
-[![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
 [![Linux Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/mpascariu/MortalityLaws?branch=master&svg=true)](https://ci.appveyor.com/project/mpascariu/MortalityLaws)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
+[![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
 [![CRAN_Download_Badge1](http://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
 [![CRAN_Download_Badge2](http://cranlogs.r-pkg.org/badges/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
 
