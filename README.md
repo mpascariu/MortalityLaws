@@ -1,5 +1,6 @@
 # MortalityLaws
 [![Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/mpascariu/MortalityLaws?branch=master&svg=true)](https://ci.appveyor.com/project/mpascariu/MortalityLaws)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
 [![license](https://img.shields.io/github/license/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
