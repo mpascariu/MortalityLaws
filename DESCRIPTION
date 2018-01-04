@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.2.2
+Version: 1.2.4
 Authors@R: c(
   person("Marius D.", "Pascariu", role = c("aut", "cre"), 
          email = "mpascariu@outlook.com"),
@@ -20,6 +20,7 @@ LazyData: TRUE
 Depends: R (>= 3.0.0)
 Imports:
   minpack.lm,
+  rootSolve,
   RCurl,
   pbapply
 Suggests:

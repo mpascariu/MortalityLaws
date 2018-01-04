@@ -1,4 +1,4 @@
-# MortalityLaws
+# MortalityLaws: Parametric Mortality Models, Life Tables and HMD
 [![CRAN_Version](http://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
 [![Linux Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/mpascariu/MortalityLaws?branch=master&svg=true)](https://ci.appveyor.com/project/mpascariu/MortalityLaws)
@@ -9,7 +9,7 @@
 [![CRAN_Download_Badge2](http://cranlogs.r-pkg.org/badges/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
 
 
-Fit the most popular human mortality 'laws', and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their 
+Fit the most popular human mortality `laws`, and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their 
 life spans. For a comprehensive review of the most important mortality laws see [Tabeau (2001)](https://doi.org/10.1007/0-306-47562-6_1). An elegant function for downloading data from [Human Mortality Database ](http://www.mortality.org) is provided as well.  
 
 

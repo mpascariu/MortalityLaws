@@ -4,10 +4,15 @@
 \alias{print.summary.MortalityLaw}
 \title{Print summary.MortalityLaw}
 \usage{
-\method{print}{summary.MortalityLaw}(x, ...)
+\method{print}{summary.MortalityLaw}(x, digits = max(3L, getOption("digits") -
+  3L), signif.stars = getOption("show.signif.stars"), ...)
 }
 \arguments{
 \item{x}{an object of class \code{"summary.MortalityLaw"}}
+
+\item{digits}{number of digigits to display.}
+
+\item{signif.stars}{logical. If TRUE show significance stars.}
 
 \item{...}{additional arguments affecting the summary produced.}
 }

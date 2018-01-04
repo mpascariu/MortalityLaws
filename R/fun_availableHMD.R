@@ -28,9 +28,9 @@ availableHMD <- function(username, password, ...) {
   }
   
   cd  <- HMD$download.date
-  out <- structure(class = "availableHMD",
-                   list(avalable.data = dta, countries = cts, 
-                        number.of.contries = nc, checked.date = cd))
+  out <- list(avalable.data = dta, countries = cts, 
+              number.of.contries = nc, checked.date = cd)
+  out <- structure(class = "availableHMD", out)
   return(out)
 }
 

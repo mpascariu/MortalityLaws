@@ -22,6 +22,7 @@
 #' @import minpack.lm
 #' @importFrom RCurl getURL
 #' @importFrom utils read.table head tail
-#' @importFrom stats fitted coef optim predict quantile nlminb 
+#' @importFrom stats fitted coef optim predict quantile nlminb pt printCoefmat
 #' @importFrom pbapply startpb closepb setpb
+#' @importFrom rootSolve gradient
 NULL

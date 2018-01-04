@@ -150,17 +150,42 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     optim.model <- choose_optim(input) 
     if (show) setpb(pb, 2)
     
-    fit   <- optim.model$hx
-    gof   <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
-    dgn   <- optim.model$opt #diagnosis
-    cf    <- exp(dgn$par) 
-    resid <- switch(C, C1_DxEx = Dx/Ex - fit,
-                       C2_mx = mx - fit,
-                       C3_qx = qx - fit)
+    fit    <- optim.model$hx
+    dgn    <- optim.model$opt #diagnosis
+    cf     <- exp(dgn$par)
+    p      <- length(cf)
+    pnames <- names(cf)
+    resid  <- switch(C, C1_DxEx = Dx/Ex - fit,
+                        C2_mx = mx - fit,
+                        C3_qx = qx - fit)
+    dev    <- sum(resid^2)
+    rdf    <- length(x) - p
+    df     <- c(p, rdf)
+    resvar <- if (rdf <= 0) NaN else dev/rdf
+    sigma  <- sqrt(resvar)
+    fn     <- function(par) eval(call(law, x = x, par = par))$hx
+    errfn  <- function(err) NULL 
+    grad   <- tryCatch(rootSolve::gradient(fn, x = cf), error = errfn)
+    QR     <- tryCatch(qr(grad, tol = 1e-10), error = errfn)
+    XtXinv <- tryCatch(chol2inv(QR$qr), error = errfn)
+    vcov = se = tval = corr = param <- NULL
+    if (!is.null(XtXinv) & !is.null(QR)) {
+      vcov   <- dev * XtXinv
+      se     <- sqrt(diag(XtXinv) * resvar)
+      tval   <- cf/se
+      corr   <- (XtXinv * resvar)/outer(se, se)
+      param  <- cbind(cf, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
+      dimnames(param) <- list(pnames, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+    }
+    gof    <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
+    stats  <- list(param = param, correlation = corr, se = se, df = df, 
+                   deviance = dev, sigma = sigma, gradient = grad, QR = QR, 
+                   vcov.unscaled = XtXinv, vcov = vcov)
     if (show) setpb(pb, 3)
+    
     # Prepare, arrange, customize output
     if (law == "custom.law") {
-      model.info <- "CUSTOM MORTALITY LAW"
+      model.info <- "Custom Mortality Law"
     } else {
       availLaws  <- availableLaws()$table
       model.info <- data.frame(availLaws[availLaws$CODE == law, ], row.names = "")    
@@ -172,17 +197,18 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   } else {
     N  <- FMC$nLT
     if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
-    cf = fit = gof = resid = dgn <- NULL
+    cf = fit = gof = resid = dgn = stats <- NULL
     for (i in 1:N) {
       if (show) setpb(pb, i)
       M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
             law, opt.method, parS, fit.this.x, scale.x, custom.law, show = FALSE))
-      fit      <- cbind(fit, fitted(M))
-      gof      <- rbind(gof, M$goodness.of.fit)
-      dgn[[i]] <- M$dgn
-      cf       <- rbind(cf, coef(M))
-      resid    <- cbind(resid, M$residuals)
-      info     <- M$info
+      fit        <- cbind(fit, fitted(M))
+      gof        <- rbind(gof, M$goodness.of.fit)
+      dgn[[i]]   <- M$dgn
+      cf         <- rbind(cf, coef(M))
+      resid      <- cbind(resid, M$residuals)
+      info       <- M$info
+      stats[[i]] <- M$stats
     }
     rownames(cf)  = rownames(gof)   <- FMC$LTnames
     dimnames(fit) = dimnames(resid) <- list(x, FMC$LTnames)
@@ -190,7 +216,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   }
   
   output <- list(input = input, info = info, coefficients = cf,
-                 fitted.values = fit, residuals = resid,
+                 fitted.values = fit, residuals = resid, stats = stats,
                  goodness.of.fit = gof, opt.diagnosis = dgn)
   output$info$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
@@ -347,11 +373,11 @@ check.MortalityLaw <- function(input){
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
-  L <- x$input$law == "custom.law"
-  info <- if (L) "CUSTOM MORTALITY LAW" else as.matrix(x$info$model.info[, c(2, 3)])
-  cat(paste(info, collapse = ':\n'))
+  L    <- x$input$law == "custom.law"
+  info <- if (L) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
+  cat(paste(info, collapse = " model: "))
   fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
-  cat("\n\nFitted values:", fv, "\n")
+  cat("\nFitted values:", fv, "\n")
 }
 
 
@@ -361,27 +387,32 @@ print.MortalityLaw <- function(x, ...) {
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...) {
-  law  <- object$input$law
-  if (law == "custom.law") {
-    mi <- "CUSTOM MORTALITY LAW"
-  } else {
-    mi <- as.matrix(object$info$model.info[, c(2, 3)])
-  }
-  call <- object$info$call
-  res  <- round(summary(as.vector(as.matrix(object$residuals))), 5)
-  fv   <- ifelse(!is.null(object$input$qx), 'qx', 'mx')
-  cf   <- round(coef(object), 5)
-  opt  <- object$input$opt.method
-  gof  <- round(object$goodness.of.fit, 3)
+  x    <- object
+  law  <- x$input$law
+  L1   <- law == "custom.law"
+  mi   <- if (L1) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
+  call <- x$info$call
+  res  <- summary(as.vector(as.matrix(x$residuals)))
+  fv   <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
+  gof  <- x$goodness.of.fit
+  rdf   <- x$stats$df[2]
+  sigma <- x$stats$sigma
   
-  if (!is.null(nrow(cf))) {
-    if (nrow(cf) > 4) {
-      cf  <- head_tail(cf, hlength = 2, tlength = 2)
-      gof <- head_tail(gof, hlength = 2, tlength = 2)
+  nc <- nrow(coef(x))
+  L2 <- is.null(nc)
+  L3 <- x$input$opt.method %in% c("poissonL", "binomialL")
+  if (L2) {
+    param <- if (is.null(x$stats$vcov)) as.matrix(coef(x)) else x$stats$param
+  } else {
+    param <- coef(x)
+    if (nc > 4) {
+      param <- head_tail(param, hlength = 2, tlength = 2)
+      gof   <- head_tail(gof, hlength = 2, tlength = 2)
     }
   }   
-  out  <- list(info = mi, call = call, opt.method = opt, goodness.of.fit = gof, 
-               coefficients = cf, fv = fv, dev.resid = res)
+  out  <- list(info = mi, call = call, gof = gof, 
+               fv = fv, dev.resid = res, param = param, sigma = sigma, rdf = rdf, 
+               L1 = L1, L2 = L2, L3 = L3)
   out  <- structure(class = "summary.MortalityLaw", out)
   return(out)
 }
@@ -389,22 +420,32 @@ summary.MortalityLaw <- function(object, ...) {
 
 #' Print summary.MortalityLaw
 #' @param x an object of class \code{"summary.MortalityLaw"}
+#' @param digits number of digigits to display.
+#' @param signif.stars logical. If TRUE show significance stars.
 #' @param ... additional arguments affecting the summary produced.
 #' @keywords internal
 #' @export
-print.summary.MortalityLaw <- function(x, ...) {
-  cat(paste(x$info, collapse = ':\n'))
-  cat("\n\nCall: ")
-  print(x$call)
-  cat('\nDeviance Residuals:\n')
-  print(x$dev.resid)
-  cat('\nFitted values:', x$fv)
-  cat('\nCoefficients:\n')
-  print(x$coefficients)
-  if (x$opt.method %in% c("poissonL", "binomialL")) {
-    cat('\nGoodness of fit:\n')
-    print(x$goodness.of.fit)
-  }
+print.summary.MortalityLaw <- function(x, digits = max(3L, getOption("digits") - 3L), 
+                                       signif.stars = getOption("show.signif.stars"), ...) {
+  with(x, {
+    cat(paste(info, collapse = " model: "))
+    cat("\nFitted values:", fv)
+    cat("\n\nCall: ")
+    print(call)
+    cat("\nParameters:\n")
+    printCoefmat(param, digits = digits, signif.stars = signif.stars, ...)
+    if (L3) {
+      cat("\nlogLik:", formatC(gof["logLik"], digits = digits))
+      cat("\tAIC:", formatC(gof["AIC"], digits = digits))
+      cat("\tBIC:", formatC(gof["BIC"], digits = digits), "\n")
+    }
+    cat('\nDeviance Residuals:\n')
+    print(round(dev.resid, digits))
+    if (L2) {
+      cat("Residual standard error:", format(signif(x$sigma, digits)), 
+          "on", rdf, "degrees of freedom")
+    } 
+  })
 }
 
 
@@ -422,6 +463,22 @@ logLik.MortalityLaw <- function(object, ...) {
 #' @export
 AIC.MortalityLaw <- function(object, ...) {
   c(object$goodness.of.fit["AIC"])
+}
+
+#' deviance function for MortalityLaw
+#' @inheritParams print.MortalityLaw
+#' @keywords internal
+#' @export
+deviance.MortalityLaw <- function(object, ...) {
+  object$stats$deviance
+}
+
+#' df.residual function for MortalityLaw
+#' @inheritParams print.MortalityLaw
+#' @keywords internal
+#' @export
+df.residual.MortalityLaw <- function(object, ...) {
+  c(object$stats$df[2])
 }
 
 

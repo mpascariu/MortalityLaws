@@ -8,7 +8,7 @@
   packageStartupMessage("\nR Package  : MortalityLaws",
                         "\nName       : Parametric Mortality Models, Life Tables and HMD",
                         "\nAuthor     : Marius D. Pascariu",
-                        "\nLast Update: December 11, 2017")
+                        "\nLast Update: January 4, 2018")
 }
 
 

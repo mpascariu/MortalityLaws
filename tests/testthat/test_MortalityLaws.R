@@ -20,13 +20,12 @@ for (k in 1:N) {
   mx   <- ahmd$mx[paste(X), ]
   sx   <- ifelse(min(X) > 1, TRUE, FALSE)
   LAW  <- as.character(aLaws$table$CODE[k])
-  
+  cat("M", k,": ", LAW, "\n", sep = "")
   assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW, 
                                       opt.method = 'LF2', scale.x = sx))
   assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW, 
                                       opt.method = 'LF2', scale.x = sx))
 }
-
 
 testMortalityLaw <- function(Y){
   test_that("Test MortalityLaw function", {
@@ -48,13 +47,9 @@ testMortalityLaw <- function(Y){
 }
 
 
-for (i in 1:N) {
-  testMortalityLaw(get(paste0("M", i)))
-}
+for (i in 1:N) testMortalityLaw(get(paste0("M", i)))
 
-for (j in 1:N) {
-  testMortalityLaw(get(paste0("P", j)))
-}
+for (j in 1:N) testMortalityLaw(get(paste0("P", j)))
 
 
 # test 2: ---------------------------------------
@@ -90,6 +85,8 @@ expect_message((HP4 = MortalityLaw(x = 0:100, mx = mx, law = 'HP',
                                   opt.method = "poissonL")))
 expect_true(is.numeric(AIC(HP4)))
 expect_true(is.numeric(logLik(HP4)))
+expect_true(is.numeric(df.residual(HP4)))
+expect_true(is.numeric(deviance(HP4)))
 
 expect_error(predict(M27, x = 60:100)) # kannisto
 
