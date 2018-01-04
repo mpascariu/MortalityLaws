@@ -59,6 +59,9 @@
 #' AIC, BIC and log-Likelihood} 
 #' @return \item{opt.diagnosis}{Resulted optimization object useful for 
 #' checking the convergence etc.} 
+#' @return \item{stats}{List containing statistical measures like: 
+#' parameter correlation, standard errors, degrees of freedom, deviance, 
+#' gradient matrix, QR decomposition, covariance matrix etc.} 
 #' @examples
 #' # Example 1: ---
 #' # Fit Makeham Model for Year of 1950.
@@ -156,8 +159,8 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     p      <- length(cf)
     pnames <- names(cf)
     resid  <- switch(C, C1_DxEx = Dx/Ex - fit,
-                        C2_mx = mx - fit,
-                        C3_qx = qx - fit)
+                     C2_mx = mx - fit,
+                     C3_qx = qx - fit)
     dev    <- sum(resid^2)
     rdf    <- length(x) - p
     df     <- c(p, rdf)
@@ -169,14 +172,16 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     QR     <- tryCatch(qr(grad, tol = 1e-10), error = errfn)
     XtXinv <- tryCatch(chol2inv(QR$qr), error = errfn)
     vcov = se = tval = corr = param <- NULL
-    if (!is.null(XtXinv) & !is.null(QR)) {
+    if (!is.null(XtXinv)) {
       vcov   <- dev * XtXinv
       se     <- sqrt(diag(XtXinv) * resvar)
       tval   <- cf/se
       corr   <- (XtXinv * resvar)/outer(se, se)
       param  <- cbind(cf, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
       dimnames(param) <- list(pnames, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
-      dimnames(vcov)  <- list(pnames, pnames)
+      dimnames(vcov) <- dimnames(XtXinv) <- dimnames(corr) <- list(pnames, pnames)
+      rownames(grad) <- rownames(QR$qr) <- x
+      names(se) <- pnames
     }
     gof    <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
     stats  <- list(param = param, correlation = corr, se = se, df = df, 
@@ -202,7 +207,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     for (i in 1:N) {
       if (show) setpb(pb, i)
       M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
-            law, opt.method, parS, fit.this.x, scale.x, custom.law, show = FALSE))
+                                         law, opt.method, parS, fit.this.x, scale.x, custom.law, show = FALSE))
       fit        <- cbind(fit, fitted(M))
       gof        <- rbind(gof, M$goodness.of.fit)
       dgn[[i]]   <- M$dgn
@@ -421,7 +426,7 @@ summary.MortalityLaw <- function(object, ...) {
 
 #' Print summary.MortalityLaw
 #' @param x an object of class \code{"summary.MortalityLaw"}
-#' @param digits number of digigits to display.
+#' @param digits number of digits to display.
 #' @param signif.stars logical. If TRUE show significance stars.
 #' @param ... additional arguments affecting the summary produced.
 #' @keywords internal
@@ -530,8 +535,8 @@ predict.MortalityLaw <- function(object, x, ...){
   
   if (sx & min(x) < min(xi)) {
     stop(paste("When the mortality model is estimated using 'scale.x = TRUE'", 
-         "the predicted 'x' must be higher that 'x' used in fitting.",
-         "Provide values equal or greater than", min(xi)), call. = F)
+               "the predicted 'x' must be higher that 'x' used in fitting.",
+               "Provide values equal or greater than", min(xi)), call. = F)
   }
   if (min(x) < 0) stop("'x' must be greater or equal to zero.", call. = F)
   
@@ -555,4 +560,5 @@ predict.MortalityLaw <- function(object, x, ...){
   }
   return(hx)
 }
+
 

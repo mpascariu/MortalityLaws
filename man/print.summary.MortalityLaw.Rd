@@ -10,7 +10,7 @@
 \arguments{
 \item{x}{an object of class \code{"summary.MortalityLaw"}}
 
-\item{digits}{number of digigits to display.}
+\item{digits}{number of digits to display.}
 
 \item{signif.stars}{logical. If TRUE show significance stars.}
 

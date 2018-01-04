@@ -89,6 +89,7 @@ expect_true(is.numeric(df.residual(HP4)))
 expect_true(is.numeric(deviance(HP4)))
 expect_true(is.numeric(vcov(HP4)))
 expect_true(is.numeric(confint(HP4)))
+expect_true(is.numeric(confint(HP4, 1:3)))
 
 expect_error(predict(M27, x = 60:100)) # kannisto
 
