@@ -176,6 +176,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
       corr   <- (XtXinv * resvar)/outer(se, se)
       param  <- cbind(cf, se, tval, 2 * pt(abs(tval), rdf, lower.tail = FALSE))
       dimnames(param) <- list(pnames, c("Estimate", "Std. Error", "t value", "Pr(>|t|)"))
+      dimnames(vcov)  <- list(pnames, pnames)
     }
     gof    <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
     stats  <- list(param = param, correlation = corr, se = se, df = df, 
@@ -478,7 +479,40 @@ deviance.MortalityLaw <- function(object, ...) {
 #' @keywords internal
 #' @export
 df.residual.MortalityLaw <- function(object, ...) {
-  c(object$stats$df[2])
+  object$stats$df[2]
+}
+
+#' Covariance function for MortalityLaw
+#' @inheritParams print.MortalityLaw
+#' @keywords internal
+#' @export
+vcov.MortalityLaw <- function(object, ...) {
+  object$stats$vcov
+}
+
+#' Confidence Intervals for MortalityLaw parameter estimates
+#' @inheritParams print.MortalityLaw
+#' @inheritParams stats::confint
+#' @keywords internal
+#' @export
+confint.MortalityLaw <- function(object, parm, level = 0.95, ...) {
+  cf   <- coef(object)
+  a    <- (1 - level)/2
+  a    <- c(a, 1 - a)
+  pct  <- paste(format(100 * a, trim = TRUE, scientific = FALSE, digits = 3), "%")
+  fac  <- qt(a, df.residual(object))
+  ses  <- sqrt(diag(vcov(object)))
+  ci   <- cf + ses %o% fac
+  ci[ci < 0] <- 1e-9 # all parameters must be positive
+  colnames(ci) <- pct
+  
+  pnames <- names(cf)
+  if (missing(parm)) {
+    parm <- pnames 
+  } else {
+    if (is.numeric(parm)) parm <- pnames[parm]
+  }
+  return(ci[parm, ])
 }
 
 

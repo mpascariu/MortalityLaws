@@ -1,3 +1,7 @@
+version 1.3.0
+- Best practice summary function;
+- Add generic functions: deviance, df.residual, vcov, confint.
+
 version 1.2.0
 - Vignettes;
 - Fix predict.MortalityLaws bug for cases where the input is of class matrix;
