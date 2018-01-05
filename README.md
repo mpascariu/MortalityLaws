@@ -24,7 +24,7 @@ install.packages("MortalityLaws")
 
 ## Updating to the latest version of the package
 
-You can track and contribute to the development of `MortalityLaws` at https://github.com/mpascariu/MortalityLaws. To install it:
+You can track and contribute to the development of `MortalityLaws` on [GitHub](https://github.com/mpascariu/MortalityLaws). To install it:
 
 1. Install the release version of `devtools` from CRAN with `install.packages("devtools")`.
 
