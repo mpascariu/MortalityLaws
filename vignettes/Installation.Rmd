@@ -1,7 +1,7 @@
 ---
 title: "`MortalityLaws` Installation"
 author: "Marius D. Pascariu"
-date: "December 8, 2017"
+date: "January 5, 2018"
 output: 
   pdf_document:
     number_sections: true
@@ -25,18 +25,27 @@ The `MortalityLaws` package can be installed from [`CRAN`](https://cran.r-projec
 2. Run the following code in your R console 
 
 ```{r, eval=FALSE}
-install.packages("MortalityLaws")
+    install.packages("MortalityLaws")
 ```
 
-# Install development version from `GitHub`
-The latest version can be installed from author's [`GitHub repository`](https://github.com/mpascariu/MortalityLaws) by running the following code in your R console:
+# Updating to the latest version of the package
+You can track and contribute to the development of `MortalityLaws` at https://github.com/mpascariu/MortalityLaws. To install it:
+
+1. Install the release version of `devtools` from CRAN with
+```{r, eval=FALSE}
+    install.packages("devtools")
+```
+
+2. Make sure you have a working development environment.
+    * **Windows**: Install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+    * **Mac**: Install `Xcode` from the Mac App Store.
+    * **Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
+
+3. Install the development version of devtools.
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
-devtools::install_github("mpascariu/MortalityLaws")
+    devtools::install_github("mpascariu/MortalityLaws")
 ```
-
-In this case you will need to have `devtools` package already installed in order to allow R to connect to GitHub. Otherwise uncomment the fist line and install it.
 
 
 \vspace{2cm}
