@@ -1,5 +1,6 @@
 version 1.3.0
-- Add generic functions: deviance, df.residual.
+- Add generic functions: deviance, df.residual;
+- Update vignette.
 
 version 1.2.0
 - Vignettes;
