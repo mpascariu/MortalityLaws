@@ -27,6 +27,9 @@ for (k in 1:N) {
                                       opt.method = 'LF2', scale.x = sx))
 }
 
+P10$ci.fitted
+
+
 testMortalityLaw <- function(Y){
   test_that("Test MortalityLaw function", {
     expect_s3_class(Y, "MortalityLaw")
@@ -87,9 +90,6 @@ expect_true(is.numeric(AIC(HP4)))
 expect_true(is.numeric(logLik(HP4)))
 expect_true(is.numeric(df.residual(HP4)))
 expect_true(is.numeric(deviance(HP4)))
-expect_true(is.numeric(vcov(HP4)))
-expect_true(is.numeric(confint(HP4)))
-expect_true(is.numeric(confint(HP4, 1:3)))
 
 expect_error(predict(M27, x = 60:100)) # kannisto
 

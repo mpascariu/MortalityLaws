@@ -1,17 +1,4 @@
 
-#' onAttach
-#' @param lib lib
-#' @param pkg pkg
-#' @name onAttach
-#' @keywords internal
-".onAttach" <- function(lib, pkg){
-  packageStartupMessage("\nR Package  : MortalityLaws",
-                        "\nName       : Parametric Mortality Models, Life Tables and HMD",
-                        "\nAuthor     : Marius D. Pascariu",
-                        "\nLast Update: January 4, 2018")
-}
-
-
 #' Summary function - display head and tail in a single data.frame
 #' The original code for this function was first written for 'psych' R package
 #' here we have modified it a bit
