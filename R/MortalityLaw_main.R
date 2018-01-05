@@ -157,7 +157,6 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     dgn    <- optim.model$opt #diagnosis
     cf     <- exp(dgn$par)
     p      <- length(cf)
-    pnames <- names(cf)
     resid  <- switch(C, C1_DxEx = Dx/Ex - fit,
                      C2_mx = mx - fit,
                      C3_qx = qx - fit)
@@ -182,7 +181,6 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     N  <- FMC$nLT
     if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
     cf = fit = gof = resid = dgn = df = dev <- NULL
-    ci.fitted <- ci.param <- list(lower = NULL, upper = NULL)
     for (i in 1:N) {
       if (show) setpb(pb, i)
       M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
