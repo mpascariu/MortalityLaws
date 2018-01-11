@@ -13,8 +13,8 @@ bibliography: Mlaw_Refrences.bib
 biblio-style: "apalike"
 link-citations: true
 vignette: >
-  %\VignetteIndexEntry{MortalityLaws User Manual}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{User Manual}
   %\VignetteEncoding{UTF-8}
 ---
 

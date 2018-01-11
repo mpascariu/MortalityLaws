@@ -1,12 +1,12 @@
 # MortalityLaws: Parametric Mortality Models, Life Tables and HMD
-[![CRAN_Version](http://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
+[![CRAN_Version](https://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
 [![Linux Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
 [![Windows Build Status](https://ci.appveyor.com/api/projects/status/github/mpascariu/MortalityLaws?branch=master&svg=true)](https://ci.appveyor.com/project/mpascariu/MortalityLaws)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
 [![license](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
-[![CRAN_Download_Badge1](http://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
-[![CRAN_Download_Badge2](http://cranlogs.r-pkg.org/badges/MortalityLaws)](http://cran.r-project.org/package=MortalityLaws)
+[![CRAN_Download_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
+[![CRAN_Download_Badge2](https://cranlogs.r-pkg.org/badges/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
 
 
 Fit the most popular human mortality `laws`, and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their 
@@ -29,7 +29,7 @@ You can track and contribute to the development of `MortalityLaws` on [GitHub](h
 1. Install the release version of `devtools` from CRAN with `install.packages("devtools")`.
 
 2. Make sure you have a working development environment.
-    * **Windows**: Install [Rtools](https://cran.r-project.org/bin/windows/Rtools/).
+    * **Windows**: Install [Rtools](https://CRAN.R-project.org/bin/windows/Rtools/).
     * **Mac**: Install `Xcode` from the Mac App Store.
     * **Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
 

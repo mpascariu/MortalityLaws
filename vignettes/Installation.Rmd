@@ -1,13 +1,20 @@
 ---
 title: "`MortalityLaws` Installation"
 author: "Marius D. Pascariu"
-date: "January 5, 2018"
+date: "January 10, 2018"
 output: 
   pdf_document:
+    highlight: tango
     number_sections: true
+    toc: false
+fontsize: 11pt
+geometry: margin=1.1in
+bibliography: Mlaw_Refrences.bib
+biblio-style: "apalike"
+link-citations: true
 vignette: >
-  %\VignetteIndexEntry{MortalityLaws Installation}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Installation}
   %\VignetteEncoding{UTF-8}
 ---
 
