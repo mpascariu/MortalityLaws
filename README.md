@@ -33,7 +33,7 @@ You can track and contribute to the development of `MortalityLaws` on [GitHub](h
     * **Mac**: Install `Xcode` from the Mac App Store.
     * **Linux**: Install a compiler and various development libraries (details vary across different flavors of Linux).
 
-3. Install the development version of devtools.
+3. Install the development version of `MortalityLaws`.
 
    ```R
    devtools::install_github("mpascariu/MortalityLaws")
