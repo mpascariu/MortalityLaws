@@ -80,20 +80,19 @@
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
                       qx = NULL, lx = NULL, dx = NULL,
                       sex = NULL, lx0 = 1e+05, ax = NULL){
-  
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
+  LT    <- NULL
   
   if (X$iclass == "numeric") {
     LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax))
   } else {
-    LT = NULL
     for (i in 1:X$nLT) {
       LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
-                                    qx[,i], lx[,i], dx[,i], sex, lx0, ax))
-      LTname <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
-      LTi    <- cbind(LT = LTname, LTi)
-      LT     <- rbind(LT, LTi)
+                     qx[,i], lx[,i], dx[,i], sex, lx0, ax))
+      LTn <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
+      LTi <- cbind(LT = LTn, LTi)
+      LT  <- rbind(LT, LTi)
     }
   }
   
@@ -160,7 +159,8 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   Lx[N] <- ax[N]*dx[N]
   Lx[is.na(Lx)] <- 0
   Tx    <- rev(cumsum(rev(Lx)))
-  ex    <- Tx/(lx - dx*(ax/nx))
+  ex    <- Tx/lx  # life expectancy at the begining of the interval $e^{0}_x$
+  # ex  <- Tx/(lx - dx*(ax/nx)) # life expectancy in the interval $e_x$
   ex[is.na(ex)] <- 0
   ex[N] <- if (ex[N - 1] == 0) 0 else ax[N]
   
@@ -179,10 +179,13 @@ find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL,
                          qx = NULL, lx = NULL, dx = NULL) {
   input   <- c(as.list(environment()))
   my_case <- !unlist(lapply(input, is.null))
-  if (sum(my_case[c(1, 2)]) == 1) stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = FALSE)
+  if (sum(my_case[c(1, 2)]) == 1) {
+    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", 
+         call. = FALSE)
+  }
   
-  rn <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
-  cn <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
+  rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
+  cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
   mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn,cn),
                 data = c(T,T,F,F,F,F, 
                          F,F,T,F,F,F,
@@ -191,18 +194,21 @@ find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL,
                          F,F,F,F,F,T))
   case = "C0"
   for (i in 1:nrow(mat)) if (all(my_case == mat[i, ])) case <- rn[i]
-  if (case == "C0") stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", call. = F)
+  if (case == "C0") {
+    stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", 
+         call. = F)
+  }
   
   X        <- input[my_case][[1]]
   my_class <- class(X)
   Aclasses <- c("numeric", "matrix", "data.frame", NULL)
-  L1       <- my_class %in% Aclasses
-  if (!L1) stop(paste0("The class of the input should be: ", 
-                       paste(Aclasses, collapse = ", ")), call. = F)
-  
+  if (!(my_class %in% Aclasses)) {
+    stop(paste0("The class of the input should be: ", 
+                paste(Aclasses, collapse = ", ")), call. = F)
+  }
   if (my_class %in% Aclasses[2:3]) {
     nLT     <- ncol(X)     # number of LTs to be created
-    LTnames <- colnames(X) #the names to be assigned to LTs
+    LTnames <- colnames(X) # the names to be assigned to LTs
   } else {
     nLT = LTnames <- NA
   }
@@ -226,18 +232,18 @@ mx_qx <- function(x, ux, out = "qx"){
   N     <- length(x)
   nx    <- c(diff(x), Inf)
   if (out == "qx") {
-    eta = 1 - exp(-nx*ux)
+    eta <- 1 - exp(-nx*ux)
     eta[is.na(ux)] <- 1
     eta[x >= 100 & ux == 0]  <- 1
     if (max(x) > 100) eta[N] <- 1
     # eta[N] <- 1
   }
   if (out == "mx") {
-    eta = -log(1 - ux)/nx
+    eta <- -log(1 - ux)/nx
     eta[is.infinite(eta)] <- max(eta[!is.infinite(eta)], na.rm = T)
     eta[is.na(eta)] <- max(eta, na.rm = T)
     # here if qx[N] = 1 then mx[N] = NaN therefore we apply a simple extrapolation method
-    eta[N] = eta[N - 1]^2 / eta[N - 2]
+    eta[N] <- eta[N - 1]^2 / eta[N - 2]
   }
   return(eta)
 }
@@ -353,18 +359,18 @@ LifeTable.check <- function(input) {
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){
-  LT = x$lt
+  LT <- x$lt
   lt <- with(LT, data.frame(x.int = x.int, x = x, mx = round(mx, 6), 
                             qx = round(qx, 6), ax = round(ax, 2), lx = round(lx), 
-                            dx = round(dx), Lx = round(Lx), Tx = round(Tx), ex = round(ex, 2)))
+                            dx = round(dx), Lx = round(Lx), Tx = round(Tx), 
+                            ex = round(ex, 2)))
   if (colnames(LT)[1] == "LT") lt <- data.frame(LT = LT$LT, lt)
   dimnames(lt) <- dimnames(LT)
-  nx = length(unique(LT$x))
-  nlt = nrow(LT) / nx
-  out = head_tail(lt, hlength = 6, tlength = 3, ...)
-  
-  step = diff(LT$x)
-  step = step[step > 0]
+  nx    <- length(unique(LT$x))
+  nlt   <- nrow(LT) / nx
+  out   <- head_tail(lt, hlength = 6, tlength = 3, ...)
+  step  <- diff(LT$x)
+  step  <- step[step > 0]
   type1 <- if (all(step == 1)) "Full" else "Abridge"
   type2 <- if (nlt == 1) "Life Table" else "Life Tables"
   
