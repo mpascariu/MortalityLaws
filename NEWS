@@ -1,3 +1,7 @@
+version 1.3.2
+- Compute e[x] at the begining of the age interval if LifeTable;
+- Fix bug relating to fit.this.x argument in MortalityLaws.
+
 version 1.3.0
 - Add generic functions: deviance, df.residual;
 - Update vignette.

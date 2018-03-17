@@ -142,9 +142,10 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     law  <- 'custom.law'
     parS <- custom.law(1)$par 
   }
-  input <- c(as.list(environment()))
-  FMC   <- find.my.case(Dx, Ex, mx, qx)
-  C     <- FMC$case
+  input    <- c(as.list(environment()))
+  select.x <- scale_x(x) %in% scale_x(fit.this.x)
+  FMC      <- find.my.case(Dx, Ex, mx, qx)
+  C        <- FMC$case
   
   if (FMC$iclass == "numeric") {
     check.MortalityLaw(input) # Check input
@@ -159,7 +160,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     p      <- length(cf)
     resid  <- switch(C, C1_DxEx = Dx/Ex - fit,
                      C2_mx = mx - fit,
-                     C3_qx = qx - fit)
+                     C3_qx = qx - fit)[select.x]
     dev    <- sum(resid^2)
     rdf    <- length(x) - p
     df     <- c(n.param = p, df.residual = rdf)
@@ -175,9 +176,11 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     }
     
     info <- list(model.info = model.info, process.date = date())
-    names(fit) = names(resid) <- x
+    names(fit)   <- x
+    names(resid) <- fit.this.x
     if (show) setpb(pb, 4)
-  } else {
+    
+  } else {# if input is a matrix then iterate here
     N  <- FMC$nLT
     if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
     cf = fit = gof = resid = dgn = df = dev <- NULL
@@ -195,7 +198,8 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     }
     info <- M$info
     rownames(cf)  = rownames(gof) = rownames(df) = names(dev) <- FMC$LTnames
-    dimnames(fit) = dimnames(resid) <- list(x, FMC$LTnames)
+    dimnames(fit)   <- list(x, FMC$LTnames)
+    dimnames(resid) <- list(fit.this.x, FMC$LTnames)
     if (show) setpb(pb, N + 1)
   }
   output <- list(input = input, info = info, coefficients = cf,

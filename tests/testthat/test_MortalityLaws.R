@@ -27,8 +27,6 @@ for (k in 1:N) {
                                       opt.method = 'LF2', scale.x = sx))
 }
 
-P10$ci.fitted
-
 
 testMortalityLaw <- function(Y){
   test_that("Test MortalityLaw function", {

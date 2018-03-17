@@ -15,32 +15,32 @@ print.MortalityLaw <- function(x, ...) {
 
 #' Summary MortalityLaw
 #' @param x an object of class \code{"MortalityLaw"}
+#' @param digits number of digits to display.
 #' @param ... additional arguments affecting the summary produced.
 #' @keywords internal
 #' @export
-summary.MortalityLaw <- function(object, ...) {
+summary.MortalityLaw <- function(object, ..., 
+                                 digits = max(3L, getOption("digits") - 3L)) {
   x     <- object
   L1    <- x$input$law == "custom.law"
   mi    <- if (L1) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
   res   <- summary(as.vector(as.matrix(x$residuals)))
   fv    <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
-  gof   <- x$goodness.of.fit
-  param <- coef(x)
-  pnames<- names(param)
+  gof   <- round(x$goodness.of.fit, digits)
+  param <- round(coef(x), digits)
   sigma <- mean(sqrt(x$deviance))
-  
-  nc <- nrow(param)
-  L2 <- is.null(nc)
-  L3 <- x$input$opt.method %in% c("poissonL", "binomialL")
+  nc    <- nrow(param)
+  L2    <- is.null(nc)
+  L3    <- x$input$opt.method %in% c("poissonL", "binomialL")
   
   if (!L2) {
     if (nc > 4) {
-      param <- head_tail(param, hlength = 2, tlength = 2)
-      gof   <- head_tail(gof, hlength = 2, tlength = 2)
+      param <- head_tail(param, hlength = 2, tlength = 2, digits = digits)
+      gof   <- head_tail(gof, hlength = 2, tlength = 2, digits = digits)
     }
   }
   out  <- list(info = mi, call = x$info$call, gof = gof, sigma = sigma,
-               fv = fv, resid = res, param = param, df = x$df, 
+               fv = fv, resid = res, param = param, df = x$df, digits = digits,
                L1 = L1, L2 = L2, L3 = L3)
   out  <- structure(class = "summary.MortalityLaw", out)
   return(out)
@@ -49,28 +49,24 @@ summary.MortalityLaw <- function(object, ...) {
 
 #' Print summary.MortalityLaw
 #' @param x an object of class \code{"summary.MortalityLaw"}
-#' @param digits number of digits to display.
-#' @param signif.stars logical. If TRUE show significance stars.
 #' @param ... additional arguments affecting the summary produced.
 #' @keywords internal
 #' @export
-print.summary.MortalityLaw <- function(x, digits = max(3L, getOption("digits") - 3L), 
-                                       signif.stars = getOption("show.signif.stars"), ...) {
+print.summary.MortalityLaw <- function(x, ...) {
   with(x, {
     cat(paste(info, collapse = " model: "))
     cat("\nFitted values:", fv)
     cat("\n\nCall: ")
     print(call)
-    cat("\nParameters:\n")
-    print(round(param, digits))
-    if (L3) {
-      cat("\nlogLik:", formatC(gof["logLik"], digits))
-      cat("\tAIC:", formatC(gof["AIC"], digits))
-      cat("\tBIC:", formatC(gof["BIC"], digits), "\n")
-    }
     cat('\nDeviance Residuals:\n')
     print(round(resid, digits))
+    cat("\nParameters:\n")
+    print(param)
     sg <- format(signif(sigma, digits))
+    if (L3) {
+      cat("\nGoodness of fit:\n")
+      print(gof)
+    }
     if (L2) {
       cat("\nResidual standard error:", sg, "on", df[2], "degrees of freedom")
     } else {

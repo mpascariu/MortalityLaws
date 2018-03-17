@@ -4,10 +4,13 @@
 \alias{summary.MortalityLaw}
 \title{Summary MortalityLaw}
 \usage{
-\method{summary}{MortalityLaw}(object, ...)
+\method{summary}{MortalityLaw}(object, ..., digits = max(3L,
+  getOption("digits") - 3L))
 }
 \arguments{
 \item{...}{additional arguments affecting the summary produced.}
+
+\item{digits}{number of digits to display.}
 
 \item{x}{an object of class \code{"MortalityLaw"}}
 }
