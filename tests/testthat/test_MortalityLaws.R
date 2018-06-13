@@ -89,7 +89,7 @@ expect_true(is.numeric(logLik(HP4)))
 expect_true(is.numeric(df.residual(HP4)))
 expect_true(is.numeric(deviance(HP4)))
 
-expect_error(predict(M27, x = 60:100)) # kannisto
+expect_error(predict(M28, x = 60:100)) # kannisto
 
 # test 5: ---------------------------------------
 # Test that all the laws return positive values

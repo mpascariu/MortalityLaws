@@ -304,6 +304,18 @@ beard <- function(x, par = NULL){
 }
 
 
+#' Gamma-Gompertz Model as in Vaupel et al. (1979)
+#' @inheritParams gompertz
+#' @examples ggompertz(x = 50:120)
+#' @keywords internal
+#' @export
+ggompertz <- function(x, par = NULL){
+  par <- bring_parameters('ggompertz', par)
+  hx  <- with(as.list(par), (A*exp(B*x)) / (1 + (A*G/B)*(exp(B*x) - 1)) )
+  return(list(hx = hx, par = par))
+}
+
+
 #' Makeham-Beard Model
 #' @inheritParams gompertz
 #' @examples makehambeard(x = 0:100)
@@ -436,6 +448,7 @@ bring_parameters <- function(law, par = NULL) {
                                  sigma3 = 7, M3 = 49),
                  perks        = c(A = .002, B = .13, C = .01, D = .01),
                  beard        = c(A = .002, B = .13, K = 1),
+                 ggompertz    = c(A = .002, B = .13, G = 1),
                  makehambeard = c(A = .002, B = .13, C = .01, K = 1),
                  vandermaen   = c(A = .01, B = 1, C = .01, I = 100, N = 200),
                  vandermaen2  = c(A = .01, B = 1, I = 100, N = 200),

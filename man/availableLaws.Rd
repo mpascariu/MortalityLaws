@@ -41,25 +41,44 @@ On a Mathematical Formula to express the
 Rate of Mortality throughout the whole of Life, tested by a Series of 
 Observations made use of by the Danish Life Insurance Company of 1871.} 
 Journal of the Institute of Actuaries and Assurance Magazine, 16(5), 313-329.}
-\item{Wittstein, T. (1883). \href{https://www.cambridge.org/core/journals/journal-of-the-institute-of-actuaries/article/the-mathematical-law-of-mortality/57A7403B578C84769A463EA2BC2F7ECD}{
+\item{Oppermann, L. H. F. (1870). On the graduation of life tables, with special 
+application to the rate of mortality in infancy and childhood. The Insurance 
+Record Minutes from a meeting in the Institute of Actuaries., 42.}
+\item{Wittstein, T. and D. Bumsted. (1883). \href{https://www.cambridge.org/core/journals/journal-of-the-institute-of-actuaries/article/the-mathematical-law-of-mortality/57A7403B578C84769A463EA2BC2F7ECD}{
 The Mathematical Law of Mortality.} 
 Journal of the Institute of Actuaries and Assurance Magazine, 24(3), 153-173.}
+\item{Steffensen, J. (1930). \href{https://doi.org/10.1080/03461238.1930.10416902}{
+Infantile mortality from an actuarial point of view.} 
+Skandinavisk Aktuarietidskrift 13, 272-286.}
 \item{Perks, W. (1932). \href{https://doi.org/10.1017/S0020268100046680}{
 On Some Experiments in the Graduation of Mortality Statistics.} 
 Journal of the Institute of Actuaries, 63(1), 12-57.}
+\item{Harper, F. S. (1936). \href{https://doi.org/10.1080/03461238.1936.10405113}{
+An actuarial study of infant mortality.} 
+Scandinavian Actuarial Journal 1936 (3-4), 234-270.}
+\item{Weibull, W. (1951). \href{http://web.cecs.pdx.edu/~cgshirl/Documents/Weibull-ASME-Paper-1951.pdf}{
+A statistical distribution function of wide applicability.} 
+Journal of applied mechanics 103, 293-297.}
+\item{Beard, R. E. (1971). \href{http://longevity-science.org/Beard-1971.pdf}{
+Some aspects of theories of mortality, cause of 
+death analysis, forecasting and stochastic processes.} 
+Biological aspects of demography 999, 57-68.}
+\item{Vaupel, J., Manton, K.G., and Stallard, E. (1979). 
+\href{https://doi.org/10.2307/2061224}{
+The impact of heterogeneity in individual frailty on the dynamics of mortality.} 
+Demography 16(3): 439-454.}
 \item{Siler, W. (1979), \href{https://doi.org/10.2307/1936612}{
 A Competing-Risk Model for Animal Mortality.} Ecology, 60: 750-757.}
 \item{Heligman, L., & Pollard, J. (1980). 
 \href{https://doi.org/10.1017/S0020268100040257}{The age pattern of mortality.}
 Journal of the Institute of Actuaries, 107(1), 49-80.}
-\item{Rogers A & Planck F (1983). \href{http://pure.iiasa.ac.at/2210/}{
-MODEL: A General Program for Estimating 
-Parametrized Model Schedules of Fertility, Mortality, Migration, and Marital 
-and Labor Force Status Transitions.} 
+\item{Rogers A and Planck F (1983). \href{http://pure.iiasa.ac.at/2210/}{
+MODEL: A General Program for Estimating Parametrized Model Schedules of Fertility, 
+Mortality, Migration, and Marital and Labor Force Status Transitions.} 
 IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}
 \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
 Stockholm, Sweden, Statistiska Centralbyran, 1987. 55 p. 
-(R and D Report, Research-Methods-Development, U/STM No. 38)}
+(R&D Report, Research-Methods-Development, U/STM No. 38)}
 \item{Carriere J.F. (1992). Parametric models for life tables. 
 Transactions of the Society of Actuaries. Vol.44}
 \item{Kostaki A. (1992). \href{http://dx.doi.org/10.1080/08898489209525346}{
