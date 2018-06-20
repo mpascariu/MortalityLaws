@@ -154,7 +154,8 @@ The gray area on the plot showing the fitted value indicates the age range used 
   Van der Maen & $\mu(x) = A + Bx + I/(N - x)$ & vandermaen2 \\ 
   Quadratic & $\mu(x) = A + Bx + Cx^2$ & quadratic \\ 
   Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) $ & beard \\ 
-  Makeham-Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) + C$ & makehambeard \\ 
+  Makeham-Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) + C$ & makehambeard \\
+  Gamma-Gompertz & $ \mu(x) = Ae^{B^x} / [1 + \frac{AG}{B} (e^{B^x} - 1)] $ & ggompertz \\
   Siler & $\mu(x) = A_1e^{-B_1x} + A_2 + A_3e^{B_3x}$ & siler \\ 
   Heligman - Pollard & $ q(x)/p(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+GH^x$ & HP \\ 
   Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+GH^x}$ & HP2 \\ 

@@ -1,5 +1,5 @@
-version 1.3.5
-- Compute e[x] at the beginning of the age interval in LifeTable();
+version 1.4.0
+- Compute e[x] at the beginning of the age interval in LifeTable(). This affects only the ex column in the life table, all the other indicator remain unchanged;
 - New mortality model: Gamma-Gompertz (Vaupel.1979 version);
 - Fix bug related to fit.this.x argument in MortalityLaws();
 - More rigorous referencing in avalaibleLaws() function.
