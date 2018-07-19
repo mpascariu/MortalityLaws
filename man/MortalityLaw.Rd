@@ -16,7 +16,7 @@ MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object, 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object 
 represents the number of deaths during the year to persons aged x to x+n.}
 
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
@@ -33,15 +33,16 @@ see \code{\link{availableLaws}} function.}
 \item{opt.method}{How would you like to find the parameters? Specify the 
 function to be optimize. Available options: the Poisson likelihood function 
 \code{poissonL}; the Binomial likelihood function -\code{binomialL}; and 
-other 6 loss functions. For more details, check \code{\link{availableLF}} function.}
+6 other loss functions. For more details, check the \code{\link{availableLF}} 
+function.}
 
-\item{parS}{Starting parameters used in optimization process (optional).}
+\item{parS}{Starting parameters used in the optimization process (optional).}
 
 \item{fit.this.x}{Select the ages to be considered in model fitting. By default 
-\code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
-advance ages were the data is sparse.}
+\code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the 
+advanced ages where the data is sparse.}
 
-\item{scale.x}{Logical. Scale down \code{"x"} vector so that is begins with 
+\item{scale.x}{Logical. Scale down \code{"x"} vector so that it begins with 
 a small value. This is useful in order to obtain meaningful estimates and 
 sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) + 1}.}
 
@@ -52,22 +53,22 @@ in the package. Accepts as input a function.}
 Logical. Default: \code{TRUE}.}
 }
 \value{
-The output is of \code{"MortalityLaw"} class with the components:
+The output is of the \code{"MortalityLaw"} class with the components:
 
-\item{input}{List with arguments provided in input. Saved for convenience}
+\item{input}{List with arguments provided in input. Saved for convenience.}
 
-\item{info}{Short information about the model}
+\item{info}{Brief information about the model.}
 
-\item{coefficients}{Estimated coefficients}
+\item{coefficients}{Estimated coefficients.}
 
-\item{fitted.values}{Fitted values of the selected model}
+\item{fitted.values}{Fitted values of the selected model.}
 
-\item{residuals}{Deviance residuals}
+\item{residuals}{Deviance residuals.}
 
 \item{goodness.of.fit}{List containing goodness of fit measures like 
-AIC, BIC and log-Likelihood}
+AIC, BIC and log-Likelihood.}
 
-\item{opt.diagnosis}{Resulted optimization object useful for 
+\item{opt.diagnosis}{Resultant optimization object useful for 
 checking the convergence etc.}
 
 \item{stats}{List containing statistical measures like: 
@@ -79,15 +80,15 @@ Fit parametric mortality models given a set of input data which can be
 represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
 or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 Using the argument \code{law} one can specify the model to be fitted. 
-So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
+So far 27 parametric models have been implemented; check the \code{\link{availableLaws}}
 function to learn about the available options. The models can be fitted under 
 the maximum likelihood methodology or by selecting a loss function to be 
-optimised. See the implemented loss function by running 
+optimised. See the implemented loss function by running the
 \code{\link{availableLF}} function.
 }
 \details{
 Depending on the complexity of the model, one of following optimization 
-strategies are employed: 
+strategies is employed: 
 \enumerate{
 \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
  variables when the objective function varies smoothly and is unimodal. 
@@ -160,7 +161,7 @@ predict(M3, x = 85:130)
 
 # Example 4: ---
 # Fit Heligman-Pollard model for a single 
-# year in the dataset between age 0 and 100.
+# year in the dataset between age 0 and 100 and build a life table.
 
 x  <- 0:100
 mx <- ahmd$mx[paste(x), "1950"] # select data
@@ -170,4 +171,10 @@ M4 <- MortalityLaw(x   = x,
                    opt.method = 'LF2')
 M4
 plot(M4)
+
+LifeTable(x = x, qx = fitted(M4))
+}
+\seealso{
+\code{\link{availableLaws}}, \code{\link{availableLF}}, 
+\code{\link{LifeTable}}, \code{\link{ReadHMD}}
 }

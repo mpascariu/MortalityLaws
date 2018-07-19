@@ -17,11 +17,11 @@
 #' Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
 #' \code{5x1}, \code{5x5}, \code{5x10}.
 #' @param username Your HMD username. If you don't have one you can sign up
-#' for free on Human Mortality Database website.
+#' for free on the Human Mortality Database website.
 #' @param password Your HMD password.
 #' @param save Do you want to save a copy of the dataset on your local machine?
 #' @param show Choose whether to display a progress bar. Logical. Default: \code{TRUE}.
-#' @return An \code{ReadHMD} object that contains:
+#' @return A \code{ReadHMD} object that contains:
 #' @return \item{input}{List with the input values (except the password).}
 #' @return \item{data}{Data downloaded from HMD.}
 #' @return \item{download.date}{Time stamp.}

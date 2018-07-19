@@ -8,7 +8,7 @@ availableHMD(username, password, ...)
 }
 \arguments{
 \item{username}{Your HMD username. If you don't have one you can sign up
-for free on Human Mortality Database website.}
+for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
 

@@ -12,14 +12,20 @@ plot.MortalityLaw <- function(x, ...){
     stop("Plot function not available for multiple mortality curves", 
          call. = FALSE)})
   
+  age      <- x$input$x
+  age2     <- x$input$fit.this.x
+  select.x <- age %in% age2
+  law      <- x$input$law
+  if (law == "custom.law") {
+    lawN <- "Custom Mortality"
+  } else {
+    lawN = unlist(availableLaws(law)$table['NAME'])
+  }
+  
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   lay_mat <- matrix(c(1, 2, 3, 1, 2, 3), ncol = 3, byrow = TRUE)
   layout(lay_mat, widths = 1.5*c(6, 6, 1.5), 
          heights = 1.5*c(1.5, 6, 6), respect = T)
-  
-  age  = x$input$x
-  age2 = x$input$fit.this.x
-  select.x = age %in% age2
   
   # ----- Plot 1 -----
   par(mar = c(5, 5, 4, 1), cex.lab = 1.1, cex.axis = 1.3)
@@ -37,13 +43,13 @@ plot.MortalityLaw <- function(x, ...){
   
   plot(age, y = log(y), pch = 16, cex.main = 1.1,
        ylab = 'Mortality Level', xlab = 'x', axes = FALSE,
-       main = 'Observed vs. Fitted',
+       main = paste('Observed vs. Fitted', lawN, 'law'),
        panel.first = rect(min(age2),-1e6, max(age2), 1e6, 
                           col = 'grey95', border = F) ) 
   box(col = 'grey80'); axis(1, at = pos_x); axis(2, at = pos_y)
   lines(age, log(fit_y), col = 3, lwd = 1.5)
   
-  legend('bottomright', bty = "n", legend = c("Observed", "Fitted"),
+  legend('bottomright', bty = "n", legend = c("Observed", paste("Fitted", law)),
          lty = c(NA, 1), pch = c(16, NA),
          col = c(1, 3), cex = 1.3, lwd = 3)
   

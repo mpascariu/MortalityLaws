@@ -5,20 +5,20 @@
 #' @name onAttach
 #' @keywords internal
 ".onAttach" <- function(lib, pkg){
-  packageStartupMessage("\nR Package  : MortalityLaws -- Parametric Mortality Models, Life Tables and HMD",
-                        "\nAuthor     : Marius D. Pascariu",
-                        "\nLast Update: June 20, 2018\n")
+  packageStartupMessage("\nMortalityLaws: Parametric Mortality Models, Life Tables and HMD",
+                        "\nAuthor       : Marius D. Pascariu",
+                        "\nLast Update  : July 19, 2018\n")
 }
 
 
 #' England and Wales Demographic Data
 #'
 #' Dataset containing altered death rates (mx), death counts (Dx) 
-#' and exposures (Ex) for female population living in 
+#' and exposures (Ex) for the female population living in 
 #' England & Wales in four different years: 1850, 1900, 1950 and 2010. 
 #' The data-set is provided for testing purposes only.
 #' Download the actual data free of charge from \url{http://www.mortality.org}.
-#' Once a username and a password is created on the website the function
+#' Once a username and a password are created on the website the function
 #' \code{\link{ReadHMD}} can be used for downloading.
 #' 
 #' @source \href{http://www.mortality.org}{Human Mortality Database}  

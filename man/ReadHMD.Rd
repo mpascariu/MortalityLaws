@@ -24,7 +24,7 @@ Interval options: \code{1x1}, \code{1x5}, \code{1x10},
 \code{5x1}, \code{5x5}, \code{5x10}.}
 
 \item{username}{Your HMD username. If you don't have one you can sign up
-for free on Human Mortality Database website.}
+for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
 
@@ -33,7 +33,7 @@ for free on Human Mortality Database website.}
 \item{show}{Choose whether to display a progress bar. Logical. Default: \code{TRUE}.}
 }
 \value{
-An \code{ReadHMD} object that contains:
+A \code{ReadHMD} object that contains:
 
 \item{input}{List with the input values (except the password).}
 

@@ -4,10 +4,10 @@
 #' represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
 #' or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
-#' So far 27 parametric model have been implemented; check \code{\link{availableLaws}}
+#' So far 27 parametric models have been implemented; check the \code{\link{availableLaws}}
 #' function to learn about the available options. The models can be fitted under 
 #' the maximum likelihood methodology or by selecting a loss function to be 
-#' optimised. See the implemented loss function by running 
+#' optimised. See the implemented loss function by running the
 #' \code{\link{availableLF}} function.
 #' @usage 
 #' MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
@@ -19,7 +19,7 @@
 #'                 custom.law = NULL, 
 #'                 show = TRUE)
 #' @details Depending on the complexity of the model, one of following optimization 
-#' strategies are employed: 
+#' strategies is employed: 
 #' \enumerate{
 #' \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
 #'  variables when the objective function varies smoothly and is unimodal. 
@@ -37,31 +37,34 @@
 #' @param opt.method How would you like to find the parameters? Specify the 
 #' function to be optimize. Available options: the Poisson likelihood function 
 #' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; and 
-#' other 6 loss functions. For more details, check \code{\link{availableLF}} function.
-#' @param parS Starting parameters used in optimization process (optional).
+#' 6 other loss functions. For more details, check the \code{\link{availableLF}} 
+#' function.
+#' @param parS Starting parameters used in the optimization process (optional).
 #' @param fit.this.x Select the ages to be considered in model fitting. By default 
-#' \code{fit.this.x = x}. One may want exclude from the fitting procedure say the 
-#' advance ages were the data is sparse.
-#' @param scale.x Logical. Scale down \code{"x"} vector so that is begins with 
+#' \code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the 
+#' advanced ages where the data is sparse.
+#' @param scale.x Logical. Scale down \code{"x"} vector so that it begins with 
 #' a small value. This is useful in order to obtain meaningful estimates and 
 #' sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) + 1}.
 #' @param custom.law Allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
 #' @param show Choose whether to display a progress bar during the fitting process. 
 #' Logical. Default: \code{TRUE}.
-#' @return The output is of \code{"MortalityLaw"} class with the components:
-#' @return \item{input}{List with arguments provided in input. Saved for convenience}
-#' @return \item{info}{Short information about the model}
-#' @return \item{coefficients}{Estimated coefficients}
-#' @return \item{fitted.values}{Fitted values of the selected model}
-#' @return \item{residuals}{Deviance residuals} 
+#' @return The output is of the \code{"MortalityLaw"} class with the components:
+#' @return \item{input}{List with arguments provided in input. Saved for convenience.}
+#' @return \item{info}{Brief information about the model.}
+#' @return \item{coefficients}{Estimated coefficients.}
+#' @return \item{fitted.values}{Fitted values of the selected model.}
+#' @return \item{residuals}{Deviance residuals.} 
 #' @return \item{goodness.of.fit}{List containing goodness of fit measures like 
-#' AIC, BIC and log-Likelihood} 
-#' @return \item{opt.diagnosis}{Resulted optimization object useful for 
+#' AIC, BIC and log-Likelihood.} 
+#' @return \item{opt.diagnosis}{Resultant optimization object useful for 
 #' checking the convergence etc.} 
 #' @return \item{stats}{List containing statistical measures like: 
 #' parameter correlation, standard errors, degrees of freedom, deviance, 
 #' gradient matrix, QR decomposition, covariance matrix etc.} 
+#' @seealso \code{\link{availableLaws}}, \code{\link{availableLF}}, 
+#' \code{\link{LifeTable}}, \code{\link{ReadHMD}}
 #' @examples
 #' # Example 1: ---
 #' # Fit Makeham Model for Year of 1950.
@@ -123,7 +126,7 @@
 #' 
 #' # Example 4: ---
 #' # Fit Heligman-Pollard model for a single 
-#' # year in the dataset between age 0 and 100.
+#' # year in the dataset between age 0 and 100 and build a life table.
 #' 
 #' x  <- 0:100
 #' mx <- ahmd$mx[paste(x), "1950"] # select data
@@ -133,6 +136,8 @@
 #'                    opt.method = 'LF2')
 #' M4
 #' plot(M4)
+#' 
+#' LifeTable(x = x, qx = fitted(M4))
 #' @export
 MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
                          law = NULL, opt.method = 'poissonL', parS = NULL, 

@@ -1,12 +1,12 @@
 #' Life Table Function
 #' 
-#' Construct either a full or abridge life table with various input choices like:
+#' Construct either a full or abridged life table with various input choices like:
 #' death counts and mid-interval population estimates \code{(Dx, Ex)} or 
 #' age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
 #' or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
-#' If one of these options are specified, the other can be ignored.
+#' If one of these options is specified, the other can be ignored.
 #'  
-#' @details The input data can be of an object of class: 
+#' @details The input data can be an object of class: 
 #' \code{numeric}, \code{matrix} or \code{data.frame}.
 #' @usage 
 #' LifeTable(x, Dx = NULL, Ex = NULL,
@@ -18,17 +18,17 @@
 #'              lx0 = 1e+05,
 #'              ax  = NULL)
 #' @param x Vector of ages at the beginning of the age interval.
-#' @param Dx Object containing death counts. An element of the \code{Dx} object, 
+#' @param Dx Object containing death counts. An element of the \code{Dx} object 
 #' represents the number of deaths during the year to persons aged x to x+n. 
 #' @param Ex Exposure in the period. \code{Ex} can be approximated by the 
 #' mid-year population aged x to x+n.
 #' @param mx Death rate in age interval [x, x+n).
 #' @param qx Probability of dying in age interval [x, x+n).
-#' @param lx Probability to survive up until age x.
-#' @param dx Deaths by life-table population in age interval [x, x+n).
+#' @param lx Probability of survival up until age x.
+#' @param dx Deaths by life-table population in the age interval [x, x+n).
 #' @param sex Sex of the population considered here. Default: \code{NULL}. 
 #' This argument affects the first two values in the life table ax column. 
-#' If sex is specified the values are computed based on Coale-Demeny method 
+#' If sex is specified the values are computed based on the Coale-Demeny method 
 #' and are slightly different for males than for females. 
 #' Options: \code{NULL, male, female, total}.
 #' @param lx0 Radix. Default: 100 000.

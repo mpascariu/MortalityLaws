@@ -23,7 +23,7 @@ Interval options: \code{1x1}, \code{1x5}, \code{1x10},
 \code{5x1}, \code{5x5}, \code{5x10}.}
 
 \item{username}{Your HMD username. If you don't have one you can sign up
-for free on Human Mortality Database website.}
+for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
 }

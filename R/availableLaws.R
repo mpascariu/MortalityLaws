@@ -1,10 +1,11 @@
 #' Check Available Mortality Laws
 #' 
-#' The function returns information about the parametric models that can be called and fitted
-#' in \code{\link{MortalityLaw}} function. For a comprehensive review of the 
-#' most important mortality laws Tabeau (2001) is a good starting point.
+#' The function returns information about the parametric models that can be 
+#' called and fitted in the \code{\link{MortalityLaw}} function. 
+#' For a comprehensive review of the most important mortality laws, 
+#' Tabeau (2001) is a good starting point.
 #' 
-#' @param law Optional. Default: \code{NULL}. One can subtract details about 
+#' @param law Optional. Default: \code{NULL}. One can extract details about 
 #' a certain model by specifying its codename.
 #' @return The output is of \code{"availableLaws"} class with the components:
 #' @return \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
