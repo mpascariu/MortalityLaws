@@ -89,7 +89,7 @@ LTs
 # A warning is printed if the input contains missing values. 
 # Some of the missing values can be handled by the function.
 
-# Example 3 --- Abridge life table ------------
+# Example 3 --- Abridged life table ------------
 
 x  = c(0, 1, seq(5, 110, by = 5))
 mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 

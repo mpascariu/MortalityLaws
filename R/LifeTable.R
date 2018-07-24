@@ -66,7 +66,7 @@
 #' # A warning is printed if the input contains missing values. 
 #' # Some of the missing values can be handled by the function.
 #' 
-#' # Example 3 --- Abridge life table ------------
+#' # Example 3 --- Abridged life table ------------
 #' 
 #' x  = c(0, 1, seq(5, 110, by = 5))
 #' mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
@@ -89,7 +89,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
   } else {
     for (i in 1:X$nLT) {
       LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
-                     qx[,i], lx[,i], dx[,i], sex, lx0, ax))
+                                    qx[,i], lx[,i], dx[,i], sex, lx0, ax))
       LTn <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
       LTi <- cbind(LT = LTn, LTi)
       LT  <- rbind(LT, LTi)
@@ -159,7 +159,7 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   Lx[N] <- ax[N]*dx[N]
   Lx[is.na(Lx)] <- 0
   Tx    <- rev(cumsum(rev(Lx)))
-  ex    <- Tx/lx  # life expectancy at the begining of the interval $e^{0}_x$
+  ex    <- Tx/lx  # life expectancy at the beginning of the interval $e^{0}_x$
   # ex  <- Tx/(lx - dx*(ax/nx)) # life expectancy in the interval $e_x$
   ex[is.na(ex)] <- 0
   ex[N] <- if (ex[N - 1] == 0) 0 else ax[N]
@@ -354,8 +354,8 @@ LifeTable.check <- function(input) {
 }
 
 #' Print LifeTable
-#' @param x an object of class \code{"LifeTable"}
-#' @param ... further arguments passed to or from other methods.
+#' @param x An object of class \code{"LifeTable"}
+#' @param ... Further arguments passed to or from other methods.
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){
@@ -371,7 +371,7 @@ print.LifeTable <- function(x, ...){
   out   <- head_tail(lt, hlength = 6, tlength = 3, ...)
   step  <- diff(LT$x)
   step  <- step[step > 0]
-  type1 <- if (all(step == 1)) "Full" else "Abridge"
+  type1 <- if (all(step == 1)) "Full" else "Abridged"
   type2 <- if (nlt == 1) "Life Table" else "Life Tables"
   
   cat("\n", type1, " ", type2, "\n\n", sep = "")
@@ -380,3 +380,4 @@ print.LifeTable <- function(x, ...){
   cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
   print(out, row.names = FALSE)
 } 
+

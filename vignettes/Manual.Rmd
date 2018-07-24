@@ -1,7 +1,7 @@
 ---
 title: "`MortalityLaws` User Manual"
 author: "Marius D. Pascariu"
-date: "December 8, 2017"
+date: "July 24, 2018"
 output: 
   pdf_document:
     highlight: tango
@@ -28,7 +28,7 @@ opts_chunk$set(collapse = TRUE)
 
 # Package structure
 
-**MortalityLaws** in an **R** package which exploits the available optimization methods to provide tools for fitting and analyzing a wide range of complex mortality models. The package can be used to construct full and abridge life tables given various input indices and to download data from Human Mortality Database as well. The main functions in the package are: `MortalityLaw`, `LifeTable` and `ReadHMD`. The package provides also support functions like `availableLaws`, `availableLF` and `availableHMD` that return information about the mortality laws implemented in the package and loss functions used in optimization process and HMD data availability. Generic functions like `predict`, `plot`, `summary`, `fitted.values` are created for MortalityLaws objects. Small data set for testing purposes `ahmd` is saved in the package.
+**MortalityLaws** in an **R** package which exploits the available optimization methods to provide tools for fitting and analyzing a wide range of complex mortality models. The package can be used to construct full and abridged life tables given various input indices and to download data from Human Mortality Database as well. The main functions in the package are: `MortalityLaw`, `LifeTable` and `ReadHMD`. The package provides also support functions like `availableLaws`, `availableLF` and `availableHMD` that return information about the mortality laws implemented in the package and loss functions used in optimization process and HMD data availability. Generic functions like `predict`, `plot`, `summary`, `fitted.values` are created for MortalityLaws objects. Small data set for testing purposes `ahmd` is saved in the package.
 
 
 
@@ -68,7 +68,7 @@ MortalityLaws_diagram()
 
 # Downloading HMD Data
 
-Download data form Human Mortality Database [-@university_of_california_berkeley_human_2016]  using the `ReadHMD` function:
+Download data form Human Mortality Database [-@university_of_california_berkeley_human_2016] using the `ReadHMD` function:
 
 ```{r LoadPackages, message=FALSE}
 library(MortalityLaws)
@@ -89,7 +89,7 @@ Here we download all the registered death counts `Dx` in Sweden from 1751 until 
 
 # Model fitting and diagnosis
 Once we have data from HMD or other sources we can start analyzing it.
-For example, let's fit a [@heligman1980age] model under a Poisson setting which is already implemented as one of the standard models in the package. We have to use the `MortalityLaw` function in this regard.
+For example, let's fit a Heligman-Pollard [-@heligman1980] model under a Poisson setting which is already implemented as one of the standard models in the package. We have to use the `MortalityLaw` function in this regard.
 
 ```{r}
 year     <- 1950
@@ -132,20 +132,21 @@ plot(fit.subset)
 ```
 The gray area on the plot showing the fitted value indicates the age range used in fitting the model.
 
+\newpage
 # Mortality laws in the package
 
 \begin{table}[h]
 \renewcommand{\arraystretch}{1.5}
 \caption{Parametric functions build in the MortalityLaws package}
 \begin{tabular}{lll}
-  Mortality laws  & Predictor & Code \\ \hline
-  Gompertz & $ \mu(x) = Ae^{Bx}$ & gompertz \\
-  Gompertz & $ \mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}$ & gompertz0 \\
-  Inverse-Gompertz & $ \mu(x) = {\frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}}/{\left(exp\left\{e^{\frac{-(x-M)}{\sigma }}\right\}-1\right)}$ & invgompertz\\  
-  Makeham & $ \mu(x) = Ae^{Bx} + C$ & makeham \\
-  Makeham & $ \mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\} + C$ & makeham0 \\
-  Opperman & $ \mu(x) = \frac{A}{\sqrt{x}} + B + C\sqrt[3]{x}$ & opperman \\ 
-  Thiele & $ \mu(x) = A_1e^{-B_1x} + A_2e^{-\frac{1}{2}B_2{\left(x-C\right)}^2} + A_3e^{B_3x}$ & thiele \\ 
+  Mortality Laws & Predictor & Code \\ \hline
+  Gompertz & $\mu(x) = Ae^{Bx}$ & gompertz \\
+  Gompertz & $\mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}$ & gompertz0 \\
+  Inverse-Gompertz & $\mu(x) = {\frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\}}/{\left(exp\left\{e^{\frac{-(x-M)}{\sigma }}\right\}-1\right)}$ & invgompertz\\  
+  Makeham & $\mu(x) = Ae^{Bx} + C$ & `makeham` \\
+  Makeham & $\mu(x) = \frac{1}{\sigma }exp\left\{\frac{x-M}{\sigma }\right\} + C$ & makeham0 \\
+  Opperman & $\mu(x) = \frac{A}{\sqrt{x}} + B + C\sqrt[3]{x}$ & opperman \\ 
+  Thiele & $\mu(x) = A_1e^{-B_1x} + A_2e^{-\frac{1}{2}B_2{\left(x-C\right)}^2} + A_3e^{B_3x}$ & thiele \\ 
   Wittstein \& Bumstead & q(x) = $\frac{1}{B}A^{{-(Bx)}^N} + A^{{-(M-x)}^N}$ & wittstein \\
   Perks & $\mu(x) = (A + BC^x) / (BC^{-x} + 1 + DC^x)$ & perks \\
   Weibull & $\mu(x) = \frac{1}{\sigma }{\left(\frac{x}{M}\right)}^{\frac{M}{\sigma }-1}$ & weibull \\ 
@@ -157,15 +158,15 @@ The gray area on the plot showing the fitted value indicates the age range used 
   Makeham-Beard & $\mu(x) = Ae^{B^x} / (1 + KAe^{B^x}) + C$ & makehambeard \\
   Gamma-Gompertz & $ \mu(x) = Ae^{B^x} / [1 + \frac{AG}{B} (e^{B^x} - 1)] $ & ggompertz \\
   Siler & $\mu(x) = A_1e^{-B_1x} + A_2 + A_3e^{B_3x}$ & siler \\ 
-  Heligman - Pollard & $ q(x)/p(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+GH^x$ & HP \\ 
-  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+GH^x}$ & HP2 \\ 
-  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+KGH^x}$ & HP3 \\ 
-  Heligman - Pollard & $ q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+ \frac{GH^{x^K}}{1+GH^{x^K}}$ & HP3 \\ 
+  Heligman - Pollard & $q(x)/p(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+GH^x$ & HP \\ 
+  Heligman - Pollard & $q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+GH^x}$ & HP2 \\ 
+  Heligman - Pollard & $q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2} + \frac{GH^x}{1+KGH^x}$ & HP3 \\ 
+  Heligman - Pollard & $q(x) =  A^{{\left(x+B\right)}^C}+De^{-E{\left({\mathrm{ln} x\ }-{\mathrm{ln} F\ }\right)}^2}+ \frac{GH^{x^K}}{1+GH^{x^K}}$ & HP3 \\ 
   Rogers-Planck & $q(x) = A_0 + A_1e^{-Ax} + A_2e^{\left\{B(x - U) - e^{-C(x - U)}\right\}} + A_3e^{Dx}$ & rogersplanck \\ 
-  Martinelle & $ \mu(x) = (Ae^{Bx} + C)/(1 + De^{Bx}) + Ke^{Bx}$ & martinelle \\ 
+  Martinelle & $\mu(x) = (Ae^{Bx} + C)/(1 + De^{Bx}) + Ke^{Bx}$ & martinelle \\ 
   Carriere & $S(x) = {\psi}_1S_1(x)+\ {\psi}_2S_2\left(x\right)+\ {\psi }_3S_3\left(x\right)$ & carriere1 \\
   Carriere & $S(x) = {\psi}_1S_1(x)+\ {\psi}_4S_4\left(x\right)+\ {\psi }_3S_3\left(x\right)$ & carriere2 \\
-  Kostaki & $ q(x)/p(x) =  A^{{(x+B)}^C}+De^{-E_{i}{({\mathrm{ln} x\ }-{\mathrm{ln} F\ })}^2}+GH^x$ & kostaki \\ 
+  Kostaki & $q(x)/p(x) =  A^{{(x+B)}^C}+De^{-E_{i}{({\mathrm{ln} x\ }-{\mathrm{ln} F\ })}^2}+GH^x$ & kostaki \\ 
   Kannisto & $\mu(x) = Ae^{Bx} / (1+Ae^{Bx})+C$ & kannisto \\ \hline
 \end{tabular}
 \end{table}
@@ -186,7 +187,7 @@ availableLF()
 
 
 # Custom mortality laws
-Now let's fit a mortality law that is not defined in the package, say a reparametrize version of Gompertz in terms of modal age at death [@missov2015gompertz], 
+Now let's fit a mortality law that is not defined in the package, say a reparametrize version of Gompertz in terms of modal age at death [@missov2015], 
 
 \begin{equation}
  \mu_x = \beta e^{\beta (x-M)}.
@@ -231,7 +232,7 @@ plot(my_model)
 
 # Full life tables
 
-Using `LifeTable` function one can build full or abridge life table with various input choices like: death counts and mid-interval population estimates (`Dx`, `Ex`) or age-specific death rates (`mx`) or death probabilities (`qx`) or survivorship curve (`lx`) or a distribution of deaths (`dx`). If one of these options are specified, the other can be ignored.
+Using `LifeTable` function one can build full or abridged life table with various input choices like: death counts and mid-interval population estimates (`Dx`, `Ex`) or age-specific death rates (`mx`) or death probabilities (`qx`) or survivorship curve (`lx`) or a distribution of deaths (`dx`). If one of these options are specified, the other can be ignored.
 
 ```{r}
 # Life table for year of 1900
@@ -253,7 +254,7 @@ LT1
 ls(LT1)
 ```
 
-# Abridge life tables
+# Abridged life tables
 ```{r}
 # Example
 x  <- c(0, 1, seq(5, 110, by = 5))
@@ -268,11 +269,10 @@ lt <- LifeTable(x, mx = mx, sex = "female")
 lt
 ```
 
-\newpage
-# Refrences
+# Citation
+```{r}
+citation(package = "MortalityLaws")
+```
 
-
-
-
-
+# References
 

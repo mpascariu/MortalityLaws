@@ -7,9 +7,9 @@
 \method{print}{LifeTable}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{"LifeTable"}}
+\item{x}{An object of class \code{"LifeTable"}}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \description{
 Print LifeTable

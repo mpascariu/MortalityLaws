@@ -7,7 +7,7 @@
 ".onAttach" <- function(lib, pkg){
   packageStartupMessage("\nMortalityLaws: Parametric Mortality Models, Life Tables and HMD",
                         "\nAuthor       : Marius D. Pascariu",
-                        "\nLast Update  : July 19, 2018\n")
+                        "\nLast Update  : July 24, 2018\n")
 }
 
 
