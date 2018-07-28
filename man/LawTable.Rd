@@ -4,7 +4,8 @@
 \alias{LawTable}
 \title{Compute Life Tables from Parameters of a Mortality Law}
 \usage{
-LawTable(x, par, law, scale.x = FALSE)
+LawTable(x, par, law, scale.x = FALSE, sex = NULL, lx0 = 1e+05,
+  ax = NULL)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
@@ -17,6 +18,19 @@ see \code{\link{availableLaws}} function.}
 
 \item{scale.x}{Logical. Scale down \code{"x"} vector so that it begins with 
 a small value. Method: \code{new.x = x - min(x) + 1}. Default: FALSE.}
+
+\item{sex}{Sex of the population considered here. Default: \code{NULL}. 
+This argument affects the first two values in the life table ax column. 
+If sex is specified the values are computed based on the Coale-Demeny method 
+and are slightly different for males than for females. 
+Options: \code{NULL, male, female, total}.}
+
+\item{lx0}{Radix. Default: 100 000.}
+
+\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
+die in the same interval. If \code{NULL} this will be estimated. A common 
+assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+the interval. Default: \code{NULL}.}
 }
 \value{
 The output is of the \code{\link{LifeTable}} class.

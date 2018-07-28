@@ -2,6 +2,7 @@
 #' Compute Life Tables from Parameters of a Mortality Law
 #' 
 #' @inheritParams MortalityLaw
+#' @inheritParams LifeTable
 #' @param par The parameters of the mortality model.
 #' @param scale.x Logical. Scale down \code{"x"} vector so that it begins with 
 #' a small value. Method: \code{new.x = x - min(x) + 1}. Default: FALSE.
@@ -27,7 +28,8 @@
 #'
 #'LawTable(x = x2, par = C2, law = L2, scale.x = FALSE)
 #' @export
-LawTable <- function(x, par, law, scale.x = FALSE) {
+LawTable <- function(x, par, law, scale.x = FALSE, 
+                     sex = NULL, lx0 = 1e+05, ax = NULL) {
   if (min(x) > 1 & (!scale.x)) {
     warning("You may want to scale down the 'x' vector so that it begins ", 
             "with a small value. Set 'scale.x = TRUE'. ", 
@@ -51,10 +53,10 @@ LawTable <- function(x, par, law, scale.x = FALSE) {
   thisIndex  <- availableLaws(law)$table$FIT
   
   if (thisIndex == "q[x]") {
-    out <- LifeTable(x, qx = hx)
+    out <- LifeTable(x, qx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
   if (thisIndex == "mu[x]") {
-    out <- LifeTable(x, mx = hx)
+    out <- LifeTable(x, mx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
   return(out)
 }

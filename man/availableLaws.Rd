@@ -11,7 +11,7 @@ availableLaws(law = NULL)
 a certain model by specifying its codename.}
 }
 \value{
-The output is of \code{"availableLaws"} class with the components:
+The output is of the \code{"availableLaws"} class with the components:
 
 \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
 

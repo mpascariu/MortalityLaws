@@ -7,7 +7,7 @@
 #' 
 #' @param law Optional. Default: \code{NULL}. One can extract details about 
 #' a certain model by specifying its codename.
-#' @return The output is of \code{"availableLaws"} class with the components:
+#' @return The output is of the \code{"availableLaws"} class with the components:
 #' @return \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
 #' @return \item{legend}{Table with details about the section of the mortality curve }
 #' @references 
