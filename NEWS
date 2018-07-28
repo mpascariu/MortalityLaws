@@ -1,3 +1,6 @@
+version 1.5.0
+- LawTable(): Compute life tables from parameters of a mortality law.
+
 version 1.4.0
 - Compute e[x] at the beginning of the age interval in LifeTable(). This affects only the ex column in the life table, all the other indicator remain unchanged;
 - New mortality model: Gamma-Gompertz (Vaupel.1979 version);

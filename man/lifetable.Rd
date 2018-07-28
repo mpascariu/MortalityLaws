@@ -2,7 +2,7 @@
 % Please edit documentation in R/LifeTable.R
 \name{LifeTable}
 \alias{LifeTable}
-\title{Life Table Function}
+\title{Compute Life Tables from Mortality Data}
 \usage{
 LifeTable(x, Dx = NULL, Ex = NULL,
              mx = NULL,
@@ -44,7 +44,7 @@ assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
 the interval. Default: \code{NULL}.}
 }
 \value{
-The output is of class \code{LifeTable} with the components:
+The output is of the \code{"LifeTable"} class with the components:
 
 \item{lt}{Computed life table;}
 

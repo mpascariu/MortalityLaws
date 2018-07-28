@@ -31,7 +31,7 @@
 #' For details check \code{\link{nls.lm}}}
 #' }
 #' @inheritParams LifeTable
-#' @param law The name of the mortality law/model to be fitted. e.g. 
+#' @param law The name of the mortality law/model to be used. e.g. 
 #' \code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
 #' see \code{\link{availableLaws}} function.
 #' @param opt.method How would you like to find the parameters? Specify the 

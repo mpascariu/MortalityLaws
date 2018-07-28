@@ -34,15 +34,15 @@ check.MortalityLaw <- function(input){
            stop(err2, call. = FALSE)
          }
          if (length(fit.this.x) <= 5) {
-           stop(paste("'More observations needed in order to start the fitting.",
-                      " Increase the length of 'fit.this.x'"), call. = F)
+           stop(paste("More observations needed in order to start the fitting.",
+                      "Increase the length of 'fit.this.x'"), call. = F)
          }
          if (!all(fit.this.x %in% x)) {
            stop("'fit.this.x' should be a subset of 'x'", call. = F)
          }
          # Warnings ---
          if (min(x) > 1 & (!scale.x)) {
-           warning("\nScale down the 'x' argument so that is begins with a small value. ",
+           warning("You may want scale down the 'x' vector so that it begins with a small value. ",
                    "Set 'scale.x = TRUE'. This is useful in order to obtain meaningful ", 
                    "estimates and in some cases a better fit (e.g. 'kannisto' law).", 
                    call. = F)

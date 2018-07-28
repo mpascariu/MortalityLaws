@@ -1,4 +1,4 @@
-#' Life Table Function
+#' Compute Life Tables from Mortality Data
 #' 
 #' Construct either a full or abridged life table with various input choices like:
 #' death counts and mid-interval population estimates \code{(Dx, Ex)} or 
@@ -36,7 +36,7 @@
 #' die in the same interval. If \code{NULL} this will be estimated. A common 
 #' assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
 #' the interval. Default: \code{NULL}.
-#' @return The output is of class \code{LifeTable} with the components:
+#' @return The output is of the \code{"LifeTable"} class with the components:
 #' @return \item{lt}{Computed life table;}
 #' @return \item{call}{\code{Call} in which all of the specified arguments are 
 #' specified by their full names;}

@@ -19,7 +19,7 @@ mid-year population aged x to x+n.}
 
 \item{qx}{Probability of dying in age interval [x, x+n).}
 
-\item{law}{The name of the mortality law/model to be fitted. e.g. 
+\item{law}{The name of the mortality law/model to be used. e.g. 
 \code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
 see \code{\link{availableLaws}} function.}
 
