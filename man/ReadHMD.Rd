@@ -47,7 +47,7 @@ A \code{ReadHMD} object that contains:
 }
 \description{
 Download detailed mortality and population data for different countries 
-and regions in a single object from the \href{http://www.mortality.org}{
+and regions in a single object from the \href{https://www.mortality.org}{
 Human Mortality Database}.
 }
 \examples{

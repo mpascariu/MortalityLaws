@@ -1,7 +1,7 @@
 #' Download Mortality and Population Data (HMD)
 #' 
 #' Download detailed mortality and population data for different countries 
-#' and regions in a single object from the \href{http://www.mortality.org}{
+#' and regions in a single object from the \href{https://www.mortality.org}{
 #' Human Mortality Database}.
 #' 
 #' @param what What type of data are you looking for? There are available:
@@ -123,7 +123,7 @@ ReadHMD.core <- function(what, country, interval, username, password){
                           mxc = paste0("cMx_", interval, ".txt"),    # deaths
                           Exc = paste0("cExposures_", interval, ".txt") # exposure
       )}
-  path       <- paste0("http://www.mortality.org/hmd/", country, 
+  path       <- paste0("https://www.mortality.org/hmd/", country, 
                        "/STATS/", whichFile)
   userpwd    <- paste0(username, ":", password)
   txt        <- getURL(path, userpwd = userpwd)
