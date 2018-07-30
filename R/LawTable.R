@@ -6,7 +6,7 @@
 #' @param par The parameters of the mortality model.
 #' @param scale.x Logical. Scale down \code{"x"} vector so that it begins with 
 #' a small value. Method: \code{new.x = x - min(x) + 1}. Default: FALSE.
-#' @return The output is of the \code{\link{LifeTable}} class.
+#' @inherit LifeTable return details
 #' @examples 
 #' 
 #' # Example 1 --- Makeham --- 4 tables ----------
@@ -58,5 +58,6 @@ LawTable <- function(x, par, law, scale.x = FALSE,
   if (thisIndex == "mu[x]") {
     out <- LifeTable(x, mx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
+  out$call <- match.call()
   return(out)
 }

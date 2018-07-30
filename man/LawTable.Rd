@@ -33,10 +33,23 @@ assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
 the interval. Default: \code{NULL}.}
 }
 \value{
-The output is of the \code{\link{LifeTable}} class.
+The output is of the \code{"LifeTable"} class with the components:
+
+\item{lt}{Computed life table;}
+
+\item{call}{\code{Call} in which all of the specified arguments are 
+specified by their full names;}
+
+\item{process_date}{Time stamp.}
 }
 \description{
 Compute Life Tables from Parameters of a Mortality Law
+}
+\details{
+The "life table" is also called "mortality table" or "actuarial table".
+This shows, for each age, what the probability is that a person of that 
+age will die before his or her next birthday, the expectation of life across 
+different age ranges or the survivorship of people from a certain population.
 }
 \examples{
 

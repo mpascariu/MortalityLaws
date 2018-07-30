@@ -4,10 +4,15 @@
 #' death counts and mid-interval population estimates \code{(Dx, Ex)} or 
 #' age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
 #' or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
-#' If one of these options is specified, the other can be ignored.
-#'  
-#' @details The input data can be an object of class: 
-#' \code{numeric}, \code{matrix} or \code{data.frame}.
+#' If one of these options is specified, the other can be ignored. The input 
+#' data can be an object of class: numerical \code{vector}, \code{matrix} or 
+#' \code{data.frame}.
+#' 
+#' @details 
+#' The "life table" is also called "mortality table" or "actuarial table".
+#' This shows, for each age, what the probability is that a person of that 
+#' age will die before his or her next birthday, the expectation of life across 
+#' different age ranges or the survivorship of people from a certain population.
 #' @usage 
 #' LifeTable(x, Dx = NULL, Ex = NULL,
 #'              mx = NULL,
@@ -380,4 +385,5 @@ print.LifeTable <- function(x, ...){
   cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
   print(out, row.names = FALSE)
 } 
+
 
