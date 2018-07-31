@@ -28,7 +28,8 @@ for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
 
-\item{save}{Do you want to save a copy of the dataset on your local machine?}
+\item{save}{Do you want to save a copy of the dataset on your local machine? 
+Logical. Default: \code{FALSE}.}
 
 \item{show}{Choose whether to display a progress bar. Logical. Default: \code{TRUE}.}
 }

@@ -19,7 +19,8 @@
 #' @param username Your HMD username. If you don't have one you can sign up
 #' for free on the Human Mortality Database website.
 #' @param password Your HMD password.
-#' @param save Do you want to save a copy of the dataset on your local machine?
+#' @param save Do you want to save a copy of the dataset on your local machine? 
+#' Logical. Default: \code{FALSE}.
 #' @param show Choose whether to display a progress bar. Logical. Default: \code{TRUE}.
 #' @return A \code{ReadHMD} object that contains:
 #' @return \item{input}{List with the input values (except the password).}
@@ -123,16 +124,16 @@ ReadHMD.core <- function(what, country, interval, username, password){
                           mxc = paste0("cMx_", interval, ".txt"),    # deaths
                           Exc = paste0("cExposures_", interval, ".txt") # exposure
       )}
-  path       <- paste0("https://www.mortality.org/hmd/", country, 
-                       "/STATS/", whichFile)
-  userpwd    <- paste0(username, ":", password)
-  txt        <- getURL(path, userpwd = userpwd)
-  con        <- textConnection(txt)
-  errMessage <- paste0("\nThe server could not verify that you are authorized ",
-                       "to access the requested data.\nMost probably you ",
-                       "supplied the wrong credentials (e.g., bad password).")
-  dat <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
-             stop(errMessage, call. = FALSE))
+  path <- paste0("https://www.mortality.org/hmd/", country, "/STATS/", whichFile)
+  txt  <- RCurl::getURL(path, userpwd = paste0(username, ":", password))
+  con  <- try(textConnection(txt), 
+              stop("ReadHMD() failed to connect to www.mortality.org. ",
+                   "Maybe the website is down at this moment?", call. = FALSE))
+  dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
+              stop("The server could not verify that you are authorized ",
+                   "to access the requested data. Probably you ",
+                   "supplied the wrong credentials (e.g., bad password)?", 
+                   call. = FALSE))
   close(con)
   out <- cbind(country, dat)
   if (interval == "1x1" & !(what %in% c('births', 'lexis', 'e0')) ) out$Age = 0:110

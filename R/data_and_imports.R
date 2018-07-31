@@ -7,7 +7,7 @@
 ".onAttach" <- function(lib, pkg){
   packageStartupMessage("\nMortalityLaws: Parametric Mortality Models, Life Tables and HMD",
                         "\nAuthor       : Marius D. Pascariu",
-                        "\nLast Update  : July 29, 2018\n")
+                        "\nLast Update  : July 31, 2018\n")
 }
 
 
@@ -17,11 +17,11 @@
 #' and exposures (Ex) for the female population living in 
 #' England & Wales in four different years: 1850, 1900, 1950 and 2010. 
 #' The data-set is provided for testing purposes only.
-#' Download the actual data free of charge from \url{http://www.mortality.org}.
+#' Download the actual data free of charge from \url{https://www.mortality.org}.
 #' Once a username and a password are created on the website the function
 #' \code{\link{ReadHMD}} can be used for downloading.
 #' 
-#' @source \href{http://www.mortality.org}{Human Mortality Database}  
+#' @source \href{https://www.mortality.org}{Human Mortality Database}  
 #' @seealso \code{\link{ReadHMD}}
 #' @examples head(ahmd$mx) 
 "ahmd"
