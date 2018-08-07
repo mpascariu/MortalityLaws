@@ -140,6 +140,7 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   }
   if (my.case == "C4_lx") {
     lx <- as.numeric(lx)
+    lx <- lx * lx0/lx[1]
     dx <- c(rev(diff(rev(lx))), 0)
     qx <- dx/lx
     qx[is.na(qx) & x >= 100] <- 1
@@ -147,6 +148,7 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   }
   if (my.case == "C5_dx") {
     dx <- as.numeric(dx)
+    dx <- dx * lx0/sum(dx)
     lx <- rev(cumsum(rev(dx)))
     qx <- dx/lx
     qx[is.na(qx) & x >= 100] <- 1
