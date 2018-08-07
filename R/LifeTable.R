@@ -303,7 +303,7 @@ LifeTable.check <- function(input) {
     Y    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
     C    <- Y$case
     SMS1 <- "contains missing values."
-    SMS2 <- "NA's were replaced with"
+    SMS2 <- "The NA's were replaced with"
     
     if (!is.null(sex)) {
       if (!(sex %in% c("male", "female", "total"))) 
@@ -324,17 +324,22 @@ LifeTable.check <- function(input) {
     }
     if (C == "C3_qx") {
       c1 <- is.na(qx[length(qx)])
-      n  <- length(qx)
-      c2 <- is.na(qx[-n][x[-n] >= 100])
-      if (any(c2)) {
-        warning(paste("'qx' contains several missing values over the age of 100.",
-                      "NA's were replaced with", round(max(qx, na.rm = T)[1], 4)), 
-                call. = F)
-        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)[1]
-      }
       if (any(c1)) {
         warning(paste("'qx' ultimate is NA. It is replaces with 1."), call. = F)
         qx[length(qx)] <- 1
+      }
+      
+      n  <- length(x)
+      c2 <- if (is.vector(qx)) {
+        is.na(qx[-n][x[-n] >= 100])
+      } else {
+        is.na(qx[-n, ][x[-n] >= 100, ])
+      }
+      if (any(c2)) {
+        warning(paste("'qx' contains several missing values over the age of 100.",
+                      SMS2, round(max(qx, na.rm = T)[1], 4)), 
+                call. = F)
+        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)[1]
       }
     }
     if (C == "C4_lx") {

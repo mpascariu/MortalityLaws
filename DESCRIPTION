@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.5.1
+Version: 1.5.2
 Date: 2018-07-29
 Authors@R: c(
   person("Marius D.", "Pascariu", role = c("aut", "cre"), 
@@ -22,7 +22,8 @@ Depends: R (>= 3.0.0)
 Imports:
   minpack.lm,
   RCurl,
-  pbapply
+  pbapply,
+  tidyr (>= 0.8.1)
 Suggests:
   testthat,
   knitr,

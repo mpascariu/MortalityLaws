@@ -36,4 +36,5 @@
 #' @importFrom stats fitted coef optim predict quantile nlminb pt printCoefmat 
 #' df.residual qt vcov
 #' @importFrom pbapply startpb closepb setpb
+#' @importFrom tidyr spread
 NULL
