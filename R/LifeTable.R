@@ -177,20 +177,15 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 }
 
 
+
+
 #' Function that identifies the case/problem we have to solve
-#' It also performs several checks
 #' @inheritParams LifeTable
 #' @keywords internal
-#' 
 find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL, 
                          qx = NULL, lx = NULL, dx = NULL) {
   input   <- c(as.list(environment()))
-  my_case <- !unlist(lapply(input, is.null))
-  if (sum(my_case[c(1, 2)]) == 1) {
-    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", 
-         call. = FALSE)
-  }
-  
+  # Matrix of possible cases ----
   rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
   cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
   mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn,cn),
@@ -199,31 +194,29 @@ find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL,
                          F,F,F,T,F,F,
                          F,F,F,F,T,F,
                          F,F,F,F,F,T))
-  case = "C0"
-  for (i in 1:nrow(mat)) if (all(my_case == mat[i, ])) case <- rn[i]
-  if (case == "C0") {
-    stop("Check again the input arguments. Too many inputs (Dx, Ex, mx, qx, lx, dx)", 
-         call. = F)
-  }
+  # ----------------------------------------------
   
-  X        <- input[my_case][[1]]
-  my_class <- class(X)
-  Aclasses <- c("numeric", "matrix", "data.frame", NULL)
-  if (!(my_class %in% Aclasses)) {
-    stop(paste0("The class of the input should be: ", 
-                paste(Aclasses, collapse = ", ")), call. = F)
+  L1 <- !unlist(lapply(input, is.null))
+  L2 <- apply(mat, 1, function(x) all(L1 == x))
+  
+  if (sum(L1[c(1, 2)]) == 1) {
+    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = F)
   }
-  if (my_class %in% Aclasses[2:3]) {
+  if (!any(L2)) {
+    stop("The input is not specified correctly. Check again the function ",
+         "arguments and make sure the input data is added properly.", call. = F)
+  }
+  X   <- input[L1][[1]]
+  
+  nLT = LTnames <- NA
+  if (!is.vector(X)) {
     nLT     <- ncol(X)     # number of LTs to be created
     LTnames <- colnames(X) # the names to be assigned to LTs
-  } else {
-    nLT = LTnames <- NA
   }
   
-  out <- list(case = case, iclass = my_class, nLT = nLT, LTnames = LTnames)
+  out <- list(case = rn[L2], iclass = class(X), nLT = nLT, LTnames = LTnames)
   return(out)
 }
-
 
 
 #' mx to qx
@@ -301,34 +294,42 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 #' @param input a list containing the input arguments of the LifeTable functions
 #' @keywords internal
 LifeTable.check <- function(input) {
+  
   with(input, {
-    Y    <- find.my.case(Dx, Ex, mx, qx, lx, dx)
-    C    <- Y$case
-    SMS1 <- "contains missing values."
-    SMS2 <- "The NA's were replaced with"
+    # ----------------------------------------------
+    K <- find.my.case(Dx, Ex, mx, qx, lx, dx)
+    C <- K$case
+    valid_classes <- c("numeric", "matrix", "data.frame", NULL)
+    if (!(K$iclass %in% valid_classes)) {
+      stop(paste0("The class of the input should be: ", 
+                  paste(valid_classes, collapse = ", ")), call. = F)
+    }
+    # ----------------------------------------------
+    SMS1 <- "contains missing values. "
+    SMS2 <- "The NA's were replaced with "
     
     if (!is.null(sex)) {
       if (!(sex %in% c("male", "female", "total"))) 
         stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.", call. = F)
     }
     if (C == "C1_DxEx") {
-      if (any(is.na(Dx))) warning(paste("'Dx'", SMS1, SMS2, 0), call. = F)
-      if (any(is.na(Ex))) warning(paste("'Ex'", SMS1, SMS2, 0.01), call. = F)
+      if (any(is.na(Dx))) warning("'Dx'", SMS1, SMS2, 0, call. = F)
+      if (any(is.na(Ex))) warning("'Ex'", SMS1, SMS2, 0.01, call. = F)
       Dx[is.na(Dx)] <- 0
       Ex[is.na(Ex) | Ex == 0] <- 0.01
     }
     if (C == "C2_mx") {
       if (any(is.na(mx))) {
-        warning(paste("'mx'", SMS1, SMS2, "maximum observed mx:", 
-                      max(mx, na.rm = T)), call. = F)
-        mx[is.na(mx)] <- max(mx, na.rm = T)
+        mmx <- max(mx, na.rm = T)
+        mx[is.na(mx)] <- mmx
+        warning("'mx'", SMS1, SMS2, "maximum observed mx:", mmx, call. = F)
       }
     }
     if (C == "C3_qx") {
       c1 <- is.na(qx[length(qx)])
       if (any(c1)) {
-        warning(paste("'qx' ultimate is NA. It is replaces with 1."), call. = F)
         qx[length(qx)] <- 1
+        warning("'qx' ultimate is NA. It is replaces with 1.", call. = F)
       }
       
       n  <- length(x)
@@ -338,19 +339,19 @@ LifeTable.check <- function(input) {
         is.na(qx[-n, ][x[-n] >= 100, ])
       }
       if (any(c2)) {
-        warning(paste("'qx' contains several missing values over the age of 100.",
-                      SMS2, round(max(qx, na.rm = T)[1], 4)), 
-                call. = F)
-        qx[is.na(qx) & x >= 100] <- max(qx, na.rm = T)[1]
+        mqx <- max(qx, na.rm = T)[1]
+        qx[is.na(qx) & x >= 100] <- mqx
+        warning("'qx' contains several missing values over the age of 100. ",
+                SMS2, round(mqx, 4), call. = F)
       }
     }
     if (C == "C4_lx") {
-      if (any(is.na(lx))) warning(paste("'lx'", SMS1, SMS2, 0), call. = F)
       lx[is.na(lx) & x >= 100] <- 0
+      if (any(is.na(lx))) warning("'lx'", SMS1, SMS2, 0, call. = F)
     }
     if (C == "C5_dx") {
-      if (any(is.na(dx))) warning(paste("'dx'", SMS1, SMS2, 0), call. = F)
       dx[is.na(dx)] <- 0
+      if (any(is.na(dx))) warning("'dx'", SMS1, SMS2, 0, call. = F)
     }
     
     if (!is.null(ax)) {
@@ -360,10 +361,11 @@ LifeTable.check <- function(input) {
     
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
                 lx = lx, dx = dx, sex = sex, lx0 = lx0, ax = ax,
-                iclass = Y$iclass, nLT = Y$nLT, LTnames = Y$LTnames)
+                iclass = K$iclass, nLT = K$nLT, LTnames = K$LTnames)
     return(out)
   })
 }
+
 
 #' Print LifeTable
 #' @param x An object of class \code{"LifeTable"}

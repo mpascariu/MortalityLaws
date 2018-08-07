@@ -149,10 +149,9 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   }
   input    <- c(as.list(environment()))
   select.x <- scale_x(x) %in% scale_x(fit.this.x)
-  FMC      <- find.my.case(Dx, Ex, mx, qx)
-  C        <- FMC$case
+  K        <- find.my.case(Dx, Ex, mx, qx)
   
-  if (FMC$iclass == "numeric") {
+  if (K$iclass == "numeric") {
     check.MortalityLaw(input) # Check input
     if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     # Find optim coefficients
@@ -163,7 +162,8 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     dgn    <- optim.model$opt #diagnosis
     cf     <- exp(dgn$par)
     p      <- length(cf)
-    resid  <- switch(C, C1_DxEx = Dx/Ex - fit,
+    resid  <- switch(K$case, 
+                     C1_DxEx = Dx/Ex - fit,
                      C2_mx = mx - fit,
                      C3_qx = qx - fit)[select.x]
     dev    <- sum(resid^2)
@@ -186,7 +186,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     if (show) setpb(pb, 4)
     
   } else {# if input is a matrix then iterate here
-    N  <- FMC$nLT
+    N  <- K$nLT
     if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
     cf = fit = gof = resid = dgn = df = dev <- NULL
     for (i in 1:N) {
@@ -202,9 +202,9 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
       dev      <- c(dev, M$dev)
     }
     info <- M$info
-    rownames(cf)  = rownames(gof) = rownames(df) = names(dev) <- FMC$LTnames
-    dimnames(fit)   <- list(x, FMC$LTnames)
-    dimnames(resid) <- list(fit.this.x, FMC$LTnames)
+    rownames(cf)  = rownames(gof) = rownames(df) = names(dev) <- K$LTnames
+    dimnames(fit)   <- list(x, K$LTnames)
+    dimnames(resid) <- list(fit.this.x, K$LTnames)
     if (show) setpb(pb, N + 1)
   }
   output <- list(input = input, info = info, coefficients = cf,
@@ -304,11 +304,5 @@ choose_optim <- function(input){
     return(out)
   })
 }
-
-
-
-
-
-
 
 
