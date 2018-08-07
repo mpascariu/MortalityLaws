@@ -4,6 +4,7 @@
 #' Easy conversion between the life table indicators. This function is based 
 #' on the \code{\link{LifeTable}} function and methods behind it.
 #' 
+#' @usage fx2gx(x, data, In, Out, ...)
 #' @inheritParams LifeTable
 #' @param data Vector or data.frame/matrix containing the mortality indicators.
 #' @param In Specify what indicator did you provide in \code{data}. Options:

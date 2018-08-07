@@ -4,8 +4,7 @@
 \alias{fx2gx}
 \title{Convert Life Table Indicators}
 \usage{
-fx2gx(x, data, In = c("mx", "qx", "dx", "lx"), Out = c("mx", "qx", "dx",
-  "lx", "Lx", "Tx", "ex"), ...)
+fx2gx(x, data, In, Out, ...)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
