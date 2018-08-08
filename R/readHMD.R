@@ -97,7 +97,7 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
       message(paste(fn, "is saved in your working directory:\n  ", wd_), appendLF = F)
       cat("\n   ")
     }
-    message(paste("Download completed!"))
+    message("Download completed!")
   }
   return(out)
 }
@@ -144,8 +144,8 @@ ReadHMD.core <- function(what, country, interval, username, password){
 #' @keywords internal
 HMDcountries <- function() {
   HMDc <- c("AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE",
-            "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP",
-            "FRATNP","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
+            "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP",
+            "KOR","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
             "HUN","HRV","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
             "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
             "SVN","SWE","TWN","USA","UKR")
@@ -162,19 +162,16 @@ check_input_ReadHMD <- function(x) {
            'LT_f', 'LT_m', 'LT_t', 'e0', 'mxc', 'Exc')
   
   if (!(x$interval %in% int)) {
-    stop(paste('\nThe interval', x$interval,
-               'does not exist in HMD\n',
-               'Try one of these options:\n', 
-               paste(int, collapse = ', ')), call. = F)}
+    stop('The interval ', x$interval, ' does not exist in HMD ', 
+         'Try one of these options:\n', paste(int, collapse = ', '), 
+         call. = F)}
   if (!(x$what %in% wht)) {
-    stop(paste("\n", x$what, 'does not exist in HMD\n',
-               'Try one of these options:\n', 
-               paste(wht, collapse = ', ')), call. = F)}
+    stop(x$what, ' does not exist in HMD. Try one of these options:\n', 
+         paste(wht, collapse = ', '), call. = F)}
   if (all(!(x$countries %in% HMDcountries())) ) {
-    stop(paste('\nSomething is wrong in the country/countries',
-               'added by you.\n',
-               'Try one or more of these options:\n', 
-               paste(HMDcountries(), collapse = ', ')), call. = F)}
+    stop('Something is wrong in the country/countries added by you.\n',
+         'Try one or more of these options:\n', 
+          paste(HMDcountries(), collapse = ', '), call. = F)}
 }
 
 
@@ -184,15 +181,17 @@ check_input_ReadHMD <- function(x) {
 #' @keywords internal
 #' @export
 print.ReadHMD <- function(x, ...){
+  what <- x$input$what
   cat('Human Mortality Database (www.mortality.org)\n')
   cat('Downloaded by :', x$input$username, '\n')
   cat('Download Date :', x$download.date, '\n')
-  cat('Type of data  :', x$input$what, '\n')
+  cat('Type of data  :', what, '\n')
   cat(paste("Interval      :", x$input$interval, "\n"))
+
+  ageMsg <- if (what == "e0") 0 else paste(min(x$ages), "-", max(x$ages))
   cat(paste("Years         :", min(x$years), "-", max(x$years), "\n"))
-  cat(paste("Ages          :", min(x$ages), "-", max(x$ages), "\n"))
+  cat(paste("Ages          :", ageMsg, "\n"))
   cat("Countries     :", x$input$countries, "\n")
-  
   cat('\nData:\n')
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }
