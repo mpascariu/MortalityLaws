@@ -4,7 +4,7 @@
 #' Easy conversion between the life table indicators. This function is based 
 #' on the \code{\link{LifeTable}} function and methods behind it.
 #' 
-#' @usage fx2gx(x, data, In, Out, ...)
+#' @usage convertFx(x, data, In, Out, ...)
 #' @inheritParams LifeTable
 #' @param data Vector or data.frame/matrix containing the mortality indicators.
 #' @param In Specify what indicator did you provide in \code{data}. Options:
@@ -19,11 +19,11 @@
 #' mx <- ahmd$mx
 #' 
 #' # mx to qx
-#' qx <- fx2gx(x, data = mx, In = "mx", Out = "qx")
+#' qx <- convertFx(x, data = mx, In = "mx", Out = "qx")
 #' # mx to dx
-#' dx <- fx2gx(x, data = qx, In = "mx", Out = "dx")
+#' dx <- convertFx(x, data = qx, In = "mx", Out = "dx")
 #' # mx to lx
-#' lx <- fx2gx(x, data = qx, In = "mx", Out = "lx")
+#' lx <- convertFx(x, data = qx, In = "mx", Out = "lx")
 #' 
 #' 
 #' # There are 28 possible combinations --------------------------------
@@ -39,40 +39,34 @@
 #'   N <- paste0(Out_, "_from_", In_)
 #'   cat(i, " Create", N, "\n")
 #'   # Create the 28 sets of results
-#'   assign(N, fx2gx(x = x, data = get(In_), In = In_, Out = Out_))
+#'   assign(N, convertFx(x = x, data = get(In_), In = In_, Out = Out_))
 #' }
 #' @export
-fx2gx <- function(x, data, 
+convertFx <- function(x, data, 
                   In = c("mx", "qx", "dx", "lx"), 
                   Out = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"), ...) {
   
-  In <- match.arg(In)
+  In  <- match.arg(In)
   Out <- match.arg(Out)
+
+  A <- switch(In,
+              mx = LifeTable(x, mx = data, ...)$lt,
+              qx = LifeTable(x, qx = data, ...)$lt,
+              dx = LifeTable(x, dx = data, ...)$lt,
+              lx = LifeTable(x, lx = data, ...)$lt
+  )
   
-  if (In == Out) {
-    return(data)
-    
+  n <- nrow(A) / length(unique(A$x))
+  
+  if (n == 1) {
+    B <- A[, Out]
   } else {
     
-    A <- switch(In,
-                mx = LifeTable(x, mx = data, ...)$lt,
-                qx = LifeTable(x, qx = data, ...)$lt,
-                dx = LifeTable(x, dx = data, ...)$lt,
-                lx = LifeTable(x, lx = data, ...)$lt
-    )
-    
-    n <- nrow(A) / length(unique(A$x))
-    
-    if (n == 1) {
-      B <- A[, Out]
-    } else {
-      
-      B1 <- A[, c("LT", Out, "x")]
-      B2 <- tidyr::spread(data = B1, key = "LT", value = Out)
-      B  <- B2[, -1]
-      dimnames(B) <- dimnames(data)
-    }
-    
-    return(B)
+    B1 <- A[, c("LT", Out, "x")]
+    B2 <- tidyr::spread(data = B1, key = "LT", value = Out)
+    B  <- B2[, -1]
+    dimnames(B) <- dimnames(data)
   }
+  
+  return(B)
 }

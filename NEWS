@@ -1,5 +1,5 @@
 version 1.6.0
-- fx2gx(): Add easy convertor between the life table indicators
+- convertFx(): Add easy convertor between the life table indicators
 
 version 1.5.0
 - LawTable(): Compute life tables from parameters of a mortality law;
