@@ -1,17 +1,6 @@
 
-#' onAttach
-#' @param lib lib
-#' @param pkg pkg
-#' @name onAttach
-#' @keywords internal
-".onAttach" <- function(lib, pkg){
-  packageStartupMessage("\nMortalityLaws: Parametric Mortality Models, Life Tables and HMD",
-                        "\nAuthor       : Marius D. Pascariu",
-                        "\nLast Update  : August 8, 2018\n")
-}
 
-
-#' England and Wales Demographic Data
+#' MortalityLaws Test Data
 #'
 #' Dataset containing altered death rates (mx), death counts (Dx) 
 #' and exposures (Ex) for the female population living in 
@@ -27,14 +16,5 @@
 "ahmd"
 
 
-# Imports -----
 
-#' @import graphics 
-#' @import minpack.lm
-#' @importFrom RCurl getURL
-#' @importFrom utils read.table head tail
-#' @importFrom stats fitted coef optim predict quantile nlminb pt printCoefmat 
-#' df.residual qt vcov
-#' @importFrom pbapply startpb closepb setpb
-#' @importFrom tidyr spread
-NULL
+

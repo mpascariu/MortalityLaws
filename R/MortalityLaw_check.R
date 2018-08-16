@@ -33,7 +33,7 @@ check.MortalityLaw <- function(input){
            err2 <- paste(m1, m2, paste(function_to_optimize, collapse = ', '))
            stop(err2, call. = FALSE)
          }
-         if (length(fit.this.x) <= 5) {
+         if (length(fit.this.x) < 2) {
            stop(paste("More observations needed in order to start the fitting.",
                       "Increase the length of 'fit.this.x'"), call. = F)
          }

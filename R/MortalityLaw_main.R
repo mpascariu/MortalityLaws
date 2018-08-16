@@ -17,7 +17,7 @@
 #'                 fit.this.x = x,
 #'                 scale.x = FALSE,
 #'                 custom.law = NULL, 
-#'                 show = TRUE)
+#'                 show = FALSE)
 #' @details Depending on the complexity of the model, one of following optimization 
 #' strategies is employed: 
 #' \enumerate{
@@ -49,7 +49,7 @@
 #' @param custom.law Allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
 #' @param show Choose whether to display a progress bar during the fitting process. 
-#' Logical. Default: \code{TRUE}.
+#' Logical. Default: \code{FALSE}.
 #' @return The output is of the \code{"MortalityLaw"} class with the components:
 #' @return \item{input}{List with arguments provided in input. Saved for convenience.}
 #' @return \item{info}{Brief information about the model.}
@@ -66,18 +66,15 @@
 #' @seealso \code{\link{availableLaws}}, \code{\link{availableLF}}, 
 #' \code{\link{LifeTable}}, \code{\link{ReadHMD}}
 #' @examples
-#' # Example 1: ---
+#' # Example 1: --------------------------
 #' # Fit Makeham Model for Year of 1950.
 #' 
 #' x  <- 45:75
 #' Dx <- ahmd$Dx[paste(x), "1950"]
 #' Ex <- ahmd$Ex[paste(x), "1950"]
 #' 
-#' M1 <- MortalityLaw(x   = x, 
-#'                    Dx  = Dx, 
-#'                    Ex  = Ex, 
-#'                    law = 'makeham',
-#'                    scale.x = TRUE)
+#' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', scale.x = TRUE)
+#' 
 #' M1
 #' ls(M1)
 #' coef(M1)
@@ -87,21 +84,18 @@
 #' plot(M1)
 #' 
 #' 
-#' # Example 2: ---
+#' # Example 2: --------------------------
 #' # We can fit the same model using a different data format 
 #' # and a different optimization method.
 #' x  <- 45:75
 #' mx <- ahmd$mx[paste(x), ]
-#' M2 <- MortalityLaw(x   = x, 
-#'                    mx  = mx, 
-#'                    law = 'makeham', 
-#'                    opt.method = 'LF1', 
+#' M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1', 
 #'                    scale.x = TRUE)
 #' M2
 #' fitted(M2)
 #' predict(M2, x = 55:90)
 #' 
-#' # Example 3: ---
+#' # Example 3: --------------------------
 #' # Now let's fit a mortality law that is not defined 
 #' # in the package, say a reparameterized Gompertz in 
 #' # terms of modal age at death
@@ -114,26 +108,20 @@
 #'   return(as.list(environment()))
 #' }
 #' 
-#' M3 <- MortalityLaw(x  = x,
-#'                    Dx = Dx, 
-#'                    Ex = Ex, 
-#'                    custom.law = my_gompertz,
+#' M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz,
 #'                    scale.x = TRUE) 
 #' summary(M3)
 #' # predict M3 for different ages
 #' predict(M3, x = 85:130)
 #' 
 #' 
-#' # Example 4: ---
+#' # Example 4: --------------------------
 #' # Fit Heligman-Pollard model for a single 
 #' # year in the dataset between age 0 and 100 and build a life table.
 #' 
 #' x  <- 0:100
 #' mx <- ahmd$mx[paste(x), "1950"] # select data
-#' M4 <- MortalityLaw(x   = x, 
-#'                    mx  = mx, 
-#'                    law = 'HP', 
-#'                    opt.method = 'LF2')
+#' M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 #' M4
 #' plot(M4)
 #' 
@@ -142,14 +130,13 @@
 MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
                          law = NULL, opt.method = 'poissonL', parS = NULL, 
                          fit.this.x = x, scale.x = FALSE, custom.law = NULL, 
-                         show = TRUE){
+                         show = FALSE){
   if (!is.null(custom.law)) {
     law  <- 'custom.law'
     parS <- custom.law(1)$par 
   }
-  input    <- c(as.list(environment()))
-  select.x <- scale_x(x) %in% scale_x(fit.this.x)
-  K        <- find.my.case(Dx, Ex, mx, qx)
+  input <- c(as.list(environment()))
+  K     <- find.my.case(Dx, Ex, mx, qx)
   
   if (K$iclass == "numeric") {
     check.MortalityLaw(input) # Check input
@@ -165,7 +152,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     resid  <- switch(K$case, 
                      C1_DxEx = Dx/Ex - fit,
                      C2_mx = mx - fit,
-                     C3_qx = qx - fit)[select.x]
+                     C3_qx = qx - fit)
     dev    <- sum(resid^2)
     rdf    <- length(x) - p
     df     <- c(n.param = p, df.residual = rdf)
@@ -181,8 +168,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     }
     
     info <- list(model.info = model.info, process.date = date())
-    names(fit)   <- x
-    names(resid) <- fit.this.x
+    names(fit) = names(resid) <- x
     if (show) setpb(pb, 4)
     
   } else {# if input is a matrix then iterate here
@@ -203,8 +189,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     }
     info <- M$info
     rownames(cf)  = rownames(gof) = rownames(df) = names(dev) <- K$LTnames
-    dimnames(fit)   <- list(x, K$LTnames)
-    dimnames(resid) <- list(fit.this.x, K$LTnames)
+    dimnames(fit) = dimnames(resid) <- list(x, K$LTnames)
     if (show) setpb(pb, N + 1)
   }
   output <- list(input = input, info = info, coefficients = cf,
@@ -242,7 +227,7 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
                  LF6       =  abs(nu - mu))
   
   # Here I want to make sure that the optimisation algorithm is not returning 
-  # NaN values when if it converges (because that is possible).
+  # NaN values when it converges (because that is possible).
   loss[is.infinite(loss)] <- 10^5
   if (sum(is.na(mu)) != 0) loss = loss + 10^5
   out <- sum(loss, na.rm = TRUE)
@@ -264,15 +249,15 @@ scale_x <- function(x) {
 choose_optim <- function(input){
   with(as.list(input), {
     # Subset the data
+    select.x <- x %in% fit.this.x
     if (scale.x) {
       x <- scale_x(x)
-      fit.this.x <- scale_x(fit.this.x)
+      fit.this.x <- x[select.x]
     }
-    select.x <- x %in% fit.this.x
-    qx       <- qx[select.x]
-    mx       <- mx[select.x]
-    Dx       <- Dx[select.x]
-    Ex       <- Ex[select.x]
+    qx <- qx[select.x]
+    mx <- mx[select.x]
+    Dx <- Dx[select.x]
+    Ex <- Ex[select.x]
     if (is.null(parS)) parS <- bring_parameters(law, parS)
     # Optimize 
     foo <- function(k) objective_fun(par = k, x = fit.this.x, Dx, Ex, mx, qx,
@@ -282,10 +267,12 @@ choose_optim <- function(input){
       opt <- nlminb(start = log(parS), objective = foo, 
                     control = list(eval.max = 5000, iter.max = 5000))
       opt$fnvalue <- opt$objective
+      
     } else if (law %in% c('thiele', 'wittstein')) {
       opt <- nls.lm(par = log(parS), fn = foo, 
                     control = nls.lm.control(maxfev = 10000, maxiter = 1024))
       opt$fnvalue <- sum(opt$fvec)
+      
     } else {
       opt <- optim(par = log(parS), fn = foo, method = 'Nelder-Mead')
       opt$fnvalue <- opt$value

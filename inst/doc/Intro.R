@@ -3,39 +3,6 @@ library(MortalityLaws)
 library(knitr)
 opts_chunk$set(collapse = TRUE)
 
-## ----diagram, echo=FALSE, message=FALSE, results='hide', fig.align='center', out.width='90%', fig.width=9, fig.cap="MortalityLaws R Package Structure", fig.pos='h'----
-library(diagram)
-
-MortalityLaws_diagram <- function(){
-  par(mar = c(.1, .5, .1, .5))
-  names <- c(
-            "availableHMD()", "availableLaws()", "availableLF()",
-            "MortalityLaws\n R package", 
-            "ahmd\n(Test data)", "ReadHMD()\n(Download data...)", 
-            "MortalityLaw()\n(Fit/Predict models)",
-            "LifeTable()\n(Construct life tables)"
-            )
-  
-  M <- matrix(nrow = 8, ncol = 8, byrow = TRUE, 
-             data = c(
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0
-                      ))
-  pp <- plotmat(M, pos = c(3, 1, 4), curve = 0, name = names,
-              lwd = 1, box.lwd = 2, cex.txt = 0,
-              box.type = "square", box.prop = 0.4, arr.type = "triangle",
-              arr.pos = 0.6, shadow.size = 0.01, prefix = "f",
-              main = "")
-}
-
-MortalityLaws_diagram()
-
 ## ----LoadPackages, message=FALSE-----------------------------------------
 library(MortalityLaws)
 
@@ -46,7 +13,7 @@ library(MortalityLaws)
 #                    countries = "SWE",            # HMD country code for Sweden
 #                    interval  = "1x1",            # specify data format
 #                    username  = "user@email.com", # here add your HMD username
-#                    password  = "password",       # here add your password account
+#                    password  = "password",       # here add your HMD password
 #                    save = FALSE)                 # save data outside R
 
 ## ------------------------------------------------------------------------

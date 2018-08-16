@@ -1,12 +1,12 @@
 ---
-title: "`MortalityLaws` User Manual"
+title: "Introduction to `MortalityLaws`"
 author: "Marius D. Pascariu"
-date: "July 24, 2018"
+date: "August 16, 2018"
 output: 
   pdf_document:
     highlight: tango
     number_sections: true
-    toc: true
+    toc: false
 fontsize: 11pt
 geometry: margin=1.1in
 bibliography: Mlaw_Refrences.bib
@@ -14,7 +14,7 @@ biblio-style: "apalike"
 link-citations: true
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteIndexEntry{User Manual}
+  %\VignetteIndexEntry{Intro}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -24,47 +24,12 @@ library(knitr)
 opts_chunk$set(collapse = TRUE)
 ```
 
-\newpage
 
 # Package structure
 
-**MortalityLaws** in an **R** package which exploits the available optimization methods to provide tools for fitting and analyzing a wide range of complex mortality models. The package can be used to construct full and abridged life tables given various input indices and to download data from Human Mortality Database as well. The main functions in the package are: `MortalityLaw`, `LifeTable` and `ReadHMD`. The package provides also support functions like `availableLaws`, `availableLF` and `availableHMD` that return information about the mortality laws implemented in the package and loss functions used in optimization process and HMD data availability. Generic functions like `predict`, `plot`, `summary`, `fitted.values` are created for MortalityLaws objects. Small data set for testing purposes `ahmd` is saved in the package.
+**MortalityLaws** in an **R** package which exploits the available optimization methods to provide tools for fitting and analyzing a wide range of complex mortality models. The package can be used to construct full and abridged life tables given various input indices and to download data from Human Mortality Database as well. The main functions in the package are: `MortalityLaw`, `LifeTable`, `LawTable`, `convertFx` and `ReadHMD`. The package also provides support functions like `availableLaws`, `availableLF` and `availableHMD` that return information about the mortality laws implemented in the package, the loss functions used in optimization processes, and HMD data availability. Generic functions like `predict`, `plot`, `summary`, `fitted`, `residuals` are created for MortalityLaws objects. Small data set for testing purposes `ahmd` is saved in the package.
 
-
-
-```{r diagram, echo=FALSE, message=FALSE, results='hide', fig.align='center', out.width='90%', fig.width=9, fig.cap="MortalityLaws R Package Structure", fig.pos='h'}
-library(diagram)
-
-MortalityLaws_diagram <- function(){
-  par(mar = c(.1, .5, .1, .5))
-  names <- c(
-            "availableHMD()", "availableLaws()", "availableLF()",
-            "MortalityLaws\n R package", 
-            "ahmd\n(Test data)", "ReadHMD()\n(Download data...)", 
-            "MortalityLaw()\n(Fit/Predict models)",
-            "LifeTable()\n(Construct life tables)"
-            )
-  
-  M <- matrix(nrow = 8, ncol = 8, byrow = TRUE, 
-             data = c(
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0,
-                       0, 0, 0, 0, 0, 0, 0, 0,
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0, 
-                       0, 0, 0, 1, 0, 0, 0, 0
-                      ))
-  pp <- plotmat(M, pos = c(3, 1, 4), curve = 0, name = names,
-              lwd = 1, box.lwd = 2, cex.txt = 0,
-              box.type = "square", box.prop = 0.4, arr.type = "triangle",
-              arr.pos = 0.6, shadow.size = 0.01, prefix = "f",
-              main = "")
-}
-
-MortalityLaws_diagram()
-```
+All functions are documented in the standard way, which means that once you load the package using `library(MortalityLaws)` you can just type, for example, `?MortalityLaw` to see the help file.
 
 # Downloading HMD Data
 
@@ -81,11 +46,11 @@ HMD_Dx <- ReadHMD(what = "Dx",
                   countries = "SWE",            # HMD country code for Sweden
                   interval  = "1x1",            # specify data format
                   username  = "user@email.com", # here add your HMD username 
-                  password  = "password",       # here add your password account
+                  password  = "password",       # here add your HMD password
                   save = FALSE)                 # save data outside R
 ```
 
-Here we download all the registered death counts `Dx` in Sweden from 1751 until 2014. In the same way one can download the following records: birth records `births`, exposure-to-risk `Ex`,  deaths by Lexis triangles `lexis`, population size `population`, death-rates `mx`, life tables for females `LT_f`, life tables for males `LT_m`, life tables both sexes combined `LT_t`, life expectancy at birth `e0`, cohort death-rates `mxc` and cohort exposures `Exc` for over 39 countries and regions in different formats.
+Here we download all the registered death counts `Dx` in Sweden from 1751 until 2014. In the same way one can download the following records: birth records `births`, exposure-to-risk `Ex`,  deaths by Lexis triangles `lexis`, population size `population`, death-rates `mx`, life tables for females `LT_f`, life tables for males `LT_m`, life tables both sexes combined `LT_t`, life expectancy at birth `e0`, cohort death-rates `mxc` and cohort exposures `Exc` for over 40 countries and regions in different formats.
 
 # Model fitting and diagnosis
 Once we have data from HMD or other sources we can start analyzing it.

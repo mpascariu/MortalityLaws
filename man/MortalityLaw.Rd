@@ -11,7 +11,7 @@ MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
                 fit.this.x = x,
                 scale.x = FALSE,
                 custom.law = NULL, 
-                show = TRUE)
+                show = FALSE)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
@@ -50,7 +50,7 @@ sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) 
 in the package. Accepts as input a function.}
 
 \item{show}{Choose whether to display a progress bar during the fitting process. 
-Logical. Default: \code{TRUE}.}
+Logical. Default: \code{FALSE}.}
 }
 \value{
 The output is of the \code{"MortalityLaw"} class with the components:
@@ -101,18 +101,15 @@ For details check \code{\link{nls.lm}}}
 }
 }
 \examples{
-# Example 1: ---
+# Example 1: --------------------------
 # Fit Makeham Model for Year of 1950.
 
 x  <- 45:75
 Dx <- ahmd$Dx[paste(x), "1950"]
 Ex <- ahmd$Ex[paste(x), "1950"]
 
-M1 <- MortalityLaw(x   = x, 
-                   Dx  = Dx, 
-                   Ex  = Ex, 
-                   law = 'makeham',
-                   scale.x = TRUE)
+M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', scale.x = TRUE)
+
 M1
 ls(M1)
 coef(M1)
@@ -122,21 +119,18 @@ predict(M1, x = 45:95)
 plot(M1)
 
 
-# Example 2: ---
+# Example 2: --------------------------
 # We can fit the same model using a different data format 
 # and a different optimization method.
 x  <- 45:75
 mx <- ahmd$mx[paste(x), ]
-M2 <- MortalityLaw(x   = x, 
-                   mx  = mx, 
-                   law = 'makeham', 
-                   opt.method = 'LF1', 
+M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1', 
                    scale.x = TRUE)
 M2
 fitted(M2)
 predict(M2, x = 55:90)
 
-# Example 3: ---
+# Example 3: --------------------------
 # Now let's fit a mortality law that is not defined 
 # in the package, say a reparameterized Gompertz in 
 # terms of modal age at death
@@ -149,26 +143,20 @@ my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
   return(as.list(environment()))
 }
 
-M3 <- MortalityLaw(x  = x,
-                   Dx = Dx, 
-                   Ex = Ex, 
-                   custom.law = my_gompertz,
+M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz,
                    scale.x = TRUE) 
 summary(M3)
 # predict M3 for different ages
 predict(M3, x = 85:130)
 
 
-# Example 4: ---
+# Example 4: --------------------------
 # Fit Heligman-Pollard model for a single 
 # year in the dataset between age 0 and 100 and build a life table.
 
 x  <- 0:100
 mx <- ahmd$mx[paste(x), "1950"] # select data
-M4 <- MortalityLaw(x   = x, 
-                   mx  = mx, 
-                   law = 'HP', 
-                   opt.method = 'LF2')
+M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 M4
 plot(M4)
 

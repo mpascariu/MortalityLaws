@@ -61,7 +61,7 @@ Dx <- ahmd$Dx[paste(x), paste(yr)]
 Ex <- ahmd$Ex[paste(x), paste(yr)]
 T2 <- MortalityLaw(x = x - 44, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 50:70 - 44)
 testMortalityLaw(T2)
-expect_error(MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 48:52))
+expect_error(MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 48))
 expect_error(MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 40:80))
 
 # Test 3: ---------------------------------------
