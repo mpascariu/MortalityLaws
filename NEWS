@@ -1,8 +1,9 @@
 version 1.6.0
 - convertFx(): New function! Easy convertor between the life table indicators;
 - MortalityLaw(): When a mortality law is fitted on a subset of the input data 
-(using fit.this.x) the residuals and fitted values are be computed and plotted 
-for the entire are range (in input). Previously only the fitted values used this method;
+(using fit.this.x) the residuals and fitted values are computed and plotted for 
+the entire are range (in input). Previously only the fitted values followed this 
+method;
 - MortalityLaw(): the `show` argument FALSE by default now; 
 - Drop `diagram` suggestion from DESCRIPTION and vignettes.
 

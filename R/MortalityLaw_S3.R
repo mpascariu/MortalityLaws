@@ -126,23 +126,25 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' # See more examples in MortalityLaw function help page.
 #' @export
 predict.MortalityLaw <- function(object, x, ...){
-  sx <- object$input$scale.x
-  xi <- object$input$x
-  
-  if (sx & min(x) < min(xi)) {
-    stop(paste("When the mortality model is estimated using 'scale.x = TRUE'", 
-               "the predicted 'x' must be higher that 'x' used in fitting.",
-               "Provide values equal or greater than", min(xi)), call. = F)
-  }
   if (min(x) < 0) stop("'x' must be greater or equal to zero.", call. = F)
+  law   <- object$input$law
+  sx    <- object$input$scale.x
+  new.x <- x
   
-  x_  <- if (sx) x - min(xi) + 1 else x
-  law <- object$input$law
+  if (sx) {
+    fit.this.x <- object$input$fit.this.x
+    d <- fit.this.x[1] - scale_x(fit.this.x)[1]
+    new.x <- x - d
+  }
+  
   Par <- coef(object)
-  pn  <- names(Par)
-  Par <- if (is.matrix(Par)) Par else matrix(Par, nrow = 1, dimnames = list("", pn))
-  M   <- if (law == "custom.law") object$input$custom.law else get(law)
-  hx  <- apply(X = Par, 1, FUN = function(X) M(x = x_, par = X)$hx)
+  
+  if (!is.matrix(Par)) {
+    Par <- matrix(Par, nrow = 1, dimnames = list("", names(Par)))
+  }
+  
+  fn <- if (law == "custom.law") object$input$custom.law else get(law)
+  hx <- apply(X = Par, 1, FUN = function(X) fn(x = new.x, par = X)$hx)
   rownames(hx) <- x
   
   if (ncol(hx) == 1) {

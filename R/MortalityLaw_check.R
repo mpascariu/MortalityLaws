@@ -50,8 +50,8 @@ check.MortalityLaw <- function(input){
          
          # Messages ---
          if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki') & opt.method != "LF2") {
-           message(paste("\nFor cases like", law, "the optimization method 'LF2'",
-                         "has been observed to return reliable estimates."))
+           message("\nFor cases like", law, "the optimization method 'LF2'",
+                   "has been observed to return reliable estimates.")
          }
        })
 }

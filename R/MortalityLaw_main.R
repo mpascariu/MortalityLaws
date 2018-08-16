@@ -145,18 +145,18 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     optim.model <- choose_optim(input) 
     if (show) setpb(pb, 2)
     
-    fit    <- optim.model$hx
-    dgn    <- optim.model$opt #diagnosis
-    cf     <- exp(dgn$par)
-    p      <- length(cf)
-    resid  <- switch(K$case, 
-                     C1_DxEx = Dx/Ex - fit,
-                     C2_mx = mx - fit,
-                     C3_qx = qx - fit)
-    dev    <- sum(resid^2)
-    rdf    <- length(x) - p
-    df     <- c(n.param = p, df.residual = rdf)
-    gof    <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
+    fit   <- optim.model$hx
+    dgn   <- optim.model$opt #diagnosis
+    cf    <- optim.model$C
+    p     <- length(cf)
+    resid <- switch(K$case, 
+                    C1_DxEx = Dx/Ex - fit,
+                    C2_mx = mx - fit,
+                    C3_qx = qx - fit)
+    dev  <- sum(resid^2)
+    rdf  <- length(x) - p
+    df   <- c(n.param = p, df.residual = rdf)
+    gof  <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
     if (show) setpb(pb, 3)
     
     # Prepare, arrange, customize output
@@ -236,12 +236,14 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
   return(out)
 }
 
+
 #' Scaling method for x vector
 #' @inheritParams MortalityLaw
 #' @keywords internal
 scale_x <- function(x) {
   x - min(x) + 1
 }
+
 
 #' Select an optimizing method
 #' @param input list of all inputs collected from MortalityLaw function
@@ -250,18 +252,24 @@ choose_optim <- function(input){
   with(as.list(input), {
     # Subset the data
     select.x <- x %in% fit.this.x
+    
     if (scale.x) {
-      x <- scale_x(x)
-      fit.this.x <- x[select.x]
+      new.fit.this.x = scale_x(fit.this.x)
+      d = fit.this.x[1] - new.fit.this.x[1]
+      new.x = x - d
+    } else {
+      new.fit.this.x <- fit.this.x
+      new.x <- x
     }
-    qx <- qx[select.x]
-    mx <- mx[select.x]
-    Dx <- Dx[select.x]
-    Ex <- Ex[select.x]
+    
     if (is.null(parS)) parS <- bring_parameters(law, parS)
     # Optimize 
-    foo <- function(k) objective_fun(par = k, x = fit.this.x, Dx, Ex, mx, qx,
-                                     law, opt.method, custom.law)
+    foo <- function(k) {
+      objective_fun(par = k, x = new.fit.this.x, 
+                    Dx = Dx[select.x], Ex = Ex[select.x], 
+                    mx = mx[select.x], qx = qx[select.x],
+                    law, opt.method, custom.law)
+    }
     
     if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki')) {
       opt <- nlminb(start = log(parS), objective = foo, 
@@ -278,8 +286,12 @@ choose_optim <- function(input){
       opt$fnvalue <- opt$value
     }
     
-    cf     <- exp(opt$par)
-    hx     <- do.call(law, list(x = x, par = cf))$hx
+    C <- exp(opt$par)
+    if (law == 'kostaki') { #kostaki hack
+      if (C[5] >= 50*C[6]) C[6] <- C[5]/50
+    }
+  
+    hx     <- do.call(law, list(x = new.x, par = C))$hx
     logLik <- log(opt$fnvalue)
     AIC    <- 2 * length(parS) - 2 * logLik
     BIC    <- log(length(fit.this.x)) * length(parS) - 2 * logLik

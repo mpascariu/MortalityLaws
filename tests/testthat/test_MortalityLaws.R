@@ -74,7 +74,8 @@ my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
   return(as.list(environment()))
 }
 
-expect_warning((T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz, scale.x = FALSE)))
+expect_warning((T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz, 
+                                  scale.x = FALSE)))
 testMortalityLaw(T3)
 
 # test 4: ---------------------------------------
@@ -89,8 +90,6 @@ expect_true(is.numeric(logLik(HP4)))
 expect_true(is.numeric(df.residual(HP4)))
 expect_true(is.numeric(deviance(HP4)))
 
-expect_error(predict(M28, x = 60:100)) # kannisto
-
 # test 5: ---------------------------------------
 # Test that all the laws return positive values
 L <- availableLaws()
@@ -101,6 +100,18 @@ for (i in laws) {
   expect_true(all(hx >= 0))
   expect_false(any(is.na(hx)))
 }
+
+# test 6: ---------------------------------------
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -398,8 +398,8 @@ kostaki <- function(x, par = NULL){
     # very large, in which case the resulted mortality curve will exhibit 
     # a significant artificial jump in one age grup. I am imposing a 
     # restriction below to limit this behaviour.
-    if (E1 >= 100*E2) E2 <- E1/100 # This hack seems to work.
-
+    if (E1 >= 50*E2) E2 <- E1/50 # This hack seems to work.
+    
     L   <- x <= F_    # Logical
     mu1 <- A^((x + B)^C) + G*H^x
     e1  <- -(E1*log(x/F_))^2
