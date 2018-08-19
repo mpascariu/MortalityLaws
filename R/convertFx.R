@@ -21,9 +21,9 @@
 #' # mx to qx
 #' qx <- convertFx(x, data = mx, In = "mx", Out = "qx")
 #' # mx to dx
-#' dx <- convertFx(x, data = qx, In = "mx", Out = "dx")
+#' dx <- convertFx(x, data = mx, In = "mx", Out = "dx")
 #' # mx to lx
-#' lx <- convertFx(x, data = qx, In = "mx", Out = "lx")
+#' lx <- convertFx(x, data = mx, In = "mx", Out = "lx")
 #' 
 #' 
 #' # There are 28 possible combinations --------------------------------

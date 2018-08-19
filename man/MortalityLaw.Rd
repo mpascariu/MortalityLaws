@@ -6,12 +6,11 @@
 \usage{
 MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
                 law = NULL, 
-                opt.method = "poissonL", 
+                opt.method = "LF2", 
                 parS = NULL, 
                 fit.this.x = x,
-                scale.x = FALSE,
                 custom.law = NULL, 
-                show = FALSE)
+                show = FALSE, ...)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
@@ -42,15 +41,13 @@ function.}
 \code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the 
 advanced ages where the data is sparse.}
 
-\item{scale.x}{Logical. Scale down \code{"x"} vector so that it begins with 
-a small value. This is useful in order to obtain meaningful estimates and 
-sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) + 1}.}
-
 \item{custom.law}{Allows you to fit a model that is not defined 
 in the package. Accepts as input a function.}
 
 \item{show}{Choose whether to display a progress bar during the fitting process. 
 Logical. Default: \code{FALSE}.}
+
+\item{...}{Ignored.}
 }
 \value{
 The output is of the \code{"MortalityLaw"} class with the components:
@@ -108,7 +105,7 @@ x  <- 45:75
 Dx <- ahmd$Dx[paste(x), "1950"]
 Ex <- ahmd$Ex[paste(x), "1950"]
 
-M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', scale.x = TRUE)
+M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
 
 M1
 ls(M1)
@@ -124,8 +121,7 @@ plot(M1)
 # and a different optimization method.
 x  <- 45:75
 mx <- ahmd$mx[paste(x), ]
-M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1', 
-                   scale.x = TRUE)
+M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
 M2
 fitted(M2)
 predict(M2, x = 55:90)
@@ -143,8 +139,7 @@ my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
   return(as.list(environment()))
 }
 
-M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz,
-                   scale.x = TRUE) 
+M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz) 
 summary(M3)
 # predict M3 for different ages
 predict(M3, x = 85:130)

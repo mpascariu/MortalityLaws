@@ -1,17 +1,19 @@
 rm(list = ls())
+library(MortalityLaws)
 
 # Example 1 --- Full life table -----------------
 y  <- 1900
-x  <- as.numeric(rownames(ahmd$mx))
+x  <- 0:107
 
-Dx <- ahmd$Dx[, paste(y)]
-Ex <- ahmd$Ex[, paste(y)]
+Dx <- ahmd$Dx[paste(x), paste(y)]
+Ex <- ahmd$Ex[paste(x), paste(y)]
 
 LT1 <- LifeTable(x, Dx = Dx, Ex = Ex)
 LT2 <- LifeTable(x, mx = LT1$lt$mx)
 LT3 <- LifeTable(x, qx = LT1$lt$qx)
 LT4 <- LifeTable(x, lx = LT1$lt$lx)
 LT5 <- LifeTable(x, dx = LT1$lt$dx)
+
 
 LT6  <- LifeTable(x, Dx = Dx, Ex = Ex, ax = 0.5)
 LT7  <- LifeTable(x, mx = LT6$lt$mx, ax = 0.5)
@@ -37,34 +39,48 @@ LT15 <- LifeTable(x = x3, dx = dx)
 
 
 # TESTS ----------------------------------------------
-expect_warning((LT16 = LifeTable(x, mx = ahmd$mx)))
+expect_warning((LT16 = LifeTable(x = 0:110, mx = ahmd$mx)))
 
 foo.test.lt <- function(X) {
   cn = c("x", "mx", "qx", "ax", "lx", "dx", "Lx", "Tx", "ex")
   test_that("LifeTable works fine", {
-    expect_true(all(X$lt[, cn] >= 0))
-    expect_false(all(is.na(X$lt$ex)))
-    expect_identical(class(X$lt$ex), "numeric")
-    expect_true(X$lt$ex[1] >= 0)
-    expect_true(X$lt$ex[1] >= rev(X$lt$ex)[1])
-    expect_output(print(X))
+    expect_true(all(X$lt[, cn] >= 0))           # All values in LT are positive
+    expect_false(all(is.na(X$lt$ex)))           # ex does not contain NA's
+    expect_identical(class(X$lt$ex), "numeric") # All ex is of the class numeric
+    expect_true(X$lt$ex[1] >= rev(X$lt$ex)[1])  # ex at the beginnig is greater or equat with ex at the end
+    expect_equal(sum(X$lt$dx), X$lt$lx[1])      # The distribution of deaths sums up to unity
+    expect_output(print(X))                     # The print function works
   })
 }
 
-for (j in 1:15) foo.test.lt(X = get(paste0("LT",j)))
+for (j in 1:15) {
+  print(j)
+  foo.test.lt(X = get(paste0("LT",j)))
+}
 
-test_that("Identical LTs", {
-  expect_identical(round(LT1$lt$ex,2), round(LT2$lt$ex, 2))
-  expect_identical(round(LT1$lt$ex,2), round(LT3$lt$ex, 2))
-  expect_identical(round(LT1$lt$ex,2), round(LT4$lt$ex, 2))
-  expect_identical(round(LT1$lt$ex,2), round(LT5$lt$ex, 2))
-})
-test_that("Identical LTs when ax = 0.5", {
-  expect_identical(round(LT6$lt$ex,2), round(LT7$lt$ex, 2))
-  expect_identical(round(LT6$lt$ex,2), round(LT8$lt$ex, 2))
-  expect_identical(round(LT6$lt$ex,2), round(LT9$lt$ex, 2))
-  expect_identical(round(LT6$lt$ex,2), round(LT10$lt$ex, 2))
-})
+
+# round(LT1$lt$mx - LT2$lt$mx, 7)
+# round(LT1$lt$mx - LT3$lt$mx, 7)
+# round(LT1$lt$mx - LT4$lt$mx, 7)
+# round(LT1$lt$mx - LT5$lt$mx, 7)
+
+test_lt_consistency <- function(benchmark_LT, LT) {
+  n <- nrow(benchmark_LT$lt)   # The last row can be different depending how the LT is closed. Do not test last row.
+  B <- round(benchmark_LT$lt[-n, -1], 7)
+  L <- round(LT$lt[-n, -1], 7)
+  test_that("Identical LT estimates", {
+    expect_identical(B$ex, L$ex)
+    expect_identical(B$dx, L$dx)
+    expect_identical(B$lx, L$lx)
+    expect_identical(B$mx, L$mx)
+    expect_identical(B$qx, L$qx)
+  })
+}
+
+for (k in 2:5) test_lt_consistency(LT1, get(paste0("LT", k)))
+
+for (k in 7:10) test_lt_consistency(LT6, get(paste0("LT", k)))
+
 
 
 
@@ -72,11 +88,11 @@ test_that("Identical LTs when ax = 0.5", {
 # Test some more warnings
 qx2 <- LT11$lt$qx
 qx2[length(qx2)] <- NA
-expect_warning(LifeTable(x2, qx = qx2, sex = NULL))
+expect_warning(LifeTable(x = LT11$lt$x, qx = qx2, sex = NULL))
 
 qx3 <- LT1$lt$qx
-qx3[105:111] <- NA
-expect_warning(LifeTable(x, qx = qx3))
+qx3[qx3 %in% tail(qx3, 3)] <- NaN
+expect_warning(LifeTable(x = LT1$lt$x, qx = qx3))
 
 
 

@@ -12,12 +12,11 @@
 #' @usage 
 #' MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
 #'                 law = NULL, 
-#'                 opt.method = "poissonL", 
+#'                 opt.method = "LF2", 
 #'                 parS = NULL, 
 #'                 fit.this.x = x,
-#'                 scale.x = FALSE,
 #'                 custom.law = NULL, 
-#'                 show = FALSE)
+#'                 show = FALSE, ...)
 #' @details Depending on the complexity of the model, one of following optimization 
 #' strategies is employed: 
 #' \enumerate{
@@ -43,13 +42,11 @@
 #' @param fit.this.x Select the ages to be considered in model fitting. By default 
 #' \code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the 
 #' advanced ages where the data is sparse.
-#' @param scale.x Logical. Scale down \code{"x"} vector so that it begins with 
-#' a small value. This is useful in order to obtain meaningful estimates and 
-#' sometimes a better fit. Default: \code{FALSE}. Method: \code{new.x = x - min(x) + 1}.
 #' @param custom.law Allows you to fit a model that is not defined 
 #' in the package. Accepts as input a function.
 #' @param show Choose whether to display a progress bar during the fitting process. 
 #' Logical. Default: \code{FALSE}.
+#' @param ... Ignored.
 #' @return The output is of the \code{"MortalityLaw"} class with the components:
 #' @return \item{input}{List with arguments provided in input. Saved for convenience.}
 #' @return \item{info}{Brief information about the model.}
@@ -73,7 +70,7 @@
 #' Dx <- ahmd$Dx[paste(x), "1950"]
 #' Ex <- ahmd$Ex[paste(x), "1950"]
 #' 
-#' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', scale.x = TRUE)
+#' M1 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham')
 #' 
 #' M1
 #' ls(M1)
@@ -89,8 +86,7 @@
 #' # and a different optimization method.
 #' x  <- 45:75
 #' mx <- ahmd$mx[paste(x), ]
-#' M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1', 
-#'                    scale.x = TRUE)
+#' M2 <- MortalityLaw(x = x, mx = mx, law = 'makeham', opt.method = 'LF1')
 #' M2
 #' fitted(M2)
 #' predict(M2, x = 55:90)
@@ -108,8 +104,7 @@
 #'   return(as.list(environment()))
 #' }
 #' 
-#' M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz,
-#'                    scale.x = TRUE) 
+#' M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz) 
 #' summary(M3)
 #' # predict M3 for different ages
 #' predict(M3, x = 85:130)
@@ -128,15 +123,14 @@
 #' LifeTable(x = x, qx = fitted(M4))
 #' @export
 MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, 
-                         law = NULL, opt.method = 'poissonL', parS = NULL, 
-                         fit.this.x = x, scale.x = FALSE, custom.law = NULL, 
-                         show = FALSE){
-  if (!is.null(custom.law)) {
-    law  <- 'custom.law'
-    parS <- custom.law(1)$par 
-  }
-  input <- c(as.list(environment()))
-  K     <- find.my.case(Dx, Ex, mx, qx)
+                         law = NULL, opt.method = 'LF2', parS = NULL, 
+                         fit.this.x = x, custom.law = NULL, show = FALSE, ...){
+  info  <- addDetails(law, custom.law, parS)
+  law     <- info$law
+  scale.x <- info$scale.x
+  parS    <- info$parS
+  input   <- c(as.list(environment()))
+  K <- find.my.case(Dx, Ex, mx, qx)
   
   if (K$iclass == "numeric") {
     check.MortalityLaw(input) # Check input
@@ -157,17 +151,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     rdf  <- length(x) - p
     df   <- c(n.param = p, df.residual = rdf)
     gof  <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
-    if (show) setpb(pb, 3)
-    
-    # Prepare, arrange, customize output
-    if (law == "custom.law") {
-      model.info <- "Custom Mortality Law"
-    } else {
-      availLaws  <- availableLaws()$table
-      model.info <- data.frame(availLaws[availLaws$CODE == law, ], row.names = "")    
-    }
-    
-    info <- list(model.info = model.info, process.date = date())
+    info <- list(model.info = info$model, process.date = date())
     names(fit) = names(resid) <- x
     if (show) setpb(pb, 4)
     
@@ -178,7 +162,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     for (i in 1:N) {
       if (show) setpb(pb, i)
       M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
-          law, opt.method, parS, fit.this.x, scale.x, custom.law, show = FALSE))
+          law, opt.method, parS, fit.this.x, custom.law, show = FALSE))
       fit      <- cbind(fit, fitted(M))
       gof      <- rbind(gof, M$goodness.of.fit)
       dgn[[i]] <- M$dgn
@@ -199,6 +183,33 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   out <- structure(class = "MortalityLaw", output)
   return(out)
 }
+
+
+#' Depending on the choosen mortality law, additional details need to be
+#' specified in order to be able to fit the models taking into account it's 
+#' particularities.
+#' 
+#' @inheritParams MortalityLaw
+#' @keywords internal
+addDetails <- function(law, custom.law = NULL, parS = NULL) {
+  if (!is.null(law)) {
+    law  <- law
+    parS <- parS
+    A    <- availableLaws()[["table"]]
+    MI   <- data.frame(A[A$CODE == law, ], row.names = "")
+    sx   <- as.logical(MI$SCALE_X)
+    
+  } else {
+    law  <- 'custom.law'
+    parS <- custom.law(1)$par 
+    MI   <- "Custom Mortality Law"
+    sx   <- TRUE
+  }
+  out <- list(law = law, parS = parS, model = MI, scale.x = sx)
+  return(out)
+}
+
+
 
 
 #' Function to be Optimize

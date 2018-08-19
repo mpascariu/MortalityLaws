@@ -10,7 +10,7 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              lx = NULL,
              dx = NULL,
              sex = NULL,
-             lx0 = 1e+05,
+             lx0 = 1e5,
              ax  = NULL)
 }
 \arguments{

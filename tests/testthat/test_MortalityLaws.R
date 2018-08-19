@@ -74,8 +74,8 @@ my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
   return(as.list(environment()))
 }
 
-expect_warning((T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz, 
-                                  scale.x = FALSE)))
+T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz,
+                                  scale.x = FALSE)
 testMortalityLaw(T3)
 
 # test 4: ---------------------------------------

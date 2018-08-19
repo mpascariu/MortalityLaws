@@ -4,8 +4,7 @@
 \alias{LawTable}
 \title{Compute Life Tables from Parameters of a Mortality Law}
 \usage{
-LawTable(x, par, law, scale.x = FALSE, sex = NULL, lx0 = 1e+05,
-  ax = NULL)
+LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
@@ -15,9 +14,6 @@ LawTable(x, par, law, scale.x = FALSE, sex = NULL, lx0 = 1e+05,
 \item{law}{The name of the mortality law/model to be used. e.g. 
 \code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
 see \code{\link{availableLaws}} function.}
-
-\item{scale.x}{Logical. Scale down \code{"x"} vector so that it begins with 
-a small value. Method: \code{new.x = x - min(x) + 1}. Default: FALSE.}
 
 \item{sex}{Sex of the population considered here. Default: \code{NULL}. 
 This argument affects the first two values in the life table ax column. 
@@ -52,7 +48,6 @@ age will die before his or her next birthday, the expectation of life across
 different age ranges or the survivorship of people from a certain population.
 }
 \examples{
-
 # Example 1 --- Makeham --- 4 tables ----------
 x1 = 45:100
 L1 = "makeham"
@@ -60,15 +55,57 @@ C1 = matrix(c(0.00717, 0.07789, 0.00363,
               0.01018, 0.07229, 0.00001,
               0.00298, 0.09585, 0.00002,
               0.00067, 0.11572, 0.00078), 
-              nrow = 4, dimnames = list(1:4, c("A", "B", "C")))
+            nrow = 4, dimnames = list(1:4, c("A", "B", "C")))
 
-LawTable(x = x1, par = C1, law = L1, scale.x = TRUE)
+LawTable(x = 45:100, par = C1, law = L1)
+
+# WARNING!!!
+
+# It is important to know how the coefficients have been estimated. If the 
+# fitting of the model was done over the [x, x+) age-range the LawTable
+# function can be used to create a life table only for those ages.
+
+# What can go wrong?
+
+# Example 1b - OK
+LawTable(x = 45:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
+# Example 1c - Not OK, because we have the life expectancy at age 25 is 
+# equal with life expectancy at age 45 in the previous example.
+LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
+
+# Why is this happening?
+
+# If we have a model that covers only a part of the human mortality curve 
+# (e.g. adult mortality) the x vector is scaled down, meaning age (x) becomes 
+# (x - min(x) + 1), and the coefficients are estimated on a scaled x in ordered
+# to obtain meaningful estimates. Otherwise the process might not converge.
+
+# What can we do about it?
+
+# a). Know which mortality laws are rescaling the x vector in the fitting process.
+# If these the model are fitted with the MortalityLaw() function you can find out 
+# like so:
+A <- availableLaws()$table
+A[, c("CODE", "SCALE_X")]
+
+# b). If you are using one of the models that are applying scaling,
+# Be aware over what age-range the coefficients have been estimated. If they 
+# have been estimated using, say, between 50 and 80, you can use the 
+# LawTable() to build a life tables from age 50 onwards. 
+
 
 # Example 2 --- Heligman-Pollard -- 1 table ----
-x2 = 0:100
+x2 = 0:110
 L2 = "HP"
 C2 = c(0.00223, 0.01461, 0.12292, 0.00091, 
        2.75201, 29.01877, 0.00002, 1.11411)
 
-LawTable(x = x2, par = C2, law = L2, scale.x = FALSE)
+LawTable(x = x2, par = C2, law = L2)
+
+# Because "HP" is not scaling down the x vector, the output is not affected by 
+# the problem described above.
+
+# Check
+LawTable(x = 3:110, par = C2, law = L2)
+# Note the e3 = 70.31 in both tables
 }

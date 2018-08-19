@@ -7,7 +7,7 @@
 LifeTable.check(input)
 }
 \arguments{
-\item{input}{a list containing the input arguments of the LifeTable functions}
+\item{input}{A list containing the input arguments of the LifeTable functions.}
 }
 \description{
 Check LifeTable input

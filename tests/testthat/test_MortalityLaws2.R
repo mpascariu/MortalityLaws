@@ -25,9 +25,9 @@ testFN <- function(M1, M2) {
   })
 }
 
-M1 <- function() MortalityLaw(x = x1, mx = mx, law = law, scale.x = scale.x,
+M1 <- function() MortalityLaw(x = x1, mx = mx, law = law,
                    fit.this.x = x2, opt.method = opt.method)
-M2 <- function() MortalityLaw(x = x2, mx = mx[paste(x2)], law = law, scale.x = scale.x,
+M2 <- function() MortalityLaw(x = x2, mx = mx[paste(x2)], law = law,
                    fit.this.x = x2, opt.method = opt.method)
 
 opt.method = "LF2"
@@ -36,7 +36,6 @@ opt.method = "LF2"
 # Test gompertz -- OK
 law = "gompertz"
 x2 = seq(40, 75, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 
@@ -44,7 +43,6 @@ testFN(M1(), M2())
 # Test gompertz0 -- OK
 law = "gompertz0"
 x2 = seq(40, 75, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 
@@ -52,132 +50,113 @@ testFN(M1(), M2())
 # Test invgompertz -- OK
 law = "invgompertz"
 x2 = seq(5, 30, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test makeham -- OK
 law = "makeham"
 x2 = seq(35, 90, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test makeham0 -- OK
 law = "makeham0"
 x2 = seq(35, 90, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 law = "opperman"
 x2 = c(0,1, seq(5, 25, by = 5))
-scale.x = FALSE  # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test thiele -- OK
 law = "thiele"
 x2 = x1
-scale.x = FALSE  # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test wittstein -- OK
 law = "wittstein"
 x2 = x1
-scale.x = FALSE  # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test perks -- OK
 law = "perks"
 x2 = seq(20, 80, 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test weibull -- OK
 law = "weibull"
 x2 = c(0, 1, 5, 10, 15)
-scale.x = FALSE # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test invweibull -- OK
 law = "invweibull"
 x2 = seq(10, 30, 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test vandermaen -- OK
 law = "vandermaen"
 x2 = seq(20, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test vandermaen2 -- OK
 law = "vandermaen2"
 x2 = seq(60, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test quadratic -- OK
 law = "quadratic"
 x2 = seq(60, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test beard -- OK
 law = "beard"
 x2 = seq(60, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test makehambeard -- OK
 law = "makehambeard"
 x2 = seq(60, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test ggompertz -- OK
 law = "ggompertz"
 x2 = seq(60, 95, by = 5)
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test siler -- OK
 law = "siler"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test HP -- OK
 law = "HP"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test HP2 -- OK
 law = "HP2"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test HP3 -- OK
 law = "HP3"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 
@@ -185,49 +164,42 @@ testFN(M1(), M2())
 # Test HP4 -- OK
 law = "HP4"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test rogersplanck -- OK
 law = "rogersplanck"
 x2 = x1
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test martinelle -- OK
 law = "martinelle"
 x2 = c(0, 1, seq(5, 75, 5))
-scale.x = F # no need to scale here, bad things happed when you do.
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test carriere1 -- OK
 law = "carriere1"
 x2 = x1
-scale.x = TRUE 
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test carriere2 -- OK
 law = "carriere2"
 x2 = x1
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test kostaki -- OK
 law = "kostaki"
 x2 = x1
-scale.x = TRUE
 
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test kannisto -- OK
 law = "kannisto"
 x2 = c(80, 85, 90, 95)
-scale.x = TRUE
 
 testFN(M1(), M2())
 

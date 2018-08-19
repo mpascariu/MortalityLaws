@@ -4,14 +4,16 @@
 \alias{mx_qx}
 \title{mx to qx}
 \usage{
-mx_qx(x, ux, out = "qx")
+mx_qx(x, nx, ux, out = c("qx", "mx"))
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{ux}{a vector of mx or qx}
+\item{nx}{Length of the age-intervals.}
 
-\item{out}{type of the output: mx or qx}
+\item{ux}{A vector of mx or qx.}
+
+\item{out}{Type of the output: mx or qx.}
 }
 \description{
 Function to convert mx into qx and back, using the constant force of 
