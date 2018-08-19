@@ -258,7 +258,7 @@ uxAbove100 <- function(x, ux, omega = 100, verbose = FALSE) {
       mux   <- max(ux[!L])
       ux[L] <- mux
       if (verbose) warning("The input data contains NA's, Inf or zero's over the age of 100. ", 
-                           "These have been replaced with maximum observed mx: ", 
+                           "These have been replaced with maximum observed value: ", 
                            round(mux, 4), call. = F)
     }
     

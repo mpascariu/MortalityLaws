@@ -62,23 +62,25 @@ LawTable(x = 45:100, par = C1, law = L1)
 # WARNING!!!
 
 # It is important to know how the coefficients have been estimated. If the 
-# fitting of the model was done over the [x, x+) age-range the LawTable
-# function can be used to create a life table only for those ages.
+# fitting of the model was done over the [x, x+) age-range, the LawTable
+# function can be used to create a life table only for age x onward.
 
 # What can go wrong?
 
-# Example 1b - OK
+# ** Example 1B - OK
 LawTable(x = 45:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
-# Example 1c - Not OK, because we have the life expectancy at age 25 is 
+
+# ** Example 1C - Not OK, because we have the life expectancy at age 25 is 
 # equal with life expectancy at age 45 in the previous example.
 LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 
 # Why is this happening?
 
 # If we have a model that covers only a part of the human mortality curve 
-# (e.g. adult mortality) the x vector is scaled down, meaning age (x) becomes 
+# (e.g. adult mortality), the x vector is scaled down, meaning age (x) becomes 
 # (x - min(x) + 1), and the coefficients are estimated on a scaled x in ordered
-# to obtain meaningful estimates. Otherwise the process might not converge.
+# to obtain meaningful estimates. Otherwise the optimization process might 
+not converge.
 
 # What can we do about it?
 
@@ -89,8 +91,8 @@ A <- availableLaws()$table
 A[, c("CODE", "SCALE_X")]
 
 # b). If you are using one of the models that are applying scaling,
-# Be aware over what age-range the coefficients have been estimated. If they 
-# have been estimated using, say, between 50 and 80, you can use the 
+# be aware over what age-range the coefficients have been estimated. If they 
+# have been estimated using, say, ages 50 to 80, you can use the 
 # LawTable() to build a life tables from age 50 onwards. 
 
 
