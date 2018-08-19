@@ -80,7 +80,7 @@ LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 # (e.g. adult mortality), the x vector is scaled down, meaning age (x) becomes 
 # (x - min(x) + 1), and the coefficients are estimated on a scaled x in ordered
 # to obtain meaningful estimates. Otherwise the optimization process might 
-not converge.
+# not converge.
 
 # What can we do about it?
 
