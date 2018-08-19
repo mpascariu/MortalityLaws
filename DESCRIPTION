@@ -1,10 +1,10 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 1.5.9
+Version: 1.5.10
 Date: 2018-08-17
 Authors@R: c(
-  person("Marius D.", "Pascariu", role = c("aut", "cre"), 
+  person("Marius D.", "Pascariu", role = c("aut", "cre", "cph"), 
          email = "mpascariu@outlook.com"),
   person("Vladimir", "Canudas-Romo", role = "ctb"))
 Maintainer: Marius D. Pascariu <mpascariu@outlook.com>

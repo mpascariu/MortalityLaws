@@ -2,21 +2,37 @@
 % Please edit documentation in R/MortalityLaws-package.R
 \docType{package}
 \name{MortalityLaws-package}
+\alias{MortalityLaws}
 \alias{MortalityLaws-package}
 \title{MortalityLaws: Parametric Mortality Models, Life Tables and HMD}
 \description{
-Fit the most popular human mortality "laws", and construct 
-full and abridge life tables given various input indices. A mortality
-law is a parametric function that describes the dying-out process of 
-individuals in a population during a significant portion of their 
-life spans. For a comprehensive review of the most important mortality 
-laws see Tabeau (\href{https://doi.org/10.1007/0-306-47562-6_1}{2001}).
-An elegant function for downloading data from 
-\href{https://www.mortality.org}{Human Mortality Database} is provided as well.
-
+Fit the most popular human mortality 'laws', and construct 
+  full and abridge life tables given various input indices. A mortality
+  law is a parametric function that describes the dying-out process of 
+  individuals in a population during a significant portion of their 
+  life spans. For a comprehensive review of the most important mortality 
+  laws see Tabeau (2001) <doi:10.1007/0-306-47562-6_1>. 
+  An elegant function for downloading data from Human Mortality 
+  Database <https://www.mortality.org> is provided as well.
+}
+\details{
 To learn more about the package, start with the vignettes: 
 browseVignettes(package = "MortalityLaws")
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/mpascariu/MortalityLaws}
+  \item Report bugs at \url{https://github.com/mpascariu/MortalityLaws/issues}
+}
+
+}
 \author{
-Marius D. Pascariu <rpascariu@outlook.com>
+\strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} [copyright holder]
+
+Other contributors:
+\itemize{
+  \item Vladimir Canudas-Romo [contributor]
+}
+
 }
