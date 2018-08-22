@@ -42,10 +42,10 @@
 #' assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
 #' the interval. Default: \code{NULL}.
 #' @return The output is of the \code{"LifeTable"} class with the components:
-#' @return \item{lt}{Computed life table;}
-#' @return \item{call}{\code{Call} in which all of the specified arguments are 
-#' specified by their full names;}
-#' @return \item{process_date}{Time stamp.}
+#'  \item{lt}{Computed life table;}
+#'  \item{call}{\code{Call} in which all of the specified arguments are 
+#'  specified by their full names;}
+#'  \item{process_date}{Time stamp.}
 #' @examples 
 #' # Example 1 --- Full life tables with different inputs ---
 #'  
@@ -109,10 +109,8 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
 
 
 #' LifeTable.core
-#' 
 #' @inheritParams LifeTable
 #' @keywords internal
-#' @export
 LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
@@ -182,7 +180,6 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 #' Function that identifies the case/problem we have to solve
 #' @inheritParams LifeTable
 #' @keywords internal
-#' @export
 find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL, 
                          qx = NULL, lx = NULL, dx = NULL) {
   input   <- c(as.list(environment()))
@@ -238,7 +235,7 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
     eta <- suppressWarnings(-log(1 - ux)/nx)
   }
   
-  eta <- uxAbove100(x, eta, omega = 100)
+  eta <- uxAbove100(x, eta)
   return(eta)
 }
 

@@ -1,4 +1,5 @@
 
+# MortalityLaws Package
 
 #' @details 
 #' To learn more about the package, start with the vignettes: 
@@ -12,6 +13,7 @@
 #' df.residual qt vcov
 #' @importFrom pbapply startpb closepb setpb
 #' @importFrom tidyr spread
-#' @name MortalityLaws-package
+#' @name MortalityLaws
+#' @aliases NULL
 #' @docType package
 "_PACKAGE"

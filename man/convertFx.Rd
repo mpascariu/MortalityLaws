@@ -4,17 +4,17 @@
 \alias{convertFx}
 \title{Convert Life Table Indicators}
 \usage{
-convertFx(x, data, In, Out, ...)
+convertFx(x, data, from, to, ...)
 }
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
 \item{data}{Vector or data.frame/matrix containing the mortality indicators.}
 
-\item{In}{Specify what indicator did you provide in \code{data}. Options:
+\item{from}{Specify what indicator did you provide in \code{data}. Options:
 \code{mx, qx, dx, lx}.}
 
-\item{Out}{What indicator would you like to obtain? Options: 
+\item{to}{What indicator would you like to obtain? Options: 
 \code{mx, qx, dx, lx, Lx, Tx, ex}.}
 
 \item{...}{Further arguments to be passed to the \code{\link{LifeTable}} 
@@ -30,26 +30,25 @@ x  <- 0:110
 mx <- ahmd$mx
 
 # mx to qx
-qx <- convertFx(x, data = mx, In = "mx", Out = "qx")
+qx <- convertFx(x, data = mx, from = "mx", to = "qx")
 # mx to dx
-dx <- convertFx(x, data = mx, In = "mx", Out = "dx")
+dx <- convertFx(x, data = mx, from = "mx", to = "dx")
 # mx to lx
-lx <- convertFx(x, data = mx, In = "mx", Out = "lx")
+lx <- convertFx(x, data = mx, from = "mx", to = "lx")
 
 
 # There are 28 possible combinations --------------------------------
 # Let generate all of them.
-In  <- c("mx", "qx", "dx", "lx")
-Out <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
-
-K <- expand.grid(In = In, Out = Out) # all possible cases/combinations
+from <- c("mx", "qx", "dx", "lx")
+to   <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
+K    <- expand.grid(from = from, to = to) # all possible cases/combinations
 
 for (i in 1:nrow(K)) {
-  In_  <- as.character(K[i, "In"])
-  Out_ <- as.character(K[i, "Out"])
-  N <- paste0(Out_, "_from_", In_)
+  In  <- as.character(K[i, "from"])
+  Out <- as.character(K[i, "to"])
+  N <- paste0(Out, "_from_", In)
   cat(i, " Create", N, "\\n")
   # Create the 28 sets of results
-  assign(N, convertFx(x = x, data = get(In_), In = In_, Out = Out_))
+  assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
 }
 }

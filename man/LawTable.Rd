@@ -30,13 +30,10 @@ the interval. Default: \code{NULL}.}
 }
 \value{
 The output is of the \code{"LifeTable"} class with the components:
-
-\item{lt}{Computed life table;}
-
-\item{call}{\code{Call} in which all of the specified arguments are 
-specified by their full names;}
-
-\item{process_date}{Time stamp.}
+ \item{lt}{Computed life table;}
+ \item{call}{\code{Call} in which all of the specified arguments are 
+ specified by their full names;}
+ \item{process_date}{Time stamp.}
 }
 \description{
 Compute Life Tables from Parameters of a Mortality Law
