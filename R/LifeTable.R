@@ -237,6 +237,11 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
     eta <- 1 - exp(-nx * ux)
   } else {
     eta <- suppressWarnings(-log(1 - ux)/nx)
+    # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's; they
+    # distort the results in the subsequent processes. 
+    # We apply a simple extrapolation method of the last mx.
+    N <- length(x)
+    eta[N] <- eta[N - 1]^2 / eta[N - 2]
   }
   
   eta <- uxAbove100(x, eta)
