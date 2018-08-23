@@ -14,7 +14,8 @@ uxAbove100(x, ux, omega = 100, verbose = FALSE)
 
 \item{omega}{Threshold age. Default: 100.}
 
-\item{verbose}{verbose?}
+\item{verbose}{A logical value. Set \code{verbose = FALSE} to silent 
+the process that take place inside the function and avoid progress messages.}
 }
 \description{
 Educate mx or qx on how to behave above age 100 if it gets in trouble 

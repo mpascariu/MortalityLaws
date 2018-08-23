@@ -171,6 +171,9 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   ex[is.na(ex)] <- 0
   ex[N] <- if (ex[N - 1] == 0) 0 else ax[N]
   
+  last_check = all(is.na(mx)) | all(is.nan(mx)) | all(is.infinite(mx)) | all(mx == 0)
+  if (last_check) mx = qx = ax = lx = dx = Lx = Tx = ex <- NA
+  
   out <- data.frame(x.int = gr_names, x = x, mx = mx, qx = qx, ax = ax,
                     lx = lx, dx = dx, Lx = Lx, Tx = Tx, ex = ex)
   return(out)
@@ -183,19 +186,20 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL, 
                          qx = NULL, lx = NULL, dx = NULL) {
   input   <- c(as.list(environment()))
-  # Matrix of possible cases ----
+  
+  # Matrix of possible cases --------------------
   rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
   cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
-  mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn,cn),
+  mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn, cn),
                 data = c(T,T,F,F,F,F, 
                          F,F,T,F,F,F,
                          F,F,F,T,F,F,
                          F,F,F,F,T,F,
                          F,F,F,F,F,T))
   # ----------------------------------------------
-  
   L1 <- !unlist(lapply(input, is.null))
   L2 <- apply(mat, 1, function(x) all(L1 == x))
+  my_case <- rn[L2]
   
   if (sum(L1[c(1, 2)]) == 1) {
     stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = F)
@@ -204,15 +208,15 @@ find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL,
     stop("The input is not specified correctly. Check again the function ",
          "arguments and make sure the input data is added properly.", call. = F)
   }
-  X <- input[L1][[1]]
   
-  nLT = LTnames <- NA
+  X   <- input[L1][[1]]
+  nLT <- LTnames <- NA
   if (!is.vector(X)) {
     nLT     <- ncol(X)     # number of LTs to be created
     LTnames <- colnames(X) # the names to be assigned to LTs
   }
   
-  out <- list(case = rn[L2], iclass = class(X), nLT = nLT, LTnames = LTnames)
+  out <- list(case = my_case, iclass = class(X), nLT = nLT, LTnames = LTnames)
   return(out)
 }
 
@@ -245,12 +249,13 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
 #' @inheritParams LifeTable
 #' @inheritParams mx_qx
 #' @param omega Threshold age. Default: 100.
-#' @param verbose verbose?
+#' @param verbose A logical value. Set \code{verbose = FALSE} to silent 
+#' the process that take place inside the function and avoid progress messages.
 #' @keywords internal
 uxAbove100 <- function(x, ux, omega = 100, verbose = FALSE) {
   
   if (is.vector(ux)) {
-    L <- x >= 100 & ux == 0 | is.infinite(ux) | is.na(ux)
+    L <- x >= 100 & (is.na(ux) | is.infinite(ux) | ux == 0)
     if (any(L)) {
       mux   <- max(ux[!L])
       ux[L] <- mux
@@ -356,10 +361,10 @@ LifeTable.check <- function(input) {
       if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = F)
     }
     if (C == "C2_mx") {
-      mx <- uxAbove100(x, mx, verbose = TRUE)
+      mx <- uxAbove100(x, mx)
     }
     if (C == "C3_qx") {
-      qx <- uxAbove100(x, qx, verbose = TRUE)
+      qx <- uxAbove100(x, qx)
     }
     if (C == "C4_lx") {
       lx[is.na(lx) & x >= 100] <- 0

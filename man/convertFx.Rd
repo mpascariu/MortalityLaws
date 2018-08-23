@@ -11,11 +11,11 @@ convertFx(x, data, from, to, ...)
 
 \item{data}{Vector or data.frame/matrix containing the mortality indicators.}
 
-\item{from}{Specify what indicator did you provide in \code{data}. Options:
-\code{mx, qx, dx, lx}.}
+\item{from}{Specify the life table indicator in the input \code{data}. Character.
+Options: \code{mx, qx, dx, lx}.}
 
-\item{to}{What indicator would you like to obtain? Options: 
-\code{mx, qx, dx, lx, Lx, Tx, ex}.}
+\item{to}{What indicator would you like to obtain? Character. 
+Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.}
 
 \item{...}{Further arguments to be passed to the \code{\link{LifeTable}} 
 function with impact on the results to be produced.}

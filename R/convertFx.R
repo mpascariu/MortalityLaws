@@ -7,10 +7,10 @@
 #' @usage convertFx(x, data, from, to, ...)
 #' @inheritParams LifeTable
 #' @param data Vector or data.frame/matrix containing the mortality indicators.
-#' @param from Specify what indicator did you provide in \code{data}. Options:
-#' \code{mx, qx, dx, lx}.   
-#' @param to What indicator would you like to obtain? Options: 
-#' \code{mx, qx, dx, lx, Lx, Tx, ex}.
+#' @param from Specify the life table indicator in the input \code{data}. Character.
+#' Options: \code{mx, qx, dx, lx}.   
+#' @param to What indicator would you like to obtain? Character. 
+#' Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.
 #' @param ... Further arguments to be passed to the \code{\link{LifeTable}} 
 #' function with impact on the results to be produced.
 #' @examples 
@@ -45,8 +45,8 @@ convertFx <- function(x, data,
                   from = c("mx", "qx", "dx", "lx"), 
                   to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"), ...) {
   
-  from  <- match.arg(from)
-  to <- match.arg(to)
+  from <- match.arg(from)
+  to   <- match.arg(to)
 
   A <- switch(from,
               mx = LifeTable(x, mx = data, ...)$lt,

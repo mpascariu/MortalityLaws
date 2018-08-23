@@ -39,7 +39,7 @@ LT15 <- LifeTable(x = x3, dx = dx)
 
 
 # TESTS ----------------------------------------------
-expect_warning((LT16 = LifeTable(x = 0:110, mx = ahmd$mx)))
+# expect_warning((LT16 = LifeTable(x = 0:110, mx = ahmd$mx)))
 
 foo.test.lt <- function(X) {
   cn = c("x", "mx", "qx", "ax", "lx", "dx", "Lx", "Tx", "ex")
@@ -59,21 +59,21 @@ for (j in 1:15) {
 }
 
 
-# round(LT1$lt$mx - LT2$lt$mx, 7)
-# round(LT1$lt$mx - LT3$lt$mx, 7)
-# round(LT1$lt$mx - LT4$lt$mx, 7)
-# round(LT1$lt$mx - LT5$lt$mx, 7)
+# round(LT1$lt$mx - LT2$lt$mx, 10)
+# round(LT1$lt$mx - LT3$lt$mx, 10)
+# round(LT1$lt$mx - LT4$lt$mx, 10)
+# round(LT1$lt$mx - LT5$lt$mx, 10)
 
 test_lt_consistency <- function(benchmark_LT, LT) {
   n <- nrow(benchmark_LT$lt)   # The last row can be different depending how the LT is closed. Do not test last row.
   B <- round(benchmark_LT$lt[-n, -1], 7)
   L <- round(LT$lt[-n, -1], 7)
   test_that("Identical LT estimates", {
-    expect_identical(B$ex, L$ex)
-    expect_identical(B$dx, L$dx)
-    expect_identical(B$lx, L$lx)
     expect_identical(B$mx, L$mx)
     expect_identical(B$qx, L$qx)
+    expect_identical(B$dx, L$dx)
+    expect_identical(B$lx, L$lx)
+    expect_identical(B$ex, L$ex)
   })
 }
 
@@ -86,13 +86,13 @@ for (k in 7:10) test_lt_consistency(LT6, get(paste0("LT", k)))
 
 # ----------------------------------------------
 # Test some more warnings
-qx2 <- LT11$lt$qx
-qx2[length(qx2)] <- NA
-expect_warning(LifeTable(x = LT11$lt$x, qx = qx2, sex = NULL))
-
-qx3 <- LT1$lt$qx
-qx3[qx3 %in% tail(qx3, 3)] <- NaN
-expect_warning(LifeTable(x = LT1$lt$x, qx = qx3))
+# qx2 <- LT11$lt$qx
+# qx2[length(qx2)] <- NA
+# expect_warning(LifeTable(x = LT11$lt$x, qx = qx2, sex = NULL))
+# 
+# qx3 <- LT1$lt$qx
+# qx3[qx3 %in% tail(qx3, 3)] <- NaN
+# expect_warning(LifeTable(x = LT1$lt$x, qx = qx3))
 
 
 
