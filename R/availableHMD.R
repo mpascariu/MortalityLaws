@@ -6,6 +6,7 @@
 #' @param ... Other parameters to be passed in \code{ReadHMD} function.
 #' @return An \code{availableHMD} object.
 #' @seealso \code{\link{ReadHMD}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' \dontrun{
 #' # This will take few seconds...
@@ -33,6 +34,7 @@ availableHMD <- function(username, password, ...) {
   out <- structure(class = "availableHMD", out)
   return(out)
 }
+
 
 #' Print for availableHMD
 #' @param x an object of class \code{"availableHMD"}

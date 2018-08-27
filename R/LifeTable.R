@@ -46,6 +46,10 @@
 #'  \item{call}{\code{Call} in which all of the specified arguments are 
 #'  specified by their full names;}
 #'  \item{process_date}{Time stamp.}
+#' @seealso 
+#' \code{\link{LawTable}}
+#' \code{\link{convertFx}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' # Example 1 --- Full life tables with different inputs ---
 #'  

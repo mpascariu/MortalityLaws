@@ -32,3 +32,6 @@ datainfo
 \seealso{
 \code{\link{ReadHMD}}
 }
+\author{
+Marius D. Pascariu
+}

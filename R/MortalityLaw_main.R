@@ -46,22 +46,26 @@
 #' in the package. Accepts as input a function.
 #' @param show Choose whether to display a progress bar during the fitting process. 
 #' Logical. Default: \code{FALSE}.
-#' @param ... Ignored.
+#' @param ... Arguments to be passed to or from other methods.
 #' @return The output is of the \code{"MortalityLaw"} class with the components:
-#' @return \item{input}{List with arguments provided in input. Saved for convenience.}
-#' @return \item{info}{Brief information about the model.}
-#' @return \item{coefficients}{Estimated coefficients.}
-#' @return \item{fitted.values}{Fitted values of the selected model.}
-#' @return \item{residuals}{Deviance residuals.} 
-#' @return \item{goodness.of.fit}{List containing goodness of fit measures like 
+#'  \item{input}{List with arguments provided in input. Saved for convenience.}
+#'  \item{info}{Brief information about the model.}
+#'  \item{coefficients}{Estimated coefficients.}
+#'  \item{fitted.values}{Fitted values of the selected model.}
+#'  \item{residuals}{Deviance residuals.} 
+#'  \item{goodness.of.fit}{List containing goodness of fit measures like 
 #' AIC, BIC and log-Likelihood.} 
-#' @return \item{opt.diagnosis}{Resultant optimization object useful for 
+#'  \item{opt.diagnosis}{Resultant optimization object useful for 
 #' checking the convergence etc.} 
-#' @return \item{stats}{List containing statistical measures like: 
+#'  \item{stats}{List containing statistical measures like: 
 #' parameter correlation, standard errors, degrees of freedom, deviance, 
 #' gradient matrix, QR decomposition, covariance matrix etc.} 
-#' @seealso \code{\link{availableLaws}}, \code{\link{availableLF}}, 
-#' \code{\link{LifeTable}}, \code{\link{ReadHMD}}
+#' @seealso 
+#' \code{\link{availableLaws}} 
+#' \code{\link{availableLF}}
+#' \code{\link{LifeTable}}
+#' \code{\link{ReadHMD}}
+#' @author Marius D. Pascariu
 #' @examples
 #' # Example 1: --------------------------
 #' # Fit Makeham Model for Year of 1950.
@@ -192,10 +196,14 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 #' @inheritParams MortalityLaw
 #' @keywords internal
 addDetails <- function(law, custom.law = NULL, parS = NULL) {
+  if (is.null(law) & is.null(custom.law)) {
+    stop("Which mortality law do you intend to fit?", call. = FALSE)
+  }
+    
   if (!is.null(law)) {
     law  <- law
     parS <- parS
-    A    <- availableLaws()[["table"]]
+    A    <- availableLaws(law)[["table"]]
     MI   <- data.frame(A[A$CODE == law, ], row.names = "")
     sx   <- as.logical(MI$SCALE_X)
     
@@ -208,7 +216,6 @@ addDetails <- function(law, custom.law = NULL, parS = NULL) {
   out <- list(law = law, parS = parS, model = MI, scale.x = sx)
   return(out)
 }
-
 
 
 

@@ -23,13 +23,12 @@
 #' Logical. Default: \code{FALSE}.
 #' @param show Choose whether to display a progress bar. Logical. Default: \code{TRUE}.
 #' @return A \code{ReadHMD} object that contains:
-#' @return \item{input}{List with the input values (except the password).}
-#' @return \item{data}{Data downloaded from HMD.}
-#' @return \item{download.date}{Time stamp.}
-#' @return \item{years}{Numerical vector with the years covered in the data.}
-#' @return \item{ages}{Numerical vector with ages covered in the data.}
-#' 
-#' @export
+#'  \item{input}{List with the input values (except the password).}
+#'  \item{data}{Data downloaded from HMD.}
+#'  \item{download.date}{Time stamp.}
+#'  \item{years}{Numerical vector with the years covered in the data.}
+#'  \item{ages}{Numerical vector with ages covered in the data.}
+#' @author Marius D. Pascariu
 #' @examples
 #' \dontrun{
 #' # Download demographic data for 3 countries in 1x1 format 

@@ -52,3 +52,9 @@ for (i in 1:nrow(K)) {
   assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
 }
 }
+\seealso{
+\code{\link{LifeTable}}
+}
+\author{
+Marius D. Pascariu
+}

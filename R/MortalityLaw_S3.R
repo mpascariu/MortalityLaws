@@ -114,6 +114,7 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' @param x Vector of ages to be considered in prediction
 #' @param ... Additional arguments affecting the predictions produced.
 #' @seealso \code{\link{MortalityLaw}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' # Extrapolate old-age mortality with the Kannisto model
 #' # Fit ages 80-94 and extrapolate up to 120.

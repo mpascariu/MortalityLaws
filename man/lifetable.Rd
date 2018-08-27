@@ -100,3 +100,10 @@ lt = LifeTable(x, mx = mx, sex = "female")
 lt
 
 }
+\seealso{
+\code{\link{LawTable}}
+\code{\link{convertFx}}
+}
+\author{
+Marius D. Pascariu
+}

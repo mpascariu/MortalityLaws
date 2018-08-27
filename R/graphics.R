@@ -4,6 +4,7 @@
 #' @param ... Arguments to be passed to methods, such as graphical 
 #' parameters (see \code{\link{par}}).
 #' @seealso \code{\link{MortalityLaw}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' # See complete example in MortalityLaw help page
 #' @export

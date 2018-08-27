@@ -13,6 +13,8 @@
 #' Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.
 #' @param ... Further arguments to be passed to the \code{\link{LifeTable}} 
 #' function with impact on the results to be produced.
+#' @seealso \code{\link{LifeTable}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' # Data ---
 #' x  <- 0:110

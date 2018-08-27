@@ -64,25 +64,25 @@ LawTable(x = 45:100, par = C1, law = L1)
 
 # What can go wrong?
 
-# ** Example 1B - OK
+# ** Example 1B - is OK.
 LawTable(x = 45:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 
-# ** Example 1C - Not OK, because we have the life expectancy at age 25 is 
+# ** Example 1C - Not OK, because the life expectancy at age 25 is 
 # equal with life expectancy at age 45 in the previous example.
 LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 
 # Why is this happening?
 
 # If we have a model that covers only a part of the human mortality curve 
-# (e.g. adult mortality), the x vector is scaled down, meaning age (x) becomes 
-# (x - min(x) + 1), and the coefficients are estimated on a scaled x in ordered
+# (e.g. adult mortality), in fitting the x vector is scaled down, meaning age (x) becomes 
+# (x - min(x) + 1). And, the coefficients are estimated on a scaled x in ordered
 # to obtain meaningful estimates. Otherwise the optimization process might 
 # not converge.
 
 # What can we do about it?
 
 # a). Know which mortality laws are rescaling the x vector in the fitting process.
-# If these the model are fitted with the MortalityLaw() function you can find out 
+# If these models are fitted with the MortalityLaw() function, you can find out 
 # like so:
 A <- availableLaws()$table
 A[, c("CODE", "SCALE_X")]
@@ -107,4 +107,11 @@ LawTable(x = x2, par = C2, law = L2)
 # Check
 LawTable(x = 3:110, par = C2, law = L2)
 # Note the e3 = 70.31 in both tables
+}
+\seealso{
+\code{\link{LifeTable}}
+\code{\link{MortalityLaw}}
+}
+\author{
+Marius D. Pascariu
 }

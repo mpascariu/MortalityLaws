@@ -76,6 +76,8 @@
 #' Forecasting Mortality in Developed Countries. 
 #' European Studies of Population, vol 9. Springer, Dordrecht}
 #' }
+#' @seealso \code{\link{MortalityLaw}}
+#' @author Marius D. Pascariu
 #' @examples 
 #' 
 #' availableLaws()
@@ -127,8 +129,10 @@ availableLaws <- function(law = NULL){
   
   if (!is.null(law)) {
     A <- availableLaws()
-    if (!(law %in% A$table$CODE)) stop("The specified 'law' is not available.",
-                                       "Run 'availableLaws()' to see the available models.", call. = F)
+    if (!(law %in% A$table$CODE)) {
+      stop("The specified 'law' is not available. ",
+           "Run 'availableLaws()' to see the implemented models.", call. = F)
+    }
     table <- A$table[A$table$CODE %in% law, ]
     legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]
   }

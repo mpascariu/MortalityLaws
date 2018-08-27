@@ -17,3 +17,12 @@ test_that("Test that LawTable results are compatible with LifeTable results", {
   expect_equal(L1[L1$x == 3, "ex"], L2[L2$x == 3, "ex"])
 })
 
+
+# ----------------------------------------------
+
+x = 0:80
+mx = ahmd$mx[paste(x), 3:4]
+M <- MortalityLaw(x, mx = mx, law = "thiele")
+C3 <- coef(M)
+
+expect_s3_class(LawTable(x, par = C3, law = "thiele"), "LifeTable")

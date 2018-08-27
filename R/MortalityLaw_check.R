@@ -19,13 +19,6 @@ check.MortalityLaw <- function(input){
              stop('x, Dx and Ex do not have the same length!', call. = FALSE)
          }
          
-         models <- c(as.matrix(availableLaws()$table[, 5]), 'custom.law')
-         if ( !(law %in% models)) {
-           m1 <- 'Mortality law not available. Check one of the following models:\n'
-           err1 <- paste(m1, paste(models, collapse = ', '))
-           stop(err1, call. = FALSE)
-         }
-         
          function_to_optimize <- availableLF()$table[, 'CODE']
          if (!(opt.method %in% function_to_optimize)) {
            m1 <- 'Choose a different objective function to optimize\n'

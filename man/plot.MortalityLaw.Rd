@@ -21,3 +21,6 @@ Plot Function for MortalityLaw
 \seealso{
 \code{\link{MortalityLaw}}
 }
+\author{
+Marius D. Pascariu
+}

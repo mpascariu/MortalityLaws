@@ -15,8 +15,8 @@ Fit the most popular human mortality 'laws', and construct
   Database <https://www.mortality.org> is provided as well.
 }
 \details{
-To learn more about the package, start with the vignettes: 
-browseVignettes(package = "MortalityLaws")
+To learn more about the package, start with the vignettes:
+\code{browseVignettes(package = "MortalityLaws")}
 }
 \seealso{
 Useful links:

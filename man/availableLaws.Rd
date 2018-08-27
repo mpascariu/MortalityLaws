@@ -95,3 +95,9 @@ Forecasting Mortality in Developed Countries.
 European Studies of Population, vol 9. Springer, Dordrecht}
 }
 }
+\seealso{
+\code{\link{MortalityLaw}}
+}
+\author{
+Marius D. Pascariu
+}

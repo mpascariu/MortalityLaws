@@ -30,3 +30,6 @@ predict(M1, x = 80:120)
 \seealso{
 \code{\link{MortalityLaw}}
 }
+\author{
+Marius D. Pascariu
+}
