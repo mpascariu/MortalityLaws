@@ -163,10 +163,20 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     N  <- K$nLT
     if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
     cf = fit = gof = resid = dgn = df = dev <- NULL
+    
     for (i in 1:N) {
       if (show) setpb(pb, i)
-      M <- suppressMessages(MortalityLaw(x, Dx[, i], Ex[, i], mx[, i], qx[, i], 
-          law, opt.method, parS, fit.this.x, custom.law, show = FALSE))
+      M <- suppressMessages(MortalityLaw(x = x, 
+                                         Dx = Dx[, i], 
+                                         Ex = Ex[, i], 
+                                         mx = mx[, i], 
+                                         qx = qx[, i], 
+                                         law = law, 
+                                         opt.method = opt.method, 
+                                         parS = parS, 
+                                         fit.this.x = fit.this.x, 
+                                         custom.law = custom.law, 
+                                         show = FALSE))
       fit      <- cbind(fit, fitted(M))
       gof      <- rbind(gof, M$goodness.of.fit)
       dgn[[i]] <- M$dgn
@@ -192,27 +202,28 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 #' Depending on the choosen mortality law, additional details need to be
 #' specified in order to be able to fit the models taking into account it's 
 #' particularities.
-#' 
 #' @inheritParams MortalityLaw
 #' @keywords internal
 addDetails <- function(law, custom.law = NULL, parS = NULL) {
   if (is.null(law) & is.null(custom.law)) {
     stop("Which mortality law do you intend to fit?", call. = FALSE)
   }
+  
+  
+  if (!is.null(custom.law)) {
+    law  <- "custom.law"
+    parS <- custom.law(1)$par 
+    MI   <- "Custom Mortality Law"
+    sx   <- TRUE
     
-  if (!is.null(law)) {
+  } else {
     law  <- law
     parS <- parS
     A    <- availableLaws(law)[["table"]]
     MI   <- data.frame(A[A$CODE == law, ], row.names = "")
     sx   <- as.logical(MI$SCALE_X)
-    
-  } else {
-    law  <- 'custom.law'
-    parS <- custom.law(1)$par 
-    MI   <- "Custom Mortality Law"
-    sx   <- TRUE
   }
+  
   out <- list(law = law, parS = parS, model = MI, scale.x = sx)
   return(out)
 }
