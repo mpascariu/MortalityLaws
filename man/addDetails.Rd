@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_main.R
 \name{addDetails}
 \alias{addDetails}
-\title{Depending on the choosen mortality law, additional details need to be
+\title{Depending on the chosen mortality law, additional details need to be
 specified in order to be able to fit the models taking into account it's 
 particularities.}
 \usage{
@@ -19,7 +19,7 @@ in the package. Accepts as input a function.}
 \item{parS}{Starting parameters used in the optimization process (optional).}
 }
 \description{
-Depending on the choosen mortality law, additional details need to be
+Depending on the chosen mortality law, additional details need to be
 specified in order to be able to fit the models taking into account it's 
 particularities.
 }

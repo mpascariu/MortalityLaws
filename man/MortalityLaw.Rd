@@ -69,7 +69,8 @@ Fit parametric mortality models given a set of input data which can be
 represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
 or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 Using the argument \code{law} one can specify the model to be fitted. 
-So far 27 parametric models have been implemented; check the \code{\link{availableLaws}}
+So far more than 27 parametric models have been implemented; 
+check the \code{\link{availableLaws}}
 function to learn about the available options. The models can be fitted under 
 the maximum likelihood methodology or by selecting a loss function to be 
 optimised. See the implemented loss function by running the
@@ -77,16 +78,15 @@ optimised. See the implemented loss function by running the
 }
 \details{
 Depending on the complexity of the model, one of following optimization 
-strategies is employed: 
-\enumerate{
-\item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
- variables when the objective function varies smoothly and is unimodal. 
- For details see \code{\link{optim}}}
-\item{PORT routines:}{ provides unconstrained optimization and optimization 
-subject to box constraints for complicated functions. For details check 
-\code{\link{nlminb}}}
-\item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
-For details check \code{\link{nls.lm}}}
+strategies is employed: \enumerate{
+ \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+  variables when the objective function varies smoothly and is unimodal. 
+  For details see \code{\link{optim}}}
+ \item{PORT routines:}{ provides unconstrained optimization and optimization 
+ subject to box constraints for complicated functions. For details check 
+ \code{\link{nlminb}}}
+ \item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
+ For details check \code{\link{nls.lm}}}
 }
 }
 \examples{

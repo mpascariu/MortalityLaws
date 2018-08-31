@@ -4,7 +4,8 @@
 #' represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
 #' or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}. 
 #' Using the argument \code{law} one can specify the model to be fitted. 
-#' So far 27 parametric models have been implemented; check the \code{\link{availableLaws}}
+#' So far more than 27 parametric models have been implemented; 
+#' check the \code{\link{availableLaws}}
 #' function to learn about the available options. The models can be fitted under 
 #' the maximum likelihood methodology or by selecting a loss function to be 
 #' optimised. See the implemented loss function by running the
@@ -18,16 +19,15 @@
 #'                 custom.law = NULL, 
 #'                 show = FALSE, ...)
 #' @details Depending on the complexity of the model, one of following optimization 
-#' strategies is employed: 
-#' \enumerate{
-#' \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
-#'  variables when the objective function varies smoothly and is unimodal. 
-#'  For details see \code{\link{optim}}}
-#' \item{PORT routines:}{ provides unconstrained optimization and optimization 
-#' subject to box constraints for complicated functions. For details check 
-#' \code{\link{nlminb}}}
-#' \item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
-#' For details check \code{\link{nls.lm}}}
+#' strategies is employed: \enumerate{
+#'  \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+#'   variables when the objective function varies smoothly and is unimodal. 
+#'   For details see \code{\link{optim}}}
+#'  \item{PORT routines:}{ provides unconstrained optimization and optimization 
+#'  subject to box constraints for complicated functions. For details check 
+#'  \code{\link{nlminb}}}
+#'  \item{Levenberg-Marquardt algorithm:}{ damped least-squares method. 
+#'  For details check \code{\link{nls.lm}}}
 #' }
 #' @inheritParams LifeTable
 #' @param law The name of the mortality law/model to be used. e.g. 
@@ -199,7 +199,7 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 }
 
 
-#' Depending on the choosen mortality law, additional details need to be
+#' Depending on the chosen mortality law, additional details need to be
 #' specified in order to be able to fit the models taking into account it's 
 #' particularities.
 #' @inheritParams MortalityLaw
@@ -208,7 +208,6 @@ addDetails <- function(law, custom.law = NULL, parS = NULL) {
   if (is.null(law) & is.null(custom.law)) {
     stop("Which mortality law do you intend to fit?", call. = FALSE)
   }
-  
   
   if (!is.null(custom.law)) {
     law  <- "custom.law"

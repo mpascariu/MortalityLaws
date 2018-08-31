@@ -27,7 +27,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} [copyright holder]
+\strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} (0000-0002-2568-6489) [copyright holder]
 
 Other contributors:
 \itemize{
