@@ -1,5 +1,5 @@
 version 1.6.0
-- convertFx(): New function! Easy convertor between the life table indicators;
+- convertFx(): New function! Easy conversion between the life table indicators;
 - MortalityLaws(): Remove scale.x argument. Now, the function will identify 
 by default which laws require a scaled x in fitting;
 - MortalityLaws(): When a mortality law is fitted on a subset of the input data, 
