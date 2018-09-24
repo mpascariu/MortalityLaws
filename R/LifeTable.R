@@ -85,7 +85,6 @@
 #' lt
 #' 
 #' @export
-#'
 LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
                       qx = NULL, lx = NULL, dx = NULL,
                       sex = NULL, lx0 = 1e5, ax = NULL){
