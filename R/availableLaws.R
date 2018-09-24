@@ -81,7 +81,6 @@
 #' @examples 
 #' 
 #' availableLaws()
-#' 
 #' @export
 availableLaws <- function(law = NULL){
   if (is.null(law)) {
