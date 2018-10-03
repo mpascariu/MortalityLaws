@@ -5,7 +5,7 @@
 \title{Download Mortality and Population Data (HMD)}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
-  save = TRUE, show = TRUE)
+  save = FALSE, show = TRUE)
 }
 \arguments{
 \item{what}{What type of data are you looking for? There are available:

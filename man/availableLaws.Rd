@@ -26,7 +26,6 @@ Tabeau (2001) is a good starting point.
 \examples{
 
 availableLaws()
-
 }
 \references{
 \enumerate{
