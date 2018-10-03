@@ -59,7 +59,7 @@
 #' } 
 #' @export
 ReadHMD <- function(what, countries = NULL, interval = "1x1",  
-                    username, password, save = TRUE, show = TRUE){
+                    username, password, save = FALSE, show = TRUE){
   # Step 1 - Validate input & Progress bar setup
   if (is.null(countries)) countries <- HMDcountries()
   input <- list(what = what, countries = countries, interval = interval, 
