@@ -7,9 +7,9 @@
 \method{print}{ReadHMD}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{"ReadHMD"}}
+\item{x}{An object of class \code{"ReadHMD"}}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \description{
 Print ReadHMD

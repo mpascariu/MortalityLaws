@@ -8,16 +8,34 @@ ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = FALSE, show = TRUE)
 }
 \arguments{
-\item{what}{What type of data are you looking for? There are available:
-birth records \code{"births"}, death counts \code{"Dx"}, 
-deaths by Lexis triangles \code{"lexis"}, population size \code{"population"},
-exposure-to-risk \code{"Ex"}, death-rates \code{"mx"}, 
-life tables for females \code{"LT_f"}, life tables for males \code{"LT_m"},
-life tables both sexes combined \code{"LT_t"}, 
-life expectancy at birth \code{"e0"},
-cohort death-rates \code{"mxc"} and cohort exposures \code{"Exc"}.}
+\item{what}{What type of data are you looking for? The following options are 
+available: \itemize{
+  \item{\code{"births"}} -- birth records;
+  \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
+  \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
+  \item{\code{"population"}} -- population size;
+  \item{\code{"Dx"}} -- death counts;
+  \item{\code{"Ex"}} -- exposure-to-risk;
+  \item{\code{"mx"}} -- central death-rates;
+  \item{\code{"LT_f"}} -- period life tables for females;
+  \item{\code{"LT_m"}} -- period life tables for males;
+  \item{\code{"LT_t"}} -- period life tables both sexes combined;
+  \item{\code{"e0"}} -- period life expectancy at birth;
+  \item{\code{"Exc"}} -- cohort exposures;
+  \item{\code{"mxc"}} -- cohort death-rates;
+  \item{\code{"LT_fc"}} -- cohort life tables for females;
+  \item{\code{"LT_mc"}} -- cohort life tables for males;
+  \item{\code{"LT_tc"}} -- cohort life tables both sexes combined;
+  \item{\code{"e0c"}} -- cohort life expectancy at birth;
+  }}
 
-\item{countries}{HMD country codes.}
+\item{countries}{Specify the country data you want to download by adding the 
+HMD country code/s. Options: 
+\code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
+"DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
+"GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
+"ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
+"PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.}
 
 \item{interval}{HMD data format: (age interval x year interval).
 Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
@@ -31,7 +49,8 @@ for free on the Human Mortality Database website.}
 \item{save}{Do you want to save a copy of the dataset on your local machine? 
 Logical. Default: \code{FALSE}.}
 
-\item{show}{Choose whether to display a progress bar. Logical. Default: \code{TRUE}.}
+\item{show}{Choose whether to display a progress bar. Logical. 
+Default: \code{TRUE}.}
 }
 \value{
 A \code{ReadHMD} object that contains:
