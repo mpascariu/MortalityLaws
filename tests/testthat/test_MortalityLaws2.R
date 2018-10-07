@@ -118,6 +118,12 @@ x2 = seq(60, 95, by = 5)
 
 testFN(M1(), M2())
 # ----------------------------------------------
+# Test strehler_mildvan -- OK
+law = "strehler_mildvan"
+x2 = seq(40, 75, by = 5)
+
+testFN(M1(), M2())
+# ----------------------------------------------
 # Test quadratic -- OK
 law = "quadratic"
 x2 = seq(60, 95, by = 5)

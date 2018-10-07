@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{gompertz}
 \alias{gompertz}
-\title{Gompertz Mortality Law}
+\title{Gompertz Mortality Law - 1825}
 \usage{
 gompertz(x, par = NULL)
 }
@@ -13,7 +13,7 @@ gompertz(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Gompertz Mortality Law
+Gompertz Mortality Law - 1825
 }
 \examples{
 gompertz(x = 45:90)

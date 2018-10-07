@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{weibull}
 \alias{weibull}
-\title{Weibull Mortality Law}
+\title{Weibull Mortality Law - 1939}
 \usage{
 weibull(x, par = NULL)
 }

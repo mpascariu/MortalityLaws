@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{beard}
 \alias{beard}
-\title{Beard Model}
+\title{Beard Model - 1971}
 \usage{
 beard(x, par = NULL)
 }
@@ -13,7 +13,7 @@ beard(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Beard Model
+Beard Model - 1971
 }
 \examples{
 beard(x = 50:100)

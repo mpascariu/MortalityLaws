@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{siler}
 \alias{siler}
-\title{Siler Mortality Law}
+\title{Siler Mortality Law - 1979}
 \usage{
 siler(x, par = NULL)
 }
@@ -13,7 +13,7 @@ siler(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Siler Mortality Law
+Siler Mortality Law - 1979
 }
 \examples{
 siler(x = 0:100)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{vandermaen2}
 \alias{vandermaen2}
-\title{Van der Maen 2 Model}
+\title{Van der Maen 2 Model - 1943}
 \usage{
 vandermaen2(x, par = NULL)
 }
@@ -13,7 +13,7 @@ vandermaen2(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Van der Maen 2 Model
+Van der Maen 2 Model - 1943
 }
 \examples{
 vandermaen(x = 0:100)

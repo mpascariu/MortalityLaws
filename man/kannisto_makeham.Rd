@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{kannisto_makeham}
 \alias{kannisto_makeham}
-\title{Kannisto-Makeham Mortality Law}
+\title{Kannisto-Makeham Mortality Law - 1998}
 \usage{
 kannisto_makeham(x, par = NULL)
 }
@@ -13,7 +13,7 @@ kannisto_makeham(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Kannisto-Makeham Mortality Law
+Kannisto-Makeham Mortality Law - 1998
 }
 \examples{
 kannisto_makeham(x = 85:120)

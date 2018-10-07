@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{makehambeard}
 \alias{makehambeard}
-\title{Makeham-Beard Model}
+\title{Makeham-Beard Model - 1971}
 \usage{
 makehambeard(x, par = NULL)
 }
@@ -13,7 +13,7 @@ makehambeard(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Makeham-Beard Model
+Makeham-Beard Model - 1971
 }
 \examples{
 makehambeard(x = 0:100)

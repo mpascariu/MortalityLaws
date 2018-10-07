@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{wittstein}
 \alias{wittstein}
-\title{Wittstein Mortality Law}
+\title{Wittstein Mortality Law - 1883}
 \usage{
 wittstein(x, par = NULL)
 }
@@ -13,7 +13,7 @@ wittstein(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Wittstein Mortality Law
+Wittstein Mortality Law - 1883
 }
 \examples{
 wittstein(x = 0:100)

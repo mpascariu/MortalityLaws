@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{carriere2}
 \alias{carriere2}
-\title{Carriere Mortality Law}
+\title{Carriere Mortality Law - 1992}
 \usage{
 carriere2(x, par = NULL)
 }

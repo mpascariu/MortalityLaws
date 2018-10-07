@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{perks}
 \alias{perks}
-\title{Perks Model}
+\title{Perks Model - 1932}
 \usage{
 perks(x, par = NULL)
 }
@@ -13,7 +13,7 @@ perks(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Perks Model
+Perks Model - 1932
 }
 \examples{
 perks(x = 50:100)

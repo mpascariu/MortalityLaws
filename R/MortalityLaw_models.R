@@ -1,6 +1,6 @@
 # ---- LAWS ---------------------------------------
 
-#' Gompertz Mortality Law
+#' Gompertz Mortality Law - 1825
 #' 
 #' @param x vector of age at the beginning of the age classes
 #' @param par parameters of the selected model. If NULL the 
@@ -46,7 +46,7 @@ invgompertz <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Makeham Mortality Law
+#' Makeham Mortality Law - 1860
 #' @inheritParams gompertz
 #' @examples makeham(x = 45:90)
 #' @keywords internal
@@ -58,6 +58,7 @@ makeham <- function(x, par = NULL){
   Sx  <- exp(-Hx)
   return(list(hx = hx, par = par))
 }
+
 
 #' Makeham Mortality Law - informative parameterization
 #' @inheritParams gompertz
@@ -72,7 +73,49 @@ makeham0 <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Weibull Mortality Law
+
+#' Opperman Mortality Law - 1870
+#' @inheritParams gompertz
+#' @examples opperman(x = 1:25)
+#' @keywords internal
+#' @export
+opperman <- function(x, par = NULL){
+  par <- bring_parameters('opperman', par)
+  x  <- x + 1
+  hx <- with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
+  hx <- pmax(0, hx)
+  return(list(hx = hx, par = par))
+}
+
+
+#' Thiele Mortality Law - 1871
+#' @inheritParams gompertz
+#' @examples thiele(x = 0:100)
+#' @keywords internal
+#' @export
+thiele <- function(x, par = NULL){
+  par <- bring_parameters('thiele', par)
+  mu1 <- with(as.list(par), A*exp(-B*x) )
+  mu2 <- with(as.list(par), C*exp(-.5*D*(x - E)^2) )
+  mu3 <- with(as.list(par), F_*exp(G*x) )
+  hx <- ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
+  return(list(hx = hx, par = par))
+}
+
+
+#' Wittstein Mortality Law - 1883
+#' @inheritParams gompertz
+#' @examples wittstein(x = 0:100)
+#' @keywords internal
+#' @export
+wittstein <- function(x, par = NULL){
+  par <- bring_parameters('wittstein', par)
+  hx  <- with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Weibull Mortality Law - 1939
 #' 
 #' Note that if sigma > m, then the mode of the density is 0 and hx is a 
 #' non-increasing function of x, while if sigma < m, then the mode is 
@@ -91,6 +134,7 @@ weibull <- function(x, par = NULL){
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
+
 
 #' Inverse-Weibull Mortality Law
 #' 
@@ -112,95 +156,103 @@ invweibull <- function(x, par = NULL){
 }
 
 
-#' Opperman Mortality Law
+#' Perks Model - 1932
 #' @inheritParams gompertz
-#' @examples opperman(x = 1:25)
+#' @examples perks(x = 50:100)
 #' @keywords internal
 #' @export
-opperman <- function(x, par = NULL){
-  par <- bring_parameters('opperman', par)
-  x  <- x + 1
-  hx <- with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
-  hx <- pmax(0, hx)
+perks <- function(x, par = NULL){
+  par <- bring_parameters('perks', par)
+  hx  <- with(as.list(par), (A + B*C^x) / (B*(C^-x) + 1 + D*C^x) )
   return(list(hx = hx, par = par))
 }
 
-#' Thiele Mortality Law
+
+#' Van der Maen Model - 1943
 #' @inheritParams gompertz
-#' @examples thiele(x = 0:100)
+#' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
-thiele <- function(x, par = NULL){
-  par <- bring_parameters('thiele', par)
-  mu1 <- with(as.list(par), A*exp(-B*x) )
-  mu2 <- with(as.list(par), C*exp(-.5*D*(x - E)^2) )
-  mu3 <- with(as.list(par), F_*exp(G*x) )
-  hx <- ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
+vandermaen <- function(x, par = NULL){
+  par <- bring_parameters('vandermaen', par)
+  hx  <- with(as.list(par), A + B*x + C*(x^2) + I/(N - x))
   return(list(hx = hx, par = par))
 }
 
-#' Wittstein Mortality Law
+
+#' Van der Maen 2 Model - 1943
 #' @inheritParams gompertz
-#' @examples wittstein(x = 0:100)
+#' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
-wittstein <- function(x, par = NULL){
-  par <- bring_parameters('wittstein', par)
-  hx  <- with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
+vandermaen2 <- function(x, par = NULL){
+  par <- bring_parameters('vandermaen2', par)
+  hx  <- with(as.list(par), A + B*x + I/(N - x))
   return(list(hx = hx, par = par))
 }
 
-#' Carriere Mortality Law
-#' 
-#' Carriere1 = weibull + invweibull + gompertz
+
+#' Strehler-Mildvan Model - 1960
 #' @inheritParams gompertz
-#' @examples carriere1(x = 0:100)
+#' @examples strehler_mildvan(x = 30:85)
 #' @keywords internal
 #' @export
-carriere1 <- function(x, par = NULL){
-  par <- bring_parameters('carriere1', par)
-  # Compute distribution functions
-  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_iwei <- invweibull(x, par[c('sigma1', 'M2')])$Sx
-  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
-  
-  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
-  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
-  f3 <- 1 - f1 - f2
-  
-  Sx <- f1*S_wei + f2*S_iwei + f3*S_gom
-  Sx <- pmax(0, pmin(1, Sx))
-  Hx <- -log(Sx)
-  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+strehler_mildvan <- function(x, par = NULL){
+  par <- bring_parameters('strehler_mildvan', par)
+  hx  <- with(as.list(par), K * exp(-V0 * (1 - B * x)/D) )
   return(list(hx = hx, par = par))
 }
 
-#' Carriere Mortality Law
-#' 
-#' Carriere2 = weibull + invgompertz + gompertz
+
+#' Beard Model - 1971
 #' @inheritParams gompertz
-#' @examples carriere2(x = 0:100)
+#' @examples beard(x = 50:100)
 #' @keywords internal
 #' @export
-carriere2 <- function(x, par = NULL){
-  par <- bring_parameters('carriere2', par)
-  # Compute distribution functions
-  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_igom <- invgompertz(x, par[c('sigma2', 'M2')])$Sx
-  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
-  
-  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
-  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
-  f3 <- 1 - f1 - f2
-  
-  Sx <- f1*S_wei + f2*S_igom + f3*S_gom
-  Sx <- pmax(0, pmin(1, Sx))
-  Hx <- -log(Sx)
-  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+beard <- function(x, par = NULL){
+  par <- bring_parameters('beard', par)
+  hx  <- with(as.list(par), (A*exp(B*x)) / (1 + K*A*exp(B*x)) )
   return(list(hx = hx, par = par))
 }
 
-#' Siler Mortality Law
+
+#' Makeham-Beard Model - 1971
+#' @inheritParams gompertz
+#' @examples makehambeard(x = 0:100)
+#' @keywords internal
+#' @export
+makehambeard <- function(x, par = NULL){
+  par <- bring_parameters('makehambeard', par)
+  hx  <- with(as.list(par), A*exp(B*x) / (1 + K*A*exp(B*x)) + C)
+  return(list(hx = hx, par = par))
+}
+
+
+#' Gamma-Gompertz Model as in Vaupel et al. (1979)
+#' @inheritParams gompertz
+#' @examples ggompertz(x = 50:120)
+#' @keywords internal
+#' @export
+ggompertz <- function(x, par = NULL){
+  par <- bring_parameters('ggompertz', par)
+  hx  <- with(as.list(par), (A*exp(B*x)) / (1 + (A*G/B)*(exp(B*x) - 1)) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Quadratic Model
+#' @inheritParams gompertz
+#' @examples quadratic(x = 0:100)
+#' @keywords internal
+#' @export
+quadratic <- function(x, par = NULL){
+  par <- bring_parameters('quadratic', par)
+  hx  <- with(as.list(par), A + B*x + C*(x^2))
+  return(list(hx = hx, par = par))
+}
+
+
+#' Siler Mortality Law - 1979
 #' @inheritParams gompertz
 #' @examples siler(x = 0:100)
 #' @keywords internal
@@ -212,7 +264,7 @@ siler <- function(x, par = NULL){
 }
 
 
-#' Heligman-Pollard Mortality Law - 8 parameters
+#' Heligman-Pollard Mortality Law - 8 parameters - 1980
 #' @inheritParams gompertz
 #' @examples HP(x = 0:100)
 #' @keywords internal
@@ -268,87 +320,6 @@ HP4 <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Perks Model
-#' @inheritParams gompertz
-#' @examples perks(x = 50:100)
-#' @keywords internal
-#' @export
-perks <- function(x, par = NULL){
-  par <- bring_parameters('perks', par)
-  hx  <- with(as.list(par), (A + B*C^x) / (B*(C^-x) + 1 + D*C^x) )
-  return(list(hx = hx, par = par))
-}
-
-
-#' Beard Model
-#' @inheritParams gompertz
-#' @examples beard(x = 50:100)
-#' @keywords internal
-#' @export
-beard <- function(x, par = NULL){
-  par <- bring_parameters('beard', par)
-  hx  <- with(as.list(par), (A*exp(B*x)) / (1 + K*A*exp(B*x)) )
-  return(list(hx = hx, par = par))
-}
-
-
-#' Gamma-Gompertz Model as in Vaupel et al. (1979)
-#' @inheritParams gompertz
-#' @examples ggompertz(x = 50:120)
-#' @keywords internal
-#' @export
-ggompertz <- function(x, par = NULL){
-  par <- bring_parameters('ggompertz', par)
-  hx  <- with(as.list(par), (A*exp(B*x)) / (1 + (A*G/B)*(exp(B*x) - 1)) )
-  return(list(hx = hx, par = par))
-}
-
-
-#' Makeham-Beard Model
-#' @inheritParams gompertz
-#' @examples makehambeard(x = 0:100)
-#' @keywords internal
-#' @export
-makehambeard <- function(x, par = NULL){
-  par <- bring_parameters('makehambeard', par)
-  hx  <- with(as.list(par), A*exp(B*x) / (1 + K*A*exp(B*x)) + C)
-  return(list(hx = hx, par = par))
-}
-
-
-#' Van der Maen Model
-#' @inheritParams gompertz
-#' @examples vandermaen(x = 0:100)
-#' @keywords internal
-#' @export
-vandermaen <- function(x, par = NULL){
-  par <- bring_parameters('vandermaen', par)
-  hx  <- with(as.list(par), A + B*x + C*(x^2) + I/(N - x))
-  return(list(hx = hx, par = par))
-}
-
-
-#' Van der Maen 2 Model
-#' @inheritParams gompertz
-#' @examples vandermaen(x = 0:100)
-#' @keywords internal
-#' @export
-vandermaen2 <- function(x, par = NULL){
-  par <- bring_parameters('vandermaen2', par)
-  hx  <- with(as.list(par), A + B*x + I/(N - x))
-  return(list(hx = hx, par = par))
-}
-
-#' Quadratic Model
-#' @inheritParams gompertz
-#' @examples quadratic(x = 0:100)
-#' @keywords internal
-#' @export
-quadratic <- function(x, par = NULL){
-  par <- bring_parameters('quadratic', par)
-  hx  <- with(as.list(par), A + B*x + C*(x^2))
-  return(list(hx = hx, par = par))
-}
 
 #' Martinelle Model - 1987
 #' @inheritParams gompertz
@@ -373,6 +344,59 @@ rogersplanck <- function(x, par = NULL){
           A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
   return(list(hx = hx, par = par))
 }
+
+
+#' Carriere Mortality Law - 1992
+#' 
+#' Carriere1 = weibull + invweibull + gompertz
+#' @inheritParams gompertz
+#' @examples carriere1(x = 0:100)
+#' @keywords internal
+#' @export
+carriere1 <- function(x, par = NULL){
+  par <- bring_parameters('carriere1', par)
+  # Compute distribution functions
+  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_iwei <- invweibull(x, par[c('sigma1', 'M2')])$Sx
+  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  
+  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
+  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
+  f3 <- 1 - f1 - f2
+  
+  Sx <- f1*S_wei + f2*S_iwei + f3*S_gom
+  Sx <- pmax(0, pmin(1, Sx))
+  Hx <- -log(Sx)
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  return(list(hx = hx, par = par))
+}
+
+
+#' Carriere Mortality Law - 1992
+#' 
+#' Carriere2 = weibull + invgompertz + gompertz
+#' @inheritParams gompertz
+#' @examples carriere2(x = 0:100)
+#' @keywords internal
+#' @export
+carriere2 <- function(x, par = NULL){
+  par <- bring_parameters('carriere2', par)
+  # Compute distribution functions
+  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_igom <- invgompertz(x, par[c('sigma2', 'M2')])$Sx
+  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  
+  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
+  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
+  f3 <- 1 - f1 - f2
+  
+  Sx <- f1*S_wei + f2*S_igom + f3*S_gom
+  Sx <- pmax(0, pmin(1, Sx))
+  Hx <- -log(Sx)
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  return(list(hx = hx, par = par))
+}
+
 
 #' Kostaki Model - 1992
 #' @inheritParams gompertz
@@ -416,7 +440,7 @@ kannisto <- function(x, par = NULL){
 }
 
 
-#' Kannisto-Makeham Mortality Law
+#' Kannisto-Makeham Mortality Law - 1998
 #' @inheritParams gompertz
 #' @examples kannisto_makeham(x = 85:120)
 #' @keywords internal
@@ -436,48 +460,49 @@ kannisto_makeham <- function(x, par = NULL){
 #' @keywords internal
 bring_parameters <- function(law, par = NULL) {
   Spar <- switch(law,
-                 demoivre    = c(A = 105),
-                 gompertz    = c(A = 0.0002, B = 0.13),
-                 gompertz0   = c(sigma = 7.7, M = 49),
-                 invgompertz = c(sigma = 7.7, M = 49),
-                 makeham     = c(A = .0002, B = .13, C = .001),
-                 makeham0    = c(sigma = 7.692308, M = 49, C = .001),
-                 opperman    = c(A = .04, B = .0004, C = .001),
-                 thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
-                                 E = 25, F_ = .0001, G = .13),
-                 wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
-                 weibull     = c(sigma = 2, M = 1),
-                 invweibull  = c(sigma = 10, M = 5),
-                 HP          = c(A = .0005, B = .004, C = .08, D = .001, 
-                                 E = 10, F_ = 17, G = .00005, H = 1.1),
-                 HP2         = c(A = .0005, B = .004, C = .08, D = .001, 
-                                 E = 10, F_ = 17, G = .00005, H = 1.1),
-                 HP3         = c(A = .0005, B = .004, C = .08, D = .001, 
-                                 E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-                 HP4         = c(A = .0005, B = .004, C = .08, D = .001, 
-                                 E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-                 siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
-                 kannisto    = c(A = 0.5, B = 0.13),
-                 kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001),
-                 carriere1   = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
-                                 P2 = .007, sigma2 = 6, M2 = 3, 
-                                 sigma3 = 9.5, M3 = 88),
-                 carriere2   = c(P1 = .01, sigma1 = 2, M1 = 1, 
-                                 P2 = .01, sigma2 = 7, M2 = 49, 
-                                 sigma3 = 7, M3 = 49),
-                 perks        = c(A = .002, B = .13, C = .01, D = .01),
-                 beard        = c(A = .002, B = .13, K = 1),
-                 ggompertz    = c(A = .002, B = .13, G = 1),
-                 makehambeard = c(A = .002, B = .13, C = .01, K = 1),
-                 vandermaen   = c(A = .01, B = 1, C = .01, I = 100, N = 200),
-                 vandermaen2  = c(A = .01, B = 1, I = 100, N = 200),
-                 quadratic    = c(A = .01, B = 1, C = .01),
-                 martinelle   = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
-                 rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
-                                  A = 2, B = .001, C = 100, D = .1, U = .33),
-                 kostaki      = c(A = .0005, B = .01, C = .10, D = .001, 
-                                  E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1)
-                 )
+            demoivre    = c(A = 105),
+            gompertz    = c(A = 0.0002, B = 0.13),
+            gompertz0   = c(sigma = 7.7, M = 49),
+            invgompertz = c(sigma = 7.7, M = 49),
+            makeham     = c(A = .0002, B = .13, C = .001),
+            makeham0    = c(sigma = 7.692308, M = 49, C = .001),
+            opperman    = c(A = .04, B = .0004, C = .001),
+            thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
+                           E = 25, F_ = .0001, G = .13),
+            wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
+            perks       = c(A = .002, B = .13, C = .01, D = .01),
+            weibull     = c(sigma = 2, M = 1),
+            invweibull  = c(sigma = 10, M = 5),
+            vandermaen  = c(A = .01, B = 1, C = .01, I = 100, N = 200),
+            vandermaen2 = c(A = .01, B = 1, I = 100, N = 200),
+            strehler_mildvan = c(K = .01, V0 = 2.5, B = 0.2, D = 6),
+            quadratic   = c(A = .01, B = 1, C = .01),
+            beard       = c(A = .002, B = .13, K = 1),
+            makehambeard = c(A = .002, B = .13, C = .01, K = 1),
+            ggompertz = c(A = .002, B = .13, G = 1),
+            siler     = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
+            HP        = c(A = .0005, B = .004, C = .08, D = .001, 
+                          E = 10, F_ = 17, G = .00005, H = 1.1),
+            HP2       = c(A = .0005, B = .004, C = .08, D = .001, 
+                          E = 10, F_ = 17, G = .00005, H = 1.1),
+            HP3       = c(A = .0005, B = .004, C = .08, D = .001, 
+                          E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
+            HP4       = c(A = .0005, B = .004, C = .08, D = .001, 
+                          E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
+            rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
+                             A = 2, B = .001, C = 100, D = .1, U = .33),
+            martinelle = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
+            kostaki    = c(A = .0005, B = .01, C = .10, D = .001, 
+                            E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1),
+            carriere1  = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
+                           P2 = .007, sigma2 = 6, M2 = 3, 
+                           sigma3 = 9.5, M3 = 88),
+            carriere2  = c(P1 = .01, sigma1 = 2, M1 = 1, 
+                           P2 = .01, sigma2 = 7, M2 = 49, 
+                           sigma3 = 7, M3 = 49),
+            kannisto   = c(A = 0.5, B = 0.13),
+            kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001)
+            )
   if (is.null(par)) par <- Spar
   # If 'par' is provided, just give them a name anyway.
   names(par) <- names(Spar) 

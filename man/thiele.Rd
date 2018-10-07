@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{thiele}
 \alias{thiele}
-\title{Thiele Mortality Law}
+\title{Thiele Mortality Law - 1871}
 \usage{
 thiele(x, par = NULL)
 }
@@ -13,7 +13,7 @@ thiele(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Thiele Mortality Law
+Thiele Mortality Law - 1871
 }
 \examples{
 thiele(x = 0:100)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{HP}
 \alias{HP}
-\title{Heligman-Pollard Mortality Law - 8 parameters}
+\title{Heligman-Pollard Mortality Law - 8 parameters - 1980}
 \usage{
 HP(x, par = NULL)
 }
@@ -13,7 +13,7 @@ HP(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Heligman-Pollard Mortality Law - 8 parameters
+Heligman-Pollard Mortality Law - 8 parameters - 1980
 }
 \examples{
 HP(x = 0:100)

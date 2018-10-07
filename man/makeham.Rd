@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{makeham}
 \alias{makeham}
-\title{Makeham Mortality Law}
+\title{Makeham Mortality Law - 1860}
 \usage{
 makeham(x, par = NULL)
 }
@@ -13,7 +13,7 @@ makeham(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Makeham Mortality Law
+Makeham Mortality Law - 1860
 }
 \examples{
 makeham(x = 45:90)
