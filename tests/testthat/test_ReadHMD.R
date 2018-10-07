@@ -2,7 +2,9 @@ rm(list = ls())
 
 # Wrong user & password
 expect_error(availableHMD(username = "fake_user", password = "fake_password"))
-expect_error(ReadHMD(what = "Dx", username = "fake_user", password = "fake_password"))
+expect_error(ReadHMD(what = "Dx", 
+                     username = "fake_user", 
+                     password = "fake_password"))
 
 # Wrong index
 expect_error(ReadHMD(what = "DxDD", 
@@ -25,4 +27,39 @@ expect_error(ReadHMD(what = "e0", countries = "SWE", interval = "5x1",
 expect_error(ReadHMD(what = "e0c", countries = "SWE", interval = "5x1", 
                      username = "username", password = "password"))
 
+# Marius D. Pascariu --- Sun Oct  7 14:37:24 2018 ------------------------------
 
+# cntr <- c('SWE')  
+# int <- c("1x10")
+# wht <- c("births", "population", "Dx_lexis", "Ex_lexis", "Dx", 
+#          "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0", 
+#          "mxc", "Exc", "LT_fc", "LT_mc", "LT_tc", "e0c")
+# u = "..."
+# p = "..."
+# expand.grid(wht, int)
+# 
+# 
+# for (w in wht) {
+#   cat(w, "\n")
+#   assign(w, ReadHMD(what = w, countries = cntr, interval  = int,
+#                     username  = u, password  = p))
+# }
+# 
+# 
+# births
+# population 
+# Dx_lexis 
+# Ex_lexis 
+# Dx 
+# mx 
+# Ex 
+# LT_f 
+# LT_m 
+# LT_t 
+# e0 
+# mxc 
+# Exc 
+# LT_fc 
+# LT_mc 
+# LT_tc 
+# e0c

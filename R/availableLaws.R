@@ -84,39 +84,40 @@
 #' @export
 availableLaws <- function(law = NULL){
   if (is.null(law)) {
-    table <- as.data.frame(matrix(ncol = 7, byrow = T,
-      c(1825, 'Gompertz', 'mu[x] = A exp[Bx]', 3, 'gompertz', 'mu[x]', T,
-        NaN, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-M)/sigma)]', 3, 'gompertz0', 'mu[x]', T,
-        NaN, 'Inverse-Gompertz', 'mu[x] = [1- exp(-(x-M)/sigma)] / [exp(-(x-M)/sigma) - 1]', 2, 'invgompertz', 'mu[x]', T,
-        1860, 'Makeham', 'mu[x] = A exp[Bx] + C', 3, 'makeham', 'mu[x]', T,
-        NaN, 'Makeham', 'mu[x] = 1/sigma * exp[(x-M)/sigma)] + C', 3, 'makeham0', 'mu[x]', T,
-        1870, 'Opperman', 'mu[x] = A/sqrt(x) - B + C*sqrt(x)', 1, 'opperman', 'mu[x]', F,
+    table <- as.data.frame(matrix(ncol = 7, byrow = TRUE,
+      c(1825, 'Gompertz', 'mu[x] = A exp[Bx]', 3, 'gompertz', 'mu[x]', TRUE,
+        NaN, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-M)/sigma)]', 3, 'gompertz0', 'mu[x]', TRUE,
+        NaN, 'Inverse-Gompertz', 'mu[x] = [1- exp(-(x-M)/sigma)] / [exp(-(x-M)/sigma) - 1]', 2, 'invgompertz', 'mu[x]', TRUE,
+        1860, 'Makeham', 'mu[x] = A exp[Bx] + C', 3, 'makeham', 'mu[x]', TRUE,
+        NaN, 'Makeham', 'mu[x] = 1/sigma * exp[(x-M)/sigma)] + C', 3, 'makeham0', 'mu[x]', TRUE,
+        1870, 'Opperman', 'mu[x] = A/sqrt(x) - B + C*sqrt(x)', 1, 'opperman', 'mu[x]', FALSE,
         1871, 'Thiele', 'mu[x] = A exp(-Bx) + C exp[-.5D (x-E)^2] + F exp(Gx)', 6, 'thiele', 'mu[x]', F,
-        1883, 'Wittstein', 'q[x] = (1/B) A^-[(Bx)^N] + A^-[(M-x)^N]', 6, 'wittstein', 'q[x]', F,
-        1932, 'Perks', 'mu[x] = [A + BC^x] / [BC^-x + 1 + DC^x]', 3, 'perks', 'mu[x]', T,
-        1939, 'Weibull', 'mu[x] = 1/sigma * (x/M)^(M/sigma - 1)', 1, 'weibull', 'mu[x]', F,
-        NaN, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/M)^[-M/sigma - 1] / [exp((x/M)^(-M/sigma)) - 1]', 2, 'invweibull', 'mu[x]', T,
-        1943, 'Van der Maen', 'mu[x] = A + Bx + Cx^2 + I/[N - x]', 4, 'vandermaen', 'mu[x]', T,
-        1943, 'Van der Maen', 'mu[x] = A + Bx + I/[N - x]', 5, 'vandermaen2', 'mu[x]', T,
-        NaN, 'Quadratic', 'mu[x] = A + Bx + Cx^2', 5, 'quadratic', 'mu[x]', T,
-        1971, 'Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)]', 4, 'beard', 'mu[x]', T,
-        1971, 'Makeham-Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)] + C', 4, 'makehambeard', 'mu[x]', T,
-        1979, 'Gamma-Gompertz', 'mu[x] = A exp(Bx) / (1 + AG/B * [exp(Bx) - 1])', 4, 'ggompertz', 'mu[x]', T,
-        1979, 'Siler', 'mu[x] = A exp(-Bx) + C + D exp(Ex)', 6, 'siler', 'mu[x]', F,
-        1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x', 6, 'HP', 'q[x]', F,
-        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^x / [1 + GH^x]', 6, 'HP2', 'q[x]', F,
-        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^x / [1 + KGH^x]', 6, 'HP3', 'q[x]', F,
-        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^(x^K) / [1 + GH^(x^K)]', 6, 'HP4', 'q[x]', F,
-        1983, 'Rogers-Planck', 'q[x] = A0 + A1 exp[-Ax] + A2 exp[B(x - u) - exp(-C(x - u))] + A3 exp[Dx]', 6, 'rogersplanck', 'q[x]', F,
-        1987, 'Martinelle', 'mu[x] = [A exp(Bx) + C] / [1 + D exp(Bx)] + K exp(Bx)', 6, 'martinelle', 'mu[x]', F,
-        1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invweibull) + P3 l[x](gompertz)', 6, 'carriere1', 'q[x]', T,
-        1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invgompertz) + P3 l[x](gompertz)', 6, 'carriere2', 'q[x]', T,
-        1992, 'Kostaki', 'q[x]/p[x] = A^[(x+B)^C] + D exp[-(E_i log(x/F_))^2] + G H^x', 6, 'kostaki', 'q[x]', F,
-        1998, 'Kannisto', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)]', 5, 'kannisto', 'mu[x]', T
+        1883, 'Wittstein', 'q[x] = (1/B) A^-[(Bx)^N] + A^-[(M-x)^N]', 6, 'wittstein', 'q[x]', FALSE,
+        1932, 'Perks', 'mu[x] = [A + BC^x] / [BC^-x + 1 + DC^x]', 3, 'perks', 'mu[x]', TRUE,
+        1939, 'Weibull', 'mu[x] = 1/sigma * (x/M)^(M/sigma - 1)', 1, 'weibull', 'mu[x]', FALSE,
+        NaN, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/M)^[-M/sigma - 1] / [exp((x/M)^(-M/sigma)) - 1]', 2, 'invweibull', 'mu[x]', TRUE,
+        1943, 'Van der Maen', 'mu[x] = A + Bx + Cx^2 + I/[N - x]', 4, 'vandermaen', 'mu[x]', TRUE,
+        1943, 'Van der Maen', 'mu[x] = A + Bx + I/[N - x]', 5, 'vandermaen2', 'mu[x]', TRUE,
+        NaN, 'Quadratic', 'mu[x] = A + Bx + Cx^2', 5, 'quadratic', 'mu[x]', TRUE,
+        1971, 'Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)]', 4, 'beard', 'mu[x]', TRUE,
+        1971, 'Makeham-Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)] + C', 4, 'makehambeard', 'mu[x]', TRUE,
+        1979, 'Gamma-Gompertz', 'mu[x] = A exp(Bx) / (1 + AG/B * [exp(Bx) - 1])', 4, 'ggompertz', 'mu[x]', TRUE,
+        1979, 'Siler', 'mu[x] = A exp(-Bx) + C + D exp(Ex)', 6, 'siler', 'mu[x]', FALSE,
+        1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x', 6, 'HP', 'q[x]', FALSE,
+        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^x / [1 + GH^x]', 6, 'HP2', 'q[x]', FALSE,
+        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^x / [1 + KGH^x]', 6, 'HP3', 'q[x]', FALSE,
+        1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^(x^K) / [1 + GH^(x^K)]', 6, 'HP4', 'q[x]', FALSE,
+        1983, 'Rogers-Planck', 'q[x] = A0 + A1 exp[-Ax] + A2 exp[B(x - u) - exp(-C(x - u))] + A3 exp[Dx]', 6, 'rogersplanck', 'q[x]', FALSE,
+        1987, 'Martinelle', 'mu[x] = [A exp(Bx) + C] / [1 + D exp(Bx)] + K exp(Bx)', 6, 'martinelle', 'mu[x]', FALSE,
+        1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invweibull) + P3 l[x](gompertz)', 6, 'carriere1', 'q[x]', TRUE,
+        1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invgompertz) + P3 l[x](gompertz)', 6, 'carriere2', 'q[x]', TRUE,
+        1992, 'Kostaki', 'q[x]/p[x] = A^[(x+B)^C] + D exp[-(E_i log(x/F_))^2] + G H^x', 6, 'kostaki', 'q[x]', FALSE,
+        1998, 'Kannisto', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)]', 5, 'kannisto', 'mu[x]', TRUE,
+        1998, 'Kannisto-Makeham', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)] + C', 5, 'kannisto_makeham', 'mu[x]', TRUE
       )))
     colnames(table) <- c('YEAR', 'NAME', 'MODEL', 'TYPE', 'CODE', 'FIT', "SCALE_X")
     
-    legend <- as.data.frame(matrix(ncol = 2, byrow = T, 
+    legend <- as.data.frame(matrix(ncol = 2, byrow = TRUE, 
                                    c(1, "Infant mortality",
                                      2, "Accident hump",
                                      3, "Adult mortality",
@@ -130,7 +131,7 @@ availableLaws <- function(law = NULL){
     A <- availableLaws()
     if (!(law %in% A$table$CODE)) {
       stop("The specified 'law' is not available. ",
-           "Run 'availableLaws()' to see the implemented models.", call. = F)
+           "Run 'availableLaws()' to see the implemented models.", call. = FALSE)
     }
     table <- A$table[A$table$CODE %in% law, ]
     legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]

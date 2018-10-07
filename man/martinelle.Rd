@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{martinelle}
 \alias{martinelle}
-\title{Martinelle Model}
+\title{Martinelle Model - 1987}
 \usage{
 martinelle(x, par = NULL)
 }
@@ -13,7 +13,7 @@ martinelle(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Martinelle Model
+Martinelle Model - 1987
 }
 \examples{
 martinelle(x = 0:100)

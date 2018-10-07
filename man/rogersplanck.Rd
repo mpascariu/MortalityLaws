@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{rogersplanck}
 \alias{rogersplanck}
-\title{Rogers-Planck Model}
+\title{Rogers-Planck Model - 1983}
 \usage{
 rogersplanck(x, par = NULL)
 }
@@ -13,7 +13,7 @@ rogersplanck(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Rogers-Planck Model
+Rogers-Planck Model - 1983
 }
 \examples{
 rogersplanck(x = 0:100)

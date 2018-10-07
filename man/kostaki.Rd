@@ -2,7 +2,7 @@
 % Please edit documentation in R/MortalityLaw_models.R
 \name{kostaki}
 \alias{kostaki}
-\title{Kostaki Model}
+\title{Kostaki Model - 1992}
 \usage{
 kostaki(x, par = NULL)
 }
@@ -13,7 +13,7 @@ kostaki(x, par = NULL)
 default values will be assigned automatically.}
 }
 \description{
-Kostaki Model
+Kostaki Model - 1992
 }
 \examples{
 kostaki(x = 0:100)

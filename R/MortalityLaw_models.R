@@ -24,9 +24,9 @@ gompertz <- function(x, par = NULL){
 #' @export
 gompertz0 <- function(x, par = NULL){
   par <- bring_parameters('gompertz0', par)
-  hx <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) )
-  Hx <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) )
-  Sx <- exp(-Hx)
+  hx  <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) )
+  Hx  <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) )
+  Sx  <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
@@ -40,9 +40,9 @@ gompertz0 <- function(x, par = NULL){
 #' @export
 invgompertz <- function(x, par = NULL){
   par <- bring_parameters('invgompertz', par)
-  hx = with(as.list(par), 1/sigma * exp(-(x - M)/sigma) / (exp(exp(-(x - M)/sigma)) - 1))
-  Sx = with(as.list(par), (1 - exp(-exp(-(x - M)/sigma))) / (1 - exp(-exp(M/sigma))))
-  Hx = -log(Sx)
+  hx  <- with(as.list(par), 1/sigma * exp(-(x - M)/sigma) / (exp(exp(-(x - M)/sigma)) - 1))
+  Sx  <- with(as.list(par), (1 - exp(-exp(-(x - M)/sigma))) / (1 - exp(-exp(M/sigma))))
+  Hx  <- -log(Sx)
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
@@ -53,9 +53,9 @@ invgompertz <- function(x, par = NULL){
 #' @export
 makeham <- function(x, par = NULL){
   par <- bring_parameters('makeham', par)
-  hx <- with(as.list(par), A*exp(B*x) + C)
-  Hx <- with(as.list(par), A/B * (exp(B*x) - 1) + x*C )
-  Sx <- exp(-Hx)
+  hx  <- with(as.list(par), A*exp(B*x) + C)
+  Hx  <- with(as.list(par), A/B * (exp(B*x) - 1) + x*C )
+  Sx  <- exp(-Hx)
   return(list(hx = hx, par = par))
 }
 
@@ -111,18 +111,6 @@ invweibull <- function(x, par = NULL){
   return(list(hx = hx, par = par, Sx = Sx))
 }
 
-#' Kannisto Mortality Law
-#' @inheritParams gompertz
-#' @examples kannisto(x = 85:120)
-#' @keywords internal
-#' @export
-kannisto <- function(x, par = NULL){
-  par <- bring_parameters('kannisto', par)
-  hx <- with(as.list(par), A*exp(B*x) / (1 + A*exp(B*x)) )
-  Hx <- with(as.list(par), 1/A * log( (1 + B*exp(B*x)) / (1 + A) ) )
-  Sx <- exp(-Hx)
-  return(list(hx = hx, par = par))
-}
 
 #' Opperman Mortality Law
 #' @inheritParams gompertz
@@ -131,9 +119,9 @@ kannisto <- function(x, par = NULL){
 #' @export
 opperman <- function(x, par = NULL){
   par <- bring_parameters('opperman', par)
-  x = x + 1
-  hx = with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
-  hx = pmax(0, hx)
+  x  <- x + 1
+  hx <- with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
+  hx <- pmax(0, hx)
   return(list(hx = hx, par = par))
 }
 
@@ -144,10 +132,10 @@ opperman <- function(x, par = NULL){
 #' @export
 thiele <- function(x, par = NULL){
   par <- bring_parameters('thiele', par)
-  mu1 = with(as.list(par), A*exp(-B*x) )
-  mu2 = with(as.list(par), C*exp(-.5*D*(x - E)^2) )
-  mu3 = with(as.list(par), F_*exp(G*x) )
-  hx = ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
+  mu1 <- with(as.list(par), A*exp(-B*x) )
+  mu2 <- with(as.list(par), C*exp(-.5*D*(x - E)^2) )
+  mu3 <- with(as.list(par), F_*exp(G*x) )
+  hx <- ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
   return(list(hx = hx, par = par))
 }
 
@@ -158,7 +146,7 @@ thiele <- function(x, par = NULL){
 #' @export
 wittstein <- function(x, par = NULL){
   par <- bring_parameters('wittstein', par)
-  hx = with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
+  hx  <- with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
   return(list(hx = hx, par = par))
 }
 
@@ -172,18 +160,18 @@ wittstein <- function(x, par = NULL){
 carriere1 <- function(x, par = NULL){
   par <- bring_parameters('carriere1', par)
   # Compute distribution functions
-  S_wei  = weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_iwei = invweibull(x, par[c('sigma1', 'M2')])$Sx
-  S_gom  = gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_iwei <- invweibull(x, par[c('sigma1', 'M2')])$Sx
+  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
   
   f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
   f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
   
-  Sx = f1*S_wei + f2*S_iwei + f3*S_gom
-  Sx = pmax(0, pmin(1, Sx))
-  Hx = -log(Sx)
-  hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  Sx <- f1*S_wei + f2*S_iwei + f3*S_gom
+  Sx <- pmax(0, pmin(1, Sx))
+  Hx <- -log(Sx)
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
   return(list(hx = hx, par = par))
 }
 
@@ -197,18 +185,18 @@ carriere1 <- function(x, par = NULL){
 carriere2 <- function(x, par = NULL){
   par <- bring_parameters('carriere2', par)
   # Compute distribution functions
-  S_wei  = weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_igom = invgompertz(x, par[c('sigma2', 'M2')])$Sx
-  S_gom  = gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
+  S_igom <- invgompertz(x, par[c('sigma2', 'M2')])$Sx
+  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
   
   f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
   f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
   
-  Sx = f1*S_wei + f2*S_igom + f3*S_gom
-  Sx = pmax(0, pmin(1, Sx))
-  Hx = -log(Sx)
-  hx = c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  Sx <- f1*S_wei + f2*S_igom + f3*S_gom
+  Sx <- pmax(0, pmin(1, Sx))
+  Hx <- -log(Sx)
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
   return(list(hx = hx, par = par))
 }
 
@@ -219,7 +207,7 @@ carriere2 <- function(x, par = NULL){
 #' @export
 siler <- function(x, par = NULL){
   par <- bring_parameters('siler', par)
-  hx = with(as.list(par), A*exp(-B*x) + C + D*exp(E*x))
+  hx <- with(as.list(par), A*exp(-B*x) + C + D*exp(E*x))
   return(list(hx = hx, par = par))
 }
 
@@ -231,10 +219,10 @@ siler <- function(x, par = NULL){
 #' @export
 HP <- function(x, par = NULL){
   par <- bring_parameters('HP', par)
-  mu1 = with(as.list(par), A^((x + B)^C) + G*H^x )
-  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
-  eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta/(1 + eta)
+  mu1 <- with(as.list(par), A^((x + B)^C) + G*H^x )
+  mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
+  eta <- ifelse(x == 0, mu1, mu1 + mu2)
+  hx <- eta/(1 + eta)
   return(list(hx = hx, par = par))
 }
 
@@ -245,10 +233,10 @@ HP <- function(x, par = NULL){
 #' @export
 HP2 <- function(x, par = NULL){
   par <- bring_parameters('HP2', par)
-  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + G*H^x) )
-  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
-  eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta
+  mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + G*H^x) )
+  mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
+  eta <- ifelse(x == 0, mu1, mu1 + mu2)
+  hx <- eta
   return(list(hx = hx, par = par))
 }
 
@@ -259,10 +247,10 @@ HP2 <- function(x, par = NULL){
 #' @export
 HP3 <- function(x, par = NULL){
   par <- bring_parameters('HP3', par)
-  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + K*G*H^x) )
-  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
-  eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta
+  mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + K*G*H^x) )
+  mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
+  eta <- ifelse(x == 0, mu1, mu1 + mu2)
+  hx <- eta
   return(list(hx = hx, par = par))
 }
 
@@ -273,10 +261,10 @@ HP3 <- function(x, par = NULL){
 #' @export
 HP4 <- function(x, par = NULL){
   par <- bring_parameters('HP4', par)
-  mu1 = with(as.list(par), A^((x + B)^C) + (G*H^(x^K)) / (1 + G*H^(x^K)) )
-  mu2 = with(as.list(par), D*exp(-E*(log(x/F_))^2) )
-  eta = ifelse(x == 0, mu1, mu1 + mu2)
-  hx = eta 
+  mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^(x^K)) / (1 + G*H^(x^K)) )
+  mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
+  eta <- ifelse(x == 0, mu1, mu1 + mu2)
+  hx <- eta 
   return(list(hx = hx, par = par))
 }
 
@@ -362,19 +350,19 @@ quadratic <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Martinelle Model
+#' Martinelle Model - 1987
 #' @inheritParams gompertz
 #' @examples martinelle(x = 0:100)
 #' @keywords internal
 #' @export
 martinelle <- function(x, par = NULL){
   par <- bring_parameters('martinelle', par)
-  hx <- with(as.list(par), (A*exp(B*x) + C) / (1 + D*exp(B*x)) + K*exp(B*x))
+  hx  <- with(as.list(par), (A*exp(B*x) + C) / (1 + D*exp(B*x)) + K*exp(B*x))
   return(list(hx = hx, par = par))
 }
 
 
-#' Rogers-Planck Model
+#' Rogers-Planck Model - 1983
 #' @inheritParams gompertz
 #' @examples rogersplanck(x = 0:100)
 #' @keywords internal
@@ -386,7 +374,7 @@ rogersplanck <- function(x, par = NULL){
   return(list(hx = hx, par = par))
 }
 
-#' Kostaki Model
+#' Kostaki Model - 1992
 #' @inheritParams gompertz
 #' @examples kostaki(x = 0:100)
 #' @keywords internal
@@ -412,6 +400,36 @@ kostaki <- function(x, par = NULL){
 }
 
 
+#' Kannisto Mortality Law - 1998
+#' @inheritParams gompertz
+#' @examples kannisto(x = 85:120)
+#' @keywords internal
+#' @export
+kannisto <- function(x, par = NULL){
+  par <- bring_parameters('kannisto', par)
+  with(as.list(par), {
+    hx  <- A*exp(B*x) / (1 + A*exp(B*x))
+    Hx  <- 1/A * log((1 + B*exp(B*x)) / (1 + A))
+    Sx  <- exp(-Hx)
+    return(list(hx = hx, par = par))
+  })
+}
+
+
+#' Kannisto-Makeham Mortality Law
+#' @inheritParams gompertz
+#' @examples kannisto_makeham(x = 85:120)
+#' @keywords internal
+#' @export
+kannisto_makeham <- function(x, par = NULL){
+  par <- bring_parameters('kannisto_makeham', par)
+  with(as.list(par), {
+    hx  <- A*exp(B*x) / (1 + A*exp(B*x)) + C
+    return(list(hx = hx, par = par))
+  })
+}
+
+
 #' Bring or Rename Starting Parameters in the Law Functions
 #' @inheritParams MortalityLaw
 #' @inheritParams gompertz
@@ -419,7 +437,7 @@ kostaki <- function(x, par = NULL){
 bring_parameters <- function(law, par = NULL) {
   Spar <- switch(law,
                  demoivre    = c(A = 105),
-                 gompertz    = c(A = .0002, B = 0.13),
+                 gompertz    = c(A = 0.0002, B = 0.13),
                  gompertz0   = c(sigma = 7.7, M = 49),
                  invgompertz = c(sigma = 7.7, M = 49),
                  makeham     = c(A = .0002, B = .13, C = .001),
@@ -440,6 +458,7 @@ bring_parameters <- function(law, par = NULL) {
                                  E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
                  siler       = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
                  kannisto    = c(A = 0.5, B = 0.13),
+                 kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001),
                  carriere1   = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
                                  P2 = .007, sigma2 = 6, M2 = 3, 
                                  sigma3 = 9.5, M3 = 88),
