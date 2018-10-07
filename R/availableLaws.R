@@ -75,11 +75,13 @@
 #' In: Tabeau E., van den Berg Jeths A., Heathcote C. (eds) 
 #' Forecasting Mortality in Developed Countries. 
 #' European Studies of Population, vol 9. Springer, Dordrecht}
+#' \item{Finkelstein M. (2012) \href{https://doi.org/10.4054/DemRes.2012.26.9}{
+#' Discussing the Strehler-Mildvan model of mortality}
+#' Demographic Research, Vol. 26(9), 191-206.}
 #' }
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
 #' @examples 
-#' 
 #' availableLaws()
 #' @export
 availableLaws <- function(law = NULL){
@@ -101,7 +103,7 @@ availableLaws <- function(law = NULL){
         1960, 'Strehler-Mildvan', 'mu[x] = K * exp[-V0 * (1 - Bx)/D]', 3, 'strehler_mildvan', 'mu[x]', TRUE,
         NA, 'Quadratic', 'mu[x] = A + Bx + Cx^2', 5, 'quadratic', 'mu[x]', TRUE,
         1971, 'Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)]', 4, 'beard', 'mu[x]', TRUE,
-        1971, 'Makeham-Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)] + C', 4, 'makehambeard', 'mu[x]', TRUE,
+        1971, 'Beard-Makeham', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)] + C', 4, 'beard_makeham', 'mu[x]', TRUE,
         1979, 'Gamma-Gompertz', 'mu[x] = A exp(Bx) / (1 + AG/B * [exp(Bx) - 1])', 4, 'ggompertz', 'mu[x]', TRUE,
         1979, 'Siler', 'mu[x] = A exp(-Bx) + C + D exp(Ex)', 6, 'siler', 'mu[x]', FALSE,
         1980, 'Heligman-Pollard', 'q[x]/p[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + G H^x', 6, 'HP', 'q[x]', FALSE,

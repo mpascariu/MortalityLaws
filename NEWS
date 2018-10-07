@@ -1,3 +1,7 @@
+version 1.7.0
+- New models: Kannisto-Makeham (1998) and Strehler-Mildvan (1960);
+- ReadHMD() new functionalities. The function can now download cohort life tables, cohort life expectancy and exposure-to-risk by Lexis triangles data.
+
 version 1.6.0
 - convertFx(): New function! Easy conversion between the life table indicators;
 - MortalityLaws(): Remove scale.x argument. Now, the function will identify 

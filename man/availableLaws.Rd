@@ -24,7 +24,6 @@ For a comprehensive review of the most important mortality laws,
 Tabeau (2001) is a good starting point.
 }
 \examples{
-
 availableLaws()
 }
 \references{
@@ -92,6 +91,9 @@ A Review of Demographic Forecasting Models for Mortality.}
 In: Tabeau E., van den Berg Jeths A., Heathcote C. (eds) 
 Forecasting Mortality in Developed Countries. 
 European Studies of Population, vol 9. Springer, Dordrecht}
+\item{Finkelstein M. (2012) \href{https://doi.org/10.4054/DemRes.2012.26.9}{
+Discussing the Strehler-Mildvan model of mortality}
+Demographic Research, Vol. 26(9), 191-206.}
 }
 }
 \seealso{

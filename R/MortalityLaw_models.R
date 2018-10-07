@@ -218,11 +218,11 @@ beard <- function(x, par = NULL){
 
 #' Makeham-Beard Model - 1971
 #' @inheritParams gompertz
-#' @examples makehambeard(x = 0:100)
+#' @examples beard_makeham(x = 0:100)
 #' @keywords internal
 #' @export
-makehambeard <- function(x, par = NULL){
-  par <- bring_parameters('makehambeard', par)
+beard_makeham <- function(x, par = NULL){
+  par <- bring_parameters('beard_makeham', par)
   hx  <- with(as.list(par), A*exp(B*x) / (1 + K*A*exp(B*x)) + C)
   return(list(hx = hx, par = par))
 }
@@ -478,7 +478,7 @@ bring_parameters <- function(law, par = NULL) {
             strehler_mildvan = c(K = .01, V0 = 2.5, B = 0.2, D = 6),
             quadratic   = c(A = .01, B = 1, C = .01),
             beard       = c(A = .002, B = .13, K = 1),
-            makehambeard = c(A = .002, B = .13, C = .01, K = 1),
+            beard_makeham = c(A = .002, B = .13, C = .01, K = 1),
             ggompertz = c(A = .002, B = .13, G = 1),
             siler     = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
             HP        = c(A = .0005, B = .004, C = .08, D = .001, 

@@ -136,8 +136,8 @@ x2 = seq(60, 95, by = 5)
 
 testFN(M1(), M2())
 # ----------------------------------------------
-# Test makehambeard -- OK
-law = "makehambeard"
+# Test beard_makeham -- OK
+law = "beard_makeham"
 x2 = seq(60, 95, by = 5)
 
 testFN(M1(), M2())
