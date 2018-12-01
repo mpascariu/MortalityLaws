@@ -1,3 +1,9 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: GNU General Public License v3.0
+# Last update: Sat Dec  1 22:30:50 2018
+# --------------------------------------------------- #
+
 
 #' Convert Life Table Indicators
 #' 
@@ -7,8 +13,8 @@
 #' @usage convertFx(x, data, from, to, ...)
 #' @inheritParams LifeTable
 #' @param data Vector or data.frame/matrix containing the mortality indicators.
-#' @param from Specify the life table indicator in the input \code{data}. Character.
-#' Options: \code{mx, qx, dx, lx}.   
+#' @param from Specify the life table indicator in the input \code{data}. 
+#' Character. Options: \code{mx, qx, dx, lx}.   
 #' @param to What indicator would you like to obtain? Character. 
 #' Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.
 #' @param ... Further arguments to be passed to the \code{\link{LifeTable}} 
@@ -43,31 +49,31 @@
 #'   assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
 #' }
 #' @export
-convertFx <- function(x, data, 
-                  from = c("mx", "qx", "dx", "lx"), 
-                  to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"), ...) {
+convertFx <- function(x, 
+                      data, 
+                      from = c("mx", "qx", "dx", "lx"), 
+                      to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"), 
+                      ...) {
   
   from <- match.arg(from)
   to   <- match.arg(to)
-
-  A <- switch(from,
-              mx = LifeTable(x, mx = data, ...)$lt,
-              qx = LifeTable(x, qx = data, ...)$lt,
-              dx = LifeTable(x, dx = data, ...)$lt,
-              lx = LifeTable(x, lx = data, ...)$lt
-  )
   
-  n <- nrow(A) / length(unique(A$x))
+  L <- switch(from,
+              mx = function(x, w) LifeTable(x, mx = w, ...),
+              qx = function(x, w) LifeTable(x, qx = w, ...),
+              dx = function(x, w) LifeTable(x, dx = w, ...),
+              lx = function(x, w) LifeTable(x, lx = w, ...))
   
-  if (n == 1) {
-    B <- A[, to]
+  if (is.vector(data)) {
+    out <- L(x = x, data, ...)$lt[, to]
+    names(out) <- names(data)
+    
   } else {
     
-    B1 <- A[, c("LT", to, "x")]
-    B2 <- tidyr::spread(data = B1, key = "LT", value = to)
-    B  <- B2[, -1]
-    dimnames(B) <- dimnames(data)
+    LT  <- function(D) L(x = x, D, ...)$lt[, to]
+    out <- apply(X = data, 2, FUN = LT)
+    dimnames(out) <- dimnames(data)
   }
   
-  return(B)
+  return(out)
 }

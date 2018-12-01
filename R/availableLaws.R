@@ -12,7 +12,7 @@
 #' @return \item{legend}{Table with details about the section of the mortality curve }
 #' @references 
 #' \enumerate{
-#' \item{Gompertz, B. (1825). \href{http://www.jstor.org/stable/107756}{On the 
+#' \item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the 
 #' Nature of the Function Expressive of the Law of Human Mortality, and on a 
 #' New Mode of Determining the Value of Life Contingencies.} 
 #' Philosophical Transactions of the Royal Society of London, 115, 513-583.}
