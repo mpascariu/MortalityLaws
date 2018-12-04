@@ -59,10 +59,10 @@ convertFx <- function(x,
   to   <- match.arg(to)
   
   L <- switch(from,
-              mx = function(x, w) LifeTable(x, mx = w, ...),
-              qx = function(x, w) LifeTable(x, qx = w, ...),
-              dx = function(x, w) LifeTable(x, dx = w, ...),
-              lx = function(x, w) LifeTable(x, lx = w, ...))
+              mx = function(x, w, ...) LifeTable(x, mx = w, ...),
+              qx = function(x, w, ...) LifeTable(x, qx = w, ...),
+              dx = function(x, w, ...) LifeTable(x, dx = w, ...),
+              lx = function(x, w, ...) LifeTable(x, lx = w, ...))
   
   if (is.vector(data)) {
     out <- L(x = x, data, ...)$lt[, to]
