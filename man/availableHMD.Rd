@@ -4,29 +4,24 @@
 \alias{availableHMD}
 \title{Check Data Availability in HMD}
 \usage{
-availableHMD(username, password, ...)
+availableHMD(link = "https://www.mortality.org/countries.csv")
 }
 \arguments{
-\item{username}{Your HMD username. If you don't have one you can sign up
-for free on the Human Mortality Database website.}
-
-\item{password}{Your HMD password.}
-
-\item{...}{Other parameters to be passed in \code{ReadHMD} function.}
+\item{link}{Link to the HMD csv file summarising the available data. 
+Change it only if the path to the file has been modified and the maintainer 
+of the package is not quick enough to realised that.
+Default: "https://www.mortality.org/countries.csv"}
 }
 \value{
-An \code{availableHMD} object.
+An object of class \code{availableHMD}.
 }
 \description{
-The function returns information about available data in HMD (period life tables etc.), 
-with the range of years covered by the life tables.
+The function returns information about available data in HMD (period life 
+tables etc.), with the range of years covered by the life tables.
 }
 \examples{
 \dontrun{
-# This will take few seconds...
-datainfo <- availableHMD(username = "your_username", 
-                         password = "your_password")
-datainfo
+availableHMD()
 }
 }
 \seealso{

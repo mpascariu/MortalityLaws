@@ -107,7 +107,9 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
                                username, password))
   }
   fn  <- paste0("HMD_", what) # file name
-  out <- list(input = input, data = D, download.date = date(), 
+  out <- list(input = input, 
+              data = D, 
+              download.date = date(), 
               years = sort(unique(D$Year)), 
               ages = unique(D$Age))
   out <- structure(class = "ReadHMD", out)
@@ -196,12 +198,11 @@ ReadHMD.core <- function(what, country, interval, username, password){
 #' Country codes
 #' @keywords internal
 HMDcountries <- function() {
-  c("AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE",
-    "DEUTE","DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP",
-    "KOR","GBR_NIR","GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC",
-    "HUN","HRV","IRL","ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD",
-    "NOR","NZL_MA","NZL_NM","NZL_NP","POL","PRT","RUS","SVK",
-    "SVN","SWE","TWN","USA","UKR")
+  c("AUS","AUT","BEL","BGR","BLR","CAN","CHL","HRV","CHE","CZE","DEUTNP","DEUTE",
+    "DEUTW","DNK","ESP","EST","FIN","FRATNP","FRACNP","GRC","HUN","IRL","ISL",
+    "ISR","ITA","JPN","KOR","LTU","LUX","LVA","NLD","NOR","NZL_NP","NZL_MA",
+    "NZL_NM","POL","PRT","RUS","SVK","SVN","SWE","TWN","UKR","GBR_NP","GBRTENW",
+    "GBRCENW","GBR_SCO","GBR_NIR","USA")
 }
 
 

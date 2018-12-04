@@ -1,3 +1,10 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: GNU General Public License v3.0
+# Last update: Tue Dec  4 15:06:26 2018
+# --------------------------------------------------- #
+
+
 #' Compute Life Tables from Mortality Data
 #' 
 #' Construct either a full or abridged life table with various input choices like:
@@ -85,28 +92,47 @@
 #' lt
 #' 
 #' @export
-LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL, 
-                      qx = NULL, lx = NULL, dx = NULL,
-                      sex = NULL, lx0 = 1e5, ax = NULL){
+LifeTable <- function(x, 
+                      Dx = NULL, 
+                      Ex = NULL, 
+                      mx = NULL, 
+                      qx = NULL, 
+                      lx = NULL, 
+                      dx = NULL,
+                      sex = NULL, 
+                      lx0 = 1e5, 
+                      ax = NULL){
+  
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
   LT    <- NULL
   
   if (X$iclass == "numeric") {
     LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax))
+    
   } else {
     for (i in 1:X$nLT) {
-      LTi <- with(X, LifeTable.core(x, Dx[,i], Ex[,i], mx[,i], 
-                                    qx[,i], lx[,i], dx[,i], sex, lx0, ax))
-      LTn <- if (is.na(X$LTnames[i])) i else  X$LTnames[i]
+      LTi <- with(X, LifeTable.core(x, 
+                                    Dx = Dx[, i], 
+                                    Ex = Ex[, i], 
+                                    mx = mx[, i], 
+                                    qx = qx[, i], 
+                                    lx = lx[, i], 
+                                    dx = dx[, i], 
+                                    sex = sex, 
+                                    lx0 = lx0, 
+                                    ax = ax))
+      N <- X$LTnames
+      LTn <- if (is.na(N[i])) i else  N[i]
       LTi <- cbind(LT = LTn, LTi)
       LT  <- rbind(LT, LTi)
     }
   }
   
-  out <- list(lt = LT, process_date = date())
+  out <- list(lt = LT, 
+              call = match.call(), 
+              process_date = date())
   out <- structure(class = "LifeTable", out)
-  out$call <- match.call()
   return(out)
 }
 
@@ -115,6 +141,7 @@ LifeTable <- function(x, Dx = NULL, Ex = NULL, mx = NULL,
 #' @inheritParams LifeTable
 #' @keywords internal
 LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
+  
   my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
   N  <- length(x)
@@ -177,8 +204,16 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   last_check = all(is.na(mx)) | all(is.nan(mx)) | all(is.infinite(mx)) | all(mx == 0)
   if (last_check) mx = qx = ax = lx = dx = Lx = Tx = ex <- NA
   
-  out <- data.frame(x.int = gr_names, x = x, mx = mx, qx = qx, ax = ax,
-                    lx = lx, dx = dx, Lx = Lx, Tx = Tx, ex = ex)
+  out <- data.frame(x.int = gr_names, 
+                    x = x, 
+                    mx = mx, 
+                    qx = qx, 
+                    ax = ax,
+                    lx = lx, 
+                    dx = dx, 
+                    Lx = Lx, 
+                    Tx = Tx, 
+                    ex = ex)
   return(out)
 }
 
@@ -186,14 +221,19 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 #' Function that identifies the case/problem we have to solve
 #' @inheritParams LifeTable
 #' @keywords internal
-find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL, 
-                         qx = NULL, lx = NULL, dx = NULL) {
+find.my.case <- function(Dx = NULL, 
+                         Ex = NULL, 
+                         mx = NULL, 
+                         qx = NULL, 
+                         lx = NULL, 
+                         dx = NULL) {
+  
   input   <- c(as.list(environment()))
   
   # Matrix of possible cases --------------------
   rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
   cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
-  mat <- matrix(ncol = 6, byrow = T, dimnames = list(rn, cn),
+  mat <- matrix(ncol = 6, byrow = TRUE, dimnames = list(rn, cn),
                 data = c(T,T,F,F,F,F, 
                          F,F,T,F,F,F,
                          F,F,F,T,F,F,
@@ -205,21 +245,28 @@ find.my.case <- function(Dx = NULL, Ex = NULL, mx = NULL,
   my_case <- rn[L2]
   
   if (sum(L1[c(1, 2)]) == 1) {
-    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", call. = F)
+    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa", 
+         call. = FALSE)
   }
+  
   if (!any(L2)) {
     stop("The input is not specified correctly. Check again the function ",
-         "arguments and make sure the input data is added properly.", call. = F)
+         "arguments and make sure the input data is added properly.", 
+         call. = FALSE)
   }
   
   X   <- input[L1][[1]]
   nLT <- LTnames <- NA
+  
   if (!is.vector(X)) {
     nLT     <- ncol(X)     # number of LTs to be created
     LTnames <- colnames(X) # the names to be assigned to LTs
   }
   
-  out <- list(case = my_case, iclass = class(X), nLT = nLT, LTnames = LTnames)
+  out <- list(case = my_case, 
+              iclass = class(X), 
+              nLT = nLT, 
+              LTnames = LTnames)
   return(out)
 }
 
@@ -260,7 +307,10 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
 #' @param verbose A logical value. Set \code{verbose = FALSE} to silent 
 #' the process that take place inside the function and avoid progress messages.
 #' @keywords internal
-uxAbove100 <- function(x, ux, omega = 100, verbose = FALSE) {
+uxAbove100 <- function(x, 
+                       ux, 
+                       omega = 100, 
+                       verbose = FALSE) {
   
   if (is.vector(ux)) {
     L <- x >= 100 & (is.na(ux) | is.infinite(ux) | ux == 0)
@@ -269,7 +319,7 @@ uxAbove100 <- function(x, ux, omega = 100, verbose = FALSE) {
       ux[L] <- mux
       if (verbose) warning("The input data contains NA's, Inf or zero's over the age of 100. ", 
                            "These have been replaced with maximum observed value: ", 
-                           round(mux, 4), call. = F)
+                           round(mux, 4), call. = FALSE)
     }
     
   } else {
@@ -317,12 +367,12 @@ compute.ax <- function(x, mx, qx) {
 
 
 #' Find ax[1:2] indicators using Coale-Demeny coefficients
-#' Here we adjust the first two values of ax to account for infant mortality more accurately
-#' 
+#' Here we adjust the first two values of ax to account for infant 
+#' mortality more accurately
 #' @inheritParams LifeTable
 #' @keywords internal
 coale.demeny.ax <- function(x, mx, ax, sex) {
-  if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = F)
+  if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = FALSE)
   nx <- c(diff(x), Inf)
   m0 <- mx[1]
   a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684 * m0)
@@ -353,20 +403,21 @@ LifeTable.check <- function(input) {
     valid_classes <- c("numeric", "matrix", "data.frame", NULL)
     if (!(K$iclass %in% valid_classes)) {
       stop(paste0("The class of the input should be: ", 
-                  paste(valid_classes, collapse = ", ")), call. = F)
+                  paste(valid_classes, collapse = ", ")), call. = FALSE)
     }
     # ----------------------------------------------
     SMS <- "contains missing values. These have been replaced with "
     
     if (!is.null(sex)) {
       if (!(sex %in% c("male", "female", "total"))) 
-        stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.", call. = F)
+        stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.", 
+             call. = FALSE)
     }
     if (C == "C1_DxEx") {
       Dx[is.na(Dx)] <- 0
       Ex[is.na(Ex) | Ex == 0] <- 0.01
-      if (any(is.na(Dx))) warning("'Dx'", SMS, 0, call. = F)
-      if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = F)
+      if (any(is.na(Dx))) warning("'Dx'", SMS, 0, call. = FALSE)
+      if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = FALSE)
     }
     if (C == "C2_mx") {
       mx <- uxAbove100(x, mx)
@@ -376,15 +427,17 @@ LifeTable.check <- function(input) {
     }
     if (C == "C4_lx") {
       lx[is.na(lx) & x >= 100] <- 0
-      if (any(is.na(lx))) warning("'lx'", SMS, 0, call. = F)
+      if (any(is.na(lx))) warning("'lx'", SMS, 0, call. = FALSE)
     }
     if (C == "C5_dx") {
       dx[is.na(dx)] <- 0
-      if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = F)
+      if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = FALSE)
     }
     if (!is.null(ax)) {
-      if (!is.numeric(ax)) stop("'ax' must be a numeric scalar (or NULL)", call. = F)
-      if (length(ax) != 1) stop("Provide a single values for 'ax'", call. = F)
+      if (!is.numeric(ax)) stop("'ax' must be a numeric scalar (or NULL)", 
+                                call. = FALSE)
+      if (length(ax) != 1) stop("Provide a single values for 'ax'", 
+                                call. = FALSE)
     }
     
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx, 
@@ -401,11 +454,19 @@ LifeTable.check <- function(input) {
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){
+  
   LT <- x$lt
-  lt <- with(LT, data.frame(x.int = x.int, x = x, mx = round(mx, 6), 
-                            qx = round(qx, 6), ax = round(ax, 2), lx = round(lx), 
-                            dx = round(dx), Lx = round(Lx), Tx = round(Tx), 
+  lt <- with(LT, data.frame(x.int = x.int, 
+                            x = x, 
+                            mx = round(mx, 6), 
+                            qx = round(qx, 6), 
+                            ax = round(ax, 2), 
+                            lx = round(lx), 
+                            dx = round(dx), 
+                            Lx = round(Lx), 
+                            Tx = round(Tx), 
                             ex = round(ex, 2)))
+  
   if (colnames(LT)[1] == "LT") lt <- data.frame(LT = LT$LT, lt)
   dimnames(lt) <- dimnames(LT)
   nx    <- length(unique(LT$x))

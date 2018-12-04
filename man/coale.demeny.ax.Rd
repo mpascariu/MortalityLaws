@@ -3,7 +3,8 @@
 \name{coale.demeny.ax}
 \alias{coale.demeny.ax}
 \title{Find ax[1:2] indicators using Coale-Demeny coefficients
-Here we adjust the first two values of ax to account for infant mortality more accurately}
+Here we adjust the first two values of ax to account for infant 
+mortality more accurately}
 \usage{
 coale.demeny.ax(x, mx, ax, sex)
 }
@@ -25,6 +26,7 @@ Options: \code{NULL, male, female, total}.}
 }
 \description{
 Find ax[1:2] indicators using Coale-Demeny coefficients
-Here we adjust the first two values of ax to account for infant mortality more accurately
+Here we adjust the first two values of ax to account for infant 
+mortality more accurately
 }
 \keyword{internal}
