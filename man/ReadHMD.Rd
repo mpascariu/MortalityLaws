@@ -8,7 +8,7 @@ ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = FALSE, show = TRUE)
 }
 \arguments{
-\item{what}{What type of data are you looking for? The following options are 
+\item{what}{What type of data are you looking for? The following options are
 available: \itemize{
   \item{\code{"births"}} -- birth records;
   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
@@ -29,27 +29,34 @@ available: \itemize{
   \item{\code{"e0c"}} -- cohort life expectancy at birth;
   }}
 
-\item{countries}{Specify the country data you want to download by adding the 
-HMD country code/s. Options: 
+\item{countries}{Specify the country data you want to download by adding the
+HMD country code/s. Options:
 \code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
 "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
 "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
 "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.}
 
-\item{interval}{HMD data format: (age interval x year interval).
-Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
-\code{5x1}, \code{5x5}, \code{5x10}.}
+\item{interval}{Datasets are given in various age and time formats based on
+which the records are agregated. Interval options:
+\itemize{
+  \item{\code{"1x1"}} -- by age and year;
+  \item{\code{"1x5"}} -- by age and 5-year time interval;
+  \item{\code{"1x10"}} -- by age and 10-year time interval;
+  \item{\code{"5x1"}} -- by 5-year age group and year;
+  \item{\code{"5x5"}} -- by 5-year age group and 5-year time interval;
+  \item{\code{"5x10"}} --by 5-year age group and 10-year time interval.
+  }}
 
 \item{username}{Your HMD username. If you don't have one you can sign up
 for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
 
-\item{save}{Do you want to save a copy of the dataset on your local machine? 
+\item{save}{Do you want to save a copy of the dataset on your local machine?
 Logical. Default: \code{FALSE}.}
 
-\item{show}{Choose whether to display a progress bar. Logical. 
+\item{show}{Choose whether to display a progress bar. Logical.
 Default: \code{TRUE}.}
 }
 \value{
@@ -61,18 +68,18 @@ A \code{ReadHMD} object that contains:
  \item{ages}{Numerical vector with ages covered in the data.}
 }
 \description{
-Download detailed mortality and population data for different countries 
+Download detailed mortality and population data for different countries
 and regions in a single object from the \href{https://www.mortality.org}{
 Human Mortality Database}.
 }
 \examples{
 \dontrun{
-# Download demographic data for 3 countries in 1x1 format 
+# Download demographic data for 3 countries in 1x1 format
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10
 interval <- paste0(age_int, "x", year_int)  # --> 1x1
 # And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
-cntr  <- c('SWE', 'DNK', 'USA')  
+cntr  <- c('SWE', 'DNK', 'USA')
 
 # Download death counts. We don't want to export data outside R.
 HMD_Dx <- ReadHMD(what = "Dx",
@@ -92,7 +99,7 @@ LTF <- ReadHMD(what = "LT_f",
                password  = "password",
                save = TRUE)
 LTF
-} 
+}
 }
 \author{
 Marius D. Pascariu

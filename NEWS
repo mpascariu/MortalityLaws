@@ -1,4 +1,5 @@
 version 1.8.0
+- readCHMD(): New function useful to download the Canadian Human Mortality Database;
 - convertFx(): improve the speed of the function > 5x;
 - availableHMD(): improve the speed of the function  > 100x;
 
@@ -8,13 +9,13 @@ version 1.7.0
 
 version 1.6.0
 - convertFx(): New function! Easy conversion between the life table indicators;
-- MortalityLaws(): Remove scale.x argument. Now, the function will identify 
+- MortalityLaws(): Remove scale.x argument. Now, the function will identify
 by default which laws require a scaled x in fitting;
-- MortalityLaws(): When a mortality law is fitted on a subset of the input data, 
-using fit.this.x argument, the residuals and fitted values are computed and plotted for 
-the entire age range (in input). Previously only the fitted values followed this 
+- MortalityLaws(): When a mortality law is fitted on a subset of the input data,
+using fit.this.x argument, the residuals and fitted values are computed and plotted for
+the entire age range (in input). Previously only the fitted values followed this
 approach;
-- MortalityLaw(): set the argument `show = FALSE` as default; 
+- MortalityLaw(): set the argument `show = FALSE` as default;
 - Drop `diagram` suggestion from DESCRIPTION and vignettes.
 
 version 1.5.0

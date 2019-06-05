@@ -1,10 +1,10 @@
 #' Download Mortality and Population Data (HMD)
-#' 
-#' Download detailed mortality and population data for different countries 
+#'
+#' Download detailed mortality and population data for different countries
 #' and regions in a single object from the \href{https://www.mortality.org}{
 #' Human Mortality Database}.
-#' 
-#' @param what What type of data are you looking for? The following options are 
+#'
+#' @param what What type of data are you looking for? The following options are
 #' available: \itemize{
 #'   \item{\code{"births"}} -- birth records;
 #'   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
@@ -24,22 +24,29 @@
 #'   \item{\code{"LT_tc"}} -- cohort life tables both sexes combined;
 #'   \item{\code{"e0c"}} -- cohort life expectancy at birth;
 #'   }
-#' @param countries Specify the country data you want to download by adding the 
-#' HMD country code/s. Options: 
+#' @param countries Specify the country data you want to download by adding the
+#' HMD country code/s. Options:
 #' \code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
 #' "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
 #' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 #' "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
 #' "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
-#' @param interval HMD data format: (age interval x year interval).
-#' Interval options: \code{1x1}, \code{1x5}, \code{1x10}, 
-#' \code{5x1}, \code{5x5}, \code{5x10}.
+#' @param interval Datasets are given in various age and time formats based on
+#' which the records are agregated. Interval options:
+#' \itemize{
+#'   \item{\code{"1x1"}} -- by age and year;
+#'   \item{\code{"1x5"}} -- by age and 5-year time interval;
+#'   \item{\code{"1x10"}} -- by age and 10-year time interval;
+#'   \item{\code{"5x1"}} -- by 5-year age group and year;
+#'   \item{\code{"5x5"}} -- by 5-year age group and 5-year time interval;
+#'   \item{\code{"5x10"}} --by 5-year age group and 10-year time interval.
+#'   }
 #' @param username Your HMD username. If you don't have one you can sign up
 #' for free on the Human Mortality Database website.
 #' @param password Your HMD password.
-#' @param save Do you want to save a copy of the dataset on your local machine? 
+#' @param save Do you want to save a copy of the dataset on your local machine?
 #' Logical. Default: \code{FALSE}.
-#' @param show Choose whether to display a progress bar. Logical. 
+#' @param show Choose whether to display a progress bar. Logical.
 #' Default: \code{TRUE}.
 #' @return A \code{ReadHMD} object that contains:
 #'  \item{input}{List with the input values (except the password).}
@@ -50,13 +57,13 @@
 #' @author Marius D. Pascariu
 #' @examples
 #' \dontrun{
-#' # Download demographic data for 3 countries in 1x1 format 
+#' # Download demographic data for 3 countries in 1x1 format
 #' age_int  <- 1  # age interval: 1,5
 #' year_int <- 1  # year interval: 1,5,10
 #' interval <- paste0(age_int, "x", year_int)  # --> 1x1
 #' # And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
-#' cntr  <- c('SWE', 'DNK', 'USA')  
-#' 
+#' cntr  <- c('SWE', 'DNK', 'USA')
+#'
 #' # Download death counts. We don't want to export data outside R.
 #' HMD_Dx <- ReadHMD(what = "Dx",
 #'                   countries = cntr,
@@ -66,7 +73,7 @@
 #'                   save = FALSE)
 #' ls(HMD_Dx)
 #' HMD_Dx
-#' 
+#'
 #' # Download life tables for female population and export data.
 #' LTF <- ReadHMD(what = "LT_f",
 #'                countries = cntr,
@@ -75,67 +82,67 @@
 #'                password  = "password",
 #'                save = TRUE)
 #' LTF
-#' } 
+#' }
 #' @export
-ReadHMD <- function(what, countries = NULL, interval = "1x1",  
+ReadHMD <- function(what, countries = NULL, interval = "1x1",
                     username, password, save = FALSE, show = TRUE){
   # Step 1 - Validate input & Progress bar setup
   if (is.null(countries)) {
     countries <- HMDcountries()
   }
-  
-  input <- list(what = what, countries = countries, interval = interval, 
+
+  input <- list(what = what, countries = countries, interval = interval,
                 username = username, save = save, show = show)
   check_input_ReadHMD(input)
   nr <- length(countries)
-  
+
   if (show) {
     pb <- startpb(0, nr + 1)
     on.exit(closepb(pb))
     setpb(pb, 0)
   }
-  
+
   # Step 2 - Do the loop for the other countries
-  D <- data.frame() 
+  D <- data.frame()
   for (i in 1:nr) {
     if (show) {
       setpb(pb, i)
       cat(paste("      :Downloading", countries[i], "    "))
     }
-    
-    D <- rbind(D, ReadHMD.core(what, country = countries[i], interval, 
+
+    D <- rbind(D, ReadHMD.core(what, country = countries[i], interval,
                                username, password))
   }
   fn  <- paste0("HMD_", what) # file name
-  out <- list(input = input, 
-              data = D, 
-              download.date = date(), 
-              years = sort(unique(D$Year)), 
+  out <- list(input = input,
+              data = D,
+              download.date = date(),
+              years = sort(unique(D$Year)),
               ages = unique(D$Age))
   out <- structure(class = "ReadHMD", out)
-  
+
   # Step 3 - Write a file with the database in your working directory
   if (save) {
     assign(fn, value = out)
     save(list = fn, file = paste0(fn, ".Rdata"))
   }
-  
+
   if (show) {
     setpb(pb, nr + 1)
     wd  <- getwd()
     n   <- nchar(wd)
     wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
     cat("\n   ")
-    
+
     if (save) {
-      message(paste(fn, "is saved in your working directory:\n  ", wd_), 
+      message(paste(fn, "is saved in your working directory:\n  ", wd_),
               appendLF = FALSE)
       cat("\n   ")
     }
-    
+
     message("Download completed!")
   }
-  
+
   # Exit
   return(out)
 }
@@ -146,15 +153,15 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
 #' @param country HMD country code for the selected country. Character.
 #' @keywords internal
 ReadHMD.core <- function(what, country, interval, username, password){
-  
+
   if (what == "e0" & interval == "1x1") {
-    whichFile <- "E0per.txt" 
-    
+    whichFile <- "E0per.txt"
+
   } else if (what == "e0c" & interval == "1x1"){
     whichFile <- "E0coh.txt"
-    
+
   } else {
-    whichFile <- switch(what, 
+    whichFile <- switch(what,
                         births = "Births.txt",
                         population = "Population.txt",
                         Dx_lexis = "Deaths_lexis.txt",
@@ -174,20 +181,20 @@ ReadHMD.core <- function(what, country, interval, username, password){
                         LT_tc = paste0("bltcoh_", interval, ".txt"),
                         e0c = paste0("E0coh_", interval, ".txt")
     )}
-  
+
   path <- paste0("https://www.mortality.org/hmd/", country, "/STATS/", whichFile)
   txt  <- RCurl::getURL(path, userpwd = paste0(username, ":", password))
-  con  <- try(textConnection(txt), 
+  con  <- try(textConnection(txt),
               stop("ReadHMD() failed to connect to www.mortality.org. ",
                    "Maybe the website is down at this moment?", call. = FALSE))
-  dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."), 
+  dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
               stop("The server could not verify that you are authorized ",
                    "to access the requested data. Probably you ",
-                   "supplied the wrong credentials (e.g., bad password)?", 
+                   "supplied the wrong credentials (e.g., bad password)?",
                    call. = FALSE))
   close(con)
   out <- cbind(country, dat)
-  if (interval %in% c("1x1", "1x5", "1x10") & 
+  if (interval %in% c("1x1", "1x5", "1x10") &
       !(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
     out$Age <- 0:110
   }
@@ -211,44 +218,44 @@ HMDcountries <- function() {
 #' @keywords internal
 check_input_ReadHMD <- function(x) {
   int <- c("1x1", "1x5", "1x10", "5x1", "5x5","5x10")
-  wht <- c("births", "population", "Dx_lexis", "Ex_lexis", "Dx", 
-           "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0", 
+  wht <- c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
+           "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0",
            "mxc", "Exc", "LT_fc", "LT_mc", "LT_tc", "e0c")
   all_countries <- HMDcountries()
-  coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD", 
+  coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
                      "NOR", "SWE", "CHE", "GBRTENW", "GBRCENW", "GBR_SCO")
-  
+
   if (!(x$interval %in% int)) {
-    stop("The interval ", x$interval, " does not exist in HMD ", 
-         "Try one of these options:\n", paste(int, collapse = ", "), 
+    stop("The interval ", x$interval, " does not exist in HMD ",
+         "Try one of these options:\n", paste(int, collapse = ", "),
          call. = FALSE)
   }
-  
+
   if (!(x$what %in% wht)) {
-    stop(x$what, " does not exist in HMD. Try one of these options:\n", 
+    stop(x$what, " does not exist in HMD. Try one of these options:\n",
          paste(wht, collapse = ", "), call. = FALSE)
   }
-  
+
   if (all(!(x$countries %in% all_countries))) {
     stop("Something is wrong in the country/countries added by you.\n",
-         "Try one or more of these options:\n", 
+         "Try one or more of these options:\n",
          paste(HMDcountries(), collapse = ", "), call. = FALSE)
   }
-  
+
   # Availability of Cohort Data
-  if ((x$what %in% c("LT_fc", "LT_mc", "LT_tc", "e0c")) & 
+  if ((x$what %in% c("LT_fc", "LT_mc", "LT_tc", "e0c")) &
       !(all(x$countries %in% coh_countries))) {
-    stop("Data type ", x$what, 
-         " is not available for one or more countries specified in input.\n", 
-         "Check one of these countries:\n", 
+    stop("Data type ", x$what,
+         " is not available for one or more countries specified in input.\n",
+         "Check one of these countries:\n",
          paste(coh_countries, collapse = ", "), call. = FALSE)
   }
-  
+
   # Availability of Life Expectancy Data
-  if ((x$what %in% c("e0", "e0c")) & 
+  if ((x$what %in% c("e0", "e0c")) &
       !(x$interval %in% c("1x1", "1x5", "1x10"))) {
-    stop("Data type ", x$what, 
-         " is available only in the following formats: '1x1', '1x5', '1x10'.", 
+    stop("Data type ", x$what,
+         " is available only in the following formats: '1x1', '1x5', '1x10'.",
          call. = FALSE)
   }
 }
@@ -266,15 +273,15 @@ print.ReadHMD <- function(x, ...){
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
-  
+
   if (what %in% c("e0", "e0c")) {
     ageMsg <- 0
-    
+
   } else {
     # ageMsg <- paste(min(x$ages), "-", max(x$ages))
     ageMsg <- paste(x$ages[1], "--", rev(x$ages)[1])
   }
-  
+
   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
   cat(paste("Ages          :", ageMsg, "\n"))
   cat("Countries     :", x$input$countries, "\n")
