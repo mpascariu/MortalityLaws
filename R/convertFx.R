@@ -70,7 +70,7 @@ convertFx <- function(x,
 
   } else {
 
-    LT  <- function(D) L(x = x, D, ...)$lt[, to]
+    LT  <- function(D) L(x = x, as.numeric(D), ...)$lt[, to]
     out <- apply(X = data, 2, FUN = LT)
     dimnames(out) <- dimnames(data)
   }
