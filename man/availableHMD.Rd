@@ -7,8 +7,8 @@
 availableHMD(link = "https://www.mortality.org/countries.csv")
 }
 \arguments{
-\item{link}{Link to the HMD csv file summarising the available data. 
-Change it only if the path to the file has been modified and the maintainer 
+\item{link}{Link to the HMD csv file summarising the available data.
+Change it only if the path to the file has been modified and the maintainer
 of the package is not quick enough to realised that.
 Default: "https://www.mortality.org/countries.csv"}
 }
@@ -16,7 +16,7 @@ Default: "https://www.mortality.org/countries.csv"}
 An object of class \code{availableHMD}.
 }
 \description{
-The function returns information about available data in HMD (period life 
+The function returns information about available data in HMD (period life
 tables etc.), with the range of years covered by the life tables.
 }
 \examples{

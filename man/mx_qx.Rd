@@ -16,7 +16,7 @@ mx_qx(x, nx, ux, out = c("qx", "mx"))
 \item{out}{Type of the output: mx or qx.}
 }
 \description{
-Function to convert mx into qx and back, using the constant force of 
+Function to convert mx into qx and back, using the constant force of
 mortality assumption (CFM).
 }
 \keyword{internal}

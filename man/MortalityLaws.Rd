@@ -11,8 +11,8 @@ Fit the most popular human mortality 'laws', and construct
   individuals in a population during a significant portion of their 
   life spans. For a comprehensive review of the most important mortality 
   laws see Tabeau (2001) <doi:10.1007/0-306-47562-6_1>. 
-  An elegant function for downloading data from Human Mortality 
-  Database <https://www.mortality.org> is provided as well.
+  Practical functions for downloading data from various human mortality 
+  databases are provided as well.
 }
 \details{
 To learn more about the package, start with the vignettes:

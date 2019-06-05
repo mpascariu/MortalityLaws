@@ -2,6 +2,7 @@ version 1.8.0
 - readCHMD(): New function useful to download the Canadian Human Mortality Database;
 - convertFx(): improve the speed of the function > 5x;
 - availableHMD(): improve the speed of the function  > 100x;
+- Update LICENCE: MIT. Drop GLP-3.
 
 version 1.7.0
 - New models: Kannisto-Makeham (1998) and Strehler-Mildvan (1960);

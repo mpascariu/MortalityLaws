@@ -6,4 +6,7 @@
 check/
 vignettes/*.pdf
 vignettes/*.R
+vignettes/*.log
 MortalityLaws.Rproj
+doc
+Meta

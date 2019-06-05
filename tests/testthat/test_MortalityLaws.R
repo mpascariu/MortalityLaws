@@ -1,13 +1,18 @@
-rm(list = ls())
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:42:41 2019
+# --------------------------------------------------- #
+remove(list = ls())
 
 # test 1: ---------------------------------------
 # Test all models on with ages
 yr <- 1950
-ages <- list(infancy = 0:15, 
-             hump = 16:30, 
+ages <- list(infancy = 0:15,
+             hump = 16:30,
              adulthood = 30:75,
-             adult_old = 30:100, 
-             old_age = 76:100, 
+             adult_old = 30:100,
+             old_age = 76:100,
              full = 0:100)
 
 aLaws <- availableLaws()
@@ -21,9 +26,9 @@ for (k in 1:N) {
   sx   <- ifelse(min(X) > 1, TRUE, FALSE)
   LAW  <- as.character(aLaws$table$CODE[k])
   cat("M", k,": ", LAW, "\n", sep = "")
-  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW, 
+  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW,
                                       opt.method = 'LF2', scale.x = sx))
-  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW, 
+  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW,
                                       opt.method = 'LF2', scale.x = sx))
 }
 
@@ -37,7 +42,7 @@ testMortalityLaw <- function(Y){
     expect_true(all(coef(Y) >= 0))
     pred = predict(Y, x = Y$input$x)
     expect_true(all(pred >= 0))
-    
+
     if (is.matrix(fitted(Y))) {
       expect_error(plot(Y))
       expect_true(is.matrix(pred))

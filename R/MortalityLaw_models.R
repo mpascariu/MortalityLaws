@@ -1,9 +1,16 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:34:33 2019
+# --------------------------------------------------- #
+
+
 # ---- LAWS ---------------------------------------
 
 #' Gompertz Mortality Law - 1825
-#' 
+#'
 #' @param x vector of age at the beginning of the age classes
-#' @param par parameters of the selected model. If NULL the 
+#' @param par parameters of the selected model. If NULL the
 #' default values will be assigned automatically.
 #' @examples gompertz(x = 45:90)
 #' @keywords internal
@@ -31,7 +38,7 @@ gompertz0 <- function(x, par = NULL){
 }
 
 #' Inverse-Gompertz Mortality Law - informative parameterization
-#' 
+#'
 #' m - is a measure of location because it is the mode of the density, m > 0
 #' sigma - represents the dispersion of the density about the mode, sigma > 0
 #' @inheritParams gompertz
@@ -116,9 +123,9 @@ wittstein <- function(x, par = NULL){
 
 
 #' Weibull Mortality Law - 1939
-#' 
-#' Note that if sigma > m, then the mode of the density is 0 and hx is a 
-#' non-increasing function of x, while if sigma < m, then the mode is 
+#'
+#' Note that if sigma > m, then the mode of the density is 0 and hx is a
+#' non-increasing function of x, while if sigma < m, then the mode is
 #' greater than 0 and hx is an increasing function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
@@ -137,8 +144,8 @@ weibull <- function(x, par = NULL){
 
 
 #' Inverse-Weibull Mortality Law
-#' 
-#' The Inverse-Weibull proves useful for modelling the childhood and teenage years, 
+#'
+#' The Inverse-Weibull proves useful for modelling the childhood and teenage years,
 #' because the logarithm of h(x) is a concave function.
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
@@ -148,7 +155,7 @@ weibull <- function(x, par = NULL){
 #' @export
 invweibull <- function(x, par = NULL){
   par <- bring_parameters('invweibull', par)
-  hx <- with(as.list(par), 
+  hx <- with(as.list(par),
              (1/sigma) * (x/M)^(-M/sigma - 1) / (exp((x/M)^(-M/sigma)) - 1) )
   Hx <- with(as.list(par), -log(1 - exp(-(x/M)^(-M/sigma))) )
   Sx <- exp(-Hx)
@@ -316,7 +323,7 @@ HP4 <- function(x, par = NULL){
   mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^(x^K)) / (1 + G*H^(x^K)) )
   mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta <- ifelse(x == 0, mu1, mu1 + mu2)
-  hx <- eta 
+  hx <- eta
   return(list(hx = hx, par = par))
 }
 
@@ -340,14 +347,14 @@ martinelle <- function(x, par = NULL){
 #' @export
 rogersplanck <- function(x, par = NULL){
   par <- bring_parameters('rogersplanck', par)
-  hx  <- with(as.list(par),   
+  hx  <- with(as.list(par),
           A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
   return(list(hx = hx, par = par))
 }
 
 
 #' Carriere Mortality Law - 1992
-#' 
+#'
 #' Carriere1 = weibull + invweibull + gompertz
 #' @inheritParams gompertz
 #' @examples carriere1(x = 0:100)
@@ -359,21 +366,21 @@ carriere1 <- function(x, par = NULL){
   S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
   S_iwei <- invweibull(x, par[c('sigma1', 'M2')])$Sx
   S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
-  
+
   f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
   f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
-  
+
   Sx <- f1*S_wei + f2*S_iwei + f3*S_gom
   Sx <- pmax(0, pmin(1, Sx))
   Hx <- -log(Sx)
-  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution!
   return(list(hx = hx, par = par))
 }
 
 
 #' Carriere Mortality Law - 1992
-#' 
+#'
 #' Carriere2 = weibull + invgompertz + gompertz
 #' @inheritParams gompertz
 #' @examples carriere2(x = 0:100)
@@ -385,15 +392,15 @@ carriere2 <- function(x, par = NULL){
   S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
   S_igom <- invgompertz(x, par[c('sigma2', 'M2')])$Sx
   S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
-  
+
   f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
   f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
   f3 <- 1 - f1 - f2
-  
+
   Sx <- f1*S_wei + f2*S_igom + f3*S_gom
   Sx <- pmax(0, pmin(1, Sx))
   Hx <- -log(Sx)
-  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution! 
+  hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution!
   return(list(hx = hx, par = par))
 }
 
@@ -407,11 +414,11 @@ kostaki <- function(x, par = NULL){
   par <- bring_parameters('kostaki', par)
   with(as.list(par), {
     # Sometimes the difference between estimated parameters E1 and E2 is
-    # very large, in which case the resulted mortality curve will exhibit 
-    # a significant artificial jump in one age grup. I am imposing a 
+    # very large, in which case the resulted mortality curve will exhibit
+    # a significant artificial jump in one age grup. I am imposing a
     # restriction below to limit this behaviour.
     if (E1 >= 50*E2) E2 <- E1/50 # This hack seems to work.
-    
+
     L   <- x <= F_    # Logical
     mu1 <- A^((x + B)^C) + G*H^x
     e1  <- -(E1*log(x/F_))^2
@@ -467,7 +474,7 @@ bring_parameters <- function(law, par = NULL) {
             makeham     = c(A = .0002, B = .13, C = .001),
             makeham0    = c(sigma = 7.692308, M = 49, C = .001),
             opperman    = c(A = .04, B = .0004, C = .001),
-            thiele      = c(A = .02474, B = .3, C = .004, D = .5, 
+            thiele      = c(A = .02474, B = .3, C = .004, D = .5,
                            E = 25, F_ = .0001, G = .13),
             wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
             perks       = c(A = .002, B = .13, C = .01, D = .01),
@@ -481,30 +488,30 @@ bring_parameters <- function(law, par = NULL) {
             beard_makeham = c(A = .002, B = .13, C = .01, K = 1),
             ggompertz = c(A = .002, B = .13, G = 1),
             siler     = c(A = .0002, B = .13, C = .001, D = .001, E = .013),
-            HP        = c(A = .0005, B = .004, C = .08, D = .001, 
+            HP        = c(A = .0005, B = .004, C = .08, D = .001,
                           E = 10, F_ = 17, G = .00005, H = 1.1),
-            HP2       = c(A = .0005, B = .004, C = .08, D = .001, 
+            HP2       = c(A = .0005, B = .004, C = .08, D = .001,
                           E = 10, F_ = 17, G = .00005, H = 1.1),
-            HP3       = c(A = .0005, B = .004, C = .08, D = .001, 
+            HP3       = c(A = .0005, B = .004, C = .08, D = .001,
                           E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-            HP4       = c(A = .0005, B = .004, C = .08, D = .001, 
+            HP4       = c(A = .0005, B = .004, C = .08, D = .001,
                           E = 10, F_ = 17, G = .00005, H = 1.1, K = 1),
-            rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001, 
+            rogersplanck = c(A0 = .0001, A1 = .02, A2 = .001, A3 = .0001,
                              A = 2, B = .001, C = 100, D = .1, U = .33),
             martinelle = c(A = .001, B = .13, C = .001, D = 0.1, K = .001),
-            kostaki    = c(A = .0005, B = .01, C = .10, D = .001, 
+            kostaki    = c(A = .0005, B = .01, C = .10, D = .001,
                             E1 = 3, E2 = .1, F_ = 25, G = .00005, H = 1.1),
-            carriere1  = c(P1 = .003, sigma1 = 15, M1 = 2.7, 
-                           P2 = .007, sigma2 = 6, M2 = 3, 
+            carriere1  = c(P1 = .003, sigma1 = 15, M1 = 2.7,
+                           P2 = .007, sigma2 = 6, M2 = 3,
                            sigma3 = 9.5, M3 = 88),
-            carriere2  = c(P1 = .01, sigma1 = 2, M1 = 1, 
-                           P2 = .01, sigma2 = 7, M2 = 49, 
+            carriere2  = c(P1 = .01, sigma1 = 2, M1 = 1,
+                           P2 = .01, sigma2 = 7, M2 = 49,
                            sigma3 = 7, M3 = 49),
             kannisto   = c(A = 0.5, B = 0.13),
             kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001)
             )
   if (is.null(par)) par <- Spar
   # If 'par' is provided, just give them a name anyway.
-  names(par) <- names(Spar) 
+  names(par) <- names(Spar)
   return(par)
 }

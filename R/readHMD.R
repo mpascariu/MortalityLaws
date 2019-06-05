@@ -1,3 +1,9 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:30:40 2019
+# --------------------------------------------------- #
+
 #' Download Mortality and Population Data (HMD)
 #'
 #' Download detailed mortality and population data for different countries

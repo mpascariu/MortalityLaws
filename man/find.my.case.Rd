@@ -8,10 +8,10 @@ find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   lx = NULL, dx = NULL)
 }
 \arguments{
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
 \item{mx}{Death rate in age interval [x, x+n).}

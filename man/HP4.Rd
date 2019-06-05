@@ -9,7 +9,7 @@ HP4(x, par = NULL)
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
 
-\item{par}{parameters of the selected model. If NULL the 
+\item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
 \description{

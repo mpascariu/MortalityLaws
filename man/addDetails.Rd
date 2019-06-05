@@ -3,24 +3,24 @@
 \name{addDetails}
 \alias{addDetails}
 \title{Depending on the chosen mortality law, additional details need to be
-specified in order to be able to fit the models taking into account it's 
+specified in order to be able to fit the models taking into account it's
 particularities.}
 \usage{
 addDetails(law, custom.law = NULL, parS = NULL)
 }
 \arguments{
-\item{law}{The name of the mortality law/model to be used. e.g. 
-\code{gompertz}, \code{makeham}, ... To investigate all the possible options, 
+\item{law}{The name of the mortality law/model to be used. e.g.
+\code{gompertz}, \code{makeham}, ... To investigate all the possible options,
 see \code{\link{availableLaws}} function.}
 
-\item{custom.law}{Allows you to fit a model that is not defined 
+\item{custom.law}{Allows you to fit a model that is not defined
 in the package. Accepts as input a function.}
 
 \item{parS}{Starting parameters used in the optimization process (optional).}
 }
 \description{
 Depending on the chosen mortality law, additional details need to be
-specified in order to be able to fit the models taking into account it's 
+specified in order to be able to fit the models taking into account it's
 particularities.
 }
 \keyword{internal}

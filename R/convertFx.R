@@ -1,45 +1,45 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
-# License: GNU General Public License v3.0
-# Last update: Sat Dec  1 22:30:50 2018
+# License: MIT
+# Last update: Wed Jun 05 14:32:44 2019
 # --------------------------------------------------- #
 
 
 #' Convert Life Table Indicators
-#' 
-#' Easy conversion between the life table indicators. This function is based 
+#'
+#' Easy conversion between the life table indicators. This function is based
 #' on the \code{\link{LifeTable}} function and methods behind it.
-#' 
+#'
 #' @usage convertFx(x, data, from, to, ...)
 #' @inheritParams LifeTable
 #' @param data Vector or data.frame/matrix containing the mortality indicators.
-#' @param from Specify the life table indicator in the input \code{data}. 
-#' Character. Options: \code{mx, qx, dx, lx}.   
-#' @param to What indicator would you like to obtain? Character. 
+#' @param from Specify the life table indicator in the input \code{data}.
+#' Character. Options: \code{mx, qx, dx, lx}.
+#' @param to What indicator would you like to obtain? Character.
 #' Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.
-#' @param ... Further arguments to be passed to the \code{\link{LifeTable}} 
+#' @param ... Further arguments to be passed to the \code{\link{LifeTable}}
 #' function with impact on the results to be produced.
 #' @seealso \code{\link{LifeTable}}
 #' @author Marius D. Pascariu
-#' @examples 
+#' @examples
 #' # Data ---
 #' x  <- 0:110
 #' mx <- ahmd$mx
-#' 
+#'
 #' # mx to qx
 #' qx <- convertFx(x, data = mx, from = "mx", to = "qx")
 #' # mx to dx
 #' dx <- convertFx(x, data = mx, from = "mx", to = "dx")
 #' # mx to lx
 #' lx <- convertFx(x, data = mx, from = "mx", to = "lx")
-#' 
-#' 
+#'
+#'
 #' # There are 28 possible combinations --------------------------------
 #' # Let generate all of them.
 #' from <- c("mx", "qx", "dx", "lx")
 #' to   <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
 #' K    <- expand.grid(from = from, to = to) # all possible cases/combinations
-#' 
+#'
 #' for (i in 1:nrow(K)) {
 #'   In  <- as.character(K[i, "from"])
 #'   Out <- as.character(K[i, "to"])
@@ -49,31 +49,31 @@
 #'   assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
 #' }
 #' @export
-convertFx <- function(x, 
-                      data, 
-                      from = c("mx", "qx", "dx", "lx"), 
-                      to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"), 
+convertFx <- function(x,
+                      data,
+                      from = c("mx", "qx", "dx", "lx"),
+                      to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"),
                       ...) {
-  
+
   from <- match.arg(from)
   to   <- match.arg(to)
-  
+
   L <- switch(from,
               mx = function(x, w, ...) LifeTable(x, mx = w, ...),
               qx = function(x, w, ...) LifeTable(x, qx = w, ...),
               dx = function(x, w, ...) LifeTable(x, dx = w, ...),
               lx = function(x, w, ...) LifeTable(x, lx = w, ...))
-  
+
   if (is.vector(data)) {
     out <- L(x = x, data, ...)$lt[, to]
     names(out) <- names(data)
-    
+
   } else {
-    
+
     LT  <- function(D) L(x = x, D, ...)$lt[, to]
     out <- apply(X = data, 2, FUN = LT)
     dimnames(out) <- dimnames(data)
   }
-  
+
   return(out)
 }

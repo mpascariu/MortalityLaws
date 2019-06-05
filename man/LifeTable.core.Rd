@@ -9,10 +9,10 @@ LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax)
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
 \item{mx}{Death rate in age interval [x, x+n).}
@@ -23,17 +23,17 @@ mid-year population aged x to x+n.}
 
 \item{dx}{Deaths by life-table population in the age interval [x, x+n).}
 
-\item{sex}{Sex of the population considered here. Default: \code{NULL}. 
-This argument affects the first two values in the life table ax column. 
-If sex is specified the values are computed based on the Coale-Demeny method 
-and are slightly different for males than for females. 
+\item{sex}{Sex of the population considered here. Default: \code{NULL}.
+This argument affects the first two values in the life table ax column.
+If sex is specified the values are computed based on the Coale-Demeny method
+and are slightly different for males than for females.
 Options: \code{NULL, male, female, total}.}
 
 \item{lx0}{Radix. Default: 100 000.}
 
-\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
-die in the same interval. If \code{NULL} this will be estimated. A common 
-assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
+die in the same interval. If \code{NULL} this will be estimated. A common
+assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
 the interval. Default: \code{NULL}.}
 }
 \description{

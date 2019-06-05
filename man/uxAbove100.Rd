@@ -2,7 +2,7 @@
 % Please edit documentation in R/LifeTable.R
 \name{uxAbove100}
 \alias{uxAbove100}
-\title{Educate mx or qx on how to behave above age 100 if it gets in trouble 
+\title{Educate mx or qx on how to behave above age 100 if it gets in trouble
 (with NA's, zero's and Inf)}
 \usage{
 uxAbove100(x, ux, omega = 100, verbose = FALSE)
@@ -14,11 +14,11 @@ uxAbove100(x, ux, omega = 100, verbose = FALSE)
 
 \item{omega}{Threshold age. Default: 100.}
 
-\item{verbose}{A logical value. Set \code{verbose = FALSE} to silent 
+\item{verbose}{A logical value. Set \code{verbose = FALSE} to silent
 the process that take place inside the function and avoid progress messages.}
 }
 \description{
-Educate mx or qx on how to behave above age 100 if it gets in trouble 
+Educate mx or qx on how to behave above age 100 if it gets in trouble
 (with NA's, zero's and Inf)
 }
 \keyword{internal}

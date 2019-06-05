@@ -16,10 +16,10 @@ LifeTable(x, Dx = NULL, Ex = NULL,
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object 
+\item{Dx}{Object containing death counts. An element of the \code{Dx} object
 represents the number of deaths during the year to persons aged x to x+n.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the 
+\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
 \item{mx}{Death rate in age interval [x, x+n).}
@@ -30,44 +30,44 @@ mid-year population aged x to x+n.}
 
 \item{dx}{Deaths by life-table population in the age interval [x, x+n).}
 
-\item{sex}{Sex of the population considered here. Default: \code{NULL}. 
-This argument affects the first two values in the life table ax column. 
-If sex is specified the values are computed based on the Coale-Demeny method 
-and are slightly different for males than for females. 
+\item{sex}{Sex of the population considered here. Default: \code{NULL}.
+This argument affects the first two values in the life table ax column.
+If sex is specified the values are computed based on the Coale-Demeny method
+and are slightly different for males than for females.
 Options: \code{NULL, male, female, total}.}
 
 \item{lx0}{Radix. Default: 100 000.}
 
-\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who 
-die in the same interval. If \code{NULL} this will be estimated. A common 
-assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of 
+\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
+die in the same interval. If \code{NULL} this will be estimated. A common
+assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
 the interval. Default: \code{NULL}.}
 }
 \value{
 The output is of the \code{"LifeTable"} class with the components:
  \item{lt}{Computed life table;}
- \item{call}{\code{Call} in which all of the specified arguments are 
+ \item{call}{\code{Call} in which all of the specified arguments are
  specified by their full names;}
  \item{process_date}{Time stamp.}
 }
 \description{
 Construct either a full or abridged life table with various input choices like:
-death counts and mid-interval population estimates \code{(Dx, Ex)} or 
+death counts and mid-interval population estimates \code{(Dx, Ex)} or
 age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
 or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
-If one of these options is specified, the other can be ignored. The input 
-data can be an object of class: numerical \code{vector}, \code{matrix} or 
+If one of these options is specified, the other can be ignored. The input
+data can be an object of class: numerical \code{vector}, \code{matrix} or
 \code{data.frame}.
 }
 \details{
 The "life table" is also called "mortality table" or "actuarial table".
-This shows, for each age, what the probability is that a person of that 
-age will die before his or her next birthday, the expectation of life across 
+This shows, for each age, what the probability is that a person of that
+age will die before his or her next birthday, the expectation of life across
 different age ranges or the survivorship of people from a certain population.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ---
- 
+
 y  <- 1900
 x  <- as.numeric(rownames(ahmd$mx))
 Dx <- ahmd$Dx[, paste(y)]
@@ -81,20 +81,20 @@ LT5 <- LifeTable(x, dx = LT1$lt$dx)
 
 LT1
 LT5
-ls(LT5) 
+ls(LT5)
 
 # Example 2 --- Compute multiple life tables at once ---
 
 LTs = LifeTable(x, mx = ahmd$mx)
 LTs
-# A warning is printed if the input contains missing values. 
+# A warning is printed if the input contains missing values.
 # Some of the missing values can be handled by the function.
 
 # Example 3 --- Abridged life table ------------
 
 x  = c(0, 1, seq(5, 110, by = 5))
-mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004, 
-       .004, .005, .006, .0093, .0129, .019, .031, .049, 
+mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+       .004, .005, .006, .0093, .0129, .019, .031, .049,
        .084, .129, .180, .2354, .3085, .390, .478, .551)
 lt = LifeTable(x, mx = mx, sex = "female")
 lt

@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class MortalityLaw}
 
-\item{...}{Arguments to be passed to methods, such as graphical 
+\item{...}{Arguments to be passed to methods, such as graphical
 parameters (see \code{\link{par}}).}
 }
 \description{

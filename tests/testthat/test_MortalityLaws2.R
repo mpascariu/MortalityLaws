@@ -1,19 +1,23 @@
-# Thu Aug 16 22:22:26 2018 --------- Marius D. Pascariu ---
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:42:58 2019
+# --------------------------------------------------- #
 remove(list = ls())
 library(MortalityLaws)
 library(testthat)
 
 x1 <- c(0, 1, seq(5, 100, by = 5))
-mx <- c(.08592, .00341, .00099, .00073, .00169, .00296, .00364, 
-        .00544, .00539, .01460, .01277, .02694, .01703, .04331, 
-        .03713, .07849, .09307, .13990, .18750, .22500, .25000, 
+mx <- c(.08592, .00341, .00099, .00073, .00169, .00296, .00364,
+        .00544, .00539, .01460, .01277, .02694, .01703, .04331,
+        .03713, .07849, .09307, .13990, .18750, .22500, .25000,
         .30000)
 names(mx) <- x1
 
 
 # ----------------------------------------------
 # THE TEST
-# Here we would like to test what happens if the same model is fitted using 
+# Here we would like to test what happens if the same model is fitted using
 # data in different format. Let M1 and M2 be the 2 fitted objects. There
 # should be no difference between the estimates produced.
 

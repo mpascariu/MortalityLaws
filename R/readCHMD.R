@@ -213,7 +213,7 @@ check_input_ReadCHMD <- function(x) {
   }
 
   if (!(x$what %in% wht)) {
-    stop(x$what, " does not exist in HMD. Try one of these options:\n",
+    stop(x$what, " does not exist in CHMD. Try one of these options:\n",
          paste(wht, collapse = ", "), call. = FALSE)
   }
 

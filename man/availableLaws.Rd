@@ -7,7 +7,7 @@
 availableLaws(law = NULL)
 }
 \arguments{
-\item{law}{Optional. Default: \code{NULL}. One can extract details about 
+\item{law}{Optional. Default: \code{NULL}. One can extract details about
 a certain model by specifying its codename.}
 }
 \value{
@@ -18,9 +18,9 @@ The output is of the \code{"availableLaws"} class with the components:
 \item{legend}{Table with details about the section of the mortality curve }
 }
 \description{
-The function returns information about the parametric models that can be 
-called and fitted in the \code{\link{MortalityLaw}} function. 
-For a comprehensive review of the most important mortality laws, 
+The function returns information about the parametric models that can be
+called and fitted in the \code{\link{MortalityLaw}} function.
+For a comprehensive review of the most important mortality laws,
 Tabeau (2001) is a good starting point.
 }
 \examples{
@@ -28,68 +28,68 @@ availableLaws()
 }
 \references{
 \enumerate{
-\item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the 
-Nature of the Function Expressive of the Law of Human Mortality, and on a 
-New Mode of Determining the Value of Life Contingencies.} 
+\item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the
+Nature of the Function Expressive of the Law of Human Mortality, and on a
+New Mode of Determining the Value of Life Contingencies.}
 Philosophical Transactions of the Royal Society of London, 115, 513-583.}
 \item{Makeham, W. (1860). \href{https://doi.org/10.1017/S204616580000126X}{
-On the Law of Mortality and Construction of Annuity Tables.} 
+On the Law of Mortality and Construction of Annuity Tables.}
 The Assurance Magazine and Journal of the Institute of Actuaries, 8(6), 301-310.}
 \item{Thiele, T. (1871). \href{https://doi.org/10.1017/S2046167400043688}{
-On a Mathematical Formula to express the 
-Rate of Mortality throughout the whole of Life, tested by a Series of 
-Observations made use of by the Danish Life Insurance Company of 1871.} 
+On a Mathematical Formula to express the
+Rate of Mortality throughout the whole of Life, tested by a Series of
+Observations made use of by the Danish Life Insurance Company of 1871.}
 Journal of the Institute of Actuaries and Assurance Magazine, 16(5), 313-329.}
-\item{Oppermann, L. H. F. (1870). On the graduation of life tables, with special 
-application to the rate of mortality in infancy and childhood. The Insurance 
+\item{Oppermann, L. H. F. (1870). On the graduation of life tables, with special
+application to the rate of mortality in infancy and childhood. The Insurance
 Record Minutes from a meeting in the Institute of Actuaries., 42.}
 \item{Wittstein, T. and D. Bumsted. (1883). \href{https://www.cambridge.org/core/journals/journal-of-the-institute-of-actuaries/article/the-mathematical-law-of-mortality/57A7403B578C84769A463EA2BC2F7ECD}{
-The Mathematical Law of Mortality.} 
+The Mathematical Law of Mortality.}
 Journal of the Institute of Actuaries and Assurance Magazine, 24(3), 153-173.}
 \item{Steffensen, J. (1930). \href{https://doi.org/10.1080/03461238.1930.10416902}{
-Infantile mortality from an actuarial point of view.} 
+Infantile mortality from an actuarial point of view.}
 Skandinavisk Aktuarietidskrift 13, 272-286.}
 \item{Perks, W. (1932). \href{https://doi.org/10.1017/S0020268100046680}{
-On Some Experiments in the Graduation of Mortality Statistics.} 
+On Some Experiments in the Graduation of Mortality Statistics.}
 Journal of the Institute of Actuaries, 63(1), 12-57.}
 \item{Harper, F. S. (1936). \href{https://doi.org/10.1080/03461238.1936.10405113}{
-An actuarial study of infant mortality.} 
+An actuarial study of infant mortality.}
 Scandinavian Actuarial Journal 1936 (3-4), 234-270.}
 \item{Weibull, W. (1951). \href{http://web.cecs.pdx.edu/~cgshirl/Documents/Weibull-ASME-Paper-1951.pdf}{
-A statistical distribution function of wide applicability.} 
+A statistical distribution function of wide applicability.}
 Journal of applied mechanics 103, 293-297.}
 \item{Beard, R. E. (1971). \href{http://longevity-science.org/Beard-1971.pdf}{
-Some aspects of theories of mortality, cause of 
-death analysis, forecasting and stochastic processes.} 
+Some aspects of theories of mortality, cause of
+death analysis, forecasting and stochastic processes.}
 Biological aspects of demography 999, 57-68.}
-\item{Vaupel, J., Manton, K.G., and Stallard, E. (1979). 
+\item{Vaupel, J., Manton, K.G., and Stallard, E. (1979).
 \href{https://doi.org/10.2307/2061224}{
-The impact of heterogeneity in individual frailty on the dynamics of mortality.} 
+The impact of heterogeneity in individual frailty on the dynamics of mortality.}
 Demography 16(3): 439-454.}
 \item{Siler, W. (1979), \href{https://doi.org/10.2307/1936612}{
 A Competing-Risk Model for Animal Mortality.} Ecology, 60: 750-757.}
-\item{Heligman, L., & Pollard, J. (1980). 
+\item{Heligman, L., & Pollard, J. (1980).
 \href{https://doi.org/10.1017/S0020268100040257}{The age pattern of mortality.}
 Journal of the Institute of Actuaries, 107(1), 49-80.}
 \item{Rogers A and Planck F (1983). \href{http://pure.iiasa.ac.at/2210/}{
-MODEL: A General Program for Estimating Parametrized Model Schedules of Fertility, 
-Mortality, Migration, and Marital and Labor Force Status Transitions.} 
+MODEL: A General Program for Estimating Parametrized Model Schedules of Fertility,
+Mortality, Migration, and Marital and Labor Force Status Transitions.}
 IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}
 \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
-Stockholm, Sweden, Statistiska Centralbyran, 1987. 55 p. 
+Stockholm, Sweden, Statistiska Centralbyran, 1987. 55 p.
 (R&D Report, Research-Methods-Development, U/STM No. 38)}
-\item{Carriere J.F. (1992). Parametric models for life tables. 
+\item{Carriere J.F. (1992). Parametric models for life tables.
 Transactions of the Society of Actuaries. Vol.44}
 \item{Kostaki A. (1992). \href{http://dx.doi.org/10.1080/08898489209525346}{
-A nine-parameter version of the Heligman-Pollard formula}. 
+A nine-parameter version of the Heligman-Pollard formula}.
 Mathematical Population Studies. Vol. 3 277-288}
-\item{Thatcher AR, Kannisto V and Vaupel JW (1998). 
+\item{Thatcher AR, Kannisto V and Vaupel JW (1998).
 The force of mortality at ages 80 to 120. Odense Monographs on Population Aging Vol. 5
 Odense University Press, 1998. 104, 20 p. Odense, Denmark}
 \item{Tabeau E. (2001) \href{https://doi.org/10.1007/0-306-47562-6_1}{
 A Review of Demographic Forecasting Models for Mortality.}
-In: Tabeau E., van den Berg Jeths A., Heathcote C. (eds) 
-Forecasting Mortality in Developed Countries. 
+In: Tabeau E., van den Berg Jeths A., Heathcote C. (eds)
+Forecasting Mortality in Developed Countries.
 European Studies of Population, vol 9. Springer, Dordrecht}
 \item{Finkelstein M. (2012) \href{https://doi.org/10.4054/DemRes.2012.26.9}{
 Discussing the Strehler-Mildvan model of mortality}

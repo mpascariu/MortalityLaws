@@ -9,12 +9,12 @@ weibull(x, par = NULL)
 \arguments{
 \item{x}{vector of age at the beginning of the age classes}
 
-\item{par}{parameters of the selected model. If NULL the 
+\item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
 \description{
-Note that if sigma > m, then the mode of the density is 0 and hx is a 
-non-increasing function of x, while if sigma < m, then the mode is 
+Note that if sigma > m, then the mode of the density is 0 and hx is a
+non-increasing function of x, while if sigma < m, then the mode is
 greater than 0 and hx is an increasing function.
 m > 0 is a measure of location
 sigma > 0 is measure of dispersion

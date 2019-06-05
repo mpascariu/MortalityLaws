@@ -1,4 +1,8 @@
-# Mon Aug 27 22:36:41 2018 --------- Marius D. Pascariu ---
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:42:19 2019
+# --------------------------------------------------- #
 remove(list = ls())
 
 
@@ -31,7 +35,7 @@ for (i in 1:nrow(K)) {
 
 
 # Tests -------------
-expect_true(all(round(ex_from_dx - ex_from_lx, 10) == 0)) 
+expect_true(all(round(ex_from_dx - ex_from_lx, 10) == 0))
 expect_true(all(round(ex_from_dx - ex_from_qx, 10) == 0))
 expect_true(all(round(ex_from_dx - ex_from_mx, 10) == 0))
 
@@ -47,5 +51,5 @@ expect_error(convertFx(x, data = x, from = "mx", to = "qx"))
 expect_true(all(convertFx(x, data = mx[, 1], from = "mx", to = "qx") >= 0))
 
 
-# All the possible errors associated with this functions should be solved 
+# All the possible errors associated with this functions should be solved
 # in LifeTable(). convertFx is just a wrapper.

@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
-# License: GNU General Public License v3.0
-# Last update: Tue Dec  4 15:58:12 2018
+# License: MIT
+# Last update: Wed Jun 05 14:41:53 2019
 # --------------------------------------------------- #
 remove(list = ls())
 

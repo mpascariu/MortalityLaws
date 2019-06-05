@@ -1,14 +1,20 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:32:32 2019
+# --------------------------------------------------- #
 
-#' Check Available Loss Function 
-#' 
-#' The function returns information about the implemented loss function used by the 
-#' optimization procedure in the \code{\link{MortalityLaw}} function. 
+
+#' Check Available Loss Function
+#'
+#' The function returns information about the implemented loss function used by the
+#' optimization procedure in the \code{\link{MortalityLaw}} function.
 #' @return A list of class \code{availableLF} with the components:
 #'  \item{table}{Table with loss functions and codes to be used in \code{\link{MortalityLaw}}.}
 #'  \item{legend}{Table with details about the abbreviation used.}
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
-#' @examples 
+#' @examples
 #' availableLF()
 #' @export
 availableLF <- function(){
@@ -22,15 +28,15 @@ availableLF <- function(){
              "L =  [ov - mu] * log[ov/mu]", "LF5",
              "L =  abs(ov - mu)", "LF6"), ncol = 2, byrow = T))
   colnames(tab) <- c("LOSS FUNCTION", "CODE")
-  
-  legend <- c("Dx: Death counts", 
-              "Ex: Population exposed to risk", 
-              "mu: Estimated value", 
+
+  legend <- c("Dx: Death counts",
+              "Ex: Population exposed to risk",
+              "mu: Estimated value",
               "ov: Observed value")
-  
+
   out <- structure(class = "availableLF", list(table = tab, legend = legend))
   return(out)
-} 
+}
 
 
 #' Print availableLF
@@ -43,7 +49,7 @@ print.availableLF <- function(x, ...) {
   print(x$table, right = FALSE, row.names = FALSE)
   cat("\nLEGEND:\n")
   cat(x$legend, sep = '\n')
-  
+
   message("\nHINT: Most of the functions work well with 'poissonL', however for complex ",
           "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using ",
           "other loss functions (e.g. 'LF2'). You are strongly encouraged to test ",

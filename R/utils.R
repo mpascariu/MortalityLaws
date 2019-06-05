@@ -1,3 +1,9 @@
+# --------------------------------------------------- #
+# Author: Marius D. Pascariu
+# License: MIT
+# Last update: Wed Jun 05 14:35:26 2019
+# --------------------------------------------------- #
+
 
 #' Summary function - display head and tail in a single data.frame
 #' The original code for this function was first written for 'psych' R package
