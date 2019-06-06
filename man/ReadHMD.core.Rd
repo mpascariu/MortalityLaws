@@ -4,11 +4,11 @@
 \alias{ReadHMD.core}
 \title{Function to Download Data for a one Country}
 \usage{
-ReadHMD.core(what, country, interval, username, password)
+ReadHMD.core(what, country, interval, username, password, link)
 }
 \arguments{
-\item{what}{What type of data are you looking for? The following options are
-available: \itemize{
+\item{what}{What type of data are you looking for? The following options
+might be available for some or all the countries and regions: \itemize{
   \item{\code{"births"}} -- birth records;
   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
   \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
@@ -28,7 +28,7 @@ available: \itemize{
   \item{\code{"e0c"}} -- cohort life expectancy at birth;
   }}
 
-\item{country}{HMD country code for the selected country. Character.}
+\item{country}{HMD country code for the selected country. Character;}
 
 \item{interval}{Datasets are given in various age and time formats based on
 which the records are agregated. Interval options:
@@ -45,6 +45,8 @@ which the records are agregated. Interval options:
 for free on the Human Mortality Database website.}
 
 \item{password}{Your HMD password.}
+
+\item{link}{the main link to the database.}
 }
 \description{
 Function to Download Data for a one Country

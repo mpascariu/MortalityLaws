@@ -65,10 +65,16 @@ convertFx <- function(x,
               lx = function(x, w, ...) LifeTable(x, lx = w, ...))
 
   if (is.vector(data)) {
+    if (length(x) != length(data))
+      stop("The 'x' and 'data' do not have the same length", call. = FALSE)
+
     out <- L(x = x, data, ...)$lt[, to]
     names(out) <- names(data)
 
   } else {
+    if (length(x) != nrow(data))
+      stop("The length of 'x' must be equal to the numebr of rows in 'data'",
+           call. = FALSE)
 
     LT  <- function(D) L(x = x, as.numeric(D), ...)$lt[, to]
     out <- apply(X = data, 2, FUN = LT)

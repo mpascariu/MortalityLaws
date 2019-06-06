@@ -2,14 +2,14 @@
 % Please edit documentation in R/readHMD.R
 \name{ReadHMD}
 \alias{ReadHMD}
-\title{Download Mortality and Population Data (HMD)}
+\title{Download The Human Mortality Database (HMD)}
 \usage{
 ReadHMD(what, countries = NULL, interval = "1x1", username, password,
   save = FALSE, show = TRUE)
 }
 \arguments{
-\item{what}{What type of data are you looking for? The following options are
-available: \itemize{
+\item{what}{What type of data are you looking for? The following options
+might be available for some or all the countries and regions: \itemize{
   \item{\code{"births"}} -- birth records;
   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
   \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
@@ -35,7 +35,8 @@ HMD country code/s. Options:
 "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
 "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
-"PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.}
+"PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+If \code{NULL} data for all the countries are downloaded at once.}
 
 \item{interval}{Datasets are given in various age and time formats based on
 which the records are agregated. Interval options:
@@ -71,6 +72,19 @@ A \code{ReadHMD} object that contains:
 Download detailed mortality and population data for different countries
 and regions in a single object from the \href{https://www.mortality.org}{
 Human Mortality Database}.
+}
+\details{
+The Human Mortality Database (HMD) was created to provide detailed mortality
+and population data to researchers, students, journalists, policy analysts,
+and others interested in the history of human longevity. The project began
+as an outgrowth of earlier projects in the Department of Demography at the
+University of California, Berkeley, USA, and at the Max Planck Institute for
+Demographic Research in Rostock, Germany (see history). It is the work of two
+teams of researchers in the USA and Germany (see research teams), with the
+help of financial backers and scientific collaborators from around the world
+(see acknowledgements). The Center on the Economics and Development of Aging
+(CEDA) French Institute for Demographic Studies (INED) has also supported the
+further development of the database in recent years.
 }
 \examples{
 \dontrun{

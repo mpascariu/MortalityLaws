@@ -1,5 +1,6 @@
 version 1.8.0
 - readCHMD(): New function useful to download the Canadian Human Mortality Database;
+- readAHMD(): New function useful to download the Australian Human Mortality Database;
 - convertFx(): improve the speed of the function > 5x;
 - availableHMD(): improve the speed of the function  > 100x;
 - LifeTable(): the argument 'ax' now accepts as input a numerical vector as well allowing the

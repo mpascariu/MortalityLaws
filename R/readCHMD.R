@@ -5,12 +5,41 @@
 # --------------------------------------------------- #
 
 
-#' Download Canadian Human Mortality Database (CHMD)
+#' Download the Canadian Human Mortality Database (CHMD)
 #'
 #' Download detailed mortality and population data for different
 #' provinces and territories in Canada, in a single object from the
 #' \href{http://www.bdlc.umontreal.ca/chmd/index.htm}{
 #' Canadian Human Mortality Database}.
+#'
+#' @details
+#' (Description taken from the CHMD website).
+#'
+#' The Canadian Human Mortality Database (CHMD) was created to provide detailed
+#' Canadian mortality and population data to researchers, students, journalists,
+#' policy analysts, and others interested in the history of human longevity.
+#' The project is an achievement of the Mortality and Longevity research team at
+#' the Department of Demography, Universite de Montreal, under the supervision
+#' of Professor Robert Bourbeau, in collaboration with demographers at the
+#' Max Plank Institute for Demographic Research (Rostock, Germany) and the
+#' Department of Demography, University of California at Berkeley.
+#' Nadine Ouellette, researcher at the Institut national d'etudes demographiques
+#' in Paris and member of the Mortality and Longevity research team at the
+#' Universite de Montreal, is in charge of computing all CHMD life tables and
+#' updating the CHMD web site.
+#'
+#' The CHMD is a "satellite" of the Human Mortality Database (HMD), an
+#' international database which currently holds detailed data flor multiple
+#' countries or regions. Consequently, the CHMD's underlying methodology
+#' corresponds to the one used for the HMD.
+#'
+#' The CHMD gathers all required data (deaths counts, births counts, population
+#' size, exposure-to-risk, death rates) to compute life tables for Canada,
+#' its provinces and its territories. One of the great advantages of the
+#' database is to include data that is validated and corrected, when required,
+#' and rendered comparable, if possible, for the period ranging from 1921
+#' thru 2011. For comparison purposes, various life tables published by
+#' governmental organizations are also available for download in PDF format.
 #'
 #' @inheritParams ReadHMD
 #' @param what What type of data are you looking for? The following options are
@@ -26,8 +55,8 @@
 #'   \item{\code{"LT_t"}} -- period life tables both sexes combined;
 #'   \item{\code{"e0"}} -- period life expectancy at birth;
 #'   }
-#' @param regions Specify the region specific data you want to download by adding the
-#' CHMD region code/s. Options:
+#' @param regions Specify the region specific data you want to download by
+#' adding the CHMD region code/s. Options:
 #' \itemize{
 #'   \item{\code{"CAN"}} -- Canada - Sum of Canadian provinces and territories;
 #'   \item{\code{"NFL"}} -- Newfoundland & Labrador;
@@ -41,7 +70,8 @@
 #'   \item{\code{"ALB"}} -- Alberta;
 #'   \item{\code{"BCO"}} -- British Columbia;
 #'   \item{\code{"NWT"}} -- Northwest Territories & Nunavut;
-#'   \item{\code{"YUK"}} -- Yukon.
+#'   \item{\code{"YUK"}} -- Yukon;
+#'   \item{\code{NULL}} -- if \code{NULL} data for all the regions are downloaded.
 #'   }
 #' @return A \code{ReadCHMD} object that contains:
 #'  \item{input}{List with the input values;}
@@ -50,6 +80,9 @@
 #'  \item{years}{Numerical vector with the years covered in the data;}
 #'  \item{ages}{Numerical vector with ages covered in the data.}
 #' @author Marius D. Pascariu
+#' @seealso
+#' \code{\link{ReadHMD}}
+#' \code{\link{ReadAHMD}}
 #' @examples
 #' \dontrun{
 #' # Download demographic data for Quebec and Saskatchewan regions in 1x1 format
@@ -103,7 +136,12 @@ ReadCHMD <- function(what,
       cat(paste("      :Downloading", regions[i], "    "))
     }
 
-    D <- rbind(D, ReadCHMD.core(what = what, region = regions[i], interval = interval))
+    D <- rbind(D, ReadHMD.core(what = what,
+                               country = regions[i],
+                               interval = interval,
+                               username = NULL,
+                               password = NULL,
+                               link = "www.prdh.umontreal.ca/BDLC/data/"))
   }
 
   fn  <- paste0("CHMD_", what) # file name
@@ -137,54 +175,6 @@ ReadCHMD <- function(what,
   }
 
   # Exit
-  return(out)
-}
-
-
-#' Function to Download Data for one region
-#' @inheritParams ReadCHMD
-#' @param region CHMD region code. Character.
-#' @param username ignored;
-#' @param password ignored;
-#' @keywords internal
-ReadCHMD.core <- function(what,
-                          region,
-                          interval,
-                          username = NULL,
-                          password = NULL){
-
-  if (what == "e0") {
-    whichFile <- "E0per.txt"  # Life expectancy at birth
-
-  } else {
-    whichFile <- switch(what,
-                        births = "Births",
-                        population = "Population",
-                        Dx_lexis = "Deaths_lexis",
-                        # Ex_lexis = "Exposures_lexis",
-                        Dx   = paste0("Deaths_", interval),    # deaths
-                        Ex   = paste0("Exposures_", interval), # exposure
-                        mx   = paste0("Mx_", interval),        # death rates
-                        LT_f = paste0("fltper_", interval),    # Life tables, Females
-                        LT_m = paste0("mltper_", interval),    # Life tables, Males
-                        LT_t = paste0("bltper_", interval))}   # Life tables, Both sexes
-                        # Cohort data ...
-
-  path <- paste0("www.prdh.umontreal.ca/BDLC/data/", region, "/", whichFile, ".txt")
-  txt  <- RCurl::getURL(url = path)
-
-  con  <- try(textConnection(txt),
-              stop("ReadCHMD() failed to connect to <www.prdh.umontreal.ca/BDLC/> ",
-                   "Maybe the website is down at this moment?", call. = FALSE))
-  dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
-              stop("Unknown error.", call. = FALSE))
-
-  close(con)
-  out <- cbind(region, dat)
-  if (interval %in% c("1x1", "1x5", "1x10") &
-      !(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
-    out$Age <- 0:110
-  }
   return(out)
 }
 
@@ -223,14 +213,6 @@ check_input_ReadCHMD <- function(x) {
          paste(all_regions, collapse = ", "), call. = FALSE)
   }
 
-  # Availability of Cohort Data
-
-  # Availability of Life Expectancy Data
-  if ((x$what %in% c("e0", "Births")) & (x$interval != "1x1")) {
-    stop("Data type ", x$what,
-         " is available only in the following format: '1x1'.",
-         call. = FALSE)
-  }
   # Availability of Death and Exposures
   if ((x$what %in% c("Dx", "Ex")) & !(x$interval %in% c("1x1", "5x1"))) {
     stop("Data type ", x$what,
@@ -241,7 +223,7 @@ check_input_ReadCHMD <- function(x) {
   if (any(x$region %in% c("NWT", "YUK")) &
     (x$what %in% c("LT_m", "LT_f", "LT_t")) &
       (x$interval %in% c("1x1", "5x1"))) {
-    stop("For the regions of Newfoundland & Labrador and Yukon,",
+    stop("For the regions of Newfoundland & Labrador (NFL) and Yukon (YUK),",
          " due to small size population, data type ", x$what,
          " is NOT available in the following format: '1x1' and '5x1'.",
          call. = FALSE)

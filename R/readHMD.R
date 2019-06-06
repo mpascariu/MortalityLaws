@@ -4,14 +4,27 @@
 # Last update: Wed Jun 05 14:30:40 2019
 # --------------------------------------------------- #
 
-#' Download Mortality and Population Data (HMD)
+#' Download The Human Mortality Database (HMD)
 #'
 #' Download detailed mortality and population data for different countries
 #' and regions in a single object from the \href{https://www.mortality.org}{
 #' Human Mortality Database}.
 #'
-#' @param what What type of data are you looking for? The following options are
-#' available: \itemize{
+#' @details
+#' The Human Mortality Database (HMD) was created to provide detailed mortality
+#' and population data to researchers, students, journalists, policy analysts,
+#' and others interested in the history of human longevity. The project began
+#' as an outgrowth of earlier projects in the Department of Demography at the
+#' University of California, Berkeley, USA, and at the Max Planck Institute for
+#' Demographic Research in Rostock, Germany (see history). It is the work of two
+#' teams of researchers in the USA and Germany (see research teams), with the
+#' help of financial backers and scientific collaborators from around the world
+#' (see acknowledgements). The Center on the Economics and Development of Aging
+#' (CEDA) French Institute for Demographic Studies (INED) has also supported the
+#' further development of the database in recent years.
+#'
+#' @param what What type of data are you looking for? The following options
+#' might be available for some or all the countries and regions: \itemize{
 #'   \item{\code{"births"}} -- birth records;
 #'   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
 #'   \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
@@ -37,6 +50,7 @@
 #' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 #' "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
 #' "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+#' If \code{NULL} data for all the countries are downloaded at once.
 #' @param interval Datasets are given in various age and time formats based on
 #' which the records are agregated. Interval options:
 #' \itemize{
@@ -117,7 +131,8 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
     }
 
     D <- rbind(D, ReadHMD.core(what, country = countries[i], interval,
-                               username, password))
+                               username, password,
+                               link = "https://www.mortality.org/hmd/"))
   }
   fn  <- paste0("HMD_", what) # file name
   out <- list(input = input,
@@ -156,9 +171,10 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
 
 #' Function to Download Data for a one Country
 #' @inheritParams ReadHMD
-#' @param country HMD country code for the selected country. Character.
+#' @param country HMD country code for the selected country. Character;
+#' @param link the main link to the database.
 #' @keywords internal
-ReadHMD.core <- function(what, country, interval, username, password){
+ReadHMD.core <- function(what, country, interval, username, password, link){
 
   if (what == "e0" & interval == "1x1") {
     whichFile <- "E0per.txt"
@@ -168,36 +184,44 @@ ReadHMD.core <- function(what, country, interval, username, password){
 
   } else {
     whichFile <- switch(what,
-                        births = "Births.txt",
-                        population = "Population.txt",
-                        Dx_lexis = "Deaths_lexis.txt",
-                        Ex_lexis = "Exposures_lexis.txt",
-                        Dx   = paste0("Deaths_", interval, ".txt"),    # deaths
-                        Ex   = paste0("Exposures_", interval, ".txt"), # exposure
-                        mx   = paste0("Mx_", interval, ".txt"),        # death rates
-                        LT_f = paste0("fltper_", interval, ".txt"),    # Life tables, Females
-                        LT_m = paste0("mltper_", interval, ".txt"),    # Life tables, Males
-                        LT_t = paste0("bltper_", interval, ".txt"),    # Life tables, Both sexes
-                        e0   = paste0("E0per_", interval, ".txt"),     # Life expectancy
+                        births = "Births",
+                        population = "Population",
+                        Dx_lexis = "Deaths_lexis",
+                        Ex_lexis = "Exposures_lexis",
+                        Dx   = paste0("Deaths_", interval),    # deaths
+                        Ex   = paste0("Exposures_", interval), # exposure
+                        mx   = paste0("Mx_", interval),        # death rates
+                        LT_f = paste0("fltper_", interval),    # Life tables, Females
+                        LT_m = paste0("mltper_", interval),    # Life tables, Males
+                        LT_t = paste0("bltper_", interval),    # Life tables, Both sexes
+                        e0   = paste0("E0per_", interval),     # Life expectancy
                         # Cohort data
-                        Exc = paste0("cExposures_", interval, ".txt"),
-                        mxc = paste0("cMx_", interval, ".txt"),
-                        LT_fc = paste0("fltcoh_", interval, ".txt"),
-                        LT_mc = paste0("mltcoh_", interval, ".txt"),
-                        LT_tc = paste0("bltcoh_", interval, ".txt"),
-                        e0c = paste0("E0coh_", interval, ".txt")
+                        Exc = paste0("cExposures_", interval),
+                        mxc = paste0("cMx_", interval),
+                        LT_fc = paste0("fltcoh_", interval),
+                        LT_mc = paste0("mltcoh_", interval),
+                        LT_tc = paste0("bltcoh_", interval),
+                        e0c = paste0("E0coh_", interval)
     )}
 
-  path <- paste0("https://www.mortality.org/hmd/", country, "/STATS/", whichFile)
-  txt  <- RCurl::getURL(path, userpwd = paste0(username, ":", password))
+  path <- paste0(link, country, "/", whichFile, ".txt")
+
+  if (is.null(username) | is.null(password)) {
+    txt <- RCurl::getURL(url = path)
+
+  } else {
+    path <- paste0(link, country, "/STATS/", whichFile, ".txt")
+    txt <- RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
+
+  }
   con  <- try(textConnection(txt),
-              stop("ReadHMD() failed to connect to www.mortality.org. ",
-                   "Maybe the website is down at this moment?", call. = FALSE))
+              stop("\nThe function failed to connect to ", link,
+                   " Maybe the website is down at this moment?", call. = FALSE))
   dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
-              stop("The server could not verify that you are authorized ",
-                   "to access the requested data. Probably you ",
-                   "supplied the wrong credentials (e.g., bad password)?",
-                   call. = FALSE))
+              stop("\n", what, " data for ", country, " state in the ", interval,
+                   " format was not to be found. We have been looking here:\n",
+                   path, call. = FALSE))
+
   close(con)
   out <- cbind(country, dat)
   if (interval %in% c("1x1", "1x5", "1x10") &

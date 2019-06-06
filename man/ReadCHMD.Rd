@@ -2,7 +2,7 @@
 % Please edit documentation in R/readCHMD.R
 \name{ReadCHMD}
 \alias{ReadCHMD}
-\title{Download Canadian Human Mortality Database (CHMD)}
+\title{Download the Canadian Human Mortality Database (CHMD)}
 \usage{
 ReadCHMD(what, regions = NULL, interval = "1x1", save = FALSE,
   show = TRUE)
@@ -22,8 +22,8 @@ available: \itemize{
   \item{\code{"e0"}} -- period life expectancy at birth;
   }}
 
-\item{regions}{Specify the region specific data you want to download by adding the
-CHMD region code/s. Options:
+\item{regions}{Specify the region specific data you want to download by
+adding the CHMD region code/s. Options:
 \itemize{
   \item{\code{"CAN"}} -- Canada - Sum of Canadian provinces and territories;
   \item{\code{"NFL"}} -- Newfoundland & Labrador;
@@ -37,7 +37,8 @@ CHMD region code/s. Options:
   \item{\code{"ALB"}} -- Alberta;
   \item{\code{"BCO"}} -- British Columbia;
   \item{\code{"NWT"}} -- Northwest Territories & Nunavut;
-  \item{\code{"YUK"}} -- Yukon.
+  \item{\code{"YUK"}} -- Yukon;
+  \item{\code{NULL}} -- if \code{NULL} data for all the regions are downloaded.
   }}
 
 \item{interval}{Datasets are given in various age and time formats based on
@@ -71,6 +72,35 @@ provinces and territories in Canada, in a single object from the
 \href{http://www.bdlc.umontreal.ca/chmd/index.htm}{
 Canadian Human Mortality Database}.
 }
+\details{
+(Description taken from the CHMD website).
+
+The Canadian Human Mortality Database (CHMD) was created to provide detailed
+Canadian mortality and population data to researchers, students, journalists,
+policy analysts, and others interested in the history of human longevity.
+The project is an achievement of the Mortality and Longevity research team at
+the Department of Demography, Universite de Montreal, under the supervision
+of Professor Robert Bourbeau, in collaboration with demographers at the
+Max Plank Institute for Demographic Research (Rostock, Germany) and the
+Department of Demography, University of California at Berkeley.
+Nadine Ouellette, researcher at the Institut national d'etudes demographiques
+in Paris and member of the Mortality and Longevity research team at the
+Universite de Montreal, is in charge of computing all CHMD life tables and
+updating the CHMD web site.
+
+The CHMD is a "satellite" of the Human Mortality Database (HMD), an
+international database which currently holds detailed data flor multiple
+countries or regions. Consequently, the CHMD's underlying methodology
+corresponds to the one used for the HMD.
+
+The CHMD gathers all required data (deaths counts, births counts, population
+size, exposure-to-risk, death rates) to compute life tables for Canada,
+its provinces and its territories. One of the great advantages of the
+database is to include data that is validated and corrected, when required,
+and rendered comparable, if possible, for the period ranging from 1921
+thru 2011. For comparison purposes, various life tables published by
+governmental organizations are also available for download in PDF format.
+}
 \examples{
 \dontrun{
 # Download demographic data for Quebec and Saskatchewan regions in 1x1 format
@@ -90,6 +120,10 @@ LTF <- ReadCHMD(what = "LT_f",
                 save = TRUE)
 LTF
 }
+}
+\seealso{
+\code{\link{ReadHMD}}
+\code{\link{ReadAHMD}}
 }
 \author{
 Marius D. Pascariu
