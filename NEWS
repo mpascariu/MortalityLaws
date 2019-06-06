@@ -2,6 +2,8 @@ version 1.8.0
 - readCHMD(): New function useful to download the Canadian Human Mortality Database;
 - convertFx(): improve the speed of the function > 5x;
 - availableHMD(): improve the speed of the function  > 100x;
+- LifeTable(): the argument 'ax' now accepts as input a numerical vector as well allowing the
+user to decide the timing of occurrence of death in each age interval;
 - Update LICENCE: MIT. Drop GLP-3.
 
 version 1.7.0

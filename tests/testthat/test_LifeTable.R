@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:42:34 2019
+# Last update: Thu Jun 06 11:11:53 2019
 # --------------------------------------------------- #
 remove(list = ls())
 library(MortalityLaws)
@@ -43,6 +43,12 @@ dx = c(11728, 1998, 2190, 1336, 637, 1927, 420, 453, 475, 905, 1168,
 LT15 <- LifeTable(x = x3, dx = dx)
 
 
+# Example 3 --- Abridge life table w ax ------------
+ax <- LT15$lt$ax
+ax[1] <- 0.1
+LT16 <- LifeTable(x = x3, dx = dx, ax = ax)
+
+
 # TESTS ----------------------------------------------
 # expect_warning((LT16 = LifeTable(x = 0:110, mx = ahmd$mx)))
 
@@ -58,7 +64,7 @@ foo.test.lt <- function(X) {
   })
 }
 
-for (j in 1:15) {
+for (j in 1:16) {
   print(j)
   foo.test.lt(X = get(paste0("LT",j)))
 }

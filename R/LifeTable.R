@@ -34,9 +34,10 @@
 #' represents the number of deaths during the year to persons aged x to x+n.
 #' @param Ex Exposure in the period. \code{Ex} can be approximated by the
 #' mid-year population aged x to x+n.
-#' @param mx Death rate in age interval [x, x+n).
+#' @param mx Life table death rate in age interval [x, x+n).
 #' @param qx Probability of dying in age interval [x, x+n).
-#' @param lx Probability of survival up until age x.
+#' @param lx Probability of survival up until exact age x (if l(0) = 1), or
+#' the number of survivors at exact age x, assuming l(0) > 1.
 #' @param dx Deaths by life-table population in the age interval [x, x+n).
 #' @param sex Sex of the population considered here. Default: \code{NULL}.
 #' This argument affects the first two values in the life table ax column.
@@ -84,12 +85,22 @@
 #'
 #' # Example 3 --- Abridged life table ------------
 #'
-#' x  = c(0, 1, seq(5, 110, by = 5))
-#' mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004,
-#'        .004, .005, .006, .0093, .0129, .019, .031, .049,
-#'        .084, .129, .180, .2354, .3085, .390, .478, .551)
-#' lt = LifeTable(x, mx = mx, sex = "female")
-#' lt
+#' x  <- c(0, 1, seq(5, 110, by = 5))
+#' mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+#'         .004, .005, .006, .0093, .0129, .019, .031, .049,
+#'         .084, .129, .180, .2354, .3085, .390, .478, .551)
+#' LT6 <- LifeTable(x, mx = mx, sex = "female")
+#' LT6
+#'
+#' # Example 4 --- Abridged life table w using my own 'ax' ------------
+#' # In this examples we are using the ages (x) and death rates (mx) from
+#' # example 3. Note that 'ax' must have the same length as the 'x' vector
+#' # otherwise an error message will be returned.
+#'
+#' my_ax <- c(0.1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+#'            2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1)
+#'
+#' LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 #'
 #' @export
 LifeTable <- function(x,
@@ -189,8 +200,12 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
   if (is.null(ax)) {
     ax <- compute.ax(x, mx, qx)
     if (!is.null(sex)) ax <- coale.demeny.ax(x, mx, ax, sex)
-  } else {
+
+  } else if (length(ax) == 1){
     ax <- rep(ax, N)
+
+  } else if (length(ax) == N){
+    ax <- as.numeric(ax)
   }
 
   Lx    <- nx * lx - (nx - ax) * dx
@@ -256,7 +271,8 @@ find.my.case <- function(Dx = NULL,
   }
 
   X   <- input[L1][[1]]
-  nLT <- LTnames <- NA
+  nLT <- 1
+  LTnames <- NA
 
   if (!is.vector(X)) {
     nLT     <- ncol(X)     # number of LTs to be created
@@ -317,9 +333,10 @@ uxAbove100 <- function(x,
     if (any(L)) {
       mux   <- max(ux[!L])
       ux[L] <- mux
-      if (verbose) warning("The input data contains NA's, Inf or zero's over the age of 100. ",
-                           "These have been replaced with maximum observed value: ",
-                           round(mux, 4), call. = FALSE)
+      if (verbose)
+        warning("The input data contains NA's, Inf or zero's over the age of ",
+                "100. These have been replaced with maximum observed value: ",
+                round(mux, 4), call. = FALSE)
     }
 
   } else {
@@ -433,11 +450,15 @@ LifeTable.check <- function(input) {
       dx[is.na(dx)] <- 0
       if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = FALSE)
     }
+
     if (!is.null(ax)) {
-      if (!is.numeric(ax)) stop("'ax' must be a numeric scalar (or NULL)",
-                                call. = FALSE)
-      if (length(ax) != 1) stop("Provide a single values for 'ax'",
-                                call. = FALSE)
+      if (!is.numeric(ax))
+        stop("'ax' must be a numeric scalar (or NULL)", call. = FALSE)
+
+      if (!any(length(ax) %in% c(1, length(x))))
+        stop("'ax' must be a scalar of lenght 1 or a ",
+             "vector of the same dimension as 'x'",
+             call. = FALSE)
     }
 
     out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx,

@@ -15,11 +15,12 @@ represents the number of deaths during the year to persons aged x to x+n.}
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
-\item{mx}{Death rate in age interval [x, x+n).}
+\item{mx}{Life table death rate in age interval [x, x+n).}
 
 \item{qx}{Probability of dying in age interval [x, x+n).}
 
-\item{lx}{Probability of survival up until age x.}
+\item{lx}{Probability of survival up until exact age x (if l(0) = 1), or
+the number of survivors at exact age x, assuming l(0) > 1.}
 
 \item{dx}{Deaths by life-table population in the age interval [x, x+n).}
 

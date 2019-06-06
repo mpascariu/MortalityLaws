@@ -11,7 +11,7 @@ coale.demeny.ax(x, mx, ax, sex)
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{mx}{Death rate in age interval [x, x+n).}
+\item{mx}{Life table death rate in age interval [x, x+n).}
 
 \item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
 die in the same interval. If \code{NULL} this will be estimated. A common

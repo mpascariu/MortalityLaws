@@ -22,11 +22,12 @@ represents the number of deaths during the year to persons aged x to x+n.}
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
-\item{mx}{Death rate in age interval [x, x+n).}
+\item{mx}{Life table death rate in age interval [x, x+n).}
 
 \item{qx}{Probability of dying in age interval [x, x+n).}
 
-\item{lx}{Probability of survival up until age x.}
+\item{lx}{Probability of survival up until exact age x (if l(0) = 1), or
+the number of survivors at exact age x, assuming l(0) > 1.}
 
 \item{dx}{Deaths by life-table population in the age interval [x, x+n).}
 
@@ -92,12 +93,22 @@ LTs
 
 # Example 3 --- Abridged life table ------------
 
-x  = c(0, 1, seq(5, 110, by = 5))
-mx = c(.053, .005, .001, .0012, .0018, .002, .003, .004,
-       .004, .005, .006, .0093, .0129, .019, .031, .049,
-       .084, .129, .180, .2354, .3085, .390, .478, .551)
-lt = LifeTable(x, mx = mx, sex = "female")
-lt
+x  <- c(0, 1, seq(5, 110, by = 5))
+mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+        .004, .005, .006, .0093, .0129, .019, .031, .049,
+        .084, .129, .180, .2354, .3085, .390, .478, .551)
+LT6 <- LifeTable(x, mx = mx, sex = "female")
+LT6
+
+# Example 4 --- Abridged life table w using my own 'ax' ------------
+# In this examples we are using the ages (x) and death rates (mx) from
+# example 3. Note that 'ax' must have the same length as the 'x' vector
+# otherwise an error message will be returned.
+
+my_ax <- c(0.1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+           2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1)
+
+LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 
 }
 \seealso{

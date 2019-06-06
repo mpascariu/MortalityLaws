@@ -21,7 +21,7 @@ represents the number of deaths during the year to persons aged x to x+n.}
 \item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
 mid-year population aged x to x+n.}
 
-\item{mx}{Death rate in age interval [x, x+n).}
+\item{mx}{Life table death rate in age interval [x, x+n).}
 
 \item{qx}{Probability of dying in age interval [x, x+n).}
 

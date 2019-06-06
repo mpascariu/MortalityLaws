@@ -9,7 +9,7 @@ compute.ax(x, mx, qx)
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 
-\item{mx}{Death rate in age interval [x, x+n).}
+\item{mx}{Life table death rate in age interval [x, x+n).}
 
 \item{qx}{Probability of dying in age interval [x, x+n).}
 }
