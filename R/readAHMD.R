@@ -90,12 +90,7 @@ ReadAHMD <- function(what,
     regions <- AUSregions()
   }
 
-  input <- list(what = what,
-                regions = regions,
-                interval = interval,
-                save = save,
-                show = show)
-
+  input <- as.list(environment())
   check_input_ReadAHMD(input)
   nr <- length(regions)
 

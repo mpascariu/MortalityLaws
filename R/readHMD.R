@@ -204,16 +204,17 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
                         e0c = paste0("E0coh_", interval)
     )}
 
-  path <- paste0(link, country, "/", whichFile, ".txt")
+  ccodes <- c(substrRight(paste0(0, 0:47), 2), HMDcountries())
+  interlude <- if (country %in% ccodes) "/STATS/" else "/"
+  path <- paste0(link, country, interlude, whichFile, ".txt")
 
   if (is.null(username) | is.null(password)) {
     txt <- RCurl::getURL(url = path)
 
   } else {
-    path <- paste0(link, country, "/STATS/", whichFile, ".txt")
     txt <- RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
-
   }
+
   con  <- try(textConnection(txt),
               stop("\nThe function failed to connect to ", link,
                    " Maybe the website is down at this moment?", call. = FALSE))

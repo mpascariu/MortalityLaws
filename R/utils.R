@@ -39,3 +39,10 @@ head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
 }
 
 
+#' Extracting the last n characters from a string
+#' @param x a string
+#' @param n number of characters
+#' @keywords internal
+substrRight <- function(x, n){
+  substr(x, nchar(x) - n + 1, nchar(x))
+}
