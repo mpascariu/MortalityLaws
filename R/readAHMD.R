@@ -116,7 +116,6 @@ ReadAHMD <- function(what,
                                link = "http://demography.cass.anu.edu.au/sites/default/ahmd/"))
   }
 
-  fn  <- paste0("AHMD_", what) # file name
   out <- list(input = input,
               data = D,
               download.date = date(),
@@ -125,26 +124,8 @@ ReadAHMD <- function(what,
   out <- structure(class = "ReadAHMD", out)
 
   # Step 3 - Write a file with the database in your working directory
-  if (save) {
-    assign(fn, value = out)
-    save(list = fn, file = paste0(fn, ".Rdata"))
-  }
-
-  if (show) {
-    setpb(pb, nr + 1)
-    wd  <- getwd()
-    n   <- nchar(wd)
-    wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
-    cat("\n   ")
-
-    if (save) {
-      message(paste(fn, "is saved in your working directory:\n  ", wd_),
-              appendLF = FALSE)
-      cat("\n   ")
-    }
-
-    message("Download completed!")
-  }
+  if (show) setpb(pb, nr + 1)
+  if (save) saveOutput(out, show, prefix = "AHMD")
 
   # Exit
   return(out)

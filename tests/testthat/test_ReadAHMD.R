@@ -15,10 +15,10 @@ expect_error(ReadAHMD(what = "Dx", regions = "ACTT"))
 expect_error(ReadAHMD(what = "Dx", regions = "ACT", interval = "1x50"))
 
 # Wrong country for the index
-expect_error(ReadAHMD(what = "LT_fc", regions = "TAS", interval = "1x1"))
+expect_error(ReadAHMD(what = "LT_fc", regions = "TAS", interval = "1x1", show = FALSE))
 
 # Wrong interval for the index
-expect_error(ReadAHMD(what = "e0", regions = "TAS", interval = "5x1"))
+expect_error(ReadAHMD(what = "e0", regions = "TAS", interval = "5x1", show = FALSE))
 # expect_error(ReadAHMD(what = "LT_f", regions = "TAS", interval = "1x1"))
 
 # ReadAHMD(what = "LT_m", regions = "TAS", interval = "1x5")

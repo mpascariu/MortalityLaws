@@ -134,26 +134,8 @@ ReadJMD <- function(what,
   out <- structure(class = "ReadJMD", out)
 
   # Step 3 - Write a file with the database in your working directory
-  if (save) {
-    assign(fn, value = out)
-    save(list = fn, file = paste0(fn, ".Rdata"))
-  }
-
-  if (show) {
-    setpb(pb, nr + 1)
-    wd  <- getwd()
-    n   <- nchar(wd)
-    wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
-    cat("\n   ")
-
-    if (save) {
-      message(paste(fn, "is saved in your working directory:\n  ", wd_),
-              appendLF = FALSE)
-      cat("\n   ")
-    }
-
-    message("Download completed!")
-  }
+  if (show) setpb(pb, nr + 1)
+  if (save) saveOutput(out, show, prefix = "JMD")
 
   # Exit
   return(out)

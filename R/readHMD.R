@@ -134,7 +134,6 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
                                username, password,
                                link = "https://www.mortality.org/hmd/"))
   }
-  fn  <- paste0("HMD_", what) # file name
   out <- list(input = input,
               data = D,
               download.date = date(),
@@ -143,29 +142,37 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
   out <- structure(class = "ReadHMD", out)
 
   # Step 3 - Write a file with the database in your working directory
-  if (save) {
-    assign(fn, value = out)
-    save(list = fn, file = paste0(fn, ".Rdata"))
-  }
-
-  if (show) {
-    setpb(pb, nr + 1)
-    wd  <- getwd()
-    n   <- nchar(wd)
-    wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
-    cat("\n   ")
-
-    if (save) {
-      message(paste(fn, "is saved in your working directory:\n  ", wd_),
-              appendLF = FALSE)
-      cat("\n   ")
-    }
-
-    message("Download completed!")
-  }
+  if (show) setpb(pb, nr + 1)
+  if (save) saveOutput(out, show, prefix = "HMD")
 
   # Exit
   return(out)
+}
+
+
+#' Save Output in the working directory
+#' @param out Output file
+#' @inheritParams ReadHMD
+#' @keywords internal
+saveOutput <- function(out, show, prefix) {
+  fn  <- paste0(prefix, "_", out$input$what) # file name
+  assign(fn, value = out)
+  save(list = fn, file = paste0(fn, ".Rdata"))
+  if (show) saveMsg()
+}
+
+
+#' Print message when saving an object
+#' @keywords internal
+saveMsg <- function() {
+  wd  <- getwd()
+  n   <- nchar(wd)
+  wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
+  cat("\n   ")
+  message(paste("The dataset is saved in your working directory:\n  ", wd_),
+          appendLF = FALSE)
+  cat("\n   ")
+  message("Download completed!\n")
 }
 
 
