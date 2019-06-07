@@ -20,6 +20,9 @@ expect_error(ReadJMD(what = "e0", regions = "Japan", interval = "5x1"))
 expect_output(ReadJMD(what = "e0", regions = "Japan", interval = "1x5"))
 expect_error(ReadJMD(what = "LT_f", regions = "Kyoto", interval = "1x1"))
 expect_output(ReadJMD(what = "LT_f", regions = "Kyoto", interval = "5x5"))
-expect_silent(ReadJMD(what = "LT_f", regions = "Kyoto", interval = "5x5", show = FALSE))
 
-
+expect_silent(D <- ReadJMD(what = "LT_f",
+                           regions = "Kyoto",
+                           interval = "5x5",
+                           show = FALSE))
+expect_output(print(D))

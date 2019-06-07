@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Thu Jun 06 13:16:25 2019
+# Last update: Fri Jun 07 13:53:02 2019
 # --------------------------------------------------- #
 remove(list = ls())
 
@@ -21,6 +21,9 @@ expect_error(ReadAHMD(what = "LT_fc", regions = "TAS", interval = "1x1", show = 
 expect_error(ReadAHMD(what = "e0", regions = "TAS", interval = "5x1", show = FALSE))
 # expect_error(ReadAHMD(what = "LT_f", regions = "TAS", interval = "1x1"))
 
-# ReadAHMD(what = "LT_m", regions = "TAS", interval = "1x5")
-# ReadAHMD(what = "LT_f", regions = "TAS", interval = "1x1")
-# ReadAHMD(what = "LT_t", regions = "TAS", interval = "1x1")
+# Test the show arg and print function
+expect_silent(D <- ReadAHMD(what = "LT_f",
+                            regions = "ACT",
+                            interval = "5x10",
+                            show = F))
+expect_output(print(D))

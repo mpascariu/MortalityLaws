@@ -213,7 +213,8 @@ check_input_ReadCHMD <- function(x) {
 #' @export
 print.ReadCHMD <- function(x, ...){
   what <- x$input$what
-  cat("Canadian Human Mortality Database (http://www.bdlc.umontreal.ca/chmd)\n")
+  cat("Canadian Human Mortality Database\n")
+  cat("Web Address   : http://www.bdlc.umontreal.ca/chmd\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))

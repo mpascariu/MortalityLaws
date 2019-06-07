@@ -211,8 +211,15 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
                         e0c = paste0("E0coh_", interval)
     )}
 
-  JPNcodes <- substrRight(paste0(0, 0:47), 2)
-  interlude <- if (country %in% c(JPNcodes, HMDcountries())) "/STATS/" else "/"
+
+  if (link %in% c("https://www.mortality.org/hmd/",
+                  "http://www.ipss.go.jp/p-toukei/JMD/")) {
+    interlude <- "/STATS/"
+
+  } else {
+    interlude <- "/"
+  }
+
   path <- paste0(link, country, interlude, whichFile, ".txt")
 
   if (is.null(username) | is.null(password)) {
@@ -226,6 +233,7 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
               stop("\nThe function failed to connect to ", link,
                    " Maybe the website is down at this moment?", call. = FALSE))
 
+  JPNcodes <- substrRight(paste0(0, 0:47), 2)
   if (country %in% JPNcodes) country <- JPNregions()[as.numeric(country) + 1]
 
   dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),

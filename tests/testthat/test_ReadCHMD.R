@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:43:11 2019
+# Last update: Fri Jun 07 13:50:43 2019
 # --------------------------------------------------- #
 remove(list = ls())
 
@@ -18,5 +18,12 @@ expect_error(ReadCHMD(what = "Dx", regions = "CAN", interval = "1x50"))
 expect_error(ReadCHMD(what = "LT_fc", regions = "SAS", interval = "1x1"))
 
 # Wrong interval for the index
-expect_error(ReadCHMD(what = "e0", regions = "CAN", interval = "5x1"))
-expect_error(ReadCHMD(what = "LT_f", regions = "YUK", interval = "5x1"))
+expect_error(ReadCHMD(what = "e0", regions = "CAN", interval = "5x1", show = F))
+expect_error(ReadCHMD(what = "LT_f", regions = "YUK", interval = "5x1", show = F))
+
+# Test the show arg and print function
+expect_silent(D <- ReadCHMD(what = "LT_f",
+                            regions = "CAN",
+                            interval = "5x10",
+                            show = F))
+expect_output(print(D))
