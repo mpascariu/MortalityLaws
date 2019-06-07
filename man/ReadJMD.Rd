@@ -38,7 +38,7 @@ adding the JMD region code/s. Options: \code{"Japan", "Hokkaido", "Aomori",
 "Shimane", "Okayama", "Hiroshima", "Yamaguchi", "Tokushima", "Kagawa",
 "Ehime", "Kochi", "Fukuoka", "Saga", "Nagasaki", "Kumamoto", "Oita",
 "Miyazaki", "Kagoshima", "Okinawa"}.
-If \code{NULL} data for all the regions are downloaded}
+If \code{NULL} data for all the regions are downloaded at once.}
 
 \item{interval}{Datasets are given in various age and time formats based on
 which the records are agregated. Interval options:

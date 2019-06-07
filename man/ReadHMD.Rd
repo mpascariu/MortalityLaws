@@ -36,7 +36,7 @@ HMD country code/s. Options:
 "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
 "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
-If \code{NULL} data for all the countries are downloaded at once.}
+ If \code{NULL} data for all the countries are downloaded at once;}
 
 \item{interval}{Datasets are given in various age and time formats based on
 which the records are agregated. Interval options:

@@ -50,7 +50,7 @@
 #' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
 #' "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
 #' "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
-#' If \code{NULL} data for all the countries are downloaded at once.
+#'  If \code{NULL} data for all the countries are downloaded at once;
 #' @param interval Datasets are given in various age and time formats based on
 #' which the records are agregated. Interval options:
 #' \itemize{
@@ -204,8 +204,8 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
                         e0c = paste0("E0coh_", interval)
     )}
 
-  ccodes <- c(substrRight(paste0(0, 0:47), 2), HMDcountries())
-  interlude <- if (country %in% ccodes) "/STATS/" else "/"
+  JPNcodes <- substrRight(paste0(0, 0:47), 2)
+  interlude <- if (country %in% c(JPNcodes, HMDcountries())) "/STATS/" else "/"
   path <- paste0(link, country, interlude, whichFile, ".txt")
 
   if (is.null(username) | is.null(password)) {
@@ -218,6 +218,9 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
   con  <- try(textConnection(txt),
               stop("\nThe function failed to connect to ", link,
                    " Maybe the website is down at this moment?", call. = FALSE))
+
+  if (country %in% JPNcodes) country <- JPNregions()[as.numeric(country) + 1]
+
   dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
               stop("\n", what, " data for ", country, " state in the ", interval,
                    " format was not to be found. We have been looking here:\n",
@@ -243,31 +246,36 @@ HMDcountries <- function() {
     "GBRCENW","GBR_SCO","GBR_NIR","USA")
 }
 
+#' Data formats
+#' @keywords internal
+data_format <- function() c("1x1", "1x5", "1x10", "5x1", "5x5","5x10")
+
+
+#' HMD Indices
+#' @keywords internal
+HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
+                           "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0",
+                           "mxc", "Exc", "LT_fc", "LT_mc", "LT_tc", "e0c")
 
 #' Check input ReadHMD
 #' @param x a list containing the input arguments from ReadHMD function
 #' @keywords internal
 check_input_ReadHMD <- function(x) {
-  int <- c("1x1", "1x5", "1x10", "5x1", "5x5","5x10")
-  wht <- c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
-           "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0",
-           "mxc", "Exc", "LT_fc", "LT_mc", "LT_tc", "e0c")
-  all_countries <- HMDcountries()
   coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
                      "NOR", "SWE", "CHE", "GBRTENW", "GBRCENW", "GBR_SCO")
 
-  if (!(x$interval %in% int)) {
+  if (!(x$interval %in% data_format())) {
     stop("The interval ", x$interval, " does not exist in HMD ",
-         "Try one of these options:\n", paste(int, collapse = ", "),
+         "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
 
-  if (!(x$what %in% wht)) {
+  if (!(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in HMD. Try one of these options:\n",
-         paste(wht, collapse = ", "), call. = FALSE)
+         paste(HMDindices(), collapse = ", "), call. = FALSE)
   }
 
-  if (all(!(x$countries %in% all_countries))) {
+  if (all(!(x$countries %in% HMDcountries()))) {
     stop("Something is wrong in the country/countries added by you.\n",
          "Try one or more of these options:\n",
          paste(HMDcountries(), collapse = ", "), call. = FALSE)
@@ -304,20 +312,25 @@ print.ReadHMD <- function(x, ...){
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
-
-  if (what %in% c("e0", "e0c")) {
-    ageMsg <- 0
-
-  } else {
-    # ageMsg <- paste(min(x$ages), "-", max(x$ages))
-    ageMsg <- paste(x$ages[1], "--", rev(x$ages)[1])
-  }
-
   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages          :", ageMsg, "\n"))
+  cat(paste("Ages          :", ageMsg(what, x), "\n"))
   cat("Countries     :", x$input$countries, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }
 
 
+#' What age(s) are we looking at?
+#' @inheritParams print.ReadHMD
+#' @keywords internal
+ageMsg <- function(what, x) {
+  if (what %in% c("e0", "e0c")) {
+    0
+
+  } else if (what %in% c("births")){
+    "all ages"
+
+  } else {
+    paste(x$ages[1], "--", rev(x$ages)[1])
+  }
+}
