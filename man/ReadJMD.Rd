@@ -77,8 +77,8 @@ Australian Human Mortality Database}.
 The Japanese Mortality Database is a comprehensively-reorganized mortality
 database that is optimized for mortality research and consistent with the
 Human Mortality Database. This database is provided as a part of the research
-project “Demographic research on the causes and the socio-economic
-consequence of longetivity extension in Japan” (2011-2013), "Demographic
+project "Demographic research on the causes and the socio-economic
+consequence of longetivity extension in Japan" (2011-2013), "Demographic
 research on longevity extension, population aging, and their effects on the
 social security and socio-economic structures in Japan" (2014-2016), and
 "Comprehensive research from a demographic viewpoint on the longevity
