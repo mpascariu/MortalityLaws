@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:30:40 2019
+# Last update: Wed Jun 12 16:22:27 2019
 # --------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
@@ -184,10 +184,10 @@ saveMsg <- function() {
 ReadHMD.core <- function(what, country, interval, username, password, link){
 
   if (what == "e0" & interval == "1x1") {
-    whichFile <- "E0per.txt"
+    whichFile <- "E0per"
 
   } else if (what == "e0c" & interval == "1x1"){
-    whichFile <- "E0coh.txt"
+    whichFile <- "E0coh"
 
   } else {
     whichFile <- switch(what,
