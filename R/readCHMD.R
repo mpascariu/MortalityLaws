@@ -197,9 +197,11 @@ check_input_ReadCHMD <- function(x) {
   if (any(x$region %in% c("NWT", "YUK")) &
     (x$what %in% c("LT_m", "LT_f", "LT_t")) &
       (x$interval %in% c("1x1", "5x1"))) {
-    stop("For the regions of Newfoundland & Labrador (NFL) and Yukon (YUK),",
-         " due to small size population, data type ", x$what,
-         " is NOT available in the following format: '1x1' and '5x1'.",
+    stop("For the regions of Northwest Territories & Nunavut (NWT) and Yukon (YUK),",
+         "\ndata type ", x$what, " is NOT available in the following format:",
+         "'1x1' and '5x1'.",
+         "\nTo download the life-tables for all the other regions use the argument:",
+         "\nregions = c('CAN', 'NFL', 'PEI', 'NSC', 'NBR', 'QUE', 'ONT', 'MAN', 'SAS', 'ALB', 'BCO')",
          call. = FALSE)
   }
 }
