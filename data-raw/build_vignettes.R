@@ -1,14 +1,18 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:31:12 2019
+# Last update: Tue Jun 18 12:29:22 2019
 # --------------------------------------------------- #
 
 # Code for buiding and resizing pdf vignettes
 
 
 devtools::build_vignettes()
-tools::compactPDF(paste0(getwd(),"/inst/doc/"), gs_quality = "ebook")
+tools::compactPDF(paths = paste0(getwd(),"/inst/doc/"),
+                  gs_quality = "ebook")
+# If this returns NULL make sure that you have GHostscript installed and add
+# added to the PATH of the system
+
 
 # Thu Dec 21 10:26:56 2017 ------------------------------
 # Marius Pascariu

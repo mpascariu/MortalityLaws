@@ -1,6 +1,5 @@
 ^data-raw$
 ^check$
-^Presentation$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
