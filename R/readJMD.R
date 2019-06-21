@@ -1,16 +1,16 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Thu Jun 06 16:43:49 2019
+# Last update: Fri Jun 21 21:09:15 2019
 # --------------------------------------------------- #
 
 
 #' Download the Japanese Mortality Database (JMD)
 #'
-#' Download detailed mortality and population data for different
-#' provinces and territories in Australia, in a single object from the
-#' \href{http://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
-#' Australian Human Mortality Database}.
+#' Download detailed mortality and population data of the 47 prefectures in
+#' Japan, in a single object. The source of data is the
+#' \href{http://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
+#' Japanese Mortality Database}.
 #'
 #' @details
 #' (Description taken from the JMD website).
@@ -125,7 +125,6 @@ ReadJMD <- function(what,
     D <- rbind(D, d)
   }
 
-  fn  <- paste0("JMD_", what) # file name
   out <- list(input = input,
               data = D,
               download.date = date(),

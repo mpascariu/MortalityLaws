@@ -66,10 +66,10 @@ A \code{ReadJMD} object that contains:
  \item{ages}{Numerical vector with ages covered in the data.}
 }
 \description{
-Download detailed mortality and population data for different
-provinces and territories in Australia, in a single object from the
-\href{http://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
-Australian Human Mortality Database}.
+Download detailed mortality and population data of the 47 prefectures in
+Japan, in a single object. The source of data is the
+\href{http://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
+Japanese Mortality Database}.
 }
 \details{
 (Description taken from the JMD website).
