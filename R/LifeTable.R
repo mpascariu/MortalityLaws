@@ -301,6 +301,7 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
 
   if (out == "qx") {
     eta <- 1 - exp(-nx * ux)
+    eta[length(nx)] <- 1  # The life table should always close with q[x] = 1
   } else {
     eta <- suppressWarnings(-log(1 - ux)/nx)
     # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's; they

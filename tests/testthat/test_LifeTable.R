@@ -58,8 +58,9 @@ foo.test.lt <- function(X) {
     expect_true(all(X$lt[, cn] >= 0))           # All values in LT are positive
     expect_false(all(is.na(X$lt$ex)))           # ex does not contain NA's
     expect_identical(class(X$lt$ex), "numeric") # All ex is of the class numeric
-    expect_true(X$lt$ex[1] >= rev(X$lt$ex)[1])  # ex at the beginnig is greater or equat with ex at the end
+    expect_true(X$lt$ex[1] >= rev(X$lt$ex)[1])  # e[x] at the beginnig is greater or equat with e[x] at the end
     expect_equal(sum(X$lt$dx), X$lt$lx[1])      # The distribution of deaths sums up to unity
+    expect_equal(X$lt$qx[nrow(X$lt)], 1)        # The life table should always close with q[x] = 1
     expect_output(print(X))                     # The print function works
   })
 }
