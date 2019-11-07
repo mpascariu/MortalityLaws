@@ -1,19 +1,19 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:42:41 2019
+# Last update: Thu Nov 07 10:35:01 2019
 # --------------------------------------------------- #
 remove(list = ls())
 
 # test 1: ---------------------------------------
 # Test all models on with ages
 yr <- 1950
-ages <- list(infancy = 0:15,
-             hump = 16:30,
+ages <- list(infancy   = 0:15,
+             hump      = 16:30,
              adulthood = 30:75,
              adult_old = 30:100,
-             old_age = 76:100,
-             full = 0:100)
+             old_age   = 76:100,
+             full      = 0:100)
 
 aLaws <- availableLaws()
 N     <- nrow(aLaws$table)
@@ -26,10 +26,16 @@ for (k in 1:N) {
   sx   <- ifelse(min(X) > 1, TRUE, FALSE)
   LAW  <- as.character(aLaws$table$CODE[k])
   cat("M", k,": ", LAW, "\n", sep = "")
-  assign(paste0("M", k), MortalityLaw(X, mx = mx[, 1:1], law = LAW,
-                                      opt.method = 'LF2', scale.x = sx))
-  assign(paste0("P", k), MortalityLaw(X, mx = mx[, 1:2], law = LAW,
-                                      opt.method = 'LF2', scale.x = sx))
+
+  assign(paste0("M", k), MortalityLaw(x   = X,
+                                      mx  = mx[, 1:1],
+                                      law = LAW,
+                                      opt.method = 'LF2'))
+
+  assign(paste0("P", k), MortalityLaw(x   = X,
+                                      mx  = mx[, 1:2],
+                                      law = LAW,
+                                      opt.method = 'LF2'))
 }
 
 
@@ -64,10 +70,24 @@ for (j in 1:N) testMortalityLaw(get(paste0("P", j)))
 x  <- 45:75
 Dx <- ahmd$Dx[paste(x), paste(yr)]
 Ex <- ahmd$Ex[paste(x), paste(yr)]
-T2 <- MortalityLaw(x = x - 44, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 50:70 - 44)
+T2 <- MortalityLaw(x   = x - 44,
+                   Dx  = Dx,
+                   Ex  = Ex,
+                   law = 'makeham',
+                   fit.this.x = 50:70 - 44)
+
 testMortalityLaw(T2)
-expect_error(MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 48))
-expect_error(MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = 'makeham', fit.this.x = 40:80))
+expect_error(MortalityLaw(x   = x,
+                          Dx  = Dx,
+                          Ex  = Ex,
+                          law = 'makeham',
+                          fit.this.x = 48))
+
+expect_error(MortalityLaw(x   = x,
+                          Dx  = Dx,
+                          Ex  = Ex,
+                          law = 'makeham',
+                          fit.this.x = 40:80))
 
 # Test 3: ---------------------------------------
 # custom.law
@@ -76,12 +96,18 @@ my_gompertz <- function(x, par = c(b = 0.13, m = 45)){
   return(as.list(environment()))
 }
 
-T3 = MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+T3 = MortalityLaw(x  = x,
+                  Dx = Dx,
+                  Ex = Ex,
+                  custom.law = my_gompertz)
 testMortalityLaw(T3)
 
 # test 4: ---------------------------------------
 mx  <- ahmd$mx[paste(0:100), 1] # select data
-expect_message((HP4 = MortalityLaw(x = 0:100, mx = mx, law = 'HP', opt.method = "poissonL")))
+expect_message((HP4 = MortalityLaw(x   = 0:100,
+                                   mx  = mx,
+                                   law = 'HP',
+                                   opt.method = "poissonL")))
 
 expect_error(predict(HP4, x = -1:100))
 expect_true(is.numeric(AIC(HP4)))

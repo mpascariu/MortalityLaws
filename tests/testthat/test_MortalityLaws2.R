@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:42:58 2019
+# Last update: Thu Nov 07 10:37:35 2019
 # --------------------------------------------------- #
 remove(list = ls())
 library(MortalityLaws)
@@ -21,10 +21,17 @@ names(mx) <- x1
 # data in different format. Let M1 and M2 be the 2 fitted objects. There
 # should be no difference between the estimates produced.
 
-M1 <- function() MortalityLaw(x = x1, mx = mx, law = law,
-                   fit.this.x = x2, opt.method = opt.method)
-M2 <- function() MortalityLaw(x = x2, mx = mx[paste(x2)], law = law,
-                   fit.this.x = x2, opt.method = opt.method)
+M1 <- function() MortalityLaw(x = x1,
+                              mx = mx,
+                              law = law,
+                              fit.this.x = x2,
+                              opt.method = opt.method)
+
+M2 <- function() MortalityLaw(x = x2,
+                              mx = mx[paste(x2)],
+                              law = law,
+                              fit.this.x = x2,
+                              opt.method = opt.method)
 opt.method = "LF2"
 
 

@@ -1,3 +1,8 @@
+version 1.8.1
+- LifeTable(): fix minor bug that prevented the closing of the life table with
+a qx = 1 in some situations;
+- Updata internal unit tests.
+
 version 1.8.0
 - readCHMD(): New function useful to download the Canadian Human Mortality Database;
 - readAHMD(): New function useful to download the Australian Human Mortality Database;
