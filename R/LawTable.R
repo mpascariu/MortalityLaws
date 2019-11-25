@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:33:29 2019
+# Last update: Mon Nov 25 19:35:40 2019
 # --------------------------------------------------- #
 
 
@@ -45,16 +45,16 @@
 #' # Why is this happening?
 #'
 #' # If we have a model that covers only a part of the human mortality curve
-#' # (e.g. adult mortality), in fitting the x vector is scaled down, meaning age (x) becomes
-#' # (x - min(x) + 1). And, the coefficients are estimated on a scaled x in ordered
-#' # to obtain meaningful estimates. Otherwise the optimization process might
-#' # not converge.
+#' # (e.g. adult mortality), in fitting the x vector is scaled down, meaning
+#' # age (x) becomes (x - min(x) + 1). And, the coefficients are estimated on
+#' # a scaled x in ordered to obtain meaningful estimates. Otherwise the
+#' # optimization process might not converge.
 #'
 #' # What can we do about it?
 #'
-#' # a). Know which mortality laws are rescaling the x vector in the fitting process.
-#' # If these models are fitted with the MortalityLaw() function, you can find out
-#' # like so:
+#' # a). Know which mortality laws are rescaling the x vector in the fitting
+#' # process. If these models are fitted with the MortalityLaw() function, you
+#' # can find out like so:
 #' A <- availableLaws()$table
 #' A[, c("CODE", "SCALE_X")]
 #'
@@ -72,18 +72,19 @@
 #'
 #' LawTable(x = x2, par = C2, law = L2)
 #'
-#' # Because "HP" is not scaling down the x vector, the output is not affected by
-#' # the problem described above.
+#' # Because "HP" is not scaling down the x vector, the output is not affected
+#' # by the problem described above.
 #'
 #' # Check
 #' LawTable(x = 3:110, par = C2, law = L2)
 #' # Note the e3 = 70.31 in both tables
 #' @export
-LawTable <- function(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL) {
-  info <- addDetails(law)
+LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL) {
+
+  info    <- addDetails(law)
   scale.x <- info$scale.x
-  fn <- get(law)
-  xx <- if (scale.x) scale_x(x) else x
+  fn      <- get(law)
+  xx      <- if (scale.x) scale_x(x) else x
 
   if (is.matrix(par) | is.data.frame(par)) {
     hx <- NULL
@@ -92,6 +93,7 @@ LawTable <- function(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL) {
       hx  <- cbind(hx, hxj)
     }
     dimnames(hx) <- list(x, rownames(par))
+
   } else {
     hx <- fn(xx, par)$hx
   }
@@ -99,10 +101,10 @@ LawTable <- function(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL) {
   thisIndex  <- info$model["FIT"]
 
   if (thisIndex == "q[x]") {
-    out <- LifeTable(xx, qx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = xx, qx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
   if (thisIndex == "mu[x]") {
-    out <- LifeTable(xx, mx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = xx, mx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
   out$call <- match.call()
   return(out)

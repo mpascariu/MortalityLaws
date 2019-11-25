@@ -37,15 +37,15 @@ function.}
 
 \item{parS}{Starting parameters used in the optimization process (optional).}
 
-\item{fit.this.x}{Select the ages to be considered in model fitting. By default
-\code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the
-advanced ages where the data is sparse.}
+\item{fit.this.x}{Select the ages to be considered in model fitting.
+By default \code{fit.this.x = x}. One may want to exclude from the fitting
+procedure, say, the advanced ages where the data is sparse.}
 
 \item{custom.law}{Allows you to fit a model that is not defined
 in the package. Accepts as input a function.}
 
-\item{show}{Choose whether to display a progress bar during the fitting process.
-Logical. Default: \code{FALSE}.}
+\item{show}{Choose whether to display a progress bar during the fitting
+process. Logical. Default: \code{FALSE}.}
 
 \item{...}{Arguments to be passed to or from other methods.}
 }
@@ -66,19 +66,19 @@ gradient matrix, QR decomposition, covariance matrix etc.}
 }
 \description{
 Fit parametric mortality models given a set of input data which can be
-represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
-or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}.
-Using the argument \code{law} one can specify the model to be fitted.
-So far more than 27 parametric models have been implemented;
-check the \code{\link{availableLaws}}
-function to learn about the available options. The models can be fitted under
+represented by death counts and mid-interval population estimates
+\code{(Dx, Ex)} or age-specific death rates \code{(mx)} or death
+probabilities \code{(qx)}. Using the argument \code{law} one can specify
+the model to be fitted. So far more than 27 parametric models have been
+implemented; check the \code{\link{availableLaws}} function to learn
+about the available options. The models can be fitted under
 the maximum likelihood methodology or by selecting a loss function to be
 optimised. See the implemented loss function by running the
 \code{\link{availableLF}} function.
 }
 \details{
-Depending on the complexity of the model, one of following optimization
-strategies is employed: \enumerate{
+Depending on the complexity of the model, one of following
+optimization strategies is employed: \enumerate{
  \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
   variables when the objective function varies smoothly and is unimodal.
   For details see \code{\link{optim}}}
@@ -124,8 +124,8 @@ predict(M2, x = 55:90)
 # terms of modal age at death
 # hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 
-# A function with 'x' and 'par' as input has to be defined, which returns at least
-# an object called 'hx' (hazard rate).
+# A function with 'x' and 'par' as input has to be defined, which returns
+# at least an object called 'hx' (hazard rate).
 my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
   hx  <- with(as.list(par), b*exp(b*(x - M)) )
   return(as.list(environment()))

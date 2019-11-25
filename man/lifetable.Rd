@@ -52,8 +52,8 @@ The output is of the \code{"LifeTable"} class with the components:
  \item{process_date}{Time stamp.}
 }
 \description{
-Construct either a full or abridged life table with various input choices like:
-death counts and mid-interval population estimates \code{(Dx, Ex)} or
+Construct either a full or abridged life table with various input choices
+like: death counts and mid-interval population estimates \code{(Dx, Ex)} or
 age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
 or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
 If one of these options is specified, the other can be ignored. The input

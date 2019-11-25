@@ -74,16 +74,16 @@ LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 # Why is this happening?
 
 # If we have a model that covers only a part of the human mortality curve
-# (e.g. adult mortality), in fitting the x vector is scaled down, meaning age (x) becomes
-# (x - min(x) + 1). And, the coefficients are estimated on a scaled x in ordered
-# to obtain meaningful estimates. Otherwise the optimization process might
-# not converge.
+# (e.g. adult mortality), in fitting the x vector is scaled down, meaning
+# age (x) becomes (x - min(x) + 1). And, the coefficients are estimated on
+# a scaled x in ordered to obtain meaningful estimates. Otherwise the
+# optimization process might not converge.
 
 # What can we do about it?
 
-# a). Know which mortality laws are rescaling the x vector in the fitting process.
-# If these models are fitted with the MortalityLaw() function, you can find out
-# like so:
+# a). Know which mortality laws are rescaling the x vector in the fitting
+# process. If these models are fitted with the MortalityLaw() function, you
+# can find out like so:
 A <- availableLaws()$table
 A[, c("CODE", "SCALE_X")]
 
@@ -101,8 +101,8 @@ C2 = c(0.00223, 0.01461, 0.12292, 0.00091,
 
 LawTable(x = x2, par = C2, law = L2)
 
-# Because "HP" is not scaling down the x vector, the output is not affected by
-# the problem described above.
+# Because "HP" is not scaling down the x vector, the output is not affected
+# by the problem described above.
 
 # Check
 LawTable(x = 3:110, par = C2, law = L2)

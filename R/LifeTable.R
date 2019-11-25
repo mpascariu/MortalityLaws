@@ -1,14 +1,14 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:33:49 2019
+# Last update: Mon Nov 25 19:18:44 2019
 # --------------------------------------------------- #
 
 
 #' Compute Life Tables from Mortality Data
 #'
-#' Construct either a full or abridged life table with various input choices like:
-#' death counts and mid-interval population estimates \code{(Dx, Ex)} or
+#' Construct either a full or abridged life table with various input choices
+#' like: death counts and mid-interval population estimates \code{(Dx, Ex)} or
 #' age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
 #' or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
 #' If one of these options is specified, the other can be ignored. The input
@@ -155,9 +155,9 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 
   my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
   gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
-  N  <- length(x)
-  df <- diff(x)
-  nx <- c(df, df[N - 1])
+  N        <- length(x)
+  df       <- diff(x)
+  nx       <- c(df, df[N - 1])
 
   if (my.case == "C1_DxEx") {
     Dx <- as.numeric(Dx)
@@ -270,8 +270,8 @@ find.my.case <- function(Dx = NULL,
          call. = FALSE)
   }
 
-  X   <- input[L1][[1]]
-  nLT <- 1
+  X       <- input[L1][[1]]
+  nLT     <- 1
   LTnames <- NA
 
   if (!is.vector(X)) {
@@ -304,8 +304,8 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
     eta[length(nx)] <- 1  # The life table should always close with q[x] = 1
   } else {
     eta <- suppressWarnings(-log(1 - ux)/nx)
-    # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's; they
-    # distort the results in the subsequent processes.
+    # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's;
+    # they distort the results in the subsequent processes.
     # We apply a simple extrapolation method of the last mx.
     N <- length(x)
     eta[N] <- eta[N - 1]^2 / eta[N - 2]
@@ -360,6 +360,7 @@ dx_lx <- function(ux, out = c("dx", "lx")) {
     ux_ <- rev(diff(rev(ux)))
     d   <- ux[1] - sum(ux_)
     eta <- c(ux_, d)
+
   } else {
     eta <- rev(cumsum(rev(ux)))
   }
@@ -390,9 +391,11 @@ compute.ax <- function(x, mx, qx) {
 #' @inheritParams LifeTable
 #' @keywords internal
 coale.demeny.ax <- function(x, mx, ax, sex) {
+
   if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = FALSE)
-  nx <- c(diff(x), Inf)
-  m0 <- mx[1]
+
+  nx  <- c(diff(x), Inf)
+  m0  <- mx[1]
   a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684 * m0)
   a1M <- ifelse(m0 >= 0.107, 0.330, 1.651 - 2.816 * m0)
   a0F <- ifelse(m0 >= 0.107, 0.350, 0.053 + 2.800 * m0)
@@ -401,6 +404,7 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
   a1T <- (a1M + a1F)/2
 
   f  <- nx[1:2] / c(1, 4)
+
   if (sex == "male")   ax[1:2] <- c(a0M, a1M) * f
   if (sex == "female") ax[1:2] <- c(a0F, a1F) * f
   if (sex == "total")  ax[1:2] <- c(a0T, a1T) * f
@@ -419,7 +423,7 @@ LifeTable.check <- function(input) {
     K <- find.my.case(Dx, Ex, mx, qx, lx, dx)
     C <- K$case
     valid_classes <- c("numeric", "matrix", "data.frame", NULL)
-    if (!(K$iclass %in% valid_classes)) {
+    if (!any(K$iclass %in% valid_classes)) {
       stop(paste0("The class of the input should be: ",
                   paste(valid_classes, collapse = ", ")), call. = FALSE)
     }
@@ -427,7 +431,7 @@ LifeTable.check <- function(input) {
     SMS <- "contains missing values. These have been replaced with "
 
     if (!is.null(sex)) {
-      if (!(sex %in% c("male", "female", "total")))
+      if (!any(sex %in% c("male", "female", "total")))
         stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.",
              call. = FALSE)
     }

@@ -1,18 +1,19 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 05 14:34:07 2019
+# Last update: Mon Nov 25 19:33:33 2019
 # --------------------------------------------------- #
+
 
 #' Fit Mortality Laws
 #'
 #' Fit parametric mortality models given a set of input data which can be
-#' represented by death counts and mid-interval population estimates \code{(Dx, Ex)}
-#' or age-specific death rates \code{(mx)} or death probabilities \code{(qx)}.
-#' Using the argument \code{law} one can specify the model to be fitted.
-#' So far more than 27 parametric models have been implemented;
-#' check the \code{\link{availableLaws}}
-#' function to learn about the available options. The models can be fitted under
+#' represented by death counts and mid-interval population estimates
+#' \code{(Dx, Ex)} or age-specific death rates \code{(mx)} or death
+#' probabilities \code{(qx)}. Using the argument \code{law} one can specify
+#' the model to be fitted. So far more than 27 parametric models have been
+#' implemented; check the \code{\link{availableLaws}} function to learn
+#' about the available options. The models can be fitted under
 #' the maximum likelihood methodology or by selecting a loss function to be
 #' optimised. See the implemented loss function by running the
 #' \code{\link{availableLF}} function.
@@ -24,8 +25,8 @@
 #'                 fit.this.x = x,
 #'                 custom.law = NULL,
 #'                 show = FALSE, ...)
-#' @details Depending on the complexity of the model, one of following optimization
-#' strategies is employed: \enumerate{
+#' @details Depending on the complexity of the model, one of following
+#' optimization strategies is employed: \enumerate{
 #'  \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
 #'   variables when the objective function varies smoothly and is unimodal.
 #'   For details see \code{\link{optim}}}
@@ -45,13 +46,13 @@
 #' 6 other loss functions. For more details, check the \code{\link{availableLF}}
 #' function.
 #' @param parS Starting parameters used in the optimization process (optional).
-#' @param fit.this.x Select the ages to be considered in model fitting. By default
-#' \code{fit.this.x = x}. One may want to exclude from the fitting procedure, say, the
-#' advanced ages where the data is sparse.
+#' @param fit.this.x Select the ages to be considered in model fitting.
+#' By default \code{fit.this.x = x}. One may want to exclude from the fitting
+#' procedure, say, the advanced ages where the data is sparse.
 #' @param custom.law Allows you to fit a model that is not defined
 #' in the package. Accepts as input a function.
-#' @param show Choose whether to display a progress bar during the fitting process.
-#' Logical. Default: \code{FALSE}.
+#' @param show Choose whether to display a progress bar during the fitting
+#' process. Logical. Default: \code{FALSE}.
 #' @param ... Arguments to be passed to or from other methods.
 #' @return The output is of the \code{"MortalityLaw"} class with the components:
 #'  \item{input}{List with arguments provided in input. Saved for convenience.}
@@ -107,8 +108,8 @@
 #' # terms of modal age at death
 #' # hx = b*exp(b*(x-m)) (here b and m are the parameters to be estimated)
 #'
-#' # A function with 'x' and 'par' as input has to be defined, which returns at least
-#' # an object called 'hx' (hazard rate).
+#' # A function with 'x' and 'par' as input has to be defined, which returns
+#' # at least an object called 'hx' (hazard rate).
 #' my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
 #'   hx  <- with(as.list(par), b*exp(b*(x - M)) )
 #'   return(as.list(environment()))
@@ -266,7 +267,7 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
   if (sum(is.na(mu)) != 0) loss = loss + 10^5
   out <- sum(loss, na.rm = TRUE)
   # because nls.lm function requires a vector we have to do the following:
-  if (law %in% c('thiele', 'wittstein')) out = loss
+  if (any(law %in% c('thiele', 'wittstein'))) out = loss
   return(out)
 }
 
@@ -305,12 +306,12 @@ choose_optim <- function(input){
                     law, opt.method, custom.law)
     }
 
-    if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki')) {
+    if (any(law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki'))) {
       opt <- nlminb(start = log(parS), objective = foo,
                     control = list(eval.max = 5000, iter.max = 5000))
       opt$fnvalue <- opt$objective
 
-    } else if (law %in% c('thiele', 'wittstein')) {
+    } else if (any(law %in% c('thiele', 'wittstein'))) {
       opt <- nls.lm(par = log(parS), fn = foo,
                     control = nls.lm.control(maxfev = 10000, maxiter = 1024))
       opt$fnvalue <- sum(opt$fvec)
@@ -330,7 +331,7 @@ choose_optim <- function(input){
     AIC    <- 2 * length(parS) - 2 * logLik
     BIC    <- log(length(fit.this.x)) * length(parS) - 2 * logLik
 
-    if (!(opt.method %in% c('poissonL', 'binomialL'))) {
+    if (!any(opt.method %in% c('poissonL', 'binomialL'))) {
       logLik = AIC  = BIC  <- NaN
     }
     out <- as.list(environment())

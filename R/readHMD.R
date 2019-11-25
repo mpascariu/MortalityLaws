@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Wed Jun 12 16:22:27 2019
+# Last update: Mon Nov 25 19:33:23 2019
 # --------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
@@ -234,7 +234,9 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
                    " Maybe the website is down at this moment?", call. = FALSE))
 
   JPNcodes <- substrRight(paste0(0, 0:47), 2)
-  if (country %in% JPNcodes) country <- JPNregions()[as.numeric(country) + 1]
+  if (any(country %in% JPNcodes)) {
+    country <- JPNregions()[as.numeric(country) + 1]
+  }
 
   dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
               stop("\n", what, " data for ", country, " state in the ", interval,
@@ -243,8 +245,8 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
 
   close(con)
   out <- cbind(country, dat)
-  if (interval %in% c("1x1", "1x5", "1x10") &
-      !(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
+  if (any(interval %in% c("1x1", "1x5", "1x10")) &
+      !any(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
     out$Age <- 0:110
   }
   return(out)
@@ -279,13 +281,13 @@ check_input_ReadHMD <- function(x) {
   coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
                      "NOR", "SWE", "CHE", "GBRTENW", "GBRCENW", "GBR_SCO")
 
-  if (!(x$interval %in% data_format())) {
+  if (!any(x$interval %in% data_format())) {
     stop("The interval ", x$interval, " does not exist in HMD ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
 
-  if (!(x$what %in% HMDindices())) {
+  if (!any(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in HMD. Try one of these options:\n",
          paste(HMDindices(), collapse = ", "), call. = FALSE)
   }
@@ -297,7 +299,7 @@ check_input_ReadHMD <- function(x) {
   }
 
   # Availability of Cohort Data
-  if ((x$what %in% c("LT_fc", "LT_mc", "LT_tc", "e0c")) &
+  if (any(x$what %in% c("LT_fc", "LT_mc", "LT_tc", "e0c")) &
       !(all(x$countries %in% coh_countries))) {
     stop("Data type ", x$what,
          " is not available for one or more countries specified in input.\n",
@@ -306,7 +308,7 @@ check_input_ReadHMD <- function(x) {
   }
 
   # Availability of Life Expectancy Data
-  if ((x$what %in% c("e0", "e0c")) &
+  if (any(x$what %in% c("e0", "e0c")) &
       !(x$interval %in% c("1x1", "1x5", "1x10"))) {
     stop("Data type ", x$what,
          " is available only in the following formats: '1x1', '1x5', '1x10'.",
@@ -339,7 +341,7 @@ print.ReadHMD <- function(x, ...){
 #' @inheritParams print.ReadHMD
 #' @keywords internal
 ageMsg <- function(what, x) {
-  if (what %in% c("e0", "e0c")) {
+  if (any(what %in% c("e0", "e0c"))) {
     0
 
   } else if (what %in% c("births")){
