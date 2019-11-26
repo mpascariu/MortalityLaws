@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Mon Nov 25 19:18:44 2019
+# Last update: Tue Nov 26 06:20:51 2019
 # --------------------------------------------------- #
 
 
@@ -118,7 +118,7 @@ LifeTable <- function(x,
   X     <- LifeTable.check(input)
   LT    <- NULL
 
-  if (X$iclass == "numeric") {
+  if (any(X$iclass == "numeric")) {
     LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax))
 
   } else {
