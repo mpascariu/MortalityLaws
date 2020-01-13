@@ -1,9 +1,8 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Thu Jun 06 11:11:53 2019
+# Last update: Mon Jan 13 19:26:47 2020
 # --------------------------------------------------- #
-remove(list = ls())
 library(MortalityLaws)
 
 # Example 1 --- Full life table -----------------
@@ -60,14 +59,14 @@ foo.test.lt <- function(X) {
     expect_identical(class(X$lt$ex), "numeric") # All ex is of the class numeric
     expect_true(X$lt$ex[1] >= rev(X$lt$ex)[1])  # e[x] at the beginnig is greater or equat with e[x] at the end
     expect_equal(sum(X$lt$dx), X$lt$lx[1])      # The distribution of deaths sums up to unity
-    expect_equal(X$lt$qx[nrow(X$lt)], 1)        # The life table should always close with q[x] = 1
+    expect_equal(X$lt$qx[nrow(X$lt)], 1, tolerance = 1e-5)  # The life table should always close with q[x] = 1
     expect_output(print(X))                     # The print function works
   })
 }
 
 for (j in 1:16) {
   print(j)
-  foo.test.lt(X = get(paste0("LT",j)))
+  foo.test.lt(X = get(paste0("LT", j)))
 }
 
 
