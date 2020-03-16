@@ -4,8 +4,7 @@
 \alias{ReadCHMD}
 \title{Download the Canadian Human Mortality Database (CHMD)}
 \usage{
-ReadCHMD(what, regions = NULL, interval = "1x1", save = FALSE,
-  show = TRUE)
+ReadCHMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
 }
 \arguments{
 \item{what}{What type of data are you looking for? The following options are

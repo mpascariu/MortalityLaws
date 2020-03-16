@@ -4,8 +4,7 @@
 \alias{find.my.case}
 \title{Function that identifies the case/problem we have to solve}
 \usage{
-find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
-  lx = NULL, dx = NULL)
+find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL, dx = NULL)
 }
 \arguments{
 \item{Dx}{Object containing death counts. An element of the \code{Dx} object

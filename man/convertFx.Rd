@@ -47,7 +47,7 @@ for (i in 1:nrow(K)) {
   In  <- as.character(K[i, "from"])
   Out <- as.character(K[i, "to"])
   N <- paste0(Out, "_from_", In)
-  cat(i, " Create", N, "\\n")
+  cat(i, " Create", N, "\n")
   # Create the 28 sets of results
   assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
 }

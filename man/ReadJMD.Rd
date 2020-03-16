@@ -4,8 +4,7 @@
 \alias{ReadJMD}
 \title{Download the Japanese Mortality Database (JMD)}
 \usage{
-ReadJMD(what, regions = NULL, interval = "1x1", save = FALSE,
-  show = TRUE)
+ReadJMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
 }
 \arguments{
 \item{what}{What type of data are you looking for? The following options

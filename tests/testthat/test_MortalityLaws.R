@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Thu Nov 07 10:35:01 2019
+# Last update: Mon Mar 16 19:16:08 2020
 # --------------------------------------------------- #
 remove(list = ls())
 
@@ -20,7 +20,7 @@ N     <- nrow(aLaws$table)
 
 # Build M models
 for (k in 1:N) {
-  type <- aLaws$table$TYPE[k]
+  type <- as.numeric(aLaws$table$TYPE[k])
   X    <- c(ages[type][[1]])
   mx   <- ahmd$mx[paste(X), ]
   sx   <- ifelse(min(X) > 1, TRUE, FALSE)
@@ -37,7 +37,6 @@ for (k in 1:N) {
                                       law = LAW,
                                       opt.method = 'LF2'))
 }
-
 
 testMortalityLaw <- function(Y){
   test_that("Test MortalityLaw function", {

@@ -2,7 +2,6 @@
 % Please edit documentation in R/MortalityLaws-package.R
 \docType{package}
 \name{MortalityLaws}
-\alias{MortalityLaws-package}
 \title{MortalityLaws: Parametric Mortality Models, Life Tables and HMD}
 \description{
 Fit the most popular human mortality 'laws', and construct 
@@ -27,7 +26,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} (0000-0002-2568-6489) [copyright holder]
+\strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} (\href{https://orcid.org/0000-0002-2568-6489}{ORCID}) [copyright holder]
 
 Other contributors:
 \itemize{

@@ -4,8 +4,7 @@
 \alias{ReadAHMD}
 \title{Download the Australian Human Mortality Database (AHMD)}
 \usage{
-ReadAHMD(what, regions = NULL, interval = "1x1", save = FALSE,
-  show = TRUE)
+ReadAHMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
 }
 \arguments{
 \item{what}{What type of data are you looking for? The following options
