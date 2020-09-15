@@ -1,3 +1,7 @@
+version 1.8.5
+- make the function using Internet resources to fail gracefully with an
+informative message if the resource is not available or has changed.
+
 version 1.8.1
 - LifeTable(): fix minor bug that prevented the closing of the life table with
 a qx = 1 in some situations;
