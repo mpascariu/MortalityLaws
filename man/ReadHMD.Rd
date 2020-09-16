@@ -40,9 +40,9 @@ might be available for some or all the countries and regions: \itemize{
 HMD country code/s. Options:
 \code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
 "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
-"GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
-"ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
-"PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+"GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC", "HKG", "HUN","HRV","IRL",
+"ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM",
+"NZL_NP","POL", "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
  If \code{NULL} data for all the countries are downloaded at once;}
 
 \item{interval}{Datasets are given in various age and time formats based on
@@ -77,7 +77,7 @@ A \code{ReadHMD} object that contains:
 }
 \description{
 Download detailed mortality and population data for different countries
-and regions in a single object from the \href{https://www.mortality.org}{
+and regions in a single object from the \href{https://www.mortality.org/}{
 Human Mortality Database}.
 }
 \details{

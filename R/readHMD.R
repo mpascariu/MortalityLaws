@@ -1,13 +1,13 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Tue Sep 15 15:19:37 2020
+# Last update: Wed Sep 16 09:26:08 2020
 # --------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
 #'
 #' Download detailed mortality and population data for different countries
-#' and regions in a single object from the \href{https://www.mortality.org}{
+#' and regions in a single object from the \href{https://www.mortality.org/}{
 #' Human Mortality Database}.
 #'
 #' @details
@@ -47,9 +47,9 @@
 #' HMD country code/s. Options:
 #' \code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
 #' "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
-#' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC","HUN","HRV","IRL","ISL","ISR",
-#' "ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM","NZL_NP","POL",
-#' "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+#' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC", "HKG", "HUN","HRV","IRL",
+#' "ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM",
+#' "NZL_NP","POL", "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
 #'  If \code{NULL} data for all the countries are downloaded at once;
 #' @param interval Datasets are given in various age and time formats based on
 #' which the records are agregated. Interval options:
@@ -332,7 +332,7 @@ check_input_ReadHMD <- function(x) {
 #' @export
 print.ReadHMD <- function(x, ...){
   what <- x$input$what
-  cat("Human Mortality Database (www.mortality.org)\n")
+  cat("Human Mortality Database (https://www.mortality.org)\n")
   cat("Downloaded by :", x$input$username, "\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")

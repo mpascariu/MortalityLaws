@@ -1,7 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
 # License: MIT
-# Last update: Thu Jun 06 11:40:07 2019
+# Last update: Wed Sep 16 09:08:34 2020
 # --------------------------------------------------- #
 
 
@@ -9,7 +9,7 @@
 #'
 #' Download detailed mortality and population data for different
 #' provinces and territories in Australia, in a single object from the
-#' \href{http://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
+#' \href{https://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
 #' Australian Human Mortality Database}.
 #'
 #' @details
@@ -113,7 +113,7 @@ ReadAHMD <- function(what,
                                interval = interval,
                                username = NULL,
                                password = NULL,
-                               link = "http://demography.cass.anu.edu.au/sites/default/ahmd/"))
+                               link = "https://demography.cass.anu.edu.au/sites/default/ahmd/"))
   }
 
   out <- list(input = input,
@@ -172,7 +172,7 @@ check_input_ReadAHMD <- function(x) {
 print.ReadAHMD <- function(x, ...){
   what <- x$input$what
   cat("Australian Human Mortality Database\n")
-  cat("Web Address   : http://demography.cass.anu.edu.au/research/australian-human-mortality-database\n")
+  cat("Web Address   : https://demography.cass.anu.edu.au/research/australian-human-mortality-database\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))

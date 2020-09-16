@@ -13,8 +13,8 @@
 Fit the most popular human mortality `laws`, and construct full and abridged life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their 
 life spans. For a comprehensive review of the most important mortality laws see [Tabeau (2001)](https://doi.org/10.1007/0-306-47562-6_1). Function for downloading demographic data from the following sources are provided:
 
-- the [Human Mortality Database (HMD)](http://www.mortality.org)
-- the [Australian Human Mortality Database (AHMD)](http://demography.cass.anu.edu.au/research/australian-human-mortality-database)
+- the [Human Mortality Database (HMD)](https://www.mortality.org/)
+- the [Australian Human Mortality Database (AHMD)](https://demography.cass.anu.edu.au/research/australian-human-mortality-database)
 - the [Canadian Human Mortality Database (CHMD)](http://www.bdlc.umontreal.ca/CHMD/)
 - the [Japanese Mortality Database (JMD)](http://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
 
