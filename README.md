@@ -48,3 +48,6 @@ You can track and contribute to the development of `MortalityLaws` on [GitHub](h
 ## Help
 All functions are documented in the standard way, which means that once you load the package using ```library(MortalityLaws)``` you can just type ```?MortalityLaw``` to see the help file. 
 
+## Support
+
+<a href="https://www.buymeacoffee.com/rpascariu" target="_blank"><img src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="rpascariu" data-color="#FF813F" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000" data-font-color="#fff" data-coffee-color="#fd0" ></a>
