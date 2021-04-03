@@ -60,9 +60,6 @@ The output is of the \code{"MortalityLaw"} class with the components:
 AIC, BIC and log-Likelihood.}
  \item{opt.diagnosis}{Resultant optimization object useful for
 checking the convergence etc.}
- \item{stats}{List containing statistical measures like:
-parameter correlation, standard errors, degrees of freedom, deviance,
-gradient matrix, QR decomposition, covariance matrix etc.}
 }
 \description{
 Fit parametric mortality models given a set of input data which can be

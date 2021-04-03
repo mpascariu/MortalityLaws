@@ -1,9 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:32:44 2019
+# Last update: Sat Apr 03 17:45:25 2021
 # --------------------------------------------------- #
-
 
 #' Convert Life Table Indicators
 #'
@@ -58,17 +56,19 @@ convertFx <- function(x,
   from <- match.arg(from)
   to   <- match.arg(to)
 
-  L <- switch(from,
-              mx = function(x, w, ...) LifeTable(x, mx = w, ...),
-              qx = function(x, w, ...) LifeTable(x, qx = w, ...),
-              dx = function(x, w, ...) LifeTable(x, dx = w, ...),
-              lx = function(x, w, ...) LifeTable(x, lx = w, ...))
+  LifeTable_foo <- switch(
+    from,
+    mx = function(x, w, ...) LifeTable(x, mx = w, ...),
+    qx = function(x, w, ...) LifeTable(x, qx = w, ...),
+    dx = function(x, w, ...) LifeTable(x, dx = w, ...),
+    lx = function(x, w, ...) LifeTable(x, lx = w, ...)
+    )
 
   if (is.vector(data)) {
     if (length(x) != length(data))
       stop("The 'x' and 'data' do not have the same length", call. = FALSE)
 
-    out <- L(x = x, data, ...)$lt[, to]
+    out <- LifeTable_foo(x = x, data, ...)$lt[, to]
     names(out) <- names(data)
 
   } else {
@@ -76,7 +76,7 @@ convertFx <- function(x,
       stop("The length of 'x' must be equal to the numebr of rows in 'data'",
            call. = FALSE)
 
-    LT  <- function(D) L(x = x, as.numeric(D), ...)$lt[, to]
+    LT  <- function(D) LifeTable_foo(x = x, as.numeric(D), ...)$lt[, to]
     out <- apply(X = data, 2, FUN = LT)
     dimnames(out) <- dimnames(data)
   }

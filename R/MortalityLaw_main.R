@@ -1,9 +1,7 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
-# License: MIT
 # Last update: Mon Nov 25 19:33:33 2019
 # --------------------------------------------------- #
-
 
 #' Fit Mortality Laws
 #'
@@ -64,9 +62,6 @@
 #' AIC, BIC and log-Likelihood.}
 #'  \item{opt.diagnosis}{Resultant optimization object useful for
 #' checking the convergence etc.}
-#'  \item{stats}{List containing statistical measures like:
-#' parameter correlation, standard errors, degrees of freedom, deviance,
-#' gradient matrix, QR decomposition, covariance matrix etc.}
 #' @seealso
 #' \code{\link{availableLaws}}
 #' \code{\link{availableLF}}
@@ -197,9 +192,15 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     dimnames(fit) = dimnames(resid) <- list(x, K$LTnames)
     if (show) setpb(pb, N + 1)
   }
-  output <- list(input = input, info = info, coefficients = cf,
-                 fitted.values = fit, residuals = resid,
-                 goodness.of.fit = gof, opt.diagnosis = dgn, df = df, deviance = dev)
+  output <- list(input = input,
+                 info = info,
+                 coefficients = cf,
+                 fitted.values = fit,
+                 residuals = resid,
+                 goodness.of.fit = gof,
+                 opt.diagnosis = dgn,
+                 df = df,
+                 deviance = dev)
   output$info$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)

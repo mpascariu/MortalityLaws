@@ -1,6 +1,5 @@
 # --------------------------------------------------- #
 # Author: Marius D. Pascariu
-# License: MIT
 # Last update: Tue Nov 26 06:20:51 2019
 # --------------------------------------------------- #
 
@@ -134,7 +133,7 @@ LifeTable <- function(x,
                                     lx0 = lx0,
                                     ax = ax))
       N <- X$LTnames
-      LTn <- if (is.na(N[i])) i else  N[i]
+      LTn <- if (is.na(N[i])) i else N[i]
       LTi <- cbind(LT = LTn, LTi)
       LT  <- rbind(LT, LTi)
     }
