@@ -14,9 +14,6 @@ years <- c(1850, 1900, 1950, 2010)
 user = "your@email.com"
 pass = "your_password"
 
-user = "zpascariu@outlook.com"
-pass = "1513208587"
-
 Dx <- ReadHMD(what = "Dx",
               countries = cntr,
               username = user,
