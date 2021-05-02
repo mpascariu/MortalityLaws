@@ -17,6 +17,7 @@ ages <- list(infancy   = 0:15,
 aLaws <- availableLaws()
 N     <- nrow(aLaws$table)
 
+k = 30
 # Build M models
 for (k in 1:N) {
   type <- as.numeric(aLaws$table$TYPE[k])
@@ -36,6 +37,7 @@ for (k in 1:N) {
                                       law = LAW,
                                       opt.method = 'LF2'))
 }
+
 
 testMortalityLaw <- function(Y){
   test_that("Test MortalityLaw function", {
@@ -61,6 +63,15 @@ for (i in 1:N) testMortalityLaw(get(paste0("M", i)))
 
 for (j in 1:N) testMortalityLaw(get(paste0("P", j)))
 
+# ----------------------------------------------------------------------------
+# test qx fit and pb
+testMortalityLaw(
+  MortalityLaw(x   = X,
+               qx  = mx,
+               law = LAW,
+               opt.method = 'LF2',
+               show = TRUE)
+)
 
 # test 2: ---------------------------------------
 # fit.this.x
@@ -75,17 +86,22 @@ T2 <- MortalityLaw(x   = x - 44,
                    fit.this.x = 50:70 - 44)
 
 testMortalityLaw(T2)
-expect_error(MortalityLaw(x   = x,
-                          Dx  = Dx,
-                          Ex  = Ex,
-                          law = 'makeham',
-                          fit.this.x = 48))
+expect_error(
+  MortalityLaw(x   = x,
+               Dx  = Dx,
+               Ex  = Ex,
+               law = 'makeham',
+               fit.this.x = 48)
+  )
 
-expect_error(MortalityLaw(x   = x,
-                          Dx  = Dx,
-                          Ex  = Ex,
-                          law = 'makeham',
-                          fit.this.x = 40:80))
+
+expect_error(
+  MortalityLaw(x   = x,
+    Dx  = Dx,
+    Ex  = Ex,
+    law = 'makeham',
+    fit.this.x = 40:80)
+  )
 
 # Test 3: ---------------------------------------
 # custom.law
@@ -139,9 +155,6 @@ expect_error(MortalityLaw(x, mx = mx, law = 'HP', show = "TRUEx"))
 expect_error(MortalityLaw(0:1000, mx = mx, law = 'HP'))
 expect_error(MortalityLaw(x, Dx = Dx, Ex = Ex[-1], law = 'HP'))
 expect_error(MortalityLaw(x, Dx = Dx[-1], Ex = Ex, law = 'HP'))
-
-
-
 
 
 

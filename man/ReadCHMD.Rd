@@ -68,7 +68,7 @@ A \code{ReadCHMD} object that contains:
 \description{
 Download detailed mortality and population data for different
 provinces and territories in Canada, in a single object from the
-\href{http://www.bdlc.umontreal.ca/chmd/index.htm}{
+\href{https://www.bdlc.umontreal.ca/chmd/index.htm}{
 Canadian Human Mortality Database}.
 }
 \details{

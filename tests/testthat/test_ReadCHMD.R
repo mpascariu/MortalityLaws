@@ -1,13 +1,12 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Mon Nov 25 19:45:03 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:36:11 2021
 # --------------------------------------------------- #
 remove(list = ls())
 
-
 # Wrong index
 expect_error(ReadCHMD(what = "DxDD"))
+
 # Wrong country
 expect_error(ReadCHMD(what = "Dx",
                       regions = "CANN"))
@@ -32,6 +31,10 @@ expect_error(ReadCHMD(what = "LT_f",
                       regions = "YUK",
                       interval = "5x1",
                       show = F))
+
+expect_output(
+  print(CHMD_sample)
+)
 
 # The tests below have been removed because in case the internet source is
 # temporary not working the CRAN will consider it as a software failure and will

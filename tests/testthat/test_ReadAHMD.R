@@ -1,9 +1,8 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Mon Nov 25 19:41:17 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:35:57 2021
 # --------------------------------------------------- #
-
+remove(list = ls())
 
 # Wrong index
 expect_error(ReadAHMD(what = "DxDD"))
@@ -27,6 +26,10 @@ expect_error(ReadAHMD(what     = "e0",
                       regions  = "TAS",
                       interval = "5x1",
                       show     = FALSE))
+
+expect_output(
+  print(AHMD_sample)
+)
 
 # expect_error(ReadAHMD(what = "LT_f", regions = "TAS", interval = "1x1"))
 

@@ -1,9 +1,7 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Fri Jun 21 21:09:15 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:34:32 2021
 # --------------------------------------------------- #
-
 
 #' Download the Japanese Mortality Database (JMD)
 #'
@@ -197,9 +195,9 @@ print.ReadJMD <- function(x, ...){
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
-  cat(paste("Years   :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages    :", ageMsg(what, x), "\n"))
-  cat("Regions :", x$input$regions, "\n")
+  cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
+  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat("Regions       :", x$input$regions, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }

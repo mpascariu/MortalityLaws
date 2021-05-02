@@ -1,7 +1,6 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Thu Nov 07 10:39:52 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:35:35 2021
 # --------------------------------------------------- #
 remove(list = ls())
 
@@ -46,6 +45,13 @@ expect_error(ReadHMD(what      = "e0c",
                      interval  = "5x1",
                      username  = "username",
                      password  = "password"))
+
+expect_output(
+  print(HMD_sample)
+)
+
+# ----------------------------------------------------------------------------
+
 
 # Marius D. Pascariu --- Sun Oct  7 14:37:24 2018 ------------------------------
 

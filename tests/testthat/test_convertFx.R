@@ -1,10 +1,8 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:42:19 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 16:37:15 2021
 # --------------------------------------------------- #
 remove(list = ls())
-
 
 # Data ---
 x  <- 0:105
@@ -53,3 +51,12 @@ expect_true(all(convertFx(x, data = mx[, 1], from = "mx", to = "qx") >= 0))
 
 # All the possible errors associated with this functions should be solved
 # in LifeTable(). convertFx is just a wrapper.
+
+# ----------------------------------------------------------------------------
+# Test messages
+
+# Error: The length of 'x' must be equal to the numebr of rows in 'data'
+expect_error(
+  convertFx(x[1], data = mx, from = "mx", to = "qx")
+)
+

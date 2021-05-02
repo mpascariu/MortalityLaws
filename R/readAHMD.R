@@ -1,9 +1,7 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Sep 16 09:08:34 2020
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:32:25 2021
 # --------------------------------------------------- #
-
 
 #' Download the Australian Human Mortality Database (AHMD)
 #'
@@ -176,9 +174,9 @@ print.ReadAHMD <- function(x, ...){
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
-  cat(paste("Years   :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages    :", ageMsg(what, x), "\n"))
-  cat("Regions :", x$input$regions, "\n")
+  cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
+  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat("Regions       :", x$input$regions, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))
 }

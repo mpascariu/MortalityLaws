@@ -1,13 +1,12 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Mon Nov 25 19:50:42 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 17:37:09 2021
 # --------------------------------------------------- #
 remove(list = ls())
 
-
 # Wrong index
 expect_error(ReadJMD(what = "DxDD"))
+
 # Wrong region
 expect_error(ReadJMD(what = "Dx",
                      regions = "Kyotooooooo"))
@@ -29,6 +28,10 @@ expect_error(ReadJMD(what = "e0",
 expect_error(ReadJMD(what = "LT_f",
                      regions = "Kyoto",
                      interval = "1x1"))
+
+expect_output(
+  print(JMD_sample)
+)
 
 # The tests below have been removed because in case the internet source is
 # temporary not working the CRAN will consider it as a software failure and will
