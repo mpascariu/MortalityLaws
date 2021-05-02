@@ -12,7 +12,6 @@ on:
   schedule:
     - cron: "0 0 * * *"
 
-
 name: R-CMD-check
 
 jobs:
@@ -35,6 +34,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       # prevent rgl issues because no X11 display is available
       RGL_USE_NULL: true
+      R_PROFILE_USER: ~/.Rprofile
 
     steps:
       - uses: actions/checkout@v2
@@ -42,6 +42,10 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
       - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Save CRAN repo to Rprofile
+        run: writeLines('options(repos = c(CRAN = "https://cran.rstudio.org"))', '~/.Rprofile')
+        shell: Rscript {0}
 
       - name: Query dependencies
         run: |
@@ -55,16 +59,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          # For the later part of v1, this serves to invalidate the cache whenever is needed.
-          # See https://stackoverflow.com/questions/63521430/clear-cache-in-github-actions
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}-v1
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-v1
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
       # To install rgl in macOS it needs xquartz
       - name: macOS dependencies
         if: runner.os == 'macOS'
         run: |
-          brew install xquartz
+          brew install [--cask] xquartz
       # Adds manual deps to rgl in first line
       - name: Linux dependencies
         if: runner.os == 'Linux'
@@ -85,7 +87,6 @@ jobs:
         run: |
           remotes::install_deps(dependencies = TRUE)
           remotes::install_cran("rcmdcheck")
-          install.packages("rgl")
         shell: Rscript {0}
 
         # Why a separate check for macOS/Linux? Because rgl needs to export DISPLAY
@@ -112,8 +113,6 @@ jobs:
         shell: Rscript {0}
 
         # To make things simpler, limit pkgdown deploy only to one OS
-        # Why export DISPLAY? Search for this term throughout this file
-        # for thorough explanation.
       - name: Deploy package website to pkgdown
         if: runner.os == 'Linux'
         run: |
