@@ -1,8 +1,7 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Tue Nov 26 06:20:51 2019
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 12:21:09 2021
 # --------------------------------------------------- #
-
 
 #' Compute Life Tables from Mortality Data
 #'
@@ -434,25 +433,30 @@ LifeTable.check <- function(input) {
         stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.",
              call. = FALSE)
     }
+
     if (C == "C1_DxEx") {
-      Dx[is.na(Dx)] <- 0
-      Ex[is.na(Ex) | Ex == 0] <- 0.01
       if (any(is.na(Dx))) warning("'Dx'", SMS, 0, call. = FALSE)
       if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = FALSE)
+      Dx[is.na(Dx)] <- 0
+      Ex[is.na(Ex) | Ex == 0] <- 0.01
     }
+
     if (C == "C2_mx") {
       mx <- uxAbove100(x, mx)
+
     }
     if (C == "C3_qx") {
       qx <- uxAbove100(x, qx)
     }
+
     if (C == "C4_lx") {
-      lx[is.na(lx) & x >= 100] <- 0
       if (any(is.na(lx))) warning("'lx'", SMS, 0, call. = FALSE)
+      lx[is.na(lx) & x >= 100] <- 0
     }
+
     if (C == "C5_dx") {
-      dx[is.na(dx)] <- 0
       if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = FALSE)
+      dx[is.na(dx)] <- 0
     }
 
     if (!is.null(ax)) {

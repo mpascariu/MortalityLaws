@@ -1,7 +1,6 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Mon Mar 16 19:16:08 2020
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 12:09:25 2021
 # --------------------------------------------------- #
 remove(list = ls())
 

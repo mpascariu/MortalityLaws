@@ -1,6 +1,6 @@
-# MortalityLaws: Parametric Mortality Models, Life Tables and HMD
+# <img src="inst/figures/hex_MoralityLaws.png" align="right" width="175" height="175" />MortalityLaws: Parametric Mortality Models, Life Tables and HMD
 [![CRAN_Version](https://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
-[![Linux Build Status](https://travis-ci.org/mpascariu/MortalityLaws.svg?branch=master)](https://travis-ci.org/mpascariu/MortalityLaws)
+[![R-CMD-check](https://github.com/mpascariu/MortalityLaws/workflows/R-CMD-check/badge.svg)](https://github.com/mpascariu/MortalityLaws/actions)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
 

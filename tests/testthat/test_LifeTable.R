@@ -1,8 +1,8 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Mon Jan 13 19:26:47 2020
+# Author: Marius D. PASCARIU
+# Last update: Sun May 02 11:35:52 2021
 # --------------------------------------------------- #
+remove(list = ls())
 library(MortalityLaws)
 
 # Example 1 --- Full life table -----------------
@@ -17,7 +17,6 @@ LT2 <- LifeTable(x, mx = LT1$lt$mx)
 LT3 <- LifeTable(x, qx = LT1$lt$qx)
 LT4 <- LifeTable(x, lx = LT1$lt$lx)
 LT5 <- LifeTable(x, dx = LT1$lt$dx)
-
 
 LT6  <- LifeTable(x, Dx = Dx, Ex = Ex, ax = 0.5)
 LT7  <- LifeTable(x, mx = LT6$lt$mx, ax = 0.5)
@@ -96,14 +95,107 @@ for (k in 7:10) test_lt_consistency(LT6, get(paste0("LT", k)))
 
 
 # ----------------------------------------------
-# Test some more warnings
-# qx2 <- LT11$lt$qx
-# qx2[length(qx2)] <- NA
-# expect_warning(LifeTable(x = LT11$lt$x, qx = qx2, sex = NULL))
-#
-# qx3 <- LT1$lt$qx
-# qx3[qx3 %in% tail(qx3, 3)] <- NaN
-# expect_warning(LifeTable(x = LT1$lt$x, qx = qx3))
+# Test messages
+
+# Error: 'ax' must be a numeric scalar (or NULL)
+expect_error(
+  LifeTable(x, mx = mx, ax = "ax")
+)
+
+# Error: 'ax' must be a scalar of lenght 1 or a vector of the same
+# dimension as 'x'
+expect_error(
+  LifeTable(x, mx = mx, ax = rep(0.5, 3))
+)
+
+expect_error(
+  # If you input 'Dx' you must input 'Ex' as well, and viceversa
+  LifeTable(x, Dx = Dx)
+)
+
+expect_error(
+  # The input is not specified correctly.
+  LifeTable(x, Dx = Dx, Ex = Ex, qx = Ex, mx = Ex)
+)
+
+# Error: 'sex' should be: 'male', 'female', 'total' or 'NULL'.
+mx <- LT1$lt$mx
+expect_error(
+  LifeTable(x, mx = mx, sex = "Male")
+)
+
+# 'Dx'contains missing values. These have been replaced with 0
+Dxi <- Dx
+Dxi[2] <- NA
+expect_warning(
+  LifeTable(x, Dx = Dxi, Ex = Ex)
+)
+
+# 'Ex'contains missing values
+Exi <- Ex
+Exi[12] <- NA
+expect_warning(
+  LifeTable(x, Dx = Dx, Ex = Exi)
+)
+
+
+# 'lx'contains missing values. These have been replaced with 0
+lx <- LT1$lt$lx
+lx[106] <- NA
+expect_warning(
+  LifeTable(x, lx = lx)
+)
+
+# 'dx'contains missing values.
+dx <- LT1$lt$dx
+dx[30] <- NA
+expect_warning(
+  LifeTable(x, dx = dx)
+)
+
+
+
+# # The input data contains NA's, Inf
+# mx <- LT1$lt$mx
+# mx[100] <- Inf
+# expect_warning(
+#   LifeTable(x, mx = mx)
+# )
+
+
+# ----------------------------------------------------------------------------
+# Test print function for multiple tables
+
+expect_output(
+  print(LifeTable(x = 0:110, mx = ahmd$mx))
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
