@@ -138,6 +138,11 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   input   <- c(as.list(environment()))
   K <- find.my.case(Dx, Ex, mx, qx)
 
+  # TR: if inputs are matrix, then we have class matrix, array, and this 
+  # throws a warning. If we have a dim attribute then this won't work. Even
+  # if it's a 1-column matrix (class =array) or a single-dim length-attribute vector
+  # (also array!). Both of those cases are probably things we want to treat as 
+  # vectors!
   if (K$iclass == "numeric") {
     check.MortalityLaw(input) # Check input
     if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar

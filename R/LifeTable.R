@@ -296,7 +296,8 @@ find.my.case <- function(Dx = NULL,
   }
 
   out <- list(case = my_case,
-              iclass = class(X),
+              iclass = class(X), # TR: if inputs are matrix,
+                                 # then this is two elements
               nLT = nLT,
               LTnames = LTnames)
   return(out)
