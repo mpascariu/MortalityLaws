@@ -1,6 +1,6 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Wed Nov 24 11:07:33 2021
+# Last update: Wed Nov 24 11:19:28 2021
 # --------------------------------------------------- #
 
 #' Fit Mortality Laws
@@ -128,15 +128,25 @@
 #'
 #' LifeTable(x = x, qx = fitted(M4))
 #' @export
-MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
-                         law = NULL, opt.method = 'LF2', parS = NULL,
-                         fit.this.x = x, custom.law = NULL, show = FALSE, ...){
-  info  <- addDetails(law, custom.law, parS)
+MortalityLaw <- function(x,
+                         Dx = NULL,
+                         Ex = NULL,
+                         mx = NULL,
+                         qx = NULL,
+                         law = NULL,
+                         opt.method = 'LF2',
+                         parS = NULL,
+                         fit.this.x = x,
+                         custom.law = NULL,
+                         show = FALSE,
+                         ...){
+
+  info    <- addDetails(law, custom.law, parS)
   law     <- info$law
   scale.x <- info$scale.x
   parS    <- info$parS
   input   <- c(as.list(environment()))
-  K <- find.my.case(Dx, Ex, mx, qx)
+  K       <- find.my.case(Dx, Ex, mx, qx)
 
   # TR: if inputs are matrix, then we have class matrix, array, and this
   # throws a warning. If we have a dim attribute then this won't work. Even
@@ -144,9 +154,13 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   # (also array!). Both of those cases are probably things we want to treat as
   # vectors!
   if (any(K$iclass == "numeric")) {
+
     check.MortalityLaw(input) # Check input
-    if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
-    # Find optim coefficients
+
+    # Set-up progress bar
+    if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)}
+
+    # Find optimal coefficients
     optim.model <- choose_optim(input)
     if (show) setpb(pb, 2)
 
@@ -154,36 +168,48 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
     dgn   <- optim.model$opt #diagnosis
     cf    <- optim.model$C
     p     <- length(cf)
-    resid <- switch(K$case,
-                    C1_DxEx = Dx/Ex - fit,
-                    C2_mx = mx - fit,
-                    C3_qx = qx - fit)
+    resid <- switch(
+      K$case,
+      C1_DxEx = Dx/Ex - fit,
+      C2_mx = mx - fit,
+      C3_qx = qx - fit
+      )
     dev  <- sum(resid^2)
     rdf  <- length(x) - p
     df   <- c(n.param = p, df.residual = rdf)
-    gof  <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
+    gof  <- with(
+      optim.model,
+      c(logLik = logLik, AIC = AIC, BIC = BIC)
+      )
     info <- list(model.info = info$model, process.date = date())
     names(fit) = names(resid) <- x
+
     if (show) setpb(pb, 4)
 
   } else {# if input is a matrix then iterate here
+
     N  <- K$nLT
-    if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))} # Set progress bar
+    # Set-up progress bar
+    if (show) {pb <- startpb(0, N + 1); on.exit(closepb(pb))}
     cf = fit = gof = resid = dgn = df = dev <- NULL
 
     for (i in 1:N) {
       if (show) setpb(pb, i)
-      M <- suppressMessages(MortalityLaw(x = x,
-                                         Dx = Dx[, i],
-                                         Ex = Ex[, i],
-                                         mx = mx[, i],
-                                         qx = qx[, i],
-                                         law = law,
-                                         opt.method = opt.method,
-                                         parS = parS,
-                                         fit.this.x = fit.this.x,
-                                         custom.law = custom.law,
-                                         show = FALSE))
+      M <- suppressMessages(
+        MortalityLaw(
+          x = x,
+          Dx = Dx[, i],
+          Ex = Ex[, i],
+          mx = mx[, i],
+          qx = qx[, i],
+          law = law,
+          opt.method = opt.method,
+          parS = parS,
+          fit.this.x = fit.this.x,
+          custom.law = custom.law,
+          show = FALSE
+          )
+        )
       fit      <- cbind(fit, fitted(M))
       gof      <- rbind(gof, M$goodness.of.fit)
       dgn[[i]] <- M$dgn
@@ -192,20 +218,25 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
       df       <- rbind(df, M$df)
       dev      <- c(dev, M$dev)
     }
+
     info <- M$info
     rownames(cf)  = rownames(gof) = rownames(df) = names(dev) <- K$LTnames
     dimnames(fit) = dimnames(resid) <- list(x, K$LTnames)
     if (show) setpb(pb, N + 1)
   }
-  output <- list(input = input,
-                 info = info,
-                 coefficients = cf,
-                 fitted.values = fit,
-                 residuals = resid,
-                 goodness.of.fit = gof,
-                 opt.diagnosis = dgn,
-                 df = df,
-                 deviance = dev)
+
+  # Exit
+  output <- list(
+    input = input,
+    info = info,
+    coefficients = cf,
+    fitted.values = fit,
+    residuals = resid,
+    goodness.of.fit = gof,
+    opt.diagnosis = dgn,
+    df = df,
+    deviance = dev
+    )
   output$info$call <- match.call()
   out <- structure(class = "MortalityLaw", output)
   return(out)
@@ -217,7 +248,10 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 #' particularities.
 #' @inheritParams MortalityLaw
 #' @keywords internal
-addDetails <- function(law, custom.law = NULL, parS = NULL) {
+addDetails <- function(law,
+                       custom.law = NULL,
+                       parS = NULL) {
+
   if (is.null(law) & is.null(custom.law)) {
     stop("Which mortality law do you intend to fit?", call. = FALSE)
   }
@@ -236,7 +270,12 @@ addDetails <- function(law, custom.law = NULL, parS = NULL) {
     sx   <- as.logical(MI$SCALE_X)
   }
 
-  out <- list(law = law, parS = parS, model = MI, scale.x = sx)
+  out <- list(
+    law = law,
+    parS = parS,
+    model = MI,
+    scale.x = sx
+    )
   return(out)
 }
 
@@ -247,6 +286,7 @@ addDetails <- function(law, custom.law = NULL, parS = NULL) {
 #' @keywords internal
 objective_fun <- function(par, x, Dx, Ex, mx, qx,
                           law, opt.method, custom.law){
+
   C  <- find.my.case(Dx, Ex, mx, qx)$case
   mu <- eval(call(law, x, par = exp(par)))$hx
   mu[is.infinite(mu)] <- 1
@@ -257,15 +297,17 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
   if (C == "C3_qx")   nu = Dx <- qx
 
   # compute likelihoods or loss functions
-  loss <- switch(opt.method,
-                 poissonL  = -(Dx * log(mu) - mu*Ex),
-                 binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
-                 LF1       =  (1 - mu/nu)^2,
-                 LF2       =  log(mu/nu)^2,
-                 LF3       =  ((nu - mu)^2)/nu,
-                 LF4       =  (nu - mu)^2,
-                 LF5       =  (nu - mu) * log(nu/mu),
-                 LF6       =  abs(nu - mu))
+  loss <- switch(
+    EXPR = opt.method,
+    poissonL  = -(Dx * log(mu) - mu*Ex),
+    binomialL = -(Dx * log(1 - exp(-mu)) - (Ex - Dx)*mu),
+    LF1       =  (1 - mu/nu)^2,
+    LF2       =  log(mu/nu)^2,
+    LF3       =  ((nu - mu)^2)/nu,
+    LF4       =  (nu - mu)^2,
+    LF5       =  (nu - mu) * log(nu/mu),
+    LF6       =  abs(nu - mu)
+    )
 
   # Here I want to make sure that the optimisation algorithm is not returning
   # NaN values when it converges (because that is possible).
@@ -274,6 +316,7 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
   out <- sum(loss, na.rm = TRUE)
   # because nls.lm function requires a vector we have to do the following:
   if (any(law %in% c('thiele', 'wittstein'))) out = loss
+
   return(out)
 }
 
@@ -298,6 +341,7 @@ choose_optim <- function(input){
       new.fit.this.x = scale_x(fit.this.x)
       d = fit.this.x[1] - new.fit.this.x[1]
       new.x = x - d
+
     } else {
       new.fit.this.x <- fit.this.x
       new.x <- x
@@ -306,24 +350,40 @@ choose_optim <- function(input){
     if (is.null(parS)) parS <- bring_parameters(law, parS)
     # Optimize
     foo <- function(k) {
-      objective_fun(par = k, x = new.fit.this.x,
-                    Dx = Dx[select.x], Ex = Ex[select.x],
-                    mx = mx[select.x], qx = qx[select.x],
-                    law, opt.method, custom.law)
+      objective_fun(
+        par = k,
+        x = new.fit.this.x,
+        Dx = Dx[select.x],
+        Ex = Ex[select.x],
+        mx = mx[select.x],
+        qx = qx[select.x],
+        law,
+        opt.method,
+        custom.law)
     }
 
     if (any(law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki'))) {
-      opt <- nlminb(start = log(parS), objective = foo,
-                    control = list(eval.max = 5000, iter.max = 5000))
+      opt <- nlminb(
+        start = log(parS),
+        objective = foo,
+        control = list(eval.max = 5000, iter.max = 5000)
+        )
       opt$fnvalue <- opt$objective
 
     } else if (any(law %in% c('thiele', 'wittstein'))) {
-      opt <- nls.lm(par = log(parS), fn = foo,
-                    control = nls.lm.control(maxfev = 10000, maxiter = 1024))
+      opt <- nls.lm(
+        par = log(parS),
+        fn = foo,
+        control = nls.lm.control(maxfev = 10000, maxiter = 1024)
+        )
       opt$fnvalue <- sum(opt$fvec)
 
     } else {
-      opt <- optim(par = log(parS), fn = foo, method = 'Nelder-Mead')
+      opt <- optim(
+        par = log(parS),
+        fn = foo,
+        method = 'Nelder-Mead'
+        )
       opt$fnvalue <- opt$value
     }
 

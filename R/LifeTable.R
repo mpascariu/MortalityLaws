@@ -1,6 +1,6 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 12:21:09 2021
+# Last update: Wed Nov 24 11:26:58 2021
 # --------------------------------------------------- #
 
 #' Compute Life Tables from Mortality Data
@@ -121,26 +121,35 @@ LifeTable <- function(x,
 
   } else {
     for (i in 1:X$nLT) {
-      LTi <- with(X, LifeTable.core(x,
-                                    Dx = Dx[, i],
-                                    Ex = Ex[, i],
-                                    mx = mx[, i],
-                                    qx = qx[, i],
-                                    lx = lx[, i],
-                                    dx = dx[, i],
-                                    sex = sex,
-                                    lx0 = lx0,
-                                    ax = ax))
-      N <- X$LTnames
+      LTi <- with(
+        X,
+        LifeTable.core(
+          x,
+          Dx = Dx[, i],
+          Ex = Ex[, i],
+          mx = mx[, i],
+          qx = qx[, i],
+          lx = lx[, i],
+          dx = dx[, i],
+          sex = sex,
+          lx0 = lx0,
+          ax = ax
+          )
+        )
+
+      N   <- X$LTnames
       LTn <- if (is.na(N[i])) i else N[i]
       LTi <- cbind(LT = LTn, LTi)
       LT  <- rbind(LT, LTi)
     }
   }
 
-  out <- list(lt = LT,
-              call = match.call(),
-              process_date = date())
+  # Exit
+  out <- list(
+    lt = LT,
+    call = match.call(),
+    process_date = date()
+    )
   out <- structure(class = "LifeTable", out)
   return(out)
 }
@@ -246,12 +255,16 @@ find.my.case <- function(Dx = NULL,
   # Matrix of possible cases --------------------
   rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
   cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
-  mat <- matrix(ncol = 6, byrow = TRUE, dimnames = list(rn, cn),
-                data = c(T,T,F,F,F,F,
-                         F,F,T,F,F,F,
-                         F,F,F,T,F,F,
-                         F,F,F,F,T,F,
-                         F,F,F,F,F,T))
+  mat <- matrix(
+    ncol = 6,
+    byrow = TRUE,
+    dimnames = list(rn, cn),
+    data = c(T,T,F,F,F,F,
+             F,F,T,F,F,F,
+             F,F,F,T,F,F,
+             F,F,F,F,T,F,
+             F,F,F,F,F,T)
+    )
   # ----------------------------------------------
   L1 <- !unlist(lapply(input, is.null))
   L2 <- apply(mat, 1, function(x) all(L1 == x))
@@ -269,28 +282,28 @@ find.my.case <- function(Dx = NULL,
   }
 
   X       <- input[L1][[1]]
-  
+
   if (length(dim(X)) == 1){
     # TR changed here:
     # The following input isn't detected with is.vector()
-    # X = structure(c(0.0036542739116619, 0.000150960486092765, 2.77881983521598e-05, 
-    # 0.000136941279579316, 0.00018946827083136, 0.00026606712873658, 
-    # 0.000258838755220895, 0.000557913403869528, 0.000665917509468515, 
-    # 0.00114979916336982, 0.0021040113433655, 0.00384681333263752, 
-    # 0.00632225868307671, 0.00937214337262448, 0.0154497258185624, 
-    # 0.023117866694913, 0.0363617070194365, 0.0609184108563059, 0.120398389987367, 
+    # X = structure(c(0.0036542739116619, 0.000150960486092765, 2.77881983521598e-05,
+    # 0.000136941279579316, 0.00018946827083136, 0.00026606712873658,
+    # 0.000258838755220895, 0.000557913403869528, 0.000665917509468515,
+    # 0.00114979916336982, 0.0021040113433655, 0.00384681333263752,
+    # 0.00632225868307671, 0.00937214337262448, 0.0154497258185624,
+    # 0.023117866694913, 0.0363617070194365, 0.0609184108563059, 0.120398389987367,
     # 0.221461187214612, 0.420152946468736), .Dim = 21L)
     # nLT would come as NA
     # and iclass would be array
     X <- c(X)
   }
-  
+
   nLT     <- 1
   LTnames <- NA
 
   # TR: change from !is.vector
   if (length(dim(X)) == 2 ) {
-    
+
     nLT     <- ncol(X)     # number of LTs to be created
     LTnames <- colnames(X) # the names to be assigned to LTs
   }
@@ -319,6 +332,7 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
   if (out == "qx") {
     eta <- 1 - exp(-nx * ux)
     eta[length(nx)] <- 1  # The life table should always close with q[x] = 1
+
   } else {
     eta <- suppressWarnings(-log(1 - ux)/nx)
     # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's;
@@ -348,9 +362,11 @@ uxAbove100 <- function(x,
 
   if (is.vector(ux)) {
     L <- x >= 100 & (is.na(ux) | is.infinite(ux) | ux == 0)
+
     if (any(L)) {
       mux   <- max(ux[!L])
       ux[L] <- mux
+
       if (verbose)
         warning("The input data contains NA's, Inf or zero's over the age of ",
                 "100. These have been replaced with maximum observed value: ",
@@ -358,8 +374,12 @@ uxAbove100 <- function(x,
     }
 
   } else {
-    for (i in 1:ncol(ux)) ux[, i] = uxAbove100(x, ux[, i], omega, verbose)
+    for (i in 1:ncol(ux)) {
+      ux[, i] = uxAbove100(x, ux[, i], omega, verbose)
+    }
+
   }
+
   return(ux)
 }
 
@@ -395,6 +415,7 @@ compute.ax <- function(x, mx, qx) {
   nx <- c(diff(x), Inf)
   N  <- length(x)
   ax <- nx + 1/mx - nx/qx
+
   for (i in 1:(N - 1)) {
     if (is.infinite(ax[i + 1]) | is.na(ax[i + 1])) ax[i + 1] = ax[i]
   }
@@ -440,6 +461,7 @@ LifeTable.check <- function(input) {
     K <- find.my.case(Dx, Ex, mx, qx, lx, dx)
     C <- K$case
     valid_classes <- c("numeric", "matrix", "data.frame", NULL)
+
     if (!any(K$iclass %in% valid_classes)) {
       stop(paste0("The class of the input should be: ",
                   paste(valid_classes, collapse = ", ")), call. = FALSE)
@@ -488,9 +510,20 @@ LifeTable.check <- function(input) {
              call. = FALSE)
     }
 
-    out <- list(x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx,
-                lx = lx, dx = dx, sex = sex, lx0 = lx0, ax = ax,
-                iclass = K$iclass, nLT = K$nLT, LTnames = K$LTnames)
+    # Exit
+    out <- list(x = x,
+                Dx = Dx,
+                Ex = Ex,
+                mx = mx,
+                qx = qx,
+                lx = lx,
+                dx = dx,
+                sex = sex,
+                lx0 = lx0,
+                ax = ax,
+                iclass = K$iclass,
+                nLT = K$nLT,
+                LTnames = K$LTnames)
     return(out)
   })
 }
@@ -504,16 +537,21 @@ LifeTable.check <- function(input) {
 print.LifeTable <- function(x, ...){
 
   LT <- x$lt
-  lt <- with(LT, data.frame(x.int = x.int,
-                            x = x,
-                            mx = round(mx, 6),
-                            qx = round(qx, 6),
-                            ax = round(ax, 2),
-                            lx = round(lx),
-                            dx = round(dx),
-                            Lx = round(Lx),
-                            Tx = round(Tx),
-                            ex = round(ex, 2)))
+  lt <- with(
+    LT,
+    data.frame(
+      x.int = x.int,
+      x = x,
+      mx = round(mx, 6),
+      qx = round(qx, 6),
+      ax = round(ax, 2),
+      lx = round(lx),
+      dx = round(dx),
+      Lx = round(Lx),
+      Tx = round(Tx),
+      ex = round(ex, 2)
+      )
+    )
 
   if (colnames(LT)[1] == "LT") lt <- data.frame(LT = LT$LT, lt)
   dimnames(lt) <- dimnames(LT)
