@@ -1,6 +1,6 @@
 # --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Mon Nov 25 19:33:33 2019
+# Author: Marius D. PASCARIU
+# Last update: Wed Nov 24 11:07:33 2021
 # --------------------------------------------------- #
 
 #' Fit Mortality Laws
@@ -138,12 +138,12 @@ MortalityLaw <- function(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
   input   <- c(as.list(environment()))
   K <- find.my.case(Dx, Ex, mx, qx)
 
-  # TR: if inputs are matrix, then we have class matrix, array, and this 
+  # TR: if inputs are matrix, then we have class matrix, array, and this
   # throws a warning. If we have a dim attribute then this won't work. Even
   # if it's a 1-column matrix (class =array) or a single-dim length-attribute vector
-  # (also array!). Both of those cases are probably things we want to treat as 
+  # (also array!). Both of those cases are probably things we want to treat as
   # vectors!
-  if (K$iclass == "numeric") {
+  if (any(K$iclass == "numeric")) {
     check.MortalityLaw(input) # Check input
     if (show) {pb <- startpb(0, 4); on.exit(closepb(pb)); setpb(pb, 1)} # Set progress bar
     # Find optim coefficients
