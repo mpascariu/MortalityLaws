@@ -269,16 +269,35 @@ find.my.case <- function(Dx = NULL,
   }
 
   X       <- input[L1][[1]]
+  
+  if (length(dim(X)) == 1){
+    # TR changed here:
+    # The following input isn't detected with is.vector()
+    # X = structure(c(0.0036542739116619, 0.000150960486092765, 2.77881983521598e-05, 
+    # 0.000136941279579316, 0.00018946827083136, 0.00026606712873658, 
+    # 0.000258838755220895, 0.000557913403869528, 0.000665917509468515, 
+    # 0.00114979916336982, 0.0021040113433655, 0.00384681333263752, 
+    # 0.00632225868307671, 0.00937214337262448, 0.0154497258185624, 
+    # 0.023117866694913, 0.0363617070194365, 0.0609184108563059, 0.120398389987367, 
+    # 0.221461187214612, 0.420152946468736), .Dim = 21L)
+    # nLT would come as NA
+    # and iclass would be array
+    X <- c(X)
+  }
+  
   nLT     <- 1
   LTnames <- NA
 
-  if (!is.vector(X)) {
+  # TR: change from !is.vector
+  if (length(dim(X)) == 2 ) {
+    
     nLT     <- ncol(X)     # number of LTs to be created
     LTnames <- colnames(X) # the names to be assigned to LTs
   }
 
   out <- list(case = my_case,
-              iclass = class(X),
+              iclass = class(X), # TR: if inputs are matrix,
+                                 # then this is two elements
               nLT = nLT,
               LTnames = LTnames)
   return(out)
