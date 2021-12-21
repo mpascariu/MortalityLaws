@@ -1,13 +1,13 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:34:32 2021
+# Last update: Tue Dec 21 12:25:27 2021
 # --------------------------------------------------- #
 
 #' Download the Japanese Mortality Database (JMD)
 #'
 #' Download detailed mortality and population data of the 47 prefectures in
 #' Japan, in a single object. The source of data is the
-#' \href{http://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
+#' \href{https://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
 #' Japanese Mortality Database}.
 #'
 #' @details
@@ -112,22 +112,25 @@ ReadJMD <- function(what,
       cat(paste("      :Downloading", regions[i], "    "))
     }
     region_code <- substrRight(paste0(0, match(regions[i], JPNregions()) - 1), 2)
-    d <- ReadHMD.core(what = what,
-                      country = region_code,
-                      interval = interval,
-                      username = NULL,
-                      password = NULL,
-                      link = "http://www.ipss.go.jp/p-toukei/JMD/")
+    d <- ReadHMD.core(
+      what = what,
+      country = region_code,
+      interval = interval,
+      username = NULL,
+      password = NULL,
+      link = "https://www.ipss.go.jp/p-toukei/JMD/")
     colnames(d)[colnames(d) == "country"] <- "region"
 
     D <- rbind(D, d)
   }
 
-  out <- list(input = input,
-              data = D,
-              download.date = date(),
-              years = sort(unique(D$Year)),
-              ages = unique(D$Age))
+  out <- list(
+    input = input,
+    data = D,
+    download.date = date(),
+    years = sort(unique(D$Year)),
+    ages = unique(D$Age)
+    )
   out <- structure(class = "ReadJMD", out)
 
   # Step 3 - Write a file with the database in your working directory
@@ -142,18 +145,56 @@ ReadJMD <- function(what,
 #' region codes
 #' @keywords internal
 JPNregions <- function() {
-  c("Japan", "Hokkaido", "Aomori", "Iwate",
-    "Miyagi","Akita", "Yamagata", "Fukushima",
-    "Ibaraki", "Tochigi", "Gunma", "Saitama",
-    "Chiba", "Tokyo", "Kanagawa", "Niigata",
-    "Toyama", "Ishikawa", "Fukui", "Yamanashi",
-    "Nagano", "Gifu", "Shizuoka", "Aichi",
-    "Mie", "Shiga", "Kyoto", "Osaka",
-    "Hyogo", "Nara", "Wakayama", "Tottori",
-    "Shimane", "Okayama", "Hiroshima", "Yamaguchi",
-    "Tokushima", "Kagawa", "Ehime", "Kochi",
-    "Fukuoka", "Saga", "Nagasaki", "Kumamoto",
-    "Oita", "Miyazaki", "Kagoshima", "Okinawa")
+  c("Japan",
+
+    "Aichi",
+    "Akita",
+    "Aomori",
+    "Chiba",
+    "Ehime",
+    "Fukushima",
+    "Fukui",
+    "Fukuoka",
+    "Gifu",
+    "Gunma",
+    "Hyogo",
+    "Hokkaido",
+    "Hiroshima",
+    "Iwate",
+    "Ibaraki",
+    "Ishikawa",
+    "Kagawa",
+    "Kanagawa",
+    "Kagoshima",
+    "Kyoto",
+    "Kochi",
+    "Kumamoto",
+    "Miyazaki",
+    "Miyagi",
+    "Mie",
+    "Nara",
+    "Nagano",
+    "Nagasaki",
+    "Niigata",
+    "Oita",
+    "Okayama",
+    "Okinawa",
+    "Osaka",
+    "Saitama",
+    "Saga",
+    "Shizuoka",
+    "Shiga",
+    "Shimane",
+    "Tochigi",
+    "Tokyo",
+    "Tokushima",
+    "Toyama",
+    "Tottori",
+    "Wakayama",
+    "Yamagata",
+    "Yamaguchi",
+    "Yamanashi"
+    )
 }
 
 
@@ -164,20 +205,32 @@ JPNregions <- function() {
 check_input_ReadJMD <- function(x) {
 
   if (!(x$interval %in% data_format())) {
-    stop("The interval ", x$interval, " does not exist in JMD ",
-         "Try one of these options:\n", paste(data_format(), collapse = ", "),
-         call. = FALSE)
+    stop(
+      "The interval ",
+      x$interval,
+      " does not exist in JMD ",
+      "Try one of these options:\n",
+      paste(data_format(), collapse = ", "),
+      call. = FALSE
+      )
   }
 
   if (!(x$what %in% HMDindices())) {
-    stop(x$what, " does not exist in JMD. Try one of these options:\n",
-         paste(HMDindices(), collapse = ", "), call. = FALSE)
+    stop(
+      x$what,
+      " does not exist in JMD. Try one of these options:\n",
+      paste(HMDindices(), collapse = ", "),
+      call. = FALSE
+      )
   }
 
   if (all(!(x$regions %in% JPNregions()))) {
-    stop("Something is wrong in the region codes supplied.\n",
-         "Try one or more of these options:\n",
-         paste(JPNregions(), collapse = ", "), call. = FALSE)
+    stop(
+      "Something is wrong in the region codes supplied.\n",
+      "Try one or more of these options:\n",
+      paste(JPNregions(), collapse = ", "),
+      call. = FALSE
+      )
   }
 }
 
@@ -191,7 +244,7 @@ check_input_ReadJMD <- function(x) {
 print.ReadJMD <- function(x, ...){
   what <- x$input$what
   cat("Japanese Mortality Database\n")
-  cat("Web Address   : http://www.ipss.go.jp/p-toukei/JMD/index-en.asp\n")
+  cat("Web Address   : https://www.ipss.go.jp/p-toukei/JMD/index-en.asp\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))

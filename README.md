@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
 
-[![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://www.tidyverse.org/lifecycle/#stable)
+[![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
 [![CRAN_Download_Badge1](https://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
 [![CRAN_Download_Badge2](https://cranlogs.r-pkg.org/badges/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
@@ -15,8 +15,8 @@ life spans. For a comprehensive review of the most important mortality laws see 
 
 - the [Human Mortality Database (HMD)](https://www.mortality.org/)
 - the [Australian Human Mortality Database (AHMD)](https://demography.cass.anu.edu.au/research/australian-human-mortality-database)
-- the [Canadian Human Mortality Database (CHMD)](http://www.bdlc.umontreal.ca/CHMD/)
-- the [Japanese Mortality Database (JMD)](http://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
+- the [Canadian Human Mortality Database (CHMD)](http://www.bdlc.umontreal.ca/chmd/)
+- the [Japanese Mortality Database (JMD)](https://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
 
 
 ## Installation

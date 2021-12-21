@@ -1,13 +1,13 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:33:50 2021
+# Last update: Tue Dec 21 12:43:43 2021
 # --------------------------------------------------- #
 
 #' Download the Canadian Human Mortality Database (CHMD)
 #'
 #' Download detailed mortality and population data for different
 #' provinces and territories in Canada, in a single object from the
-#' \href{https://www.bdlc.umontreal.ca/chmd/index.htm}{
+#' \href{http://www.bdlc.umontreal.ca/chmd/index.htm}{
 #' Canadian Human Mortality Database}.
 #'
 #' @details
@@ -129,12 +129,13 @@ ReadCHMD <- function(what,
       cat(paste("      :Downloading", regions[i], "    "))
     }
 
-    D <- rbind(D, ReadHMD.core(what = what,
-                               country = regions[i],
-                               interval = interval,
-                               username = NULL,
-                               password = NULL,
-                               link = "https://www.prdh.umontreal.ca/BDLC/data/"))
+    D <- rbind(D, ReadHMD.core(
+      what = what,
+      country = regions[i],
+      interval = interval,
+      username = NULL,
+      password = NULL,
+      link = "http://www.prdh.umontreal.ca/BDLC/data/"))
   }
 
   out <- list(input = input,
@@ -156,8 +157,19 @@ ReadCHMD <- function(what,
 #' Country codes
 #' @keywords internal
 CANregions <- function() {
-  c("CAN", "NFL", "PEI", "NSC", "NBR", "QUE", "ONT",
-    "MAN", "SAS", "ALB", "BCO", "NWT", "YUK")
+  c("CAN",
+    "NFL",
+    "PEI",
+    "NSC",
+    "NBR",
+    "QUE",
+    "ONT",
+    "MAN",
+    "SAS",
+    "ALB",
+    "BCO",
+    "NWT",
+    "YUK")
 }
 
 
@@ -214,7 +226,7 @@ check_input_ReadCHMD <- function(x) {
 print.ReadCHMD <- function(x, ...){
   what <- x$input$what
   cat("Canadian Human Mortality Database\n")
-  cat("Web Address   : https://www.bdlc.umontreal.ca/chmd\n")
+  cat("Web Address   : http://www.bdlc.umontreal.ca/chmd\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))

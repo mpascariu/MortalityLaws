@@ -67,7 +67,7 @@ A \code{ReadJMD} object that contains:
 \description{
 Download detailed mortality and population data of the 47 prefectures in
 Japan, in a single object. The source of data is the
-\href{http://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
+\href{https://www.ipss.go.jp/p-toukei/JMD/index-en.asp}{
 Japanese Mortality Database}.
 }
 \details{
