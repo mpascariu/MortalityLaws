@@ -15,7 +15,7 @@ life spans. For a comprehensive review of the most important mortality laws see 
 
 - the [Human Mortality Database (HMD)](https://www.mortality.org/)
 - the [Australian Human Mortality Database (AHMD)](https://demography.cass.anu.edu.au/research/australian-human-mortality-database)
-- the [Canadian Human Mortality Database (CHMD)](http://www.bdlc.umontreal.ca/chmd/)
+- the [Canadian Human Mortality Database (CHMD)]() (interrupted due to issues with the website)
 - the [Japanese Mortality Database (JMD)](https://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
 
 
@@ -47,7 +47,4 @@ You can track and contribute to the development of `MortalityLaws` on [GitHub](h
 
 ## Help
 All functions are documented in the standard way, which means that once you load the package using ```library(MortalityLaws)``` you can just type ```?MortalityLaw``` to see the help file. 
-
-## Support
-<a href="https://www.buymeacoffee.com/rpascariu" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png" alt="Buy Me A Coffee" style="height: 30px !important;width: 100px !important;" ></a>
 

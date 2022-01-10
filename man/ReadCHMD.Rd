@@ -4,7 +4,13 @@
 \alias{ReadCHMD}
 \title{Download the Canadian Human Mortality Database (CHMD)}
 \usage{
-ReadCHMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
+ReadCHMD(
+  what = NULL,
+  regions = NULL,
+  interval = NULL,
+  save = NULL,
+  show = NULL
+)
 }
 \arguments{
 \item{what}{What type of data are you looking for? The following options are
@@ -68,8 +74,7 @@ A \code{ReadCHMD} object that contains:
 \description{
 Download detailed mortality and population data for different
 provinces and territories in Canada, in a single object from the
-\href{http://www.bdlc.umontreal.ca/chmd/index.htm}{
-Canadian Human Mortality Database}.
+Canadian Human Mortality Database.
 }
 \details{
 (Description taken from the CHMD website).
@@ -88,7 +93,7 @@ Universite de Montreal, is in charge of computing all CHMD life tables and
 updating the CHMD web site.
 
 The CHMD is a "satellite" of the Human Mortality Database (HMD), an
-international database which currently holds detailed data flor multiple
+international database which currently holds detailed data for multiple
 countries or regions. Consequently, the CHMD's underlying methodology
 corresponds to the one used for the HMD.
 
@@ -109,15 +114,12 @@ CHMD_Dx <- ReadCHMD(what = "Dx",
                     regions = c('QUE', 'SAS'),
                     interval  = "1x1",
                     save = FALSE)
-ls(CHMD_Dx)
-CHMD_Dx
 
 # Download life tables for female population and export data.
 LTF <- ReadCHMD(what = "LT_f",
                 regions = c('QUE', 'SAS'),
                 interval  = "1x1",
                 save = TRUE)
-LTF
 }
 }
 \seealso{
