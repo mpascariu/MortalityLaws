@@ -1,6 +1,6 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Mon Jan 10 12:15:15 2022
+# Last update: Fri Feb 04 10:53:41 2022
 # --------------------------------------------------- #
 
 #' Download the Canadian Human Mortality Database (CHMD)
@@ -97,157 +97,141 @@
 #'                 save = TRUE)
 #' }
 #' @export
-ReadCHMD <- function(what = NULL,
+ReadCHMD <- function(what,
                      regions = NULL,
-                     interval = NULL,
-                     save = NULL,
-                     show = NULL){
-  message(
-    paste(
-      "Support for the CHMD Canadian Human Mortality Database",
-      "and the ReadCHMD() function has been interrupted due to issues",
-      "retaled to the website and access to data."
-      )
-    )
+                     interval = "1x1",
+                     save = FALSE,
+                     show = TRUE){
+  # Step 1 - Validate input & Progress bar setup
+  if (is.null(regions)) {
+    regions <- CANregions()
+  }
 
+  input <- as.list(environment())
+  check_input_ReadCHMD(input)
+  nr <- length(regions)
+
+  if (show) {
+    pb <- startpb(0, nr + 1)
+    on.exit(closepb(pb))
+    setpb(pb, 0)
+  }
+
+  # Step 2 - Do the loop for the other regions
+  D <- data.frame()
+  for (i in 1:nr) {
+    if (show) {
+      setpb(pb, i)
+      cat(paste("      :Downloading", regions[i], "    "))
+    }
+
+    D <- rbind(D, ReadHMD.core(
+      what = what,
+      country = regions[i],
+      interval = interval,
+      username = NULL,
+      password = NULL,
+      link = "http://www.prdh.umontreal.ca/BDLC/data/"))
+  }
+
+  out <- list(input = input,
+              data = D,
+              download.date = date(),
+              years = sort(unique(D$Year)),
+              ages = unique(D$Age))
+  out <- structure(class = "ReadCHMD", out)
+
+  # Step 3 - Write a file with the database in your working directory
+  if (show) setpb(pb, nr + 1)
+  if (save) saveOutput(out, show, prefix = "CHMD")
+
+  # Exit
+  return(out)
 }
 
 
-#' ReadCHMD <- function(what,
-#'                      regions = NULL,
-#'                      interval = "1x1",
-#'                      save = FALSE,
-#'                      show = TRUE){
-#'   # Step 1 - Validate input & Progress bar setup
-#'   if (is.null(regions)) {
-#'     regions <- CANregions()
-#'   }
-#'
-#'   input <- as.list(environment())
-#'   check_input_ReadCHMD(input)
-#'   nr <- length(regions)
-#'
-#'   if (show) {
-#'     pb <- startpb(0, nr + 1)
-#'     on.exit(closepb(pb))
-#'     setpb(pb, 0)
-#'   }
-#'
-#'   # Step 2 - Do the loop for the other regions
-#'   D <- data.frame()
-#'   for (i in 1:nr) {
-#'     if (show) {
-#'       setpb(pb, i)
-#'       cat(paste("      :Downloading", regions[i], "    "))
-#'     }
-#'
-#'     D <- rbind(D, ReadHMD.core(
-#'       what = what,
-#'       country = regions[i],
-#'       interval = interval,
-#'       username = NULL,
-#'       password = NULL,
-#'       link = "http://www.prdh.umontreal.ca/BDLC/data/"))
-#'   }
-#'
-#'   out <- list(input = input,
-#'               data = D,
-#'               download.date = date(),
-#'               years = sort(unique(D$Year)),
-#'               ages = unique(D$Age))
-#'   out <- structure(class = "ReadCHMD", out)
-#'
-#'   # Step 3 - Write a file with the database in your working directory
-#'   if (show) setpb(pb, nr + 1)
-#'   if (save) saveOutput(out, show, prefix = "CHMD")
-#'
-#'   # Exit
-#'   return(out)
-#' }
-#'
-#'
-#' #' Country codes
-#' #' @keywords internal
-#' CANregions <- function() {
-#'   c("CAN",
-#'     "NFL",
-#'     "PEI",
-#'     "NSC",
-#'     "NBR",
-#'     "QUE",
-#'     "ONT",
-#'     "MAN",
-#'     "SAS",
-#'     "ALB",
-#'     "BCO",
-#'     "NWT",
-#'     "YUK")
-#' }
-#'
-#'
-#' #' Check input ReadHMD
-#' #' @param x a list containing the input arguments from ReadHMD function
-#' #' @keywords internal
-#' check_input_ReadCHMD <- function(x) {
-#'   wht <- c("births", "population", "Dx_lexis", "Dx",
-#'            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
-#'
-#'   if (!(x$interval %in% data_format())) {
-#'     stop("The interval ", x$interval, " does not exist in HMD ",
-#'          "Try one of these options:\n", paste(data_format(), collapse = ", "),
-#'          call. = FALSE)
-#'   }
-#'
-#'   if (!(x$what %in% wht)) {
-#'     stop(x$what, " does not exist in CHMD. Try one of these options:\n",
-#'          paste(wht, collapse = ", "), call. = FALSE)
-#'   }
-#'
-#'   if (all(!(x$regions %in% CANregions()))) {
-#'     stop("Something is wrong in the region codes supplied.\n",
-#'          "Try one or more of these options:\n",
-#'          paste(CANregions(), collapse = ", "), call. = FALSE)
-#'   }
-#'
-#'   # Availability of Death and Exposures
-#'   if ((x$what %in% c("Dx", "Ex")) & !(x$interval %in% c("1x1", "5x1"))) {
-#'     stop("Data type ", x$what,
-#'          " is available only in the following format: '1x1' and '5x1'.",
-#'          call. = FALSE)
-#'   }
-#'
-#'   if (any(x$region %in% c("NWT", "YUK")) &
-#'     (x$what %in% c("LT_m", "LT_f", "LT_t")) &
-#'       (x$interval %in% c("1x1", "5x1"))) {
-#'     stop("For the regions of Northwest Territories & Nunavut (NWT) and Yukon (YUK),",
-#'          "\ndata type ", x$what, " is NOT available in the following format:",
-#'          "'1x1' and '5x1'.",
-#'          "\nTo download the life-tables for all the other regions use the argument:",
-#'          "\nregions = c('CAN', 'NFL', 'PEI', 'NSC', 'NBR', 'QUE', 'ONT', 'MAN', 'SAS', 'ALB', 'BCO')",
-#'          call. = FALSE)
-#'   }
-#' }
-#'
-#'
-#'
-#' #' Print ReadCHMD
-#' #' @param x An object of class \code{"ReadCHMD"}
-#' #' @param ... Further arguments passed to or from other methods.
-#' #' @keywords internal
-#' #' @export
-#' print.ReadCHMD <- function(x, ...){
-#'   what <- x$input$what
-#'   cat("Canadian Human Mortality Database\n")
-#'   cat("Web Address   : http://www.bdlc.umontreal.ca/chmd\n")
-#'   cat("Download Date :", x$download.date, "\n")
-#'   cat("Type of data  :", what, "\n")
-#'   cat(paste("Interval      :", x$input$interval, "\n"))
-#'   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
-#'   cat(paste("Ages          :", ageMsg(what, x), "\n"))
-#'   cat("Regions       :", x$input$regions, "\n")
-#'   cat("\nData:\n")
-#'   print(head_tail(x$data, hlength = 5, tlength = 5))
-#' }
+#' Country codes
+#' @keywords internal
+CANregions <- function() {
+  c("CAN",
+    "NFL",
+    "PEI",
+    "NSC",
+    "NBR",
+    "QUE",
+    "ONT",
+    "MAN",
+    "SAS",
+    "ALB",
+    "BCO",
+    "NWT",
+    "YUK")
+}
+
+
+#' Check input ReadHMD
+#' @param x a list containing the input arguments from ReadHMD function
+#' @keywords internal
+check_input_ReadCHMD <- function(x) {
+  wht <- c("births", "population", "Dx_lexis", "Dx",
+           "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
+
+  if (!(x$interval %in% data_format())) {
+    stop("The interval ", x$interval, " does not exist in HMD ",
+         "Try one of these options:\n", paste(data_format(), collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (!(x$what %in% wht)) {
+    stop(x$what, " does not exist in CHMD. Try one of these options:\n",
+         paste(wht, collapse = ", "), call. = FALSE)
+  }
+
+  if (all(!(x$regions %in% CANregions()))) {
+    stop("Something is wrong in the region codes supplied.\n",
+         "Try one or more of these options:\n",
+         paste(CANregions(), collapse = ", "), call. = FALSE)
+  }
+
+  # Availability of Death and Exposures
+  if ((x$what %in% c("Dx", "Ex")) & !(x$interval %in% c("1x1", "5x1"))) {
+    stop("Data type ", x$what,
+         " is available only in the following format: '1x1' and '5x1'.",
+         call. = FALSE)
+  }
+
+  if (any(x$region %in% c("NWT", "YUK")) &
+    (x$what %in% c("LT_m", "LT_f", "LT_t")) &
+      (x$interval %in% c("1x1", "5x1"))) {
+    stop("For the regions of Northwest Territories & Nunavut (NWT) and Yukon (YUK),",
+         "\ndata type ", x$what, " is NOT available in the following format:",
+         "'1x1' and '5x1'.",
+         "\nTo download the life-tables for all the other regions use the argument:",
+         "\nregions = c('CAN', 'NFL', 'PEI', 'NSC', 'NBR', 'QUE', 'ONT', 'MAN', 'SAS', 'ALB', 'BCO')",
+         call. = FALSE)
+  }
+}
+
+
+
+#' Print ReadCHMD
+#' @param x An object of class \code{"ReadCHMD"}
+#' @param ... Further arguments passed to or from other methods.
+#' @keywords internal
+#' @export
+print.ReadCHMD <- function(x, ...){
+  what <- x$input$what
+  cat("Canadian Human Mortality Database\n")
+  cat("Web Address   : http://www.bdlc.umontreal.ca/chmd\n")
+  cat("Download Date :", x$download.date, "\n")
+  cat("Type of data  :", what, "\n")
+  cat(paste("Interval      :", x$input$interval, "\n"))
+  cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
+  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat("Regions       :", x$input$regions, "\n")
+  cat("\nData:\n")
+  print(head_tail(x$data, hlength = 5, tlength = 5))
+}
 
 
 

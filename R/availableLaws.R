@@ -1,6 +1,6 @@
 # --------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Tue Dec 21 12:48:05 2021
+# Last update: Fri Feb 04 11:39:09 2022
 # --------------------------------------------------- #
 
 #' Check Available Mortality Laws
@@ -67,7 +67,7 @@
 #' Journal of the Institute of Actuaries, 107(1), 49-80.
 #' \doi{10.1017/S0020268100040257}}
 #' \item{Rogers A and Planck F (1983).
-#' \href{http://pure.iiasa.ac.at/2210/}{
+#' \href{https://pure.iiasa.ac.at/id/eprint/2210/1/WP-83-102.pdf}{
 #' MODEL: A General Program for Estimating Parametrized Model Schedules of Fertility,
 #' Mortality, Migration, and Marital and Labor Force Status Transitions.}
 #' IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}

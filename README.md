@@ -1,6 +1,5 @@
 # <img src="inst/figures/hex_MoralityLaws.png" align="right" width="175" height="175" />MortalityLaws: Parametric Mortality Models, Life Tables and HMD
 [![CRAN_Version](https://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
-[![R-CMD-check](https://github.com/mpascariu/MortalityLaws/workflows/R-CMD-check/badge.svg)](https://github.com/mpascariu/MortalityLaws/actions)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://codecov.io/github/mpascariu/MortalityLaws)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
 
@@ -15,7 +14,7 @@ life spans. For a comprehensive review of the most important mortality laws see 
 
 - the [Human Mortality Database (HMD)](https://www.mortality.org/)
 - the [Australian Human Mortality Database (AHMD)](https://demography.cass.anu.edu.au/research/australian-human-mortality-database)
-- the [Canadian Human Mortality Database (CHMD)]() (interrupted due to issues with the website)
+- the [Canadian Human Mortality Database (CHMD)](http://www.bdlc.umontreal.ca/chmd/index.htm)
 - the [Japanese Mortality Database (JMD)](https://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
 
 
