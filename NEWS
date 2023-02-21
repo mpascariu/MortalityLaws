@@ -1,3 +1,7 @@
+version 1.9.9
+- fix hmd links and add more messages in case of failure to connect to external
+sources;
+
 version 1.9.3
 - fix minor bugs, links and dois
 

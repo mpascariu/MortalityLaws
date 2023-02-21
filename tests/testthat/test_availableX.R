@@ -1,8 +1,8 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:41:53 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Title:
+# Author: Marius D. PASCARIU
+# Last Update: Tue Feb 21 18:05:24 2023
+# -------------------------------------------------------------- #
 remove(list = ls())
 
 AL = availableLaws()
@@ -33,3 +33,4 @@ expect_output(print(AF))
 A_HMD <- availableHMD()
 expect_output(print(A_HMD))
 expect_true(class(A_HMD) == "availableHMD")
+availableHMD(link = "https://former.mortality.org/dead")

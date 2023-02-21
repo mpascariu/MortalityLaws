@@ -38,11 +38,20 @@ might be available for some or all the countries and regions: \itemize{
 
 \item{countries}{Specify the country data you want to download by adding the
 HMD country code/s. Options:
-\code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
-"DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
-"GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC", "HKG", "HUN","HRV","IRL",
-"ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM",
-"NZL_NP","POL", "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+\code{ 
+"AUS"    "AUT",    "BEL",   "BGR", 
+"BLR",   "CAN",    "CHL",   "HRV",
+"HKG",   "CHE",    "CZE",   "DEUTNP", 
+"DEUTE", "DEUTW",  "DNK",   "ESP", 
+"EST",   "FIN",    "FRATNP","FRACNP", 
+"GRC",   "HUN",    "IRL",   "ISL"    
+"ISR",   "ITA",    "JPN",   "KOR", 
+"LTU",   "LUX",    "LVA",   "NLD",   
+"NOR",   "NZL_NP", "NZL_MA" "NZL_NM", 
+"POL",   "PRT"     "RUS",   "SVK", 
+"SVN",   "SWE",    "TWN",   "UKR",   
+"GBR_NP","GBRTENW","GBRCENW","GBR_SCO",
+"GBR_NIR","USA"}.
  If \code{NULL} data for all the countries are downloaded at once;}
 
 \item{interval}{Datasets are given in various age and time formats based on
@@ -95,6 +104,11 @@ further development of the database in recent years.
 }
 \examples{
 \dontrun{
+
+# !!! In June 2022, HMD has updated its website and access policy. At the
+# moment the function still reads the old website. Use your old username
+# and password to access the data.
+
 # Download demographic data for 3 countries in 1x1 format
 age_int  <- 1  # age interval: 1,5
 year_int <- 1  # year interval: 1,5,10

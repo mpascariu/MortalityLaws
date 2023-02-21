@@ -1,8 +1,7 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Sep 16 09:26:08 2020
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Tue Feb 21 18:25:21 2023
+# -------------------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
 #'
@@ -45,11 +44,20 @@
 #'   }
 #' @param countries Specify the country data you want to download by adding the
 #' HMD country code/s. Options:
-#' \code{"AUS","AUT","BEL","BGR","BLR","CAN","CHL","CHE","CZE", "DEUTE",
-#' "DEUTNP","DEUTW","DNK","ESP","EST","FIN","FRACNP","FRATNP","KOR","GBR_NIR",
-#' "GBR_NP","GBR_SCO","GBRCENW","GBRTENW","GRC", "HKG", "HUN","HRV","IRL",
-#' "ISL","ISR","ITA","JPN","LTU","LUX","LVA","NLD","NOR","NZL_MA","NZL_NM",
-#' "NZL_NP","POL", "PRT","RUS","SVK","SVN","SWE","TWN","USA","UKR"}.
+#' \code{ 
+#' "AUS"    "AUT",    "BEL",   "BGR", 
+#' "BLR",   "CAN",    "CHL",   "HRV",
+#' "HKG",   "CHE",    "CZE",   "DEUTNP", 
+#' "DEUTE", "DEUTW",  "DNK",   "ESP", 
+#' "EST",   "FIN",    "FRATNP","FRACNP", 
+#' "GRC",   "HUN",    "IRL",   "ISL"    
+#' "ISR",   "ITA",    "JPN",   "KOR", 
+#' "LTU",   "LUX",    "LVA",   "NLD",   
+#' "NOR",   "NZL_NP", "NZL_MA" "NZL_NM", 
+#' "POL",   "PRT"     "RUS",   "SVK", 
+#' "SVN",   "SWE",    "TWN",   "UKR",   
+#' "GBR_NP","GBRTENW","GBRCENW","GBR_SCO",
+#' "GBR_NIR","USA"}.
 #'  If \code{NULL} data for all the countries are downloaded at once;
 #' @param interval Datasets are given in various age and time formats based on
 #' which the records are agregated. Interval options:
@@ -77,6 +85,11 @@
 #' @author Marius D. Pascariu
 #' @examples
 #' \dontrun{
+#'
+#' # !!! In June 2022, HMD has updated its website and access policy. At the
+#' # moment the function still reads the old website. Use your old username
+#' # and password to access the data.
+#'
 #' # Download demographic data for 3 countries in 1x1 format
 #' age_int  <- 1  # age interval: 1,5
 #' year_int <- 1  # year interval: 1,5,10
@@ -110,18 +123,18 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
   if (is.null(countries)) {
     countries <- HMDcountries()
   }
-
+  
   input <- list(what = what, countries = countries, interval = interval,
                 username = username, save = save, show = show)
   check_input_ReadHMD(input)
   nr <- length(countries)
-
+  
   if (show) {
     pb <- startpb(0, nr + 1)
     on.exit(closepb(pb))
     setpb(pb, 0)
   }
-
+  
   # Step 2 - Do the loop for the other countries
   D <- data.frame()
   for (i in 1:nr) {
@@ -129,10 +142,10 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
       setpb(pb, i)
       cat(paste("      :Downloading", countries[i], "    "))
     }
-
+    
     D <- rbind(D, ReadHMD.core(what, country = countries[i], interval,
                                username, password,
-                               link = "https://www.mortality.org/hmd/"))
+                               link = "https://former.mortality.org/hmd/"))
   }
   out <- list(input = input,
               data = D,
@@ -140,11 +153,11 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
               years = sort(unique(D$Year)),
               ages = unique(D$Age))
   out <- structure(class = "ReadHMD", out)
-
+  
   # Step 3 - Write a file with the database in your working directory
   if (show) setpb(pb, nr + 1)
   if (save) saveOutput(out, show, prefix = "HMD")
-
+  
   # Exit
   return(out)
 }
@@ -182,13 +195,13 @@ saveMsg <- function() {
 #' @param link the main link to the database.
 #' @keywords internal
 ReadHMD.core <- function(what, country, interval, username, password, link){
-
+  
   if (what == "e0" & interval == "1x1") {
     whichFile <- "E0per"
-
+    
   } else if (what == "e0c" & interval == "1x1"){
     whichFile <- "E0coh"
-
+    
   } else {
     whichFile <- switch(what,
                         births = "Births",
@@ -210,42 +223,42 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
                         LT_tc = paste0("bltcoh_", interval),
                         e0c = paste0("E0coh_", interval)
     )}
-
-
-  if (link %in% c("https://www.mortality.org/hmd/",
+  
+  
+  if (link %in% c("https://former.mortality.org/hmd/",
                   "http://www.ipss.go.jp/p-toukei/JMD/")) {
     interlude <- "/STATS/"
-
+    
   } else {
     interlude <- "/"
   }
-
+  
   path <- paste0(link, country, interlude, whichFile, ".txt")
-
+  
   if (is.null(username) | is.null(password)) {
     txt <- try(silent = TRUE,
                RCurl::getURL(url = path))
-
+    
   } else {
     txt <- try(silent = TRUE,
-      RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
-      )
+               RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
+    )
   }
-
+  
   con  <- try(textConnection(txt),
               stop("\nThe function failed to connect to ", link,
                    " Maybe the website is down at this moment?", call. = FALSE))
-
+  
   JPNcodes <- substrRight(paste0(0, 0:47), 2)
   if (any(country %in% JPNcodes)) {
     country <- JPNregions()[as.numeric(country) + 1]
   }
-
+  
   dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
               stop("\n", what, " data for ", country, " state in the ", interval,
                    " format was not to be found. We have been looking here:\n",
                    path, call. = FALSE))
-
+  
   close(con)
   out <- cbind(country, dat)
   if (any(interval %in% c("1x1", "1x5", "1x10")) &
@@ -288,24 +301,24 @@ HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
 check_input_ReadHMD <- function(x) {
   coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
                      "NOR", "SWE", "CHE", "GBRTENW", "GBRCENW", "GBR_SCO")
-
+  
   if (!any(x$interval %in% data_format())) {
     stop("The interval ", x$interval, " does not exist in HMD ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
-
+  
   if (!any(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in HMD. Try one of these options:\n",
          paste(HMDindices(), collapse = ", "), call. = FALSE)
   }
-
+  
   if (all(!(x$countries %in% HMDcountries()))) {
     stop("Something is wrong in the country/countries added by you.\n",
          "Try one or more of these options:\n",
          paste(HMDcountries(), collapse = ", "), call. = FALSE)
   }
-
+  
   # Availability of Cohort Data
   if (any(x$what %in% c("LT_fc", "LT_mc", "LT_tc", "e0c")) &
       !(all(x$countries %in% coh_countries))) {
@@ -314,7 +327,7 @@ check_input_ReadHMD <- function(x) {
          "Check one of these countries:\n",
          paste(coh_countries, collapse = ", "), call. = FALSE)
   }
-
+  
   # Availability of Life Expectancy Data
   if (any(x$what %in% c("e0", "e0c")) &
       !(x$interval %in% c("1x1", "1x5", "1x10"))) {
@@ -351,10 +364,10 @@ print.ReadHMD <- function(x, ...){
 ageMsg <- function(what, x) {
   if (any(what %in% c("e0", "e0c"))) {
     0
-
+    
   } else if (what %in% c("births")){
     "all ages"
-
+    
   } else {
     paste(x$ages[1], "--", rev(x$ages)[1])
   }
