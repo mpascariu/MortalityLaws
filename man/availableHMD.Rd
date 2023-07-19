@@ -4,16 +4,14 @@
 \alias{availableHMD}
 \title{Check Data Availability in HMD}
 \usage{
-availableHMD(link = "https://former.mortality.org/countries.csv")
+availableHMD(link = "https://www.mortality.org/Data/DataAvailability")
 }
 \arguments{
-\item{link}{Link to the HMD csv file summarising the available data.
-Change it only if the path to the file has been modified and the maintainer
-of the package is not quick enough to realised that.
-Default: "https://former.mortality.org/countries.csv"}
+\item{link}{URL to the HMD available data.
+Default: "https://www.mortality.org/Data/DataAvailability"}
 }
 \value{
-An object of class \code{availableHMD}.
+A tibble.
 }
 \description{
 The function returns information about available data in HMD (period life

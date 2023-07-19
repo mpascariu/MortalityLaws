@@ -1,7 +1,6 @@
 # -------------------------------------------------------------- #
-# Title:
 # Author: Marius D. PASCARIU
-# Last Update: Tue Feb 21 18:05:24 2023
+# Last Update: Wed Jul 19 17:43:27 2023
 # -------------------------------------------------------------- #
 remove(list = ls())
 
@@ -27,10 +26,3 @@ expect_true(class(AF) == "availableLF")
 expect_false(is.null(AF$table))
 expect_false(is.null(AF$legend))
 expect_output(print(AF))
-
-
-
-A_HMD <- availableHMD()
-expect_output(print(A_HMD))
-expect_true(class(A_HMD) == "availableHMD")
-availableHMD(link = "https://former.mortality.org/dead")

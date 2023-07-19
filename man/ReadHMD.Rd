@@ -106,8 +106,7 @@ further development of the database in recent years.
 \dontrun{
 
 # !!! In June 2022, HMD has updated its website and access policy. At the
-# moment the function still reads the old website. Use your old username
-# and password to access the data.
+# moment the function is NOT working.
 
 # Download demographic data for 3 countries in 1x1 format
 age_int  <- 1  # age interval: 1,5

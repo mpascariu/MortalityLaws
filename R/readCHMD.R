@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Fri Feb 04 10:53:41 2022
-# --------------------------------------------------- #
+# Last Update: Wed Jul 19 16:49:38 2023
+# -------------------------------------------------------------- #
 
 #' Download the Canadian Human Mortality Database (CHMD)
 #'
@@ -131,7 +131,7 @@ ReadCHMD <- function(what,
       interval = interval,
       username = NULL,
       password = NULL,
-      link = "http://www.prdh.umontreal.ca/BDLC/data/"))
+      link = "https://www.prdh.umontreal.ca/BDLC/data/"))
   }
 
   out <- list(input = input,
@@ -222,7 +222,7 @@ check_input_ReadCHMD <- function(x) {
 print.ReadCHMD <- function(x, ...){
   what <- x$input$what
   cat("Canadian Human Mortality Database\n")
-  cat("Web Address   : http://www.bdlc.umontreal.ca/chmd\n")
+  cat("Web Address   : https://www.bdlc.umontreal.ca/chmd\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
