@@ -12,6 +12,9 @@ HP2(x, par = NULL)
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+A list of rates and model parameters
+}
 \description{
 Heligman-Pollard 2 Mortality Law - 8 parameters
 }

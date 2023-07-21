@@ -37,6 +37,9 @@ die in the same interval. If \code{NULL} this will be estimated. A common
 assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
 the interval. Default: \code{NULL}.}
 }
+\value{
+A data.frame containing life table results
+}
 \description{
 LifeTable.core
 }

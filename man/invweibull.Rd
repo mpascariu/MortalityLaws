@@ -12,6 +12,9 @@ invweibull(x, par = NULL)
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+A list of rates and model parameters
+}
 \description{
 The Inverse-Weibull proves useful for modelling the childhood and teenage years,
 because the logarithm of h(x) is a concave function.

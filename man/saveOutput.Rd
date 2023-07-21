@@ -12,6 +12,9 @@ saveOutput(out, show, prefix)
 \item{show}{Choose whether to display a progress bar. Logical.
 Default: \code{TRUE}.}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Save Output in the working directory
 }

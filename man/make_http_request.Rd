@@ -9,6 +9,9 @@ make_http_request(url)
 \arguments{
 \item{url}{URL}
 }
+\value{
+url response
+}
 \description{
 Make HTTP request
 }

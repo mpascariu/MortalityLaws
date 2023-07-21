@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Wed Nov 24 11:26:58 2021
-# --------------------------------------------------- #
+# Last Update: Thu Jul 20 21:27:19 2023
+# -------------------------------------------------------------- #
 
 #' Compute Life Tables from Mortality Data
 #'
@@ -157,6 +157,7 @@ LifeTable <- function(x,
 
 #' LifeTable.core
 #' @inheritParams LifeTable
+#' @return A data.frame containing life table results
 #' @keywords internal
 LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 
@@ -242,6 +243,7 @@ LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
 
 #' Function that identifies the case/problem we have to solve
 #' @inheritParams LifeTable
+#' @return A list containing problem solving details
 #' @keywords internal
 find.my.case <- function(Dx = NULL,
                          Ex = NULL,
@@ -325,6 +327,7 @@ find.my.case <- function(Dx = NULL,
 #' @param nx Length of the age-intervals.
 #' @param ux A vector of mx or qx.
 #' @param out Type of the output: mx or qx.
+#' @return A vector of rates
 #' @keywords internal
 mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
   out <- match.arg(out)
@@ -354,6 +357,7 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
 #' @param omega Threshold age. Default: 100.
 #' @param verbose A logical value. Set \code{verbose = FALSE} to silent
 #' the process that take place inside the function and avoid progress messages.
+#' @return A vector of rates
 #' @keywords internal
 uxAbove100 <- function(x,
                        ux,
@@ -389,6 +393,7 @@ uxAbove100 <- function(x,
 #' Function to convert dx into lx and back
 #' @param ux A vector of dx or lx data.
 #' @param out Type of the output: dx or lx.
+#' @return A vector containing dx or lx values
 #' @keywords internal
 dx_lx <- function(ux, out = c("dx", "lx")) {
   out <- match.arg(out)
@@ -427,6 +432,7 @@ compute.ax <- function(x, mx, qx) {
 #' Here we adjust the first two values of ax to account for infant
 #' mortality more accurately
 #' @inheritParams LifeTable
+#' @return A vector of coefficients
 #' @keywords internal
 coale.demeny.ax <- function(x, mx, ax, sex) {
 
@@ -453,6 +459,7 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 
 #' Check LifeTable input
 #' @param input A list containing the input arguments of the LifeTable functions.
+#' @return A list of life table validated data
 #' @keywords internal
 LifeTable.check <- function(input) {
 
@@ -532,6 +539,7 @@ LifeTable.check <- function(input) {
 #' Print LifeTable
 #' @param x An object of class \code{"LifeTable"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return Print data on the console
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){

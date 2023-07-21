@@ -9,6 +9,9 @@ choose_optim(input)
 \arguments{
 \item{input}{list of all inputs collected from MortalityLaw function}
 }
+\value{
+A list of model specification corresponding to the best fitted model
+}
 \description{
 Select an optimizing method
 }

@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:32:25 2021
-# --------------------------------------------------- #
+# Last Update: Thu Jul 20 21:51:50 2023
+# -------------------------------------------------------------- #
 
 #' Download the Australian Human Mortality Database (AHMD)
 #'
@@ -61,7 +61,7 @@
 #' \code{\link{ReadHMD}}
 #' \code{\link{ReadCHMD}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Download demographic data for Australian Capital Territory and
 #' # Tasmania regions in 5x1 format
 #'
@@ -74,7 +74,7 @@
 #' AHMD_Dx
 #'
 #' # Download life tables for female population in all the states and export data.
-#' LTF <- ReadAHMD(what = "LT_f", interval  = "5x1", save = TRUE)
+#' LTF <- ReadAHMD(what = "LT_f", interval  = "5x1", save = FALSE)
 #' LTF
 #' }
 #' @export
@@ -131,6 +131,7 @@ ReadAHMD <- function(what,
 
 
 #' region codes
+#' @return a vector
 #' @keywords internal
 AUSregions <- function() {
   c("ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA")
@@ -139,6 +140,7 @@ AUSregions <- function() {
 
 #' Check input ReadAHMD
 #' @param x a list containing the input arguments from ReadAHMD function
+#' @return No return value, called for checking stuff
 #' @keywords internal
 check_input_ReadAHMD <- function(x) {
 
@@ -165,6 +167,7 @@ check_input_ReadAHMD <- function(x) {
 #' Print ReadCHMD
 #' @param x An object of class \code{"ReadCHMD"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return Print data on console
 #' @keywords internal
 #' @export
 print.ReadAHMD <- function(x, ...){

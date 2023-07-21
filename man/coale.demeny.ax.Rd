@@ -24,6 +24,9 @@ If sex is specified the values are computed based on the Coale-Demeny method
 and are slightly different for males than for females.
 Options: \code{NULL, male, female, total}.}
 }
+\value{
+A vector of coefficients
+}
 \description{
 Find ax[1:2] indicators using Coale-Demeny coefficients
 Here we adjust the first two values of ax to account for infant

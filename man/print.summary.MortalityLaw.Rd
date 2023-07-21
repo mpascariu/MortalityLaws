@@ -11,6 +11,9 @@
 
 \item{...}{additional arguments affecting the summary produced.}
 }
+\value{
+Print data on console
+}
 \description{
 Print summary.MortalityLaw
 }

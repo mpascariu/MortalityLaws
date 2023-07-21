@@ -12,6 +12,9 @@ invgompertz(x, par = NULL)
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+A list of rates and model parameters
+}
 \description{
 m - is a measure of location because it is the mode of the density, m > 0
 sigma - represents the dispersion of the density about the mode, sigma > 0

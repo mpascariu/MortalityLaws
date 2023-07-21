@@ -9,6 +9,9 @@ check_input_ReadJMD(x)
 \arguments{
 \item{x}{a list containing the input arguments from ReadAHMD function}
 }
+\value{
+No return value, called for validating input data
+}
 \description{
 Check input ReadAHMD
 }

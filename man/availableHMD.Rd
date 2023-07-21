@@ -14,13 +14,13 @@ Default: "https://www.mortality.org/Data/DataAvailability"}
 A tibble.
 }
 \description{
-The function returns information about available data in HMD (period life
-tables etc.), with the range of years covered by the life tables.
+The function returns information about available data in the Human Mortality 
+Database, HMD (period life tables etc.), with the range of years covered 
+by the life tables.
 }
 \examples{
-\dontrun{
 availableHMD()
-}
+
 }
 \seealso{
 \code{\link{ReadHMD}}

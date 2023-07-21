@@ -11,6 +11,9 @@ dx_lx(ux, out = c("dx", "lx"))
 
 \item{out}{Type of the output: dx or lx.}
 }
+\value{
+A vector containing dx or lx values
+}
 \description{
 Function to convert dx into lx and back
 }

@@ -18,6 +18,9 @@ in the package. Accepts as input a function.}
 
 \item{parS}{Starting parameters used in the optimization process (optional).}
 }
+\value{
+A list of model specifications
+}
 \description{
 Depending on the chosen mortality law, additional details need to be
 specified in order to be able to fit the models taking into account it's

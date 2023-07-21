@@ -9,6 +9,9 @@ LifeTable.check(input)
 \arguments{
 \item{input}{A list containing the input arguments of the LifeTable functions.}
 }
+\value{
+A list of life table validated data
+}
 \description{
 Check LifeTable input
 }

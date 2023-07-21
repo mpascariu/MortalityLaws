@@ -1,22 +1,21 @@
 # -------------------------------------------------------------- #
-# Title:
 # Author: Marius D. PASCARIU
-# Last Update: Wed Jul 19 15:12:02 2023
+# Last Update: Thu Jul 20 20:50:19 2023
 # -------------------------------------------------------------- #
 
 #' Check Data Availability in HMD
 #'
-#' The function returns information about available data in HMD (period life
-#' tables etc.), with the range of years covered by the life tables.
+#' The function returns information about available data in the Human Mortality 
+#' Database, HMD (period life tables etc.), with the range of years covered 
+#' by the life tables.
 #' @param link URL to the HMD available data.
 #' Default: "https://www.mortality.org/Data/DataAvailability"
 #' @return A tibble.
 #' @seealso \code{\link{ReadHMD}}
 #' @author Marius D. Pascariu
 #' @examples
-#' \dontrun{
 #' availableHMD()
-#' }
+#' 
 #' @export
 availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability") {
   out <- NULL
@@ -59,6 +58,7 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
 
 #' Make HTTP request
 #' @param url URL
+#' @return url response
 #' @keywords internal
 #' 
 make_http_request <- function(url) {

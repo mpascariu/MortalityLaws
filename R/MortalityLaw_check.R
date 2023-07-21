@@ -1,12 +1,12 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:33:56 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 21:28:56 2023
+# -------------------------------------------------------------- #
 
 
 #' Function to check input data in MortalityLaw
 #' @inheritParams choose_optim
+#' @return No return value, called for side effects
 #' @keywords internal
 #'
 check.MortalityLaw <- function(input){

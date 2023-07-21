@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Tue Dec 21 12:25:27 2021
-# --------------------------------------------------- #
+# Last Update: Thu Jul 20 22:06:04 2023
+# -------------------------------------------------------------- #
 
 #' Download the Japanese Mortality Database (JMD)
 #'
@@ -30,7 +30,7 @@
 #' Especially because we have structured it to conform with the HMD, our
 #' database is suitable for international comparison, we put emphasis on the
 #' compatibility with the HMD more than our country's particular
-#' characteristics. Therefore, the life tables by JMD do not necesarlily
+#' characteristics. Therefore, the life tables by JMD do not necessarily
 #' exhibit the same values as ones by the official life tables prepared and
 #' released by the Statistics and Information Department, Minister's
 #' Secretariat, Ministry of Health, Labor and Welfare according to the different
@@ -68,7 +68,7 @@
 #' \code{\link{ReadHMD}}
 #' \code{\link{ReadCHMD}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Download demographic data for Fukushima and Tokyo regions in 1x1 format
 #'
 #' # Death counts. We don't want to export data outside R.
@@ -80,7 +80,7 @@
 #' JMD_Dx
 #'
 #' # Download life tables for female population in all the states and export data.
-#' LTF <- ReadJMD(what = "LT_f", interval  = "5x5", save = TRUE)
+#' LTF <- ReadJMD(what = "LT_f", interval  = "5x5", save = FALSE)
 #' LTF
 #' }
 #' @export
@@ -143,6 +143,7 @@ ReadJMD <- function(what,
 
 
 #' region codes
+#' @return the vector
 #' @keywords internal
 JPNregions <- function() {
   c("Japan",
@@ -201,6 +202,7 @@ JPNregions <- function() {
 
 #' Check input ReadAHMD
 #' @param x a list containing the input arguments from ReadAHMD function
+#' @return No return value, called for validating input data
 #' @keywords internal
 check_input_ReadJMD <- function(x) {
 
@@ -239,6 +241,7 @@ check_input_ReadJMD <- function(x) {
 #' Print ReadJMD
 #' @param x An object of class \code{"ReadJMD"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return Print info on the console
 #' @keywords internal
 #' @export
 print.ReadJMD <- function(x, ...){

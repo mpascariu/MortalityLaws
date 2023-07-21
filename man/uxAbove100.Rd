@@ -17,6 +17,9 @@ uxAbove100(x, ux, omega = 100, verbose = FALSE)
 \item{verbose}{A logical value. Set \code{verbose = FALSE} to silent
 the process that take place inside the function and avoid progress messages.}
 }
+\value{
+A vector of rates
+}
 \description{
 Educate mx or qx on how to behave above age 100 if it gets in trouble
 (with NA's, zero's and Inf)

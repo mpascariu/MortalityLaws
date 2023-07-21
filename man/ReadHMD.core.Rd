@@ -48,6 +48,9 @@ for free on the Human Mortality Database website.}
 
 \item{link}{the main link to the database.}
 }
+\value{
+A data.frame containing demographic data
+}
 \description{
 Function to Download Data for a one Country
 }

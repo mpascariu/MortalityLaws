@@ -1,8 +1,7 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:32:32 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 21:08:15 2023
+# -------------------------------------------------------------- #
 
 
 #' Check Available Loss Function
@@ -42,6 +41,7 @@ availableLF <- function(){
 #' Print availableLF
 #' @param x An object of class \code{"availableLF"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return print info on the console
 #' @keywords internal
 #' @export
 print.availableLF <- function(x, ...) {

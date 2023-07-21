@@ -11,6 +11,9 @@
 
 \item{...}{Further arguments passed to or from other methods.}
 }
+\value{
+print info on the console
+}
 \description{
 Print availableLaws
 }

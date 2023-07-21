@@ -6,6 +6,9 @@
 \usage{
 CANregions()
 }
+\value{
+a vector
+}
 \description{
 Country codes
 }

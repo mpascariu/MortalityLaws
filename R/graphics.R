@@ -1,12 +1,13 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Wed Nov 24 11:39:16 2021
-# --------------------------------------------------- #
+# Last Update: Thu Jul 20 21:13:49 2023
+# -------------------------------------------------------------- #
 
 #' Plot Function for MortalityLaw
 #' @param x An object of class MortalityLaw
 #' @param ... Arguments to be passed to methods, such as graphical
 #' parameters (see \code{\link{par}}).
+#' @return generate a plot
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
 #' @examples
@@ -14,6 +15,7 @@
 #' @export
 plot.MortalityLaw <- function(x, ...){
   oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))   #- reset to default
 
   with(
     data = x$input,
@@ -160,7 +162,6 @@ plot.MortalityLaw <- function(x, ...){
     horiz = TRUE,
     xlab = 'Frequency'
     )
-  par(oldpar)  #- reset to default
 }
 
 

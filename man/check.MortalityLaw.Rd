@@ -9,6 +9,9 @@ check.MortalityLaw(input)
 \arguments{
 \item{input}{list of all inputs collected from MortalityLaw function}
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Function to check input data in MortalityLaw
 }

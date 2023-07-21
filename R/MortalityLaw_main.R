@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Wed Nov 24 11:19:28 2021
-# --------------------------------------------------- #
+# Last Update: Thu Jul 20 21:29:59 2023
+# -------------------------------------------------------------- #
 
 #' Fit Mortality Laws
 #'
@@ -247,6 +247,7 @@ MortalityLaw <- function(x,
 #' specified in order to be able to fit the models taking into account it's
 #' particularities.
 #' @inheritParams MortalityLaw
+#' @return A list of model specifications 
 #' @keywords internal
 addDetails <- function(law,
                        custom.law = NULL,
@@ -283,6 +284,7 @@ addDetails <- function(law,
 
 #' Function to be Optimize
 #' @inheritParams MortalityLaw
+#' @return The optimal value
 #' @keywords internal
 objective_fun <- function(par, x, Dx, Ex, mx, qx,
                           law, opt.method, custom.law){
@@ -323,6 +325,7 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
 
 #' Scaling method for x vector
 #' @inheritParams MortalityLaw
+#' @return scalar 
 #' @keywords internal
 scale_x <- function(x) {
   x - min(x) + 1
@@ -331,6 +334,7 @@ scale_x <- function(x) {
 
 #' Select an optimizing method
 #' @param input list of all inputs collected from MortalityLaw function
+#' @return A list of model specification corresponding to the best fitted model
 #' @keywords internal
 choose_optim <- function(input){
   with(as.list(input), {

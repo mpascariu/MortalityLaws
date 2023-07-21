@@ -9,6 +9,9 @@
 \arguments{
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+model AIC value
+}
 \description{
 AIC function for MortalityLaw
 }

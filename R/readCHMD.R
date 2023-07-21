@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Wed Jul 19 16:49:38 2023
+# Last Update: Thu Jul 20 20:34:07 2023
 # -------------------------------------------------------------- #
 
 #' Download the Canadian Human Mortality Database (CHMD)
@@ -81,7 +81,7 @@
 #' \code{\link{ReadHMD}}
 #' \code{\link{ReadAHMD}}
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Download demographic data for Quebec and Saskatchewan regions in 1x1 format
 #'
 #' # Death counts. We don't want to export data outside R.
@@ -90,11 +90,11 @@
 #'                     interval  = "1x1",
 #'                     save = FALSE)
 #'
-#' # Download life tables for female population and export data.
+#' # Download life tables for female population. To export data use save = TRUE.
 #' LTF <- ReadCHMD(what = "LT_f",
 #'                 regions = c('QUE', 'SAS'),
 #'                 interval  = "1x1",
-#'                 save = TRUE)
+#'                 save = FALSE)
 #' }
 #' @export
 ReadCHMD <- function(what,
@@ -151,6 +151,7 @@ ReadCHMD <- function(what,
 
 
 #' Country codes
+#' @return a vector
 #' @keywords internal
 CANregions <- function() {
   c("CAN",
@@ -171,7 +172,9 @@ CANregions <- function() {
 
 #' Check input ReadHMD
 #' @param x a list containing the input arguments from ReadHMD function
+#' @return No return value, called for input validation 
 #' @keywords internal
+#' 
 check_input_ReadCHMD <- function(x) {
   wht <- c("births", "population", "Dx_lexis", "Dx",
            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
@@ -217,6 +220,7 @@ check_input_ReadCHMD <- function(x) {
 #' Print ReadCHMD
 #' @param x An object of class \code{"ReadCHMD"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return Print data on the console
 #' @keywords internal
 #' @export
 print.ReadCHMD <- function(x, ...){

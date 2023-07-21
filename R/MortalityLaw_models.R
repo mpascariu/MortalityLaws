@@ -1,8 +1,7 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:34:33 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 21:37:06 2023
+# -------------------------------------------------------------- #
 
 
 # ---- LAWS ---------------------------------------
@@ -13,6 +12,7 @@
 #' @param par parameters of the selected model. If NULL the
 #' default values will be assigned automatically.
 #' @examples gompertz(x = 45:90)
+#' @return A list of rates and model parameters
 #' @keywords internal
 #' @export
 gompertz <- function(x, par = NULL){
@@ -26,6 +26,7 @@ gompertz <- function(x, par = NULL){
 
 #' Gompertz Mortality Law - informative parameterization
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples gompertz0(x = 45:90)
 #' @keywords internal
 #' @export
@@ -41,7 +42,8 @@ gompertz0 <- function(x, par = NULL){
 #'
 #' m - is a measure of location because it is the mode of the density, m > 0
 #' sigma - represents the dispersion of the density about the mode, sigma > 0
-#' @inheritParams gompertz
+#' @inheritParams gompertz 
+#' @inherit gompertz return
 #' @examples invgompertz(x = 15:25)
 #' @keywords internal
 #' @export
@@ -55,6 +57,7 @@ invgompertz <- function(x, par = NULL){
 
 #' Makeham Mortality Law - 1860
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples makeham(x = 45:90)
 #' @keywords internal
 #' @export
@@ -69,6 +72,7 @@ makeham <- function(x, par = NULL){
 
 #' Makeham Mortality Law - informative parameterization
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples makeham0(x = 45:90)
 #' @keywords internal
 #' @export
@@ -83,6 +87,7 @@ makeham0 <- function(x, par = NULL){
 
 #' Opperman Mortality Law - 1870
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples opperman(x = 1:25)
 #' @keywords internal
 #' @export
@@ -97,6 +102,7 @@ opperman <- function(x, par = NULL){
 
 #' Thiele Mortality Law - 1871
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples thiele(x = 0:100)
 #' @keywords internal
 #' @export
@@ -112,6 +118,7 @@ thiele <- function(x, par = NULL){
 
 #' Wittstein Mortality Law - 1883
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples wittstein(x = 0:100)
 #' @keywords internal
 #' @export
@@ -130,6 +137,7 @@ wittstein <- function(x, par = NULL){
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples weibull(x = 1:20)
 #' @keywords internal
 #' @export
@@ -150,6 +158,7 @@ weibull <- function(x, par = NULL){
 #' m > 0 is a measure of location
 #' sigma > 0 is measure of dispersion
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples invweibull(x = 1:20)
 #' @keywords internal
 #' @export
@@ -165,6 +174,7 @@ invweibull <- function(x, par = NULL){
 
 #' Perks Model - 1932
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples perks(x = 50:100)
 #' @keywords internal
 #' @export
@@ -177,6 +187,7 @@ perks <- function(x, par = NULL){
 
 #' Van der Maen Model - 1943
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
@@ -189,6 +200,7 @@ vandermaen <- function(x, par = NULL){
 
 #' Van der Maen 2 Model - 1943
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples vandermaen(x = 0:100)
 #' @keywords internal
 #' @export
@@ -201,6 +213,7 @@ vandermaen2 <- function(x, par = NULL){
 
 #' Strehler-Mildvan Model - 1960
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples strehler_mildvan(x = 30:85)
 #' @keywords internal
 #' @export
@@ -213,6 +226,7 @@ strehler_mildvan <- function(x, par = NULL){
 
 #' Beard Model - 1971
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples beard(x = 50:100)
 #' @keywords internal
 #' @export
@@ -225,6 +239,7 @@ beard <- function(x, par = NULL){
 
 #' Makeham-Beard Model - 1971
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples beard_makeham(x = 0:100)
 #' @keywords internal
 #' @export
@@ -237,6 +252,7 @@ beard_makeham <- function(x, par = NULL){
 
 #' Gamma-Gompertz Model as in Vaupel et al. (1979)
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples ggompertz(x = 50:120)
 #' @keywords internal
 #' @export
@@ -249,6 +265,7 @@ ggompertz <- function(x, par = NULL){
 
 #' Quadratic Model
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples quadratic(x = 0:100)
 #' @keywords internal
 #' @export
@@ -261,6 +278,7 @@ quadratic <- function(x, par = NULL){
 
 #' Siler Mortality Law - 1979
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples siler(x = 0:100)
 #' @keywords internal
 #' @export
@@ -273,6 +291,7 @@ siler <- function(x, par = NULL){
 
 #' Heligman-Pollard Mortality Law - 8 parameters - 1980
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples HP(x = 0:100)
 #' @keywords internal
 #' @export
@@ -287,6 +306,7 @@ HP <- function(x, par = NULL){
 
 #' Heligman-Pollard 2 Mortality Law - 8 parameters
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples HP2(x = 0:100)
 #' @keywords internal
 #' @export
@@ -301,6 +321,7 @@ HP2 <- function(x, par = NULL){
 
 #' Heligman-Pollard 3 Mortality Law - 9 parameters
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples HP3(x = 0:100)
 #' @keywords internal
 #' @export
@@ -315,6 +336,7 @@ HP3 <- function(x, par = NULL){
 
 #' Heligman-Pollard 4 Mortality Law - 9 parameters
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples HP4(x = 0:100)
 #' @keywords internal
 #' @export
@@ -330,6 +352,7 @@ HP4 <- function(x, par = NULL){
 
 #' Martinelle Model - 1987
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples martinelle(x = 0:100)
 #' @keywords internal
 #' @export
@@ -342,6 +365,7 @@ martinelle <- function(x, par = NULL){
 
 #' Rogers-Planck Model - 1983
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples rogersplanck(x = 0:100)
 #' @keywords internal
 #' @export
@@ -357,6 +381,7 @@ rogersplanck <- function(x, par = NULL){
 #'
 #' Carriere1 = weibull + invweibull + gompertz
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples carriere1(x = 0:100)
 #' @keywords internal
 #' @export
@@ -383,6 +408,7 @@ carriere1 <- function(x, par = NULL){
 #'
 #' Carriere2 = weibull + invgompertz + gompertz
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples carriere2(x = 0:100)
 #' @keywords internal
 #' @export
@@ -407,6 +433,7 @@ carriere2 <- function(x, par = NULL){
 
 #' Kostaki Model - 1992
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples kostaki(x = 0:100)
 #' @keywords internal
 #' @export
@@ -433,6 +460,7 @@ kostaki <- function(x, par = NULL){
 
 #' Kannisto Mortality Law - 1998
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples kannisto(x = 85:120)
 #' @keywords internal
 #' @export
@@ -449,6 +477,7 @@ kannisto <- function(x, par = NULL){
 
 #' Kannisto-Makeham Mortality Law - 1998
 #' @inheritParams gompertz
+#' @inherit gompertz return
 #' @examples kannisto_makeham(x = 85:120)
 #' @keywords internal
 #' @export
@@ -464,6 +493,7 @@ kannisto_makeham <- function(x, par = NULL){
 #' Bring or Rename Starting Parameters in the Law Functions
 #' @inheritParams MortalityLaw
 #' @inheritParams gompertz
+#' @return Vector or initial model parameters
 #' @keywords internal
 bring_parameters <- function(law, par = NULL) {
   Spar <- switch(law,

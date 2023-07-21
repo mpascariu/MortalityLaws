@@ -6,6 +6,9 @@
 \usage{
 HMDindices()
 }
+\value{
+a vector
+}
 \description{
 HMD Indices
 }

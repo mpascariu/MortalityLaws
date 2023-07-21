@@ -14,6 +14,9 @@ see \code{\link{availableLaws}} function.}
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+Vector or initial model parameters
+}
 \description{
 Bring or Rename Starting Parameters in the Law Functions
 }

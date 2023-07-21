@@ -90,7 +90,7 @@ foreign mortality researchers for the purpose of mortality research.
 Especially because we have structured it to conform with the HMD, our
 database is suitable for international comparison, we put emphasis on the
 compatibility with the HMD more than our country's particular
-characteristics. Therefore, the life tables by JMD do not necesarlily
+characteristics. Therefore, the life tables by JMD do not necessarily
 exhibit the same values as ones by the official life tables prepared and
 released by the Statistics and Information Department, Minister's
 Secretariat, Ministry of Health, Labor and Welfare according to the different
@@ -107,7 +107,7 @@ new methodology is adopted. Please refer to "Methods" for further
 information.
 }
 \examples{
-\dontrun{
+\donttest{
 # Download demographic data for Fukushima and Tokyo regions in 1x1 format
 
 # Death counts. We don't want to export data outside R.
@@ -119,7 +119,7 @@ ls(JMD_Dx)
 JMD_Dx
 
 # Download life tables for female population in all the states and export data.
-LTF <- ReadJMD(what = "LT_f", interval  = "5x5", save = TRUE)
+LTF <- ReadJMD(what = "LT_f", interval  = "5x5", save = FALSE)
 LTF
 }
 }

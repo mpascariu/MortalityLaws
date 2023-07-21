@@ -32,6 +32,9 @@ function.}
 \item{custom.law}{Allows you to fit a model that is not defined
 in the package. Accepts as input a function.}
 }
+\value{
+The optimal value
+}
 \description{
 Function to be Optimize
 }

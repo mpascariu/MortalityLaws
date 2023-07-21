@@ -9,6 +9,9 @@
 \arguments{
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+model deviance value
+}
 \description{
 deviance function for MortalityLaw
 }

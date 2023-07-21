@@ -6,6 +6,9 @@
 \usage{
 saveMsg()
 }
+\value{
+No return value, called for side effects
+}
 \description{
 Print message when saving an object
 }

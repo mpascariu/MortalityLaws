@@ -12,6 +12,9 @@ perks(x, par = NULL)
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+A list of rates and model parameters
+}
 \description{
 Perks Model - 1932
 }

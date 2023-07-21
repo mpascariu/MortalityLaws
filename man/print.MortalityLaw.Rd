@@ -11,6 +11,9 @@
 
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+Print data on console
+}
 \description{
 Print MortalityLaw
 }

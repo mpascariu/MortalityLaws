@@ -9,6 +9,9 @@ scale_x(x)
 \arguments{
 \item{x}{Vector of ages at the beginning of the age interval.}
 }
+\value{
+scalar
+}
 \description{
 Scaling method for x vector
 }

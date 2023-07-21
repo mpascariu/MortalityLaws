@@ -13,6 +13,9 @@
 
 \item{...}{Additional arguments affecting the predictions produced.}
 }
+\value{
+A vector of predicted hazard rates
+}
 \description{
 Predict function for MortalityLaw
 }

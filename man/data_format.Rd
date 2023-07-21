@@ -6,6 +6,9 @@
 \usage{
 data_format()
 }
+\value{
+a vector
+}
 \description{
 Data formats
 }

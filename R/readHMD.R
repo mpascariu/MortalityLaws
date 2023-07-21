@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Wed Jul 19 17:40:25 2023
+# Last Update: Thu Jul 20 22:03:44 2023
 # -------------------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
@@ -86,8 +86,6 @@
 #' @examples
 #' \dontrun{
 #'
-#' # !!! In June 2022, HMD has updated its website and access policy. At the
-#' # moment the function is NOT working.
 #'
 #' # Download demographic data for 3 countries in 1x1 format
 #' age_int  <- 1  # age interval: 1,5
@@ -165,6 +163,7 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
 #' Save Output in the working directory
 #' @param out Output file
 #' @inheritParams ReadHMD
+#' @return No return value, called for side effects
 #' @keywords internal
 saveOutput <- function(out, show, prefix) {
   fn  <- paste0(prefix, "_", out$input$what) # file name
@@ -175,6 +174,7 @@ saveOutput <- function(out, show, prefix) {
 
 
 #' Print message when saving an object
+#' @inherit saveOutput return
 #' @keywords internal
 saveMsg <- function() {
   wd  <- getwd()
@@ -192,6 +192,7 @@ saveMsg <- function() {
 #' @inheritParams ReadHMD
 #' @param country HMD country code for the selected country. Character;
 #' @param link the main link to the database.
+#' @return A data.frame containing demographic data
 #' @keywords internal
 ReadHMD.core <- function(what, country, interval, username, password, link){
   
@@ -280,6 +281,7 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
 
 
 #' Country codes
+#' @return a vector
 #' @keywords internal
 HMDcountries <- function() {
   c("AUS","AUT","BEL","BGR","BLR",
@@ -295,11 +297,13 @@ HMDcountries <- function() {
 }
 
 #' Data formats
+#' @return a vector
 #' @keywords internal
 data_format <- function() c("1x1", "1x5", "1x10", "5x1", "5x5","5x10")
 
 
 #' HMD Indices
+#' @return a vector
 #' @keywords internal
 HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
                            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0",
@@ -307,6 +311,7 @@ HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
 
 #' Check input ReadHMD
 #' @param x a list containing the input arguments from ReadHMD function
+#' @return No return value, called for validating input data
 #' @keywords internal
 check_input_ReadHMD <- function(x) {
   coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
@@ -351,6 +356,7 @@ check_input_ReadHMD <- function(x) {
 #' Print ReadHMD
 #' @param x An object of class \code{"ReadHMD"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return Print data on the console
 #' @keywords internal
 #' @export
 print.ReadHMD <- function(x, ...){
@@ -370,6 +376,7 @@ print.ReadHMD <- function(x, ...){
 
 #' What age(s) are we looking at?
 #' @inheritParams print.ReadHMD
+#' @return A scalar or character indicating age groups
 #' @keywords internal
 ageMsg <- function(what, x) {
   if (any(what %in% c("e0", "e0c"))) {

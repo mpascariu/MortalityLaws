@@ -1,8 +1,7 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:35:26 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 22:06:31 2023
+# -------------------------------------------------------------- #
 
 
 #' Summary function - display head and tail in a single data.frame
@@ -13,6 +12,7 @@
 #' @param tlength The number of lines at the end to show
 #' @param digits Round off the data to digits
 #' @param ellipsis separate the head and tail with dots
+#' @return Print table's head and tail
 #' @keywords internal
 head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
   if (is.data.frame(x) | is.matrix(x)) {
@@ -42,6 +42,7 @@ head_tail <- function(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE){
 #' Extracting the last n characters from a string
 #' @param x a string
 #' @param n number of characters
+#' @return A character vector of length n
 #' @keywords internal
 substrRight <- function(x, n){
   substr(x, nchar(x) - n + 1, nchar(x))

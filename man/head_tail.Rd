@@ -19,6 +19,9 @@ head_tail(x, hlength = 4, tlength = 4, digits = 4, ellipsis = TRUE)
 
 \item{ellipsis}{separate the head and tail with dots}
 }
+\value{
+Print table's head and tail
+}
 \description{
 Summary function - display head and tail in a single data.frame
 The original code for this function was first written for 'psych' R package

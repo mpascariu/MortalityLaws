@@ -22,6 +22,9 @@ the number of survivors at exact age x, assuming l(0) > 1.}
 
 \item{dx}{Deaths by life-table population in the age interval [x, x+n).}
 }
+\value{
+A list containing problem solving details
+}
 \description{
 Function that identifies the case/problem we have to solve
 }

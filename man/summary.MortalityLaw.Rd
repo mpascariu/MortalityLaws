@@ -13,6 +13,9 @@
 
 \item{x}{an object of class \code{"MortalityLaw"}}
 }
+\value{
+A list of model diagnosis
+}
 \description{
 Summary MortalityLaw
 }

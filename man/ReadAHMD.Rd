@@ -100,7 +100,7 @@ from 1971 thru 2016. For comparison purposes, various life tables published
 by governmental organizations are also available for download in PDF format.
 }
 \examples{
-\dontrun{
+\donttest{
 # Download demographic data for Australian Capital Territory and
 # Tasmania regions in 5x1 format
 
@@ -113,7 +113,7 @@ ls(AHMD_Dx)
 AHMD_Dx
 
 # Download life tables for female population in all the states and export data.
-LTF <- ReadAHMD(what = "LT_f", interval  = "5x1", save = TRUE)
+LTF <- ReadAHMD(what = "LT_f", interval  = "5x1", save = FALSE)
 LTF
 }
 }

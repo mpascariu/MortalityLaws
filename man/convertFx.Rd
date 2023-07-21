@@ -20,6 +20,9 @@ Options: \code{mx, qx, dx, lx, Lx, Tx, ex}.}
 \item{...}{Further arguments to be passed to the \code{\link{LifeTable}}
 function with impact on the results to be produced.}
 }
+\value{
+A matrix or array containing life table indicators.
+}
 \description{
 Easy conversion between the life table indicators. This function is based
 on the \code{\link{LifeTable}} function and methods behind it.

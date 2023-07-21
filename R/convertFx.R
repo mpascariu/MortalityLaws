@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Sat Apr 03 17:45:25 2021
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 21:11:11 2023
+# -------------------------------------------------------------- #
 
 #' Convert Life Table Indicators
 #'
@@ -18,6 +18,7 @@
 #' @param ... Further arguments to be passed to the \code{\link{LifeTable}}
 #' function with impact on the results to be produced.
 #' @seealso \code{\link{LifeTable}}
+#' @return A matrix or array containing life table indicators.
 #' @author Marius D. Pascariu
 #' @examples
 #' # Data ---

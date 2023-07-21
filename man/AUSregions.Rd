@@ -6,6 +6,9 @@
 \usage{
 AUSregions()
 }
+\value{
+a vector
+}
 \description{
 region codes
 }

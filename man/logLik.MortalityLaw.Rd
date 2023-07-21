@@ -9,6 +9,9 @@
 \arguments{
 \item{...}{further arguments passed to or from other methods.}
 }
+\value{
+model log-Likelohood value
+}
 \description{
 logLik function for MortalityLaw
 }

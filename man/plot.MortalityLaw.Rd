@@ -12,6 +12,9 @@
 \item{...}{Arguments to be passed to methods, such as graphical
 parameters (see \code{\link{par}}).}
 }
+\value{
+generate a plot
+}
 \description{
 Plot Function for MortalityLaw
 }

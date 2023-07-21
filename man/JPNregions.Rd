@@ -6,6 +6,9 @@
 \usage{
 JPNregions()
 }
+\value{
+the vector
+}
 \description{
 region codes
 }

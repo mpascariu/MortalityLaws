@@ -12,6 +12,9 @@ weibull(x, par = NULL)
 \item{par}{parameters of the selected model. If NULL the
 default values will be assigned automatically.}
 }
+\value{
+A list of rates and model parameters
+}
 \description{
 Note that if sigma > m, then the mode of the density is 0 and hx is a
 non-increasing function of x, while if sigma < m, then the mode is

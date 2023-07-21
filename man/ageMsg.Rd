@@ -9,6 +9,9 @@ ageMsg(what, x)
 \arguments{
 \item{x}{An object of class \code{"ReadHMD"}}
 }
+\value{
+A scalar or character indicating age groups
+}
 \description{
 What age(s) are we looking at?
 }

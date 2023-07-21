@@ -11,6 +11,9 @@
 
 \item{...}{Further arguments passed to or from other methods.}
 }
+\value{
+Print info on the console
+}
 \description{
 Print ReadJMD
 }

@@ -6,6 +6,9 @@
 \usage{
 HMDcountries()
 }
+\value{
+a vector
+}
 \description{
 Country codes
 }

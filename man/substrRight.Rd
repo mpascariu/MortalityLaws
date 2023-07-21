@@ -11,6 +11,9 @@ substrRight(x, n)
 
 \item{n}{number of characters}
 }
+\value{
+A character vector of length n
+}
 \description{
 Extracting the last n characters from a string
 }

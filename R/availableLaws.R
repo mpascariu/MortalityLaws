@@ -193,6 +193,7 @@ availableLaws <- function(law = NULL){
 #' Print availableLaws
 #' @param x An object of class \code{"availableLaws"}
 #' @param ... Further arguments passed to or from other methods.
+#' @return print info on the console
 #' @keywords internal
 #' @export
 print.availableLaws <- function(x, ...) {

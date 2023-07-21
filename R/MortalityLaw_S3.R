@@ -1,13 +1,13 @@
-# --------------------------------------------------- #
-# Author: Marius D. Pascariu
-# License: MIT
-# Last update: Wed Jun 05 14:34:41 2019
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Author: Marius D. PASCARIU
+# Last Update: Thu Jul 20 21:46:38 2023
+# -------------------------------------------------------------- #
 
 
 #' Print MortalityLaw
 #' @param x an object of class \code{"MortalityLaw"}
 #' @param ... further arguments passed to or from other methods.
+#' @return Print data on console
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
@@ -23,6 +23,7 @@ print.MortalityLaw <- function(x, ...) {
 #' @param x an object of class \code{"MortalityLaw"}
 #' @param digits number of digits to display.
 #' @param ... additional arguments affecting the summary produced.
+#' @return A list of model diagnosis
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...,
@@ -56,6 +57,7 @@ summary.MortalityLaw <- function(object, ...,
 #' Print summary.MortalityLaw
 #' @param x an object of class \code{"summary.MortalityLaw"}
 #' @param ... additional arguments affecting the summary produced.
+#' @return Print data on console
 #' @keywords internal
 #' @export
 print.summary.MortalityLaw <- function(x, ...) {
@@ -84,6 +86,7 @@ print.summary.MortalityLaw <- function(x, ...) {
 
 #' logLik function for MortalityLaw
 #' @inheritParams print.MortalityLaw
+#' @return model log-Likelohood value
 #' @keywords internal
 #' @export
 logLik.MortalityLaw <- function(object, ...) {
@@ -92,6 +95,7 @@ logLik.MortalityLaw <- function(object, ...) {
 
 #' AIC function for MortalityLaw
 #' @inheritParams print.MortalityLaw
+#' @return model AIC value
 #' @keywords internal
 #' @export
 AIC.MortalityLaw <- function(object, ...) {
@@ -100,6 +104,7 @@ AIC.MortalityLaw <- function(object, ...) {
 
 #' deviance function for MortalityLaw
 #' @inheritParams print.MortalityLaw
+#' @return model deviance value
 #' @keywords internal
 #' @export
 deviance.MortalityLaw <- function(object, ...) {
@@ -108,6 +113,7 @@ deviance.MortalityLaw <- function(object, ...) {
 
 #' df.residual function for MortalityLaw
 #' @inheritParams print.MortalityLaw
+#' @return model residual value
 #' @keywords internal
 #' @export
 df.residual.MortalityLaw <- function(object, ...) {
@@ -119,6 +125,7 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' @param object An object of class \code{"MortalityLaw"}
 #' @param x Vector of ages to be considered in prediction
 #' @param ... Additional arguments affecting the predictions produced.
+#' @return A vector of predicted hazard rates
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
 #' @examples
