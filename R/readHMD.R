@@ -180,11 +180,9 @@ saveMsg <- function() {
   wd  <- getwd()
   n   <- nchar(wd)
   wd_ <- paste0("...", substring(wd, first = n - 45, last = n))
-  cat("\n   ")
-  message(paste("The dataset is saved in your working directory:\n  ", wd_),
+  message(paste("\nThe dataset is saved in your working directory:\n  ", wd_),
           appendLF = FALSE)
-  cat("\n   ")
-  message("Download completed!\n")
+  message("\nDownload completed!\n")
 }
 
 
@@ -253,7 +251,7 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
     txt <- content(response, "text", encoding = "UTF-8")
     
   } else {
-    cat("Failed to fetch the content. Status code:", status_code(response))
+    message("Failed to fetch the content. Status code:", status_code(response))
   }
   
   con  <- try(textConnection(txt),

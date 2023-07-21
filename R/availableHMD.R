@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 20:50:19 2023
+# Last Update: Fri Jul 21 13:58:55 2023
 # -------------------------------------------------------------- #
 
 #' Check Data Availability in HMD
@@ -40,15 +40,15 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
         out <- table_data[[1]]
         
       } else {
-        print("No tables found on the webpage.")
+        message("No tables found on the webpage.")
       }
       
     } else {
-      print(error_message)
+      message(error_message)
     }
     
   } else { 
-    print(error_message)
+    message(error_message)
     }
   
   return(out)
