@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:46:38 2023
+# Last Update: Mon Aug  7 21:52:24 2023
 # -------------------------------------------------------------- #
 
 
@@ -20,7 +20,7 @@ print.MortalityLaw <- function(x, ...) {
 
 
 #' Summary MortalityLaw
-#' @param x an object of class \code{"MortalityLaw"}
+#' @param object an object of class \code{"MortalityLaw"}
 #' @param digits number of digits to display.
 #' @param ... additional arguments affecting the summary produced.
 #' @return A list of model diagnosis

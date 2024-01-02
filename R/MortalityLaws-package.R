@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Wed Jul 19 14:27:59 2023
+# Last Update: Mon Aug  7 21:48:58 2023
 # -------------------------------------------------------------- #
 
 # MortalityLaws Package
@@ -19,6 +19,5 @@
 #' @importFrom pbapply startpb closepb setpb
 #' @import rvest httr
 #' @name MortalityLaws
-#' @aliases NULL
 #' @docType package
 "_PACKAGE"

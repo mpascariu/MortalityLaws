@@ -1,7 +1,8 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
+# Title:
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:37:09 2021
-# --------------------------------------------------- #
+# Last Update: Tue Jan  2 10:37:14 2024
+# -------------------------------------------------------------- #
 remove(list = ls())
 
 # Wrong index
@@ -25,9 +26,10 @@ expect_error(ReadJMD(what = "e0",
                      regions = "Japan",
                      interval = "5x1"))
 
-expect_error(ReadJMD(what = "LT_f",
-                     regions = "Kyoto",
-                     interval = "1x1"))
+# remove test since the case is now valid and available in the database.
+# expect_error(ReadJMD(what = "LT_f",
+#                      regions = "Kyoto",
+#                      interval = "1x1"))
 
 expect_output(
   print(JMD_sample)

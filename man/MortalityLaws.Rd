@@ -2,6 +2,8 @@
 % Please edit documentation in R/MortalityLaws-package.R
 \docType{package}
 \name{MortalityLaws}
+\alias{MortalityLaws}
+\alias{MortalityLaws-package}
 \title{MortalityLaws: Parametric Mortality Models, Life Tables and HMD}
 \description{
 Fit the most popular human mortality 'laws', and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their life spans. For a comprehensive review of the most important mortality laws see Tabeau (2001) \doi{10.1007/0-306-47562-6_1}. Practical functions for downloading data from various human mortality databases are provided as well.

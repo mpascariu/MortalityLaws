@@ -7,11 +7,11 @@
 \method{summary}{MortalityLaw}(object, ..., digits = max(3L, getOption("digits") - 3L))
 }
 \arguments{
+\item{object}{an object of class \code{"MortalityLaw"}}
+
 \item{...}{additional arguments affecting the summary produced.}
 
 \item{digits}{number of digits to display.}
-
-\item{x}{an object of class \code{"MortalityLaw"}}
 }
 \value{
 A list of model diagnosis
