@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 2.0.4
+Version: 2.0.5
 Authors@R: c(
   person("Marius D.", "Pascariu", role = c("aut", "cre", "cph"), email = "mpascariu@outlook.com", comment = c(ORCID = "0000-0002-2568-6489")),
   person("Vladimir", "Canudas-Romo", role = "ctb"))
@@ -30,5 +30,6 @@ Suggests:
   rmarkdown
 URL: https://github.com/mpascariu/MortalityLaws
 BugReports: https://github.com/mpascariu/MortalityLaws/issues
-RoxygenNote: 7.2.3
+Encoding: UTF-8
+RoxygenNote: 7.3.0
 VignetteBuilder: knitr

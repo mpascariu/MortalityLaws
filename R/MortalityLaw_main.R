@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:29:59 2023
+# Last Update: Sun Jan 14 22:27:43 2024
 # -------------------------------------------------------------- #
 
 #' Fit Mortality Laws
@@ -25,14 +25,14 @@
 #'                 show = FALSE, ...)
 #' @details Depending on the complexity of the model, one of following
 #' optimization strategies is employed: \enumerate{
-#'  \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+#'  \item Nelder-Mead method: approximates a local optimum of a problem with n
 #'   variables when the objective function varies smoothly and is unimodal.
-#'   For details see \code{\link{optim}}}
-#'  \item{PORT routines:}{ provides unconstrained optimization and optimization
+#'   For details see \code{\link{optim}};
+#'  \item PORT routines: provides unconstrained optimization and optimization
 #'  subject to box constraints for complicated functions. For details check
-#'  \code{\link{nlminb}}}
-#'  \item{Levenberg-Marquardt algorithm:}{ damped least-squares method.
-#'  For details check \code{\link{nls.lm}}}
+#'  \code{\link{nlminb}};
+#'  \item Levenberg-Marquardt algorithm: damped least-squares method.
+#'  For details check \code{\link{nls.lm}}.
 #' }
 #' @inheritParams LifeTable
 #' @param law The name of the mortality law/model to be used. e.g.

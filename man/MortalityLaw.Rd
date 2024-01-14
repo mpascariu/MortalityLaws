@@ -76,14 +76,14 @@ optimised. See the implemented loss function by running the
 \details{
 Depending on the complexity of the model, one of following
 optimization strategies is employed: \enumerate{
- \item{Nelder-Mead method:}{ approximates a local optimum of a problem with n
+ \item Nelder-Mead method: approximates a local optimum of a problem with n
   variables when the objective function varies smoothly and is unimodal.
-  For details see \code{\link{optim}}}
- \item{PORT routines:}{ provides unconstrained optimization and optimization
+  For details see \code{\link{optim}};
+ \item PORT routines: provides unconstrained optimization and optimization
  subject to box constraints for complicated functions. For details check
- \code{\link{nlminb}}}
- \item{Levenberg-Marquardt algorithm:}{ damped least-squares method.
- For details check \code{\link{nls.lm}}}
+ \code{\link{nlminb}};
+ \item Levenberg-Marquardt algorithm: damped least-squares method.
+ For details check \code{\link{nls.lm}}.
 }
 }
 \examples{
