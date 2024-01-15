@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:36:11 2021
-# --------------------------------------------------- #
+# Last Update: Mon Jan 15 16:53:07 2024
+# -------------------------------------------------------------- #
 remove(list = ls())
 
 # Wrong index
@@ -16,16 +16,17 @@ expect_error(ReadCHMD(what = "Dx",
                       regions = "CAN",
                       interval = "1x50"))
 
-# Wrong country for the index
+# Wrong region for the index
 expect_error(ReadCHMD(what = "LT_fc",
                       regions = "SAS",
                       interval = "1x1"))
 
 # Wrong interval for the index
-expect_error(ReadCHMD(what = "e0",
-                      regions = "CAN",
-                      interval = "5x1",
-                      show = F))
+expect_message(
+  ReadCHMD(what = "e0",
+           regions = "CAN",
+           interval = "5x1",
+           show = F))
 
 expect_error(ReadCHMD(what = "LT_f",
                       regions = "YUK",

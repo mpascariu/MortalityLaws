@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:51:50 2023
+# Last Update: Mon Jan 15 17:56:54 2024
 # -------------------------------------------------------------- #
 
 #' Download the Australian Human Mortality Database (AHMD)
@@ -70,7 +70,6 @@
 #'                     regions = c('ACT', 'TAS'),
 #'                     interval  = "5x1",
 #'                     save = FALSE)
-#' ls(AHMD_Dx)
 #' AHMD_Dx
 #'
 #' # Download life tables for female population in all the states and export data.
@@ -114,16 +113,21 @@ ReadAHMD <- function(what,
                                link = "https://demography.cass.anu.edu.au/sites/default/ahmd/"))
   }
 
-  out <- list(input = input,
-              data = D,
-              download.date = date(),
-              years = sort(unique(D$Year)),
-              ages = unique(D$Age))
-  out <- structure(class = "ReadAHMD", out)
-
-  # Step 3 - Write a file with the database in your working directory
-  if (show) setpb(pb, nr + 1)
-  if (save) saveOutput(out, show, prefix = "AHMD")
+  if(length(D) != 0) {
+    out <- list(input = input,
+                data = D,
+                download.date = date(),
+                years = sort(unique(D$Year)),
+                ages = unique(D$Age))
+    out <- structure(class = "ReadAHMD", out)
+  
+    # Step 3 - Write a file with the database in your working directory
+    if (show) setpb(pb, nr + 1)
+    if (save) saveOutput(out, show, prefix = "AHMD")
+    
+  } else {
+    out <- NULL
+  }
 
   # Exit
   return(out)

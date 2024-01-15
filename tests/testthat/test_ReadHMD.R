@@ -1,16 +1,18 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:35:35 2021
-# --------------------------------------------------- #
+# Last Update: Mon Jan 15 18:12:12 2024
+# -------------------------------------------------------------- #
 remove(list = ls())
 
 # Wrong user & password
-expect_error(ReadHMD(what     = "Dx",
-                     username = "fake_user",
-                     password = "fake_password"))
+expect_message(ReadHMD(what     = "Dx",
+                       countries = "AUS",
+                       username = "fake_user",
+                       password = "fake_password"))
 
 # Wrong index
 expect_error(ReadHMD(what     = "DxDD",
+                     countries = "AUS",
                      username = "username",
                      password = "password"))
 # Wrong country

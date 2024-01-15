@@ -1,7 +1,7 @@
-# --------------------------------------------------- #
+# -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last update: Sun May 02 17:35:57 2021
-# --------------------------------------------------- #
+# Last Update: Mon Jan 15 16:57:56 2024
+# -------------------------------------------------------------- #
 remove(list = ls())
 
 # Wrong index
@@ -16,16 +16,18 @@ expect_error(ReadAHMD(what     = "Dx",
                       interval = "1x50"))
 
 # Wrong country for the index
-expect_error(ReadAHMD(what     = "LT_fc",
-                      regions  = "TAS",
-                      interval = "1x1",
-                      show     = FALSE))
+expect_message(
+  ReadAHMD(what     = "LT_fc",
+           regions  = "TAS",
+           interval = "1x1",
+           show     = FALSE))
 
 # Wrong interval for the index
-expect_error(ReadAHMD(what     = "e0",
-                      regions  = "TAS",
-                      interval = "5x1",
-                      show     = FALSE))
+expect_message(
+  ReadAHMD(what     = "e0",
+           regions  = "TAS",
+           interval = "5x1",
+           show     = FALSE))
 
 expect_output(
   print(AHMD_sample)

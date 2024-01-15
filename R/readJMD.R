@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 22:06:04 2023
+# Last Update: Mon Jan 15 17:50:39 2024
 # -------------------------------------------------------------- #
 
 #' Download the Japanese Mortality Database (JMD)
@@ -76,7 +76,6 @@
 #'                   regions = c('Fukushima', 'Tokyo'),
 #'                   interval  = "1x1",
 #'                   save = FALSE)
-#' ls(JMD_Dx)
 #' JMD_Dx
 #'
 #' # Download life tables for female population in all the states and export data.
@@ -119,23 +118,31 @@ ReadJMD <- function(what,
       username = NULL,
       password = NULL,
       link = "https://www.ipss.go.jp/p-toukei/JMD/")
-    colnames(d)[colnames(d) == "country"] <- "region"
-
-    D <- rbind(D, d)
+    
+    if(!is.null(d)) {
+      colnames(d)[colnames(d) == "country"] <- "region"
+      D <- rbind(D, d)
+    }
   }
 
-  out <- list(
-    input = input,
-    data = D,
-    download.date = date(),
-    years = sort(unique(D$Year)),
-    ages = unique(D$Age)
-    )
-  out <- structure(class = "ReadJMD", out)
-
-  # Step 3 - Write a file with the database in your working directory
-  if (show) setpb(pb, nr + 1)
-  if (save) saveOutput(out, show, prefix = "JMD")
+  if (length(D) != 0) {
+    
+    out <- list(
+      input = input,
+      data = D,
+      download.date = date(),
+      years = sort(unique(D$Year)),
+      ages = unique(D$Age)
+      )
+    out <- structure(class = "ReadJMD", out)
+  
+    # Step 3 - Write a file with the database in your working directory
+    if (show) setpb(pb, nr + 1)
+    if (save) saveOutput(out, show, prefix = "JMD")
+    
+  } else {
+    out <- NULL
+  }
 
   # Exit
   return(out)

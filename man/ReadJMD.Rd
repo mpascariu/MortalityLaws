@@ -115,7 +115,6 @@ JMD_Dx <- ReadJMD(what = "Dx",
                   regions = c('Fukushima', 'Tokyo'),
                   interval  = "1x1",
                   save = FALSE)
-ls(JMD_Dx)
 JMD_Dx
 
 # Download life tables for female population in all the states and export data.

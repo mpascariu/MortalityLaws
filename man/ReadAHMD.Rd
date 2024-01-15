@@ -109,7 +109,6 @@ AHMD_Dx <- ReadAHMD(what = "Dx",
                     regions = c('ACT', 'TAS'),
                     interval  = "5x1",
                     save = FALSE)
-ls(AHMD_Dx)
 AHMD_Dx
 
 # Download life tables for female population in all the states and export data.

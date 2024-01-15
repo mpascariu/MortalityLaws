@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 20:34:07 2023
+# Last Update: Mon Jan 15 17:54:40 2024
 # -------------------------------------------------------------- #
 
 #' Download the Canadian Human Mortality Database (CHMD)
@@ -134,16 +134,21 @@ ReadCHMD <- function(what,
       link = "https://www.prdh.umontreal.ca/BDLC/data/"))
   }
 
-  out <- list(input = input,
-              data = D,
-              download.date = date(),
-              years = sort(unique(D$Year)),
-              ages = unique(D$Age))
-  out <- structure(class = "ReadCHMD", out)
-
-  # Step 3 - Write a file with the database in your working directory
-  if (show) setpb(pb, nr + 1)
-  if (save) saveOutput(out, show, prefix = "CHMD")
+  if (length(D) != 0) {
+    out <- list(input = input,
+                data = D,
+                download.date = date(),
+                years = sort(unique(D$Year)),
+                ages = unique(D$Age))
+    out <- structure(class = "ReadCHMD", out)
+  
+    # Step 3 - Write a file with the database in your working directory
+    if (show) setpb(pb, nr + 1)
+    if (save) saveOutput(out, show, prefix = "CHMD")
+    
+  } else {
+    out <- NULL
+  }
 
   # Exit
   return(out)

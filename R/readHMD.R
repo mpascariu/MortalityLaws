@@ -1,6 +1,6 @@
 # -------------------------------------------------------------- #
 # Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 22:03:44 2023
+# Last Update: Mon Jan 15 18:23:03 2024
 # -------------------------------------------------------------- #
 
 #' Download The Human Mortality Database (HMD)
@@ -101,7 +101,6 @@
 #'                   username  = "user@email.com",
 #'                   password  = "password",
 #'                   save = FALSE)
-#' ls(HMD_Dx)
 #' HMD_Dx
 #'
 #' # Download life tables for female population and export data.
@@ -144,16 +143,22 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
                                username, password,
                                link = "https://www.mortality.org/File/GetDocument/hmd.v6/"))
   }
-  out <- list(input = input,
-              data = D,
-              download.date = date(),
-              years = sort(unique(D$Year)),
-              ages = unique(D$Age))
-  out <- structure(class = "ReadHMD", out)
   
-  # Step 3 - Write a file with the database in your working directory
-  if (show) setpb(pb, nr + 1)
-  if (save) saveOutput(out, show, prefix = "HMD")
+  if (length(D) != 0) {
+    out <- list(input = input,
+                data = D,
+                download.date = date(),
+                years = sort(unique(D$Year)),
+                ages = unique(D$Age))
+    out <- structure(class = "ReadHMD", out)
+    
+    # Step 3 - Write a file with the database in your working directory
+    if (show) setpb(pb, nr + 1)
+    if (save) saveOutput(out, show, prefix = "HMD")
+    
+  } else {
+    out <- NULL
+  }
   
   # Exit
   return(out)
@@ -231,7 +236,8 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
     interlude <- "/"
   }
   
-  path <- paste0(link, country, interlude, whichFile, ".txt")
+  path     <- paste0(link, country, interlude, whichFile, ".txt")
+  response <- ""
   
   if (is.null(username) | is.null(password)) {
     response <- try(silent = TRUE, GET(url = path))
@@ -242,38 +248,43 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
     response <- try(silent = TRUE,
                RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
     )
-    
   }
   
+  status_code_response <- if(is(response, "response")) status_code(response) else 404
+  
   # Check if the request was successful (status code 200 means success)
-  if (status_code(response) == 200) {
+  if (status_code_response == 200) {
     # Read the content of the text file
     txt <- content(response, "text", encoding = "UTF-8")
     
+    con  <- try(textConnection(txt),
+                stop("\nThe function failed to connect to ", link,
+                     " Maybe the website is down at this moment?", call. = FALSE))
+    
+    JPNcodes <- substrRight(paste0(0, 0:47), 2)
+    if (any(country %in% JPNcodes)) {
+      country <- JPNregions()[as.numeric(country) + 1]
+    }
+    
+    dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
+                stop("\n", what, " data for ", country, " state in the ", interval,
+                     " format was not to be found. We have been looking here:\n",
+                     path, call. = FALSE))
+    
+    close(con)
+    out <- cbind(country, dat)
+    if (any(interval %in% c("1x1", "1x5", "1x10")) &
+        !any(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
+      out$Age <- 0:110
+    }
+    
   } else {
-    message("Failed to fetch the content. Status code:", status_code(response))
+    message("\nThe internet connection to ", link, " failed with status code:", 
+            status_code_response, "!",
+            "\nMaybe the website is down at this moment?")
+    out <- NULL
   }
   
-  con  <- try(textConnection(txt),
-              stop("\nThe function failed to connect to ", link,
-                   " Maybe the website is down at this moment?", call. = FALSE))
-  
-  JPNcodes <- substrRight(paste0(0, 0:47), 2)
-  if (any(country %in% JPNcodes)) {
-    country <- JPNregions()[as.numeric(country) + 1]
-  }
-  
-  dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
-              stop("\n", what, " data for ", country, " state in the ", interval,
-                   " format was not to be found. We have been looking here:\n",
-                   path, call. = FALSE))
-  
-  close(con)
-  out <- cbind(country, dat)
-  if (any(interval %in% c("1x1", "1x5", "1x10")) &
-      !any(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
-    out$Age <- 0:110
-  }
   return(out)
 }
 

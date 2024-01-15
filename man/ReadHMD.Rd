@@ -120,7 +120,6 @@ HMD_Dx <- ReadHMD(what = "Dx",
                   username  = "user@email.com",
                   password  = "password",
                   save = FALSE)
-ls(HMD_Dx)
 HMD_Dx
 
 # Download life tables for female population and export data.

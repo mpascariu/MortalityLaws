@@ -1,7 +1,6 @@
 # -------------------------------------------------------------- #
-# Title:
 # Author: Marius D. PASCARIU
-# Last Update: Tue Jan  2 10:37:14 2024
+# Last Update: Mon Jan 15 16:54:54 2024
 # -------------------------------------------------------------- #
 remove(list = ls())
 
@@ -18,11 +17,11 @@ expect_error(ReadJMD(what = "Dx",
                      interval = "1x50"))
 
 # Wrong interval for the index
-expect_error(ReadJMD(what = "Ex_lexis",
+expect_message(ReadJMD(what = "Ex_lexis",
                      regions = "Japan",
                      interval = "1x1"))
 
-expect_error(ReadJMD(what = "e0",
+expect_message(ReadJMD(what = "e0",
                      regions = "Japan",
                      interval = "5x1"))
 
