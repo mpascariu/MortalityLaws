@@ -70,8 +70,7 @@ A \code{ReadAHMD} object that contains:
 \description{
 Download detailed mortality and population data for different
 provinces and territories in Australia, in a single object from the
-\href{https://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
-Australian Human Mortality Database}.
+\href{https://aushd.org/}{Australian Human Mortality Database}.
 }
 \details{
 (Description taken from the AHMD website).

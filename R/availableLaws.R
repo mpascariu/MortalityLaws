@@ -1,7 +1,8 @@
-# --------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last update: Fri Feb 04 11:39:09 2022
-# --------------------------------------------------- #
+# ------------------------------------------------- #
+# Author: Marius D. Pascariu
+# Last update: Wed Apr  2 11:07:37 2025
+# ------------------------------------------------- #
+
 
 #' Check Available Mortality Laws
 #'
@@ -47,10 +48,9 @@
 #' \item{Harper, F. S. (1936). An actuarial study of infant mortality.
 #' Scandinavian Actuarial Journal 1936 (3-4), 234-270.
 #' \doi{10.1080/03461238.1936.10405113}}
-#' \item{Weibull, W. (1951).
-#' \href{http://web.cecs.pdx.edu/~cgshirl/Documents/Weibull-ASME-Paper-1951.pdf}{
-#' A statistical distribution function of wide applicability.}
-#' Journal of applied mechanics 103, 293-297.}
+#' \item{Weibull, W. (1951). A statistical distribution function of wide applicability.
+#' Journal of applied mechanics 103, 293-297.
+#'  \doi{10.1115/1.4010337}}
 #' \item{Beard, R. E. (1971).
 #' \href{http://longevity-science.org/Beard-1971.pdf}{
 #' Some aspects of theories of mortality, cause of

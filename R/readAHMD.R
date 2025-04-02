@@ -1,14 +1,13 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Jan 15 17:56:54 2024
-# -------------------------------------------------------------- #
+# ------------------------------------------------- #
+# Author: Marius D. Pascariu
+# Last update: Wed Apr  2 11:03:28 2025
+# ------------------------------------------------- #
 
 #' Download the Australian Human Mortality Database (AHMD)
 #'
 #' Download detailed mortality and population data for different
 #' provinces and territories in Australia, in a single object from the
-#' \href{https://demography.cass.anu.edu.au/research/australian-human-mortality-database}{
-#' Australian Human Mortality Database}.
+#' \href{https://aushd.org/}{Australian Human Mortality Database}.
 #'
 #' @details
 #' (Description taken from the AHMD website).
@@ -110,7 +109,7 @@ ReadAHMD <- function(what,
                                interval = interval,
                                username = NULL,
                                password = NULL,
-                               link = "https://demography.cass.anu.edu.au/sites/default/ahmd/"))
+                               link = "https://aushd.org/assets/txtFiles/humanMortality/"))
   }
 
   if(length(D) != 0) {
@@ -153,7 +152,7 @@ check_input_ReadAHMD <- function(x) {
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
-
+  
   if (!(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in AHMD. Try one of these options:\n",
          paste(HMDindices(), collapse = ", "), call. = FALSE)
@@ -177,7 +176,7 @@ check_input_ReadAHMD <- function(x) {
 print.ReadAHMD <- function(x, ...){
   what <- x$input$what
   cat("Australian Human Mortality Database\n")
-  cat("Web Address   : https://demography.cass.anu.edu.au/research/australian-human-mortality-database\n")
+  cat("Web Address   : https://aushd.org\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
