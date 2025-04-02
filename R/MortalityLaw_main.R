@@ -1,7 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Sun Jan 14 22:27:43 2024
-# -------------------------------------------------------------- #
+# ------------------------------------------------- #
+# Author: Marius D. Pascariu
+# Last update: Wed Apr  2 08:26:21 2025
+# ------------------------------------------------- #
 
 #' Fit Mortality Laws
 #'
@@ -32,7 +32,7 @@
 #'  subject to box constraints for complicated functions. For details check
 #'  \code{\link{nlminb}};
 #'  \item Levenberg-Marquardt algorithm: damped least-squares method.
-#'  For details check \code{\link{nls.lm}}.
+#'  For details check \code{\link[minpack.lm]{nls.lm}}.
 #' }
 #' @inheritParams LifeTable
 #' @param law The name of the mortality law/model to be used. e.g.

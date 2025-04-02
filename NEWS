@@ -1,3 +1,9 @@
+version 2.1.1
+- privide anchors to all documented external \links{};
+
+version 2.1.0
+- replace several stop errors with messages so the failure to connect to databases (for whatever reason) results in a gracefull ending of the process and to avoid triggering CRAN random error;
+
 version 2.0.3
 - Change interaction with external resources and update documentation;
 

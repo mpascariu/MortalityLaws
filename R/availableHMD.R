@@ -1,7 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Fri Jul 21 13:58:55 2023
-# -------------------------------------------------------------- #
+# ------------------------------------------------- #
+# Author: Marius D. Pascariu
+# Last update: Wed Apr  2 08:29:58 2025
+# ------------------------------------------------- #
 
 #' Check Data Availability in HMD
 #'
@@ -32,8 +32,7 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
       webpage <- read_html(response)
       
       # Extract the table from the webpage
-      table_data <- webpage |>
-        html_table(fill = TRUE)
+      table_data <- html_table(webpage, fill = TRUE)
       
       # from the list of tables extracted above the table of interest is the first one:
       if (length(table_data) > 0) {

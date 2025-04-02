@@ -83,7 +83,7 @@ optimization strategies is employed: \enumerate{
  subject to box constraints for complicated functions. For details check
  \code{\link{nlminb}};
  \item Levenberg-Marquardt algorithm: damped least-squares method.
- For details check \code{\link{nls.lm}}.
+ For details check \code{\link[minpack.lm]{nls.lm}}.
 }
 }
 \examples{
