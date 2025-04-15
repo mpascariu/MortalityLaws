@@ -20,7 +20,7 @@ expect_error(ReadAHMD(what     = "Dx",
 # Wrong region for the index
 expect_error(
   ReadAHMD(what     = "LT_fc",
-           regions  = "TAS",
+           regions  = "TAS_LT_fc",
            interval = "1x1",
            show     = FALSE))
 
