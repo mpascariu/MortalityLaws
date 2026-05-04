@@ -1,8 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:37:06 2023
-# -------------------------------------------------------------- #
-
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:32:44
+# --------------------------------------------
 
 # ---- LAWS ---------------------------------------
 
@@ -441,8 +440,8 @@ kostaki <- function(x, par = NULL){
   par <- bring_parameters('kostaki', par)
   with(as.list(par), {
     # Sometimes the difference between estimated parameters E1 and E2 is
-    # very large, in which case the resulted mortality curve will exhibit
-    # a significant artificial jump in one age grup. I am imposing a
+    # very large, in which case the resulting mortality curve will exhibit
+    # a significant artificial jump in one age group. I am imposing a
     # restriction below to limit this behaviour.
     if (E1 >= 50*E2) E2 <- E1/50 # This hack seems to work.
 

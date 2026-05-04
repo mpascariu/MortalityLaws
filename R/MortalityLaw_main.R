@@ -1,20 +1,19 @@
-# ------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Wed Apr  2 08:26:21 2025
-# ------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:33:16
+# --------------------------------------------
 
 #' Fit Mortality Laws
 #'
-#' Fit parametric mortality models given a set of input data which can be
-#' represented by death counts and mid-interval population estimates
-#' \code{(Dx, Ex)} or age-specific death rates \code{(mx)} or death
-#' probabilities \code{(qx)}. Using the argument \code{law} one can specify
-#' the model to be fitted. So far more than 27 parametric models have been
-#' implemented; check the \code{\link{availableLaws}} function to learn
-#' about the available options. The models can be fitted under
-#' the maximum likelihood methodology or by selecting a loss function to be
-#' optimised. See the implemented loss function by running the
-#' \code{\link{availableLF}} function.
+#' Fit parametric mortality models given a set of input data. The data can be
+#' supplied as death counts and mid-interval population estimates
+#' \code{(Dx, Ex)}, age-specific death rates \code{(mx)}, or death
+#' probabilities \code{(qx)}. Use the \code{law} argument to specify the
+#' model to be fitted. Over 30 parametric models are currently implemented;
+#' run \code{\link{availableLaws}} to see the full list. Models can be fitted
+#' using maximum likelihood or by optimising a loss function. See the
+#' \code{\link{availableLF}} function for the implemented options.
+#'
 #' @usage
 #' MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
 #'                 law = NULL,
@@ -23,55 +22,84 @@
 #'                 fit.this.x = x,
 #'                 custom.law = NULL,
 #'                 show = FALSE, ...)
-#' @details Depending on the complexity of the model, one of following
-#' optimization strategies is employed: \enumerate{
-#'  \item Nelder-Mead method: approximates a local optimum of a problem with n
-#'   variables when the objective function varies smoothly and is unimodal.
-#'   For details see \code{\link{optim}};
-#'  \item PORT routines: provides unconstrained optimization and optimization
-#'  subject to box constraints for complicated functions. For details check
-#'  \code{\link{nlminb}};
-#'  \item Levenberg-Marquardt algorithm: damped least-squares method.
-#'  For details check \code{\link[minpack.lm]{nls.lm}}.
-#' }
+#'
+#' @details
+#' \strong{Optimisation:} The PORT routines (via \code{\link{nlminb}}) are used
+#' for unconstrained and box-constrained optimisation. Parameters are estimated
+#' on the log scale to ensure positivity, and the routine is set to allow up to
+#' 5000 iterations. When the optimisation method is \code{"poissonL"} or
+#' \code{"binomialL"}, the AIC, BIC and log-likelihood are computed from the
+#' likelihood. Otherwise these are set to \code{NaN}.
+#'
+#' \strong{Scaling of the age vector:} For models that cover only a portion
+#' of the lifespan (e.g., adult or old-age mortality), the age vector \code{x}
+#' is automatically re-scaled as \code{x = x - min(x) + 1} before fitting.
+#' This transformation improves numerical stability and helps the optimisation
+#' algorithm converge, especially when the starting age is far from zero.
+#' Models that apply this scaling are flagged with \code{SCALE_X = TRUE} in
+#' the table returned by \code{\link{availableLaws}}. When using
+#' \code{\link{predict.MortalityLaw}} or \code{\link{LawTable}} with such
+#' models, the same scaling is applied internally, so predictions remain
+#' consistent with the fitted coefficients.
+#'
+#' \strong{Handling matrix input:} If \code{Dx}, \code{Ex}, \code{mx} or
+#' \code{qx} are provided as matrices (with one column per population or
+#' time period), the function iterates over the columns and fits a separate
+#' model to each, returning a collection of results.
 #' @inheritParams LifeTable
-#' @param law The name of the mortality law/model to be used. e.g.
-#' \code{gompertz}, \code{makeham}, ... To investigate all the possible options,
-#' see \code{\link{availableLaws}} function.
-#' @param opt.method How would you like to find the parameters? Specify the
-#' function to be optimize. Available options: the Poisson likelihood function
-#' \code{poissonL}; the Binomial likelihood function -\code{binomialL}; and
-#' 6 other loss functions. For more details, check the \code{\link{availableLF}}
-#' function.
-#' @param parS Starting parameters used in the optimization process (optional).
-#' @param fit.this.x Select the ages to be considered in model fitting.
-#' By default \code{fit.this.x = x}. One may want to exclude from the fitting
-#' procedure, say, the advanced ages where the data is sparse.
-#' @param custom.law Allows you to fit a model that is not defined
-#' in the package. Accepts as input a function.
-#' @param show Choose whether to display a progress bar during the fitting
-#' process. Logical. Default: \code{FALSE}.
-#' @param ... Arguments to be passed to or from other methods.
-#' @return The output is of the \code{"MortalityLaw"} class with the components:
-#'  \item{input}{List with arguments provided in input. Saved for convenience.}
-#'  \item{info}{Brief information about the model.}
-#'  \item{coefficients}{Estimated coefficients.}
-#'  \item{fitted.values}{Fitted values of the selected model.}
-#'  \item{residuals}{Deviance residuals.}
-#'  \item{goodness.of.fit}{List containing goodness of fit measures like
-#' AIC, BIC and log-Likelihood.}
-#'  \item{opt.diagnosis}{Resultant optimization object useful for
-#' checking the convergence etc.}
+#' @param law The name of the mortality law to be used (e.g., \code{"gompertz"},
+#' \code{"makeham"}). Run \code{\link{availableLaws}} to see all options.
+#' @param opt.method The function to optimise. Available options:
+#' \itemize{
+#'   \item{\code{"poissonL"}: Poisson log-likelihood.}
+#'   \item{\code{"binomialL"}: Binomial log-likelihood.}
+#'   \item{\code{"LF1"}: Squared relative error \code{(1 - mu/nu)^2}.}
+#'   \item{\code{"LF2"}: Squared log-ratio \code{log(mu/nu)^2}.}
+#'   \item{\code{"LF3"}: Chi-squared-type \code{((nu - mu)^2)/nu}.}
+#'   \item{\code{"LF4"}: Squared error \code{(nu - mu)^2}.}
+#'   \item{\code{"LF5"}: Deviance-type \code{(nu - mu) * log(nu/mu)}.}
+#'   \item{\code{"LF6"}: Absolute error \code{abs(nu - mu)}.}
+#' }
+#' See \code{\link{availableLF}} for details.
+#' @param parS Optional starting parameter values for the optimisation. If
+#' \code{NULL}, sensible defaults are automatically chosen via
+#' \code{\link{bring_parameters}}.
+#' @param fit.this.x A subset of \code{x} over which to fit the model. The
+#' default is the entire \code{x} vector. Use this to exclude, for example,
+#' advanced ages where data are sparse.
+#' @param custom.law A user-defined function for fitting a model not included
+#' in the package. The function must accept arguments \code{x} (age vector)
+#' and \code{par} (named parameter vector) and return a list containing at
+#' least an element named \code{hx} (the hazard or force of mortality). See
+#' the examples below.
+#' @param show Logical. If \code{TRUE}, a progress bar is displayed during
+#' fitting. Default: \code{FALSE}.
+#' @param ... Additional arguments passed to or from other methods.
+#' @return
+#' An object of class \code{"MortalityLaw"}, which is a list with the following
+#' components:
+#' \item{input}{List of input arguments, stored for reproducibility.}
+#' \item{info}{Model information (name, formula, date of fitting).}
+#' \item{coefficients}{Estimated parameters of the mortality law. A named
+#' vector for a single fit, or a matrix for multiple fits.}
+#' \item{fitted.values}{Fitted hazard rates (or death probabilities) evaluated
+#' at the input ages \code{x}.}
+#' \item{residuals}{Deviance residuals, computed as observed minus fitted
+#' values.}
+#' \item{goodness.of.fit}{List or matrix of goodness-of-fit measures: AIC,
+#' BIC and log-likelihood (available only for likelihood-based methods).}
+#' \item{opt.diagnosis}{Object returned by the optimisation routine, useful
+#' for checking convergence.}
+#' \item{df}{Number of parameters and residual degrees of freedom.}
+#' \item{deviance}{Sum of squared log-residuals, used as a deviance measure.}
 #' @seealso
-#' \code{\link{availableLaws}}
-#' \code{\link{availableLF}}
-#' \code{\link{LifeTable}}
-#' \code{\link{ReadHMD}}
+#' \code{\link{availableLaws}} for a list of all implemented models;
+#' \code{\link{availableLF}} for loss function details;
+#' \code{\link{LifeTable}} for life table construction;
+#' \code{\link{ReadHMD}} for downloading data from the Human Mortality Database.
 #' @author Marius D. Pascariu
 #' @examples
-#' # Example 1: --------------------------
-#' # Fit Makeham Model for Year of 1950.
-#'
+#' # Example 1: Fitting the Makeham model --------------------------
 #' x  <- 45:75
 #' Dx <- ahmd$Dx[paste(x), "1950"]
 #' Ex <- ahmd$Ex[paste(x), "1950"]
@@ -168,13 +196,20 @@ MortalityLaw <- function(x,
     dgn   <- optim.model$opt #diagnosis
     cf    <- optim.model$C
     p     <- length(cf)
-    resid <- switch(
-      K$case,
+
+    resid <- switch(K$case,
       C1_DxEx = Dx/Ex - fit,
       C2_mx = mx - fit,
       C3_qx = qx - fit
       )
-    dev  <- sum(resid^2)
+    # Deviance is computed as the sum of squared log-residuals
+    dev <- switch(K$case,
+      C1_DxEx = log(Dx/Ex) - log(fit),
+      C2_mx   = log(mx) - log(fit),
+      C3_qx   = log(qx) - log(fit)
+      )
+    dev  <- sum(dev^2)
+
     rdf  <- length(x) - p
     df   <- c(n.param = p, df.residual = rdf)
     gof  <- with(
@@ -242,12 +277,19 @@ MortalityLaw <- function(x,
   return(out)
 }
 
-
-#' Depending on the chosen mortality law, additional details need to be
-#' specified in order to be able to fit the models taking into account it's
-#' particularities.
+#' Retrieve model-specific details for fitting
+#'
+#' Based on the chosen mortality law (or a custom law), this function retrieves
+#' the default starting parameters, the model information table, and whether
+#' the age vector should be scaled before fitting.
 #' @inheritParams MortalityLaw
-#' @return A list of model specifications 
+#' @return A list with components:
+#' \item{law}{Internal law name (e.g., \code{"custom.law"} for user-supplied functions).}
+#' \item{parS}{Starting parameter values for the optimisation.}
+#' \item{model}{Model information data frame (from \code{\link{availableLaws}})
+#' or \code{"Custom Mortality Law"} for user-defined models.}
+#' \item{scale.x}{Logical; whether the age vector should be re-scaled
+#' (\code{x = x - min(x) + 1}) before fitting.}
 #' @keywords internal
 addDetails <- function(law,
                        custom.law = NULL,
@@ -280,14 +322,24 @@ addDetails <- function(law,
   return(out)
 }
 
-
-
-#' Function to be Optimize
+#' Objective function to minimise during optimisation
+#'
+#' Given a set of parameters (on the log scale), this function evaluates the
+#' chosen loss function or negative log-likelihood by comparing observed
+#' mortality values (Dx/Ex, mx, or qx) against the hazard rates predicted by
+#' the specified mortality law.
+#'
+#' Parameters are transformed back to the original scale via \code{exp(par)}
+#' when calling the mortality law function. Infinite hazard values are capped
+#' to 1, and large penalties are applied for missing or out-of-range values
+#' to guide the optimiser away from invalid regions.
+#'
 #' @inheritParams MortalityLaw
-#' @return The optimal value
+#' @param par Parameter vector on the log scale.
+#' @return A scalar loss value to be minimised.
 #' @keywords internal
 objective_fun <- function(par, x, Dx, Ex, mx, qx,
-                          law, opt.method, custom.law){
+                          law, opt.method, custom.law) {
 
   C  <- find.my.case(Dx, Ex, mx, qx)$case
   mu <- eval(call(law, x, par = exp(par)))$hx
@@ -316,25 +368,46 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
   loss[is.infinite(loss)] <- 10^5
   if (sum(is.na(mu)) != 0) loss = loss + 10^5
   out <- sum(loss, na.rm = TRUE)
-  # because nls.lm function requires a vector we have to do the following:
-  if (any(law %in% c('thiele', 'wittstein'))) out = loss
-
   return(out)
 }
 
-
-#' Scaling method for x vector
-#' @inheritParams MortalityLaw
-#' @return scalar 
+#' Scale the age vector for stable optimisation
+#'
+#' For mortality laws that cover only a portion of the lifespan (e.g., adult
+#' or old-age mortality), the age vector is rescaled so that the minimum age
+#' becomes 1. This improves numerical stability by keeping the exponentiated
+#' terms in the hazard function within a reasonable range.
+#'
+#' @param x A numeric vector of ages.
+#' @return A numeric vector of scaled ages, where min(x) == 1.
 #' @keywords internal
 scale_x <- function(x) {
   x - min(x) + 1
 }
 
-
-#' Select an optimizing method
-#' @param input list of all inputs collected from MortalityLaw function
-#' @return A list of model specification corresponding to the best fitted model
+#' Run the optimisation routine
+#'
+#' This is the core optimisation function for \code{\link{MortalityLaw}}. It:
+#' \enumerate{
+#'   \item Subsets the data to the fitting ages (\code{fit.this.x}).
+#'   \item Scales the age vector if required by the chosen model.
+#'   \item Obtains default starting parameters (if not provided).
+#'   \item Minimises the objective function using \code{\link{nlminb}} (PORT
+#'         routines) with the parameters on the log scale.
+#'   \item Transforms parameters back to the original scale, computes the
+#'         fitted hazard, and derives goodness-of-fit measures (AIC, BIC,
+#'         log-likelihood) where applicable.
+#' }
+#'
+#' @param input A list containing all input arguments to \code{\link{MortalityLaw}}.
+#' @return A list with components:
+#' \item{x}{Age vector (original).}
+#' \item{new.x}{Age vector after optional scaling.}
+#' \item{opt}{Object returned by \code{\link{nlminb}}.}
+#' \item{C}{Estimated parameters on the original scale.}
+#' \item{hx}{Fitted hazard values evaluated at \code{new.x}.}
+#' \item{logLik, AIC, BIC}{Goodness-of-fit measures (\code{NaN} for
+#' non-likelihood methods).}
 #' @keywords internal
 choose_optim <- function(input){
   with(as.list(input), {
@@ -350,12 +423,13 @@ choose_optim <- function(input){
       new.fit.this.x <- fit.this.x
       new.x <- x
     }
-
+    # Starting parameters
     if (is.null(parS)) parS <- bring_parameters(law, parS)
-    # Optimize
-    foo <- function(k) {
+    
+    # Objective function setup
+    foo <- function(pars) {
       objective_fun(
-        par = k,
+        par = pars,
         x = new.fit.this.x,
         Dx = Dx[select.x],
         Ex = Ex[select.x],
@@ -366,37 +440,27 @@ choose_optim <- function(input){
         custom.law)
     }
 
-    if (any(law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki'))) {
-      opt <- nlminb(
-        start = log(parS),
-        objective = foo,
-        control = list(eval.max = 5000, iter.max = 5000)
-        )
-      opt$fnvalue <- opt$objective
+    # Optimization algorithm
+      if (law == 'invweibull'){
+        opt <- optim(par = log(parS), fn = foo, method = 'Nelder-Mead')
+        opt$fnvalue <- opt$value
 
-    } else if (any(law %in% c('thiele', 'wittstein'))) {
-      opt <- nls.lm(
-        par = log(parS),
-        fn = foo,
-        control = nls.lm.control(maxfev = 10000, maxiter = 1024)
-        )
-      opt$fnvalue <- sum(opt$fvec)
+      } else {
+        opt <- nlminb(start = log(parS), objective = foo, control = list(eval.max = 5000, iter.max = 5000))
+        opt$fnvalue <- opt$objective
+      }
 
-    } else {
-      opt <- optim(
-        par = log(parS),
-        fn = foo,
-        method = 'Nelder-Mead'
-        )
-      opt$fnvalue <- opt$value
-    }
-
+    # Return the optimal parameters
     C <- exp(opt$par)
+
     if (law == 'kostaki') { #kostaki hack
       if (C[5] >= 50*C[6]) C[6] <- C[5]/50
     }
 
+    # Hazard function of the fitted model
     hx     <- do.call(law, list(x = new.x, par = C))$hx
+
+    # Compute goodness of fit measures  
     logLik <- log(opt$fnvalue)
     AIC    <- 2 * length(parS) - 2 * logLik
     BIC    <- log(length(fit.this.x)) * length(parS) - 2 * logLik
@@ -408,5 +472,3 @@ choose_optim <- function(input){
     return(out)
   })
 }
-
-

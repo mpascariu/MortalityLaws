@@ -9,20 +9,28 @@ mortality more accurately}
 coale.demeny.ax(x, mx, ax, sex)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
-die in the same interval. If \code{NULL} this will be estimated. A common
-assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
-the interval. Default: \code{NULL}.}
+\item{ax}{Numeric vector representing the average number of person-years 
+lived in the age interval by those who die in that interval. If 
+\code{NULL} (the default), \code{ax} is estimated internally using 
+a standard formula. You may supply a single value (applied to all 
+intervals) or a vector of the same length as \code{x}. A common 
+assumption is \code{ax = 0.5}, which places deaths at the midpoint 
+of each interval.}
 
-\item{sex}{Sex of the population considered here. Default: \code{NULL}.
-This argument affects the first two values in the life table ax column.
-If sex is specified the values are computed based on the Coale-Demeny method
-and are slightly different for males than for females.
-Options: \code{NULL, male, female, total}.}
+\item{sex}{Sex of the population. Options are \code{NULL} (default), 
+\code{"male"}, \code{"female"}, or \code{"total"}. When specified, 
+the first two entries of the \code{ax} column are adjusted using 
+Coale-Demeny coefficients, producing more accurate life-table values 
+at the youngest ages. The adjustment differs slightly between males 
+and females.}
 }
 \value{
 A vector of coefficients

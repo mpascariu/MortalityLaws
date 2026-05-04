@@ -1,7 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Jan 15 18:23:03 2024
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:31:33
+# --------------------------------------------
 
 #' Download The Human Mortality Database (HMD)
 #'
@@ -60,7 +60,7 @@
 #' "GBR_NIR","USA"}.
 #'  If \code{NULL} data for all the countries are downloaded at once;
 #' @param interval Datasets are given in various age and time formats based on
-#' which the records are agregated. Interval options:
+#' which the records are aggregated. Interval options:
 #' \itemize{
 #'   \item{\code{"1x1"}} -- by age and year;
 #'   \item{\code{"1x5"}} -- by age and 5-year time interval;
@@ -266,9 +266,9 @@ ReadHMD.core <- function(what, country, interval, username, password, link){
       country <- JPNregions()[as.numeric(country) + 1]
     }
     
-    dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
-                stop("\n", what, " data for ", country, " state in the ", interval,
-                     " format was not to be found. We have been looking here:\n",
+        dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
+                stop("\n", what, " data for ", country, " in the ", interval,
+                     " format could not be found. Looked here:\n",
                      path, call. = FALSE))
     
     close(con)

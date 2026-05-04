@@ -8,7 +8,10 @@
 uxAbove100(x, ux, omega = 100, verbose = FALSE)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
 \item{ux}{A vector of mx or qx.}
 

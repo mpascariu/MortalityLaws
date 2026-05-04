@@ -1,7 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Jan 15 17:50:39 2024
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:31:48
+# --------------------------------------------
 
 #' Download the Japanese Mortality Database (JMD)
 #'
@@ -207,8 +207,8 @@ JPNregions <- function() {
 
 
 
-#' Check input ReadAHMD
-#' @param x a list containing the input arguments from ReadAHMD function
+#' Check input ReadJMD
+#' @param x a list containing the input arguments from ReadJMD function
 #' @return No return value, called for validating input data
 #' @keywords internal
 check_input_ReadJMD <- function(x) {

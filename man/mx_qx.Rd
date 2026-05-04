@@ -7,7 +7,10 @@
 mx_qx(x, nx, ux, out = c("qx", "mx"))
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
 \item{nx}{Length of the age-intervals.}
 

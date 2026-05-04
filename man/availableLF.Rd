@@ -2,7 +2,7 @@
 % Please edit documentation in R/availableLF.R
 \name{availableLF}
 \alias{availableLF}
-\title{Check Available Loss Function}
+\title{Check Available Loss Functions}
 \usage{
 availableLF()
 }
@@ -12,8 +12,8 @@ A list of class \code{availableLF} with the components:
  \item{legend}{Table with details about the abbreviation used.}
 }
 \description{
-The function returns information about the implemented loss function used by the
-optimization procedure in the \code{\link{MortalityLaw}} function.
+Returns information about the loss functions implemented for use with the
+optimisation procedure in the \code{\link{MortalityLaw}} function.
 }
 \examples{
 availableLF()

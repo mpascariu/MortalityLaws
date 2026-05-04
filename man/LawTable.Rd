@@ -7,110 +7,153 @@
 LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{par}{The parameters of the mortality model.}
+\item{par}{The parameters of the mortality model. Can be:
+\itemize{
+  \item A numeric \strong{vector} containing the coefficients (for a 
+        single life table).
+  \item A numeric \strong{matrix} or \strong{data.frame} where each row 
+        corresponds to a separate set of parameters (producing multiple 
+        life tables). Column names should match the parameter names of 
+        the chosen law.
+}}
 
-\item{law}{The name of the mortality law/model to be used. e.g.
-\code{gompertz}, \code{makeham}, ... To investigate all the possible options,
-see \code{\link{availableLaws}} function.}
+\item{law}{The name of the mortality law to be used (e.g., \code{"gompertz"},
+\code{"makeham"}). Run \code{\link{availableLaws}} to see all options.}
 
-\item{sex}{Sex of the population considered here. Default: \code{NULL}.
-This argument affects the first two values in the life table ax column.
-If sex is specified the values are computed based on the Coale-Demeny method
-and are slightly different for males than for females.
-Options: \code{NULL, male, female, total}.}
+\item{sex}{Sex of the population. Options are \code{NULL} (default), 
+\code{"male"}, \code{"female"}, or \code{"total"}. When specified, 
+the first two entries of the \code{ax} column are adjusted using 
+Coale-Demeny coefficients, producing more accurate life-table values 
+at the youngest ages. The adjustment differs slightly between males 
+and females.}
 
-\item{lx0}{Radix. Default: 100 000.}
+\item{lx0}{Radix, the starting population (or probability scale) at 
+age 0. Default is \code{100,000}. All subsequent life-table columns 
+(\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.}
 
-\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
-die in the same interval. If \code{NULL} this will be estimated. A common
-assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
-the interval. Default: \code{NULL}.}
+\item{ax}{Numeric vector representing the average number of person-years 
+lived in the age interval by those who die in that interval. If 
+\code{NULL} (the default), \code{ax} is estimated internally using 
+a standard formula. You may supply a single value (applied to all 
+intervals) or a vector of the same length as \code{x}. A common 
+assumption is \code{ax = 0.5}, which places deaths at the midpoint 
+of each interval.}
 }
 \value{
-The output is of the \code{"LifeTable"} class with the components:
- \item{lt}{Computed life table;}
- \item{call}{\code{Call} in which all of the specified arguments are
- specified by their full names;}
- \item{process_date}{Time stamp.}
+An object of class \code{"LifeTable"} containing the following 
+  components:
+  \item{lt}{A \code{data.frame} with the complete life table, including 
+    columns for age interval (\code{x.int}), exact age (\code{x}), 
+    death rate (\code{mx}), death probability (\code{qx}), person-years 
+    lived by decedents (\code{ax}), survivorship (\code{lx}), death 
+    distribution (\code{dx}), person-years lived (\code{Lx}), total 
+    person-years remaining (\code{Tx}), and life expectancy (\code{ex}).}
+  \item{call}{The matched function call.}
+  \item{process_date}{Timestamp of when the life table was computed.}
 }
 \description{
-Compute Life Tables from Parameters of a Mortality Law
+Generate a complete life table directly from the fitted parameters of a 
+parametric mortality model. This function evaluates the mortality law at 
+the given ages and passes the resulting death rates (\code{mx}) or death 
+probabilities (\code{qx}) to \code{\link{LifeTable}} for further 
+computation of all standard life-table columns (\code{lx}, \code{dx}, 
+\code{Lx}, \code{Tx}, \code{ex}, etc.).
 }
 \details{
-The "life table" is also called "mortality table" or "actuarial table".
-This shows, for each age, what the probability is that a person of that
-age will die before his or her next birthday, the expectation of life across
-different age ranges or the survivorship of people from a certain population.
+This function is designed to work with models that have been fitted 
+externally (e.g., via \code{\link{MortalityLaw}} or by hand). The 
+\code{par} argument must contain the estimated coefficients of the 
+mortality law, and \code{law} must be one of the valid codes listed by 
+\code{\link{availableLaws}}.
+
+\strong{Important caveat: age scaling during fitting}
+
+Several mortality laws (e.g., Gompertz, Makeham) internally \emph{scale} 
+the age vector during optimisation to ensure numerical stability. If the 
+model was fitted using \code{MortalityLaw} over an age range \code{[a, b]}, 
+the published coefficients correspond to the \emph{scaled} ages, not the 
+original ages. Consequently, \code{LawTable} will only produce valid life 
+tables for ages \eqn{\ge a} (the lower bound of the fitting range). 
+Attempting to use the same coefficients at younger ages will yield 
+incorrect results (e.g., life expectancy at age 25 will equal that at 
+age 45).
+
+To determine which models apply age scaling, run:
+\preformatted{
+A <- availableLaws()$table
+A[, c("CODE", "SCALE_X")]
+}
+Models with \code{SCALE_X = TRUE} rescale the age vector internally. When 
+using \code{LawTable} with such a model, make sure the \code{x} argument 
+starts from the same lower age bound used during fitting.
+
+For models that do \emph{not} scale (e.g., Heligman-Pollard \code{"HP"}), 
+this limitation does not apply, and \code{LawTable} can be used for any 
+age range.
 }
 \examples{
-# Example 1 --- Makeham --- 4 tables ----------
-x1 = 45:100
-L1 = "makeham"
-C1 = matrix(c(0.00717, 0.07789, 0.00363,
-              0.01018, 0.07229, 0.00001,
-              0.00298, 0.09585, 0.00002,
-              0.00067, 0.11572, 0.00078),
-            nrow = 4, dimnames = list(1:4, c("A", "B", "C")))
+# Example 1 --- Makeham --- multiple life tables from a matrix of parameters
 
-LawTable(x = 45:100, par = C1, law = L1)
+x1 <- 45:100
+L1 <- "makeham"
+C1 <- matrix(
+  c(0.00717, 0.07789, 0.00363,
+    0.01018, 0.07229, 0.00001,
+    0.00298, 0.09585, 0.00002,
+    0.00067, 0.11572, 0.00078),
+  nrow = 4,
+  dimnames = list(1:4, c("A", "B", "C"))
+)
 
-# WARNING!!!
+LawTable(x = x1, par = C1, law = L1)
 
-# It is important to know how the coefficients have been estimated. If the
-# fitting of the model was done over the [x, x+) age-range, the LawTable
-# function can be used to create a life table only for age x onward.
+# ---- Important note on age scaling ----
 
-# What can go wrong?
+# The Makeham model applies internal age scaling during fitting.
+# If the coefficients above were estimated over ages 45-100, the life
+# table produced by LawTable is valid only from age 45 onward.
 
-# ** Example 1B - is OK.
+# ---- Example 1B: correct usage ----
 LawTable(x = 45:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
 
-# ** Example 1C - Not OK, because the life expectancy at age 25 is
-# equal with life expectancy at age 45 in the previous example.
+# ---- Example 1C: incorrect usage ----
+# The code below uses the same coefficients but starts at age 25.
+# Because the model was fitted on scaled ages (starting at 45),
+# the life table at age 25 will be meaningless (e.g., e25 equals e45).
+\dontrun{
 LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
+}
 
-# Why is this happening?
-
-# If we have a model that covers only a part of the human mortality curve
-# (e.g. adult mortality), in fitting the x vector is scaled down, meaning
-# age (x) becomes (x - min(x) + 1). And, the coefficients are estimated on
-# a scaled x in ordered to obtain meaningful estimates. Otherwise the
-# optimization process might not converge.
-
-# What can we do about it?
-
-# a). Know which mortality laws are rescaling the x vector in the fitting
-# process. If these models are fitted with the MortalityLaw() function, you
-# can find out like so:
+# ---- How to check which laws apply scaling ----
 A <- availableLaws()$table
 A[, c("CODE", "SCALE_X")]
 
-# b). If you are using one of the models that are applying scaling,
-# be aware over what age-range the coefficients have been estimated. If they
-# have been estimated using, say, ages 50 to 80, you can use the
-# LawTable() to build a life tables from age 50 onwards.
+# Example 2 --- Heligman-Pollard (no scaling) ---
 
-
-# Example 2 --- Heligman-Pollard -- 1 table ----
-x2 = 0:110
-L2 = "HP"
-C2 = c(0.00223, 0.01461, 0.12292, 0.00091,
-       2.75201, 29.01877, 0.00002, 1.11411)
+x2 <- 0:110
+L2 <- "HP"
+C2 <- c(0.00223, 0.01461, 0.12292, 0.00091,
+        2.75201, 29.01877, 0.00002, 1.11411)
 
 LawTable(x = x2, par = C2, law = L2)
 
-# Because "HP" is not scaling down the x vector, the output is not affected
-# by the problem described above.
-
-# Check
+# Because "HP" does NOT scale the age vector, the output is valid for
+# any starting age. Compare:
 LawTable(x = 3:110, par = C2, law = L2)
-# Note the e3 = 70.31 in both tables
+# Note that e3 = 70.31 in both tables, confirming consistency.
+
 }
 \seealso{
-\code{\link{LifeTable}}
-\code{\link{MortalityLaw}}
+\code{\link{LifeTable}} for constructing life tables from raw mortality 
+  data; 
+\code{\link{MortalityLaw}} for fitting parametric mortality models; 
+\code{\link{availableLaws}} for the list of implemented laws and their 
+  scaling behaviour.
 }
 \author{
 Marius D. Pascariu

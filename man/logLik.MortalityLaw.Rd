@@ -10,7 +10,7 @@
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{
-model log-Likelohood value
+Model log-likelihood value
 }
 \description{
 logLik function for MortalityLaw

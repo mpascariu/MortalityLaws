@@ -1,8 +1,7 @@
-# -------------------------------------------------------------- #
-# Title:
-# Author: Marius D. PASCARIU
-# Last Update: Fri Jul 21 14:07:00 2023
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:30:55
+# --------------------------------------------
 
 #' Function to check input data in MortalityLaw
 #' @inheritParams choose_optim
@@ -41,9 +40,9 @@ check.MortalityLaw <- function(input){
          }
 
          # Messages ---
-         if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki') & opt.method != "LF2") {
-           message("\nFor cases like", law, "the optimization method 'LF2'",
-                   "has been observed to return reliable estimates.")
+                  if (law %in% c('HP', 'HP2', 'HP3', 'HP4', 'kostaki') & opt.method != "LF2") {
+           message("\nFor models like ", law, ", the optimisation method 'LF2'",
+                   " has been observed to return reliable estimates.")
          }
        })
 }

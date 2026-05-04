@@ -7,7 +7,7 @@
 check.MortalityLaw(input)
 }
 \arguments{
-\item{input}{list of all inputs collected from MortalityLaw function}
+\item{input}{A list containing all input arguments to \code{\link{MortalityLaw}}.}
 }
 \value{
 No return value, called for side effects

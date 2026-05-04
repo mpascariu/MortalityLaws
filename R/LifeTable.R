@@ -1,23 +1,47 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:27:19 2023
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 22:59:32
+# --------------------------------------------
 
 #' Compute Life Tables from Mortality Data
 #'
-#' Construct either a full or abridged life table with various input choices
-#' like: death counts and mid-interval population estimates \code{(Dx, Ex)} or
-#' age-specific death rates \code{(mx)} or death probabilities \code{(qx)}
-#' or survivorship curve \code{(lx)} or a distribution of deaths \code{(dx)}.
-#' If one of these options is specified, the other can be ignored. The input
-#' data can be an object of class: numerical \code{vector}, \code{matrix} or
-#' \code{data.frame}.
+#' Construct either a full (single-year age intervals) or an abridged 
+#' (wider age intervals) life table from a variety of input data types. 
+#' The function accepts:
+#' \itemize{
+#'   \item Death counts and mid-interval population estimates (\code{Dx, Ex})
+#'   \item Age-specific death rates (\code{mx})
+#'   \item Death probabilities (\code{qx})
+#'   \item Survivorship curve (\code{lx})
+#'   \item Distribution of deaths (\code{dx})
+#' }
+#' Only one of these input options needs to be provided; the others 
+#' are ignored if present. The input can be a numeric \code{vector}, 
+#' \code{matrix}, or \code{data.frame}. When a \code{matrix} or 
+#' \code{data.frame} with multiple columns is supplied, the function 
+#' computes one life table per column.
 #'
 #' @details
-#' The "life table" is also called "mortality table" or "actuarial table".
-#' This shows, for each age, what the probability is that a person of that
-#' age will die before his or her next birthday, the expectation of life across
-#' different age ranges or the survivorship of people from a certain population.
+#' A life table (also called a mortality table or actuarial table) 
+#' summarises the mortality experience of a population. For each age 
+#' (or age interval) it reports:
+#' \itemize{
+#'   \item Death rates (\code{mx}) and death probabilities (\code{qx})
+#'   \item Survivorship (\code{lx})
+#'   \item Distribution of deaths (\code{dx})
+#'   \item Person-years lived (\code{Lx}) and total person-years remaining 
+#'         (\code{Tx})
+#'   \item Life expectancy (\code{ex})
+#' }
+#' The life table is constructed sequentially: from the input data the 
+#' function derives \code{mx}, then \code{qx}, then \code{lx}, \code{dx}, 
+#' \code{Lx}, \code{Tx}, and finally \code{ex}. The constant-force-of-mortality 
+#' (CFM) assumption is used to convert between \code{mx} and \code{qx}. 
+#' If the \code{sex} argument is supplied, the first two values of the 
+#' \code{ax} column are adjusted using the Coale-Demeny method, which 
+#' accounts for the different infant mortality patterns between males 
+#' and females.
+#'
 #' @usage
 #' LifeTable(x, Dx = NULL, Ex = NULL,
 #'              mx = NULL,
@@ -27,37 +51,74 @@
 #'              sex = NULL,
 #'              lx0 = 1e5,
 #'              ax  = NULL)
-#' @param x Vector of ages at the beginning of the age interval.
-#' @param Dx Object containing death counts. An element of the \code{Dx} object
-#' represents the number of deaths during the year to persons aged x to x+n.
-#' @param Ex Exposure in the period. \code{Ex} can be approximated by the
-#' mid-year population aged x to x+n.
-#' @param mx Life table death rate in age interval [x, x+n).
-#' @param qx Probability of dying in age interval [x, x+n).
-#' @param lx Probability of survival up until exact age x (if l(0) = 1), or
-#' the number of survivors at exact age x, assuming l(0) > 1.
-#' @param dx Deaths by life-table population in the age interval [x, x+n).
-#' @param sex Sex of the population considered here. Default: \code{NULL}.
-#' This argument affects the first two values in the life table ax column.
-#' If sex is specified the values are computed based on the Coale-Demeny method
-#' and are slightly different for males than for females.
-#' Options: \code{NULL, male, female, total}.
-#' @param lx0 Radix. Default: 100 000.
-#' @param ax Numeric scalar. Subject-time alive in age-interval for those who
-#' die in the same interval. If \code{NULL} this will be estimated. A common
-#' assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
-#' the interval. Default: \code{NULL}.
-#' @return The output is of the \code{"LifeTable"} class with the components:
-#'  \item{lt}{Computed life table;}
-#'  \item{call}{\code{Call} in which all of the specified arguments are
-#'  specified by their full names;}
-#'  \item{process_date}{Time stamp.}
+#'
+#' @param x Numeric vector of ages at the beginning of each age interval. 
+#'   For a full life table, use single-year ages (e.g., \code{0:110}). 
+#'   For an abridged life table, use the lower bound of each interval 
+#'   (e.g., \code{c(0, 1, 5, 10, ..., 110)}).
+#'
+#' @param Dx Death counts. Each element represents the total number of 
+#'   deaths during the calendar year to persons aged \code{x} to 
+#'   \code{x + n} (where \code{n} is the length of the age interval). 
+#'   Must be provided together with \code{Ex}.
+#'
+#' @param Ex Exposure-to-risk in the period. This is usually approximated 
+#'   by the mid-year population aged \code{x} to \code{x + n}. Must be 
+#'   provided together with \code{Dx}.
+#'
+#' @param mx Age-specific death rate in the age interval \code{[x, x+n)}. 
+#'   Defined as \code{Dx / Ex}.
+#'
+#' @param qx Probability of dying within the age interval \code{[x, x+n)}.
+#'
+#' @param lx Probability of surviving to exact age \code{x} (if \code{lx0 = 1}), 
+#'   or the number of survivors at exact age \code{x} (if \code{lx0 > 1}). 
+#'   When \code{lx} is the sole input, the values are re-scaled to the 
+#'   chosen radix \code{lx0}.
+#'
+#' @param dx Number of deaths in the life-table population occurring in 
+#'   the age interval \code{[x, x+n)}. When \code{dx} is the sole input, 
+#'   the values are re-scaled to sum to \code{lx0}.
+#'
+#' @param sex Sex of the population. Options are \code{NULL} (default), 
+#'   \code{"male"}, \code{"female"}, or \code{"total"}. When specified, 
+#'   the first two entries of the \code{ax} column are adjusted using 
+#'   Coale-Demeny coefficients, producing more accurate life-table values 
+#'   at the youngest ages. The adjustment differs slightly between males 
+#'   and females.
+#'
+#' @param lx0 Radix, the starting population (or probability scale) at 
+#'   age 0. Default is \code{100,000}. All subsequent life-table columns 
+#'   (\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.
+#'
+#' @param ax Numeric vector representing the average number of person-years 
+#'   lived in the age interval by those who die in that interval. If 
+#'   \code{NULL} (the default), \code{ax} is estimated internally using 
+#'   a standard formula. You may supply a single value (applied to all 
+#'   intervals) or a vector of the same length as \code{x}. A common 
+#'   assumption is \code{ax = 0.5}, which places deaths at the midpoint 
+#'   of each interval.
+#'
+#' @return An object of class \code{"LifeTable"} containing the following 
+#'   components:
+#'   \item{lt}{A \code{data.frame} with the complete life table, including 
+#'     columns for age interval (\code{x.int}), exact age (\code{x}), 
+#'     death rate (\code{mx}), death probability (\code{qx}), person-years 
+#'     lived by decedents (\code{ax}), survivorship (\code{lx}), death 
+#'     distribution (\code{dx}), person-years lived (\code{Lx}), total 
+#'     person-years remaining (\code{Tx}), and life expectancy (\code{ex}).}
+#'   \item{call}{The matched function call.}
+#'   \item{process_date}{Timestamp of when the life table was computed.}
+#'
 #' @seealso
-#' \code{\link{LawTable}}
-#' \code{\link{convertFx}}
+#' \code{\link{LawTable}} for generating life tables from a fitted 
+#'   parametric mortality law; 
+#'   \code{\link{convertFx}} for converting between mortality measures.
+#'
 #' @author Marius D. Pascariu
+#'
 #' @examples
-#' # Example 1 --- Full life tables with different inputs ---
+#' # Example 1 --- Full life tables with different inputs ------------
 #'
 #' y  <- 1900
 #' x  <- as.numeric(rownames(ahmd$mx))
@@ -74,14 +135,14 @@
 #' LT5
 #' ls(LT5)
 #'
-#' # Example 2 --- Compute multiple life tables at once ---
+#' # Example 2 --- Compute multiple life tables at once ------------
 #'
-#' LTs = LifeTable(x, mx = ahmd$mx)
+#' LTs <- LifeTable(x, mx = ahmd$mx)
 #' LTs
 #' # A warning is printed if the input contains missing values.
-#' # Some of the missing values can be handled by the function.
+#' # Some of the missing values can be handled automatically.
 #'
-#' # Example 3 --- Abridged life table ------------
+#' # Example 3 --- Abridged life table -----------------------------
 #'
 #' x  <- c(0, 1, seq(5, 110, by = 5))
 #' mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
@@ -90,10 +151,10 @@
 #' LT6 <- LifeTable(x, mx = mx, sex = "female")
 #' LT6
 #'
-#' # Example 4 --- Abridged life table w using my own 'ax' ------------
-#' # In this examples we are using the ages (x) and death rates (mx) from
-#' # example 3. Note that 'ax' must have the same length as the 'x' vector
-#' # otherwise an error message will be returned.
+#' # Example 4 --- Abridged life table using a custom 'ax' --------
+#' # This example reuses the ages (x) and death rates (mx) from Example 3.
+#' # Note that 'ax' must have the same length as 'x', otherwise an error
+#' # will be returned.
 #'
 #' my_ax <- c(0.1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 #'            2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1)
@@ -413,7 +474,7 @@ dx_lx <- function(ux, out = c("dx", "lx")) {
 #' Find ax indicator
 #'
 #' @inheritParams LifeTable
-#' @return \code{ax} - the point in the age internal where 50% of the deaths
+#' @return \code{ax} - the point in the age interval where 50% of the deaths
 #' have already occurred
 #' @keywords internal
 compute.ax <- function(x, mx, qx) {
@@ -512,7 +573,7 @@ LifeTable.check <- function(input) {
         stop("'ax' must be a numeric scalar (or NULL)", call. = FALSE)
 
       if (!any(length(ax) %in% c(1, length(x))))
-        stop("'ax' must be a scalar of lenght 1 or a ",
+        stop("'ax' must be a scalar of length 1 or a ",
              "vector of the same dimension as 'x'",
              call. = FALSE)
     }

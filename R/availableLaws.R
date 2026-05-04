@@ -1,8 +1,7 @@
-# ------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Wed Apr  2 11:07:37 2025
-# ------------------------------------------------- #
-
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:31:17
+# --------------------------------------------
 
 #' Check Available Mortality Laws
 #'
@@ -13,9 +12,10 @@
 #'
 #' @param law Optional. Default: \code{NULL}. One can extract details about
 #' a certain model by specifying its codename.
-#' @return The output is of the \code{"availableLaws"} class with the components:
-#' @return \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
-#' @return \item{legend}{Table with details about the section of the mortality curve }
+#' @return The output is of the \code{"availableLaws"} class with the following
+#' components:
+#'  \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}.}
+#'  \item{legend}{Table with details about the section of the mortality curve.}
 #' @references
 #' \enumerate{
 #' \item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the

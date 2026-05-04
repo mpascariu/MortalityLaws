@@ -7,14 +7,18 @@
 compute.ax(x, mx, qx)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{qx}{Probability of dying in age interval [x, x+n).}
+\item{qx}{Probability of dying within the age interval \code{[x, x+n)}.}
 }
 \value{
-\code{ax} - the point in the age internal where 50% of the deaths
+\code{ax} - the point in the age interval where 50% of the deaths
 have already occurred
 }
 \description{

@@ -13,83 +13,114 @@ MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
                 show = FALSE, ...)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object
-represents the number of deaths during the year to persons aged x to x+n.}
+\item{Dx}{Death counts. Each element represents the total number of 
+deaths during the calendar year to persons aged \code{x} to 
+\code{x + n} (where \code{n} is the length of the age interval). 
+Must be provided together with \code{Ex}.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
-mid-year population aged x to x+n.}
+\item{Ex}{Exposure-to-risk in the period. This is usually approximated 
+by the mid-year population aged \code{x} to \code{x + n}. Must be 
+provided together with \code{Dx}.}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{qx}{Probability of dying in age interval [x, x+n).}
+\item{qx}{Probability of dying within the age interval \code{[x, x+n)}.}
 
-\item{law}{The name of the mortality law/model to be used. e.g.
-\code{gompertz}, \code{makeham}, ... To investigate all the possible options,
-see \code{\link{availableLaws}} function.}
+\item{law}{The name of the mortality law to be used (e.g., \code{"gompertz"},
+\code{"makeham"}). Run \code{\link{availableLaws}} to see all options.}
 
-\item{opt.method}{How would you like to find the parameters? Specify the
-function to be optimize. Available options: the Poisson likelihood function
-\code{poissonL}; the Binomial likelihood function -\code{binomialL}; and
-6 other loss functions. For more details, check the \code{\link{availableLF}}
-function.}
+\item{opt.method}{The function to optimise. Available options:
+\itemize{
+  \item{\code{"poissonL"}: Poisson log-likelihood.}
+  \item{\code{"binomialL"}: Binomial log-likelihood.}
+  \item{\code{"LF1"}: Squared relative error \code{(1 - mu/nu)^2}.}
+  \item{\code{"LF2"}: Squared log-ratio \code{log(mu/nu)^2}.}
+  \item{\code{"LF3"}: Chi-squared-type \code{((nu - mu)^2)/nu}.}
+  \item{\code{"LF4"}: Squared error \code{(nu - mu)^2}.}
+  \item{\code{"LF5"}: Deviance-type \code{(nu - mu) * log(nu/mu)}.}
+  \item{\code{"LF6"}: Absolute error \code{abs(nu - mu)}.}
+}
+See \code{\link{availableLF}} for details.}
 
-\item{parS}{Starting parameters used in the optimization process (optional).}
+\item{parS}{Optional starting parameter values for the optimisation. If
+\code{NULL}, sensible defaults are automatically chosen via
+\code{\link{bring_parameters}}.}
 
-\item{fit.this.x}{Select the ages to be considered in model fitting.
-By default \code{fit.this.x = x}. One may want to exclude from the fitting
-procedure, say, the advanced ages where the data is sparse.}
+\item{fit.this.x}{A subset of \code{x} over which to fit the model. The
+default is the entire \code{x} vector. Use this to exclude, for example,
+advanced ages where data are sparse.}
 
-\item{custom.law}{Allows you to fit a model that is not defined
-in the package. Accepts as input a function.}
+\item{custom.law}{A user-defined function for fitting a model not included
+in the package. The function must accept arguments \code{x} (age vector)
+and \code{par} (named parameter vector) and return a list containing at
+least an element named \code{hx} (the hazard or force of mortality). See
+the examples below.}
 
-\item{show}{Choose whether to display a progress bar during the fitting
-process. Logical. Default: \code{FALSE}.}
+\item{show}{Logical. If \code{TRUE}, a progress bar is displayed during
+fitting. Default: \code{FALSE}.}
 
-\item{...}{Arguments to be passed to or from other methods.}
+\item{...}{Additional arguments passed to or from other methods.}
 }
 \value{
-The output is of the \code{"MortalityLaw"} class with the components:
- \item{input}{List with arguments provided in input. Saved for convenience.}
- \item{info}{Brief information about the model.}
- \item{coefficients}{Estimated coefficients.}
- \item{fitted.values}{Fitted values of the selected model.}
- \item{residuals}{Deviance residuals.}
- \item{goodness.of.fit}{List containing goodness of fit measures like
-AIC, BIC and log-Likelihood.}
- \item{opt.diagnosis}{Resultant optimization object useful for
-checking the convergence etc.}
+An object of class \code{"MortalityLaw"}, which is a list with the following
+components:
+\item{input}{List of input arguments, stored for reproducibility.}
+\item{info}{Model information (name, formula, date of fitting).}
+\item{coefficients}{Estimated parameters of the mortality law. A named
+vector for a single fit, or a matrix for multiple fits.}
+\item{fitted.values}{Fitted hazard rates (or death probabilities) evaluated
+at the input ages \code{x}.}
+\item{residuals}{Deviance residuals, computed as observed minus fitted
+values.}
+\item{goodness.of.fit}{List or matrix of goodness-of-fit measures: AIC,
+BIC and log-likelihood (available only for likelihood-based methods).}
+\item{opt.diagnosis}{Object returned by the optimisation routine, useful
+for checking convergence.}
+\item{df}{Number of parameters and residual degrees of freedom.}
+\item{deviance}{Sum of squared log-residuals, used as a deviance measure.}
 }
 \description{
-Fit parametric mortality models given a set of input data which can be
-represented by death counts and mid-interval population estimates
-\code{(Dx, Ex)} or age-specific death rates \code{(mx)} or death
-probabilities \code{(qx)}. Using the argument \code{law} one can specify
-the model to be fitted. So far more than 27 parametric models have been
-implemented; check the \code{\link{availableLaws}} function to learn
-about the available options. The models can be fitted under
-the maximum likelihood methodology or by selecting a loss function to be
-optimised. See the implemented loss function by running the
-\code{\link{availableLF}} function.
+Fit parametric mortality models given a set of input data. The data can be
+supplied as death counts and mid-interval population estimates
+\code{(Dx, Ex)}, age-specific death rates \code{(mx)}, or death
+probabilities \code{(qx)}. Use the \code{law} argument to specify the
+model to be fitted. Over 30 parametric models are currently implemented;
+run \code{\link{availableLaws}} to see the full list. Models can be fitted
+using maximum likelihood or by optimising a loss function. See the
+\code{\link{availableLF}} function for the implemented options.
 }
 \details{
-Depending on the complexity of the model, one of following
-optimization strategies is employed: \enumerate{
- \item Nelder-Mead method: approximates a local optimum of a problem with n
-  variables when the objective function varies smoothly and is unimodal.
-  For details see \code{\link{optim}};
- \item PORT routines: provides unconstrained optimization and optimization
- subject to box constraints for complicated functions. For details check
- \code{\link{nlminb}};
- \item Levenberg-Marquardt algorithm: damped least-squares method.
- For details check \code{\link[minpack.lm]{nls.lm}}.
-}
+\strong{Optimisation:} The PORT routines (via \code{\link{nlminb}}) are used
+for unconstrained and box-constrained optimisation. Parameters are estimated
+on the log scale to ensure positivity, and the routine is set to allow up to
+5000 iterations. When the optimisation method is \code{"poissonL"} or
+\code{"binomialL"}, the AIC, BIC and log-likelihood are computed from the
+likelihood. Otherwise these are set to \code{NaN}.
+
+\strong{Scaling of the age vector:} For models that cover only a portion
+of the lifespan (e.g., adult or old-age mortality), the age vector \code{x}
+is automatically re-scaled as \code{x = x - min(x) + 1} before fitting.
+This transformation improves numerical stability and helps the optimisation
+algorithm converge, especially when the starting age is far from zero.
+Models that apply this scaling are flagged with \code{SCALE_X = TRUE} in
+the table returned by \code{\link{availableLaws}}. When using
+\code{\link{predict.MortalityLaw}} or \code{\link{LawTable}} with such
+models, the same scaling is applied internally, so predictions remain
+consistent with the fitted coefficients.
+
+\strong{Handling matrix input:} If \code{Dx}, \code{Ex}, \code{mx} or
+\code{qx} are provided as matrices (with one column per population or
+time period), the function iterates over the columns and fits a separate
+model to each, returning a collection of results.
 }
 \examples{
-# Example 1: --------------------------
-# Fit Makeham Model for Year of 1950.
-
+# Example 1: Fitting the Makeham model --------------------------
 x  <- 45:75
 Dx <- ahmd$Dx[paste(x), "1950"]
 Ex <- ahmd$Ex[paste(x), "1950"]
@@ -147,10 +178,10 @@ plot(M4)
 LifeTable(x = x, qx = fitted(M4))
 }
 \seealso{
-\code{\link{availableLaws}}
-\code{\link{availableLF}}
-\code{\link{LifeTable}}
-\code{\link{ReadHMD}}
+\code{\link{availableLaws}} for a list of all implemented models;
+\code{\link{availableLF}} for loss function details;
+\code{\link{LifeTable}} for life table construction;
+\code{\link{ReadHMD}} for downloading data from the Human Mortality Database.
 }
 \author{
 Marius D. Pascariu

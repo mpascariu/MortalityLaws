@@ -14,9 +14,9 @@ Default: "https://www.mortality.org/Data/DataAvailability"}
 A tibble.
 }
 \description{
-The function returns information about available data in the Human Mortality 
-Database, HMD (period life tables etc.), with the range of years covered 
-by the life tables.
+Returns information about the data available in the Human Mortality 
+Database (HMD), including the range of years covered by the life tables 
+for each country or region.
 }
 \examples{
 availableHMD()

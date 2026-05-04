@@ -11,11 +11,10 @@ availableLaws(law = NULL)
 a certain model by specifying its codename.}
 }
 \value{
-The output is of the \code{"availableLaws"} class with the components:
-
-\item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}}
-
-\item{legend}{Table with details about the section of the mortality curve }
+The output is of the \code{"availableLaws"} class with the following
+components:
+ \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}.}
+ \item{legend}{Table with details about the section of the mortality curve.}
 }
 \description{
 The function returns information about the parametric models that can be

@@ -1,7 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Jan 15 17:54:40 2024
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:32:03
+# --------------------------------------------
 
 #' Download the Canadian Human Mortality Database (CHMD)
 #'
@@ -175,8 +175,8 @@ CANregions <- function() {
 }
 
 
-#' Check input ReadHMD
-#' @param x a list containing the input arguments from ReadHMD function
+#' Check input for ReadCHMD
+#' @param x A list with the input values for ReadCHMD
 #' @return No return value, called for input validation 
 #' @keywords internal
 #' 
@@ -185,7 +185,7 @@ check_input_ReadCHMD <- function(x) {
            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
 
   if (!(x$interval %in% data_format())) {
-    stop("The interval ", x$interval, " does not exist in HMD ",
+        stop("The interval ", x$interval, " does not exist in CHMD. ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }

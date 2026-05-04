@@ -2,21 +2,21 @@
 % Please edit documentation in R/graphics.R
 \name{plot.MortalityLaw}
 \alias{plot.MortalityLaw}
-\title{Plot Function for MortalityLaw}
+\title{Plot Method for MortalityLaw}
 \usage{
 \method{plot}{MortalityLaw}(x, ...)
 }
 \arguments{
-\item{x}{An object of class MortalityLaw}
+\item{x}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{Arguments to be passed to methods, such as graphical
+\item{...}{Further arguments passed to graphical methods, such as
 parameters (see \code{\link{par}}).}
 }
 \value{
-generate a plot
+A plot is generated as a side effect.
 }
 \description{
-Plot Function for MortalityLaw
+Plot Method for MortalityLaw
 }
 \examples{
 # See complete example in MortalityLaw help page

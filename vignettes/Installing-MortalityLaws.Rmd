@@ -1,0 +1,113 @@
+---
+title: "Installing `MortalityLaws`"
+author: "Marius D. Pascariu"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Installing-MortalityLaws}
+  %\VignetteEncoding{UTF-8}
+bibliography: Mlaw_Refrences.bib
+biblio-style: "apalike"
+link-citations: true
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The `MortalityLaws` package can be installed from either **CRAN** (the official R package repository) or **GitHub** (the development version). Most users will prefer the first option, as it provides a stable, tested release. The sections below explain both approaches.
+
+# Install the stable version from CRAN
+
+The easiest way to get `MortalityLaws` is to install it from CRAN. This gives you the most recent stable release that has passed R's quality checks.
+
+1. **Make sure you have a recent version of R** (≥ 3.5 is recommended). You can check your R version at the console:
+   ```r
+   R.version.string
+   ```
+
+2. **Install the package** by running the following command in your R console:
+   ```{r, eval=FALSE}
+   install.packages("MortalityLaws")
+   ```
+
+   This will automatically download and install the package along with its required dependencies.
+
+3. **Load the package** and verify that it works:
+   ```{r, eval=FALSE}
+   library(MortalityLaws)
+   help(package = "MortalityLaws")
+   ```
+
+# Install the development version from GitHub
+
+If you want to try the latest features, bug fixes, or contribute to the development of `MortalityLaws`, you can install the development version directly from [GitHub](https://github.com/mpascariu/MortalityLaws). This version may contain changes that have not yet been submitted to CRAN.
+
+### Step 1: Install `devtools`
+
+The `devtools` package provides the `install_github()` function needed to fetch and install packages from GitHub. Install it from CRAN:
+
+```{r, eval=FALSE}
+install.packages("devtools")
+```
+
+**What `devtools` does:** It automates the process of downloading source code from GitHub, resolving dependencies, compiling (if needed), and installing the package into your R library.
+
+### Step 2: Set up a development environment
+
+To install packages from source (which is what GitHub packages are), your system needs a compiler and associated tools:
+
+- **Windows:** Install [Rtools](https://cran.r-project.org/bin/windows/Rtools/). Choose the version that matches your R version. Rtools provides the `gcc` compiler and `make` utility required to build R packages from source.
+  
+- **macOS:** Install **Xcode** from the Mac App Store, or at minimum the Command Line Tools for Xcode. You can install the command line tools alone by running `xcode-select --install` in the Terminal.
+
+- **Linux (Ubuntu/Debian):** Install a compiler and development libraries. A typical command is:
+  ```bash
+  sudo apt-get install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev
+  ```
+  The exact packages may vary by distribution. The key requirement is that `gcc` (or `clang`) and `make` are available.
+
+> **Why is this needed?** Unlike CRAN binaries (pre-compiled), GitHub packages are distributed as source code. R must compile them locally, which requires a development toolchain.
+
+### Step 3: Install `MortalityLaws` from GitHub
+
+Once `devtools` is installed and your development environment is ready, run:
+
+```{r, eval=FALSE}
+devtools::install_github("mpascariu/MortalityLaws")
+```
+
+This command:
+1. Clones the repository from `https://github.com/mpascariu/MortalityLaws`.
+2. Builds the package from source.
+3. Installs it into your R library.
+
+### Step 4: Verify the installation
+
+After installation, load the package and check that everything works:
+
+```{r, eval=FALSE}
+library(MortalityLaws)
+availableLaws()   # list all implemented mortality laws
+```
+
+---
+
+# Updating an existing installation
+
+- **CRAN version:** Simply re-run `install.packages("MortalityLaws")` periodically to get the latest stable release.
+- **GitHub version:** Run `devtools::install_github("mpascariu/MortalityLaws")` again to pull and install the most recent commits.
+
+---
+
+You are now ready to use `MortalityLaws`! Happy modelling.
+
+For further guidance, check the other vignettes (e.g., the introductory vignette) and the help pages:
+
+```{r, eval=FALSE}
+browseVignettes("MortalityLaws")   # view available vignettes
+?MortalityLaw                       # help for the main fitting function
+```
+
+# References

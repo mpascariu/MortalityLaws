@@ -2,17 +2,20 @@
 % Please edit documentation in R/MortalityLaw_main.R
 \name{scale_x}
 \alias{scale_x}
-\title{Scaling method for x vector}
+\title{Scale the age vector for stable optimisation}
 \usage{
 scale_x(x)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{A numeric vector of ages.}
 }
 \value{
-scalar
+A numeric vector of scaled ages, where min(x) == 1.
 }
 \description{
-Scaling method for x vector
+For mortality laws that cover only a portion of the lifespan (e.g., adult
+or old-age mortality), the age vector is rescaled so that the minimum age
+becomes 1. This improves numerical stability by keeping the exponentiated
+terms in the hazard function within a reasonable range.
 }
 \keyword{internal}

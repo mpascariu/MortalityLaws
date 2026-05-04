@@ -2,17 +2,17 @@
 % Please edit documentation in R/readJMD.R
 \name{check_input_ReadJMD}
 \alias{check_input_ReadJMD}
-\title{Check input ReadAHMD}
+\title{Check input ReadJMD}
 \usage{
 check_input_ReadJMD(x)
 }
 \arguments{
-\item{x}{a list containing the input arguments from ReadAHMD function}
+\item{x}{a list containing the input arguments from ReadJMD function}
 }
 \value{
 No return value, called for validating input data
 }
 \description{
-Check input ReadAHMD
+Check input ReadJMD
 }
 \keyword{internal}

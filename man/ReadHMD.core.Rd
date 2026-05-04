@@ -31,7 +31,7 @@ might be available for some or all the countries and regions: \itemize{
 \item{country}{HMD country code for the selected country. Character;}
 
 \item{interval}{Datasets are given in various age and time formats based on
-which the records are agregated. Interval options:
+which the records are aggregated. Interval options:
 \itemize{
   \item{\code{"1x1"}} -- by age and year;
   \item{\code{"1x5"}} -- by age and 5-year time interval;

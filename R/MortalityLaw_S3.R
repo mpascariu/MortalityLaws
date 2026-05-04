@@ -1,8 +1,7 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Aug  7 21:52:24 2023
-# -------------------------------------------------------------- #
-
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:32:19
+# --------------------------------------------
 
 #' Print MortalityLaw
 #' @param x an object of class \code{"MortalityLaw"}
@@ -86,7 +85,7 @@ print.summary.MortalityLaw <- function(x, ...) {
 
 #' logLik function for MortalityLaw
 #' @inheritParams print.MortalityLaw
-#' @return model log-Likelohood value
+#' @return Model log-likelihood value
 #' @keywords internal
 #' @export
 logLik.MortalityLaw <- function(object, ...) {

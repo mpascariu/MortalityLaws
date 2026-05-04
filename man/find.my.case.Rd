@@ -7,20 +7,28 @@
 find.my.case(Dx = NULL, Ex = NULL, mx = NULL, qx = NULL, lx = NULL, dx = NULL)
 }
 \arguments{
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object
-represents the number of deaths during the year to persons aged x to x+n.}
+\item{Dx}{Death counts. Each element represents the total number of 
+deaths during the calendar year to persons aged \code{x} to 
+\code{x + n} (where \code{n} is the length of the age interval). 
+Must be provided together with \code{Ex}.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
-mid-year population aged x to x+n.}
+\item{Ex}{Exposure-to-risk in the period. This is usually approximated 
+by the mid-year population aged \code{x} to \code{x + n}. Must be 
+provided together with \code{Dx}.}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{qx}{Probability of dying in age interval [x, x+n).}
+\item{qx}{Probability of dying within the age interval \code{[x, x+n)}.}
 
-\item{lx}{Probability of survival up until exact age x (if l(0) = 1), or
-the number of survivors at exact age x, assuming l(0) > 1.}
+\item{lx}{Probability of surviving to exact age \code{x} (if \code{lx0 = 1}), 
+or the number of survivors at exact age \code{x} (if \code{lx0 > 1}). 
+When \code{lx} is the sole input, the values are re-scaled to the 
+chosen radix \code{lx0}.}
 
-\item{dx}{Deaths by life-table population in the age interval [x, x+n).}
+\item{dx}{Number of deaths in the life-table population occurring in 
+the age interval \code{[x, x+n)}. When \code{dx} is the sole input, 
+the values are re-scaled to sum to \code{lx0}.}
 }
 \value{
 A list containing problem solving details

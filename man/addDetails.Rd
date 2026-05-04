@@ -2,28 +2,36 @@
 % Please edit documentation in R/MortalityLaw_main.R
 \name{addDetails}
 \alias{addDetails}
-\title{Depending on the chosen mortality law, additional details need to be
-specified in order to be able to fit the models taking into account it's
-particularities.}
+\title{Retrieve model-specific details for fitting}
 \usage{
 addDetails(law, custom.law = NULL, parS = NULL)
 }
 \arguments{
-\item{law}{The name of the mortality law/model to be used. e.g.
-\code{gompertz}, \code{makeham}, ... To investigate all the possible options,
-see \code{\link{availableLaws}} function.}
+\item{law}{The name of the mortality law to be used (e.g., \code{"gompertz"},
+\code{"makeham"}). Run \code{\link{availableLaws}} to see all options.}
 
-\item{custom.law}{Allows you to fit a model that is not defined
-in the package. Accepts as input a function.}
+\item{custom.law}{A user-defined function for fitting a model not included
+in the package. The function must accept arguments \code{x} (age vector)
+and \code{par} (named parameter vector) and return a list containing at
+least an element named \code{hx} (the hazard or force of mortality). See
+the examples below.}
 
-\item{parS}{Starting parameters used in the optimization process (optional).}
+\item{parS}{Optional starting parameter values for the optimisation. If
+\code{NULL}, sensible defaults are automatically chosen via
+\code{\link{bring_parameters}}.}
 }
 \value{
-A list of model specifications
+A list with components:
+\item{law}{Internal law name (e.g., \code{"custom.law"} for user-supplied functions).}
+\item{parS}{Starting parameter values for the optimisation.}
+\item{model}{Model information data frame (from \code{\link{availableLaws}})
+or \code{"Custom Mortality Law"} for user-defined models.}
+\item{scale.x}{Logical; whether the age vector should be re-scaled
+(\code{x = x - min(x) + 1}) before fitting.}
 }
 \description{
-Depending on the chosen mortality law, additional details need to be
-specified in order to be able to fit the models taking into account it's
-particularities.
+Based on the chosen mortality law (or a custom law), this function retrieves
+the default starting parameters, the model information table, and whether
+the age vector should be scaled before fitting.
 }
 \keyword{internal}

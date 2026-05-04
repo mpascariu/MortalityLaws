@@ -7,35 +7,52 @@
 LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object
-represents the number of deaths during the year to persons aged x to x+n.}
+\item{Dx}{Death counts. Each element represents the total number of 
+deaths during the calendar year to persons aged \code{x} to 
+\code{x + n} (where \code{n} is the length of the age interval). 
+Must be provided together with \code{Ex}.}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
-mid-year population aged x to x+n.}
+\item{Ex}{Exposure-to-risk in the period. This is usually approximated 
+by the mid-year population aged \code{x} to \code{x + n}. Must be 
+provided together with \code{Dx}.}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{qx}{Probability of dying in age interval [x, x+n).}
+\item{qx}{Probability of dying within the age interval \code{[x, x+n)}.}
 
-\item{lx}{Probability of survival up until exact age x (if l(0) = 1), or
-the number of survivors at exact age x, assuming l(0) > 1.}
+\item{lx}{Probability of surviving to exact age \code{x} (if \code{lx0 = 1}), 
+or the number of survivors at exact age \code{x} (if \code{lx0 > 1}). 
+When \code{lx} is the sole input, the values are re-scaled to the 
+chosen radix \code{lx0}.}
 
-\item{dx}{Deaths by life-table population in the age interval [x, x+n).}
+\item{dx}{Number of deaths in the life-table population occurring in 
+the age interval \code{[x, x+n)}. When \code{dx} is the sole input, 
+the values are re-scaled to sum to \code{lx0}.}
 
-\item{sex}{Sex of the population considered here. Default: \code{NULL}.
-This argument affects the first two values in the life table ax column.
-If sex is specified the values are computed based on the Coale-Demeny method
-and are slightly different for males than for females.
-Options: \code{NULL, male, female, total}.}
+\item{sex}{Sex of the population. Options are \code{NULL} (default), 
+\code{"male"}, \code{"female"}, or \code{"total"}. When specified, 
+the first two entries of the \code{ax} column are adjusted using 
+Coale-Demeny coefficients, producing more accurate life-table values 
+at the youngest ages. The adjustment differs slightly between males 
+and females.}
 
-\item{lx0}{Radix. Default: 100 000.}
+\item{lx0}{Radix, the starting population (or probability scale) at 
+age 0. Default is \code{100,000}. All subsequent life-table columns 
+(\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.}
 
-\item{ax}{Numeric scalar. Subject-time alive in age-interval for those who
-die in the same interval. If \code{NULL} this will be estimated. A common
-assumption is \code{ax = 0.5}, i.e. the deaths occur in the middle of
-the interval. Default: \code{NULL}.}
+\item{ax}{Numeric vector representing the average number of person-years 
+lived in the age interval by those who die in that interval. If 
+\code{NULL} (the default), \code{ax} is estimated internally using 
+a standard formula. You may supply a single value (applied to all 
+intervals) or a vector of the same length as \code{x}. A common 
+assumption is \code{ax = 0.5}, which places deaths at the midpoint 
+of each interval.}
 }
 \value{
 A data.frame containing life table results

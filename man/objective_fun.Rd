@@ -2,40 +2,67 @@
 % Please edit documentation in R/MortalityLaw_main.R
 \name{objective_fun}
 \alias{objective_fun}
-\title{Function to be Optimize}
+\title{Objective function to minimise during optimisation}
 \usage{
 objective_fun(par, x, Dx, Ex, mx, qx, law, opt.method, custom.law)
 }
 \arguments{
-\item{x}{Vector of ages at the beginning of the age interval.}
+\item{par}{Parameter vector on the log scale.}
 
-\item{Dx}{Object containing death counts. An element of the \code{Dx} object
-represents the number of deaths during the year to persons aged x to x+n.}
+\item{x}{Numeric vector of ages at the beginning of each age interval. 
+For a full life table, use single-year ages (e.g., \code{0:110}). 
+For an abridged life table, use the lower bound of each interval 
+(e.g., \code{c(0, 1, 5, 10, ..., 110)}).}
 
-\item{Ex}{Exposure in the period. \code{Ex} can be approximated by the
-mid-year population aged x to x+n.}
+\item{Dx}{Death counts. Each element represents the total number of 
+deaths during the calendar year to persons aged \code{x} to 
+\code{x + n} (where \code{n} is the length of the age interval). 
+Must be provided together with \code{Ex}.}
 
-\item{mx}{Life table death rate in age interval [x, x+n).}
+\item{Ex}{Exposure-to-risk in the period. This is usually approximated 
+by the mid-year population aged \code{x} to \code{x + n}. Must be 
+provided together with \code{Dx}.}
 
-\item{qx}{Probability of dying in age interval [x, x+n).}
+\item{mx}{Age-specific death rate in the age interval \code{[x, x+n)}. 
+Defined as \code{Dx / Ex}.}
 
-\item{law}{The name of the mortality law/model to be used. e.g.
-\code{gompertz}, \code{makeham}, ... To investigate all the possible options,
-see \code{\link{availableLaws}} function.}
+\item{qx}{Probability of dying within the age interval \code{[x, x+n)}.}
 
-\item{opt.method}{How would you like to find the parameters? Specify the
-function to be optimize. Available options: the Poisson likelihood function
-\code{poissonL}; the Binomial likelihood function -\code{binomialL}; and
-6 other loss functions. For more details, check the \code{\link{availableLF}}
-function.}
+\item{law}{The name of the mortality law to be used (e.g., \code{"gompertz"},
+\code{"makeham"}). Run \code{\link{availableLaws}} to see all options.}
 
-\item{custom.law}{Allows you to fit a model that is not defined
-in the package. Accepts as input a function.}
+\item{opt.method}{The function to optimise. Available options:
+\itemize{
+  \item{\code{"poissonL"}: Poisson log-likelihood.}
+  \item{\code{"binomialL"}: Binomial log-likelihood.}
+  \item{\code{"LF1"}: Squared relative error \code{(1 - mu/nu)^2}.}
+  \item{\code{"LF2"}: Squared log-ratio \code{log(mu/nu)^2}.}
+  \item{\code{"LF3"}: Chi-squared-type \code{((nu - mu)^2)/nu}.}
+  \item{\code{"LF4"}: Squared error \code{(nu - mu)^2}.}
+  \item{\code{"LF5"}: Deviance-type \code{(nu - mu) * log(nu/mu)}.}
+  \item{\code{"LF6"}: Absolute error \code{abs(nu - mu)}.}
+}
+See \code{\link{availableLF}} for details.}
+
+\item{custom.law}{A user-defined function for fitting a model not included
+in the package. The function must accept arguments \code{x} (age vector)
+and \code{par} (named parameter vector) and return a list containing at
+least an element named \code{hx} (the hazard or force of mortality). See
+the examples below.}
 }
 \value{
-The optimal value
+A scalar loss value to be minimised.
 }
 \description{
-Function to be Optimize
+Given a set of parameters (on the log scale), this function evaluates the
+chosen loss function or negative log-likelihood by comparing observed
+mortality values (Dx/Ex, mx, or qx) against the hazard rates predicted by
+the specified mortality law.
+}
+\details{
+Parameters are transformed back to the original scale via \code{exp(par)}
+when calling the mortality law function. Infinite hazard values are capped
+to 1, and large penalties are applied for missing or out-of-range values
+to guide the optimiser away from invalid regions.
 }
 \keyword{internal}

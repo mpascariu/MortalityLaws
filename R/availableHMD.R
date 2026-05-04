@@ -1,13 +1,13 @@
-# ------------------------------------------------- #
-# Author: Marius D. Pascariu
-# Last update: Wed Apr  2 08:29:58 2025
-# ------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:38:13
+# --------------------------------------------
 
 #' Check Data Availability in HMD
 #'
-#' The function returns information about available data in the Human Mortality 
-#' Database, HMD (period life tables etc.), with the range of years covered 
-#' by the life tables.
+#' Returns information about the data available in the Human Mortality 
+#' Database (HMD), including the range of years covered by the life tables 
+#' for each country or region.
 #' @param link URL to the HMD available data.
 #' Default: "https://www.mortality.org/Data/DataAvailability"
 #' @return A tibble.

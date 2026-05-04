@@ -1,13 +1,13 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:13:49 2023
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:38:03
+# --------------------------------------------
 
-#' Plot Function for MortalityLaw
-#' @param x An object of class MortalityLaw
-#' @param ... Arguments to be passed to methods, such as graphical
+#' Plot Method for MortalityLaw
+#' @param x An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to graphical methods, such as
 #' parameters (see \code{\link{par}}).
-#' @return generate a plot
+#' @return A plot is generated as a side effect.
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
 #' @examples

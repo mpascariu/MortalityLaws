@@ -2,17 +2,34 @@
 % Please edit documentation in R/MortalityLaw_main.R
 \name{choose_optim}
 \alias{choose_optim}
-\title{Select an optimizing method}
+\title{Run the optimisation routine}
 \usage{
 choose_optim(input)
 }
 \arguments{
-\item{input}{list of all inputs collected from MortalityLaw function}
+\item{input}{A list containing all input arguments to \code{\link{MortalityLaw}}.}
 }
 \value{
-A list of model specification corresponding to the best fitted model
+A list with components:
+\item{x}{Age vector (original).}
+\item{new.x}{Age vector after optional scaling.}
+\item{opt}{Object returned by \code{\link{nlminb}}.}
+\item{C}{Estimated parameters on the original scale.}
+\item{hx}{Fitted hazard values evaluated at \code{new.x}.}
+\item{logLik, AIC, BIC}{Goodness-of-fit measures (\code{NaN} for
+non-likelihood methods).}
 }
 \description{
-Select an optimizing method
+This is the core optimisation function for \code{\link{MortalityLaw}}. It:
+\enumerate{
+  \item Subsets the data to the fitting ages (\code{fit.this.x}).
+  \item Scales the age vector if required by the chosen model.
+  \item Obtains default starting parameters (if not provided).
+  \item Minimises the objective function using \code{\link{nlminb}} (PORT
+        routines) with the parameters on the log scale.
+  \item Transforms parameters back to the original scale, computes the
+        fitted hazard, and derives goodness-of-fit measures (AIC, BIC,
+        log-likelihood) where applicable.
+}
 }
 \keyword{internal}

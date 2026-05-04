@@ -1,13 +1,12 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Thu Jul 20 21:08:15 2023
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-04 23:30:18
+# --------------------------------------------
 
-
-#' Check Available Loss Function
+#' Check Available Loss Functions
 #'
-#' The function returns information about the implemented loss function used by the
-#' optimization procedure in the \code{\link{MortalityLaw}} function.
+#' Returns information about the loss functions implemented for use with the
+#' optimisation procedure in the \code{\link{MortalityLaw}} function.
 #' @return A list of class \code{availableLF} with the components:
 #'  \item{table}{Table with loss functions and codes to be used in \code{\link{MortalityLaw}}.}
 #'  \item{legend}{Table with details about the abbreviation used.}
@@ -50,10 +49,10 @@ print.availableLF <- function(x, ...) {
   cat("\nLEGEND:\n")
   cat(x$legend, sep = '\n')
 
-  message("\nHINT: Most of the functions work well with 'poissonL', however for complex ",
-          "mortality laws like Heligman-Pollard (HP) one can obtain a better fit using ",
+  message("\nHINT: Most loss functions work well with 'poissonL'. However, for complex ",
+          "mortality laws like Heligman-Pollard (HP), a better fit can be obtained using ",
           "other loss functions (e.g. 'LF2'). You are strongly encouraged to test ",
-          "different option before deciding on the final version. The results might be ",
+          "different options before deciding on the final version. The results might be ",
           "slightly different.\n")
 }
 
