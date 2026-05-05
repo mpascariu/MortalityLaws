@@ -1,11 +1,15 @@
-# --------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last update: Sun May 02 11:35:52 2021
-# --------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-05 18:51:35
+# --------------------------------------------
 remove(list = ls())
 library(MortalityLaws)
 
-# Example 1 --- Full life table -----------------
+# Setup: Load AHMD mortality data for Sweden in the year 1900, ages 0-107.
+# This serves as the baseline for constructing life tables from various
+# input types (Dx+Ex, mx, qx, lx, dx) and verifying they yield identical results.
+
+# Example 1 --- Full life table (single-year ages 0-107) -----------------
 y  <- 1900
 x  <- 0:107
 
@@ -24,31 +28,43 @@ LT8  <- LifeTable(x, qx = LT6$lt$qx, ax = 0.5)
 LT9  <- LifeTable(x, lx = LT6$lt$lx, ax = 0.5)
 LT10 <- LifeTable(x, dx = LT6$lt$dx, ax = 0.5)
 
-# Example 2 --- Abridge life table ------------
+# Example 2 --- Abridged life table (irregular intervals: 0,1, then 5-year groups up to 110) ------------
+# Tests LifeTable with an abridged age structure using hypothetical mortality rates (mx2),
+# and verifies that different primary inputs (mx, qx, lx, dx) with sex specification
+# all produce consistent life table estimates.
 x2  = c(0, 1, seq(5, 110, by = 5))
 mx2 = c(.053, .005, .001, .0012, .0018, .002, .003, .004,
        .004, .005, .006, .0093, .0129, .019, .031, .049,
        .084, .129, .180, .2354, .3085, .390, .478, .551)
+# LT11-LT14: Abridged life tables built from the same underlying mortality but with
+# different primary inputs (mx, qx, lx, dx). Also tests that the sex argument is
+# correctly passed through (female, NULL, male, total).
 LT11 = LifeTable(x2, mx = mx2, sex = "female")
 LT12 = LifeTable(x2, qx = LT11$lt$qx, sex = NULL)
 LT13 = LifeTable(x2, lx = LT11$lt$lx, sex = "male")
 LT14 = LifeTable(x2, dx = LT11$lt$dx, sex = "total")
 
 
+# LT15: Abridged life table with irregular age groups (single-year for early childhood,
+# then 5-year intervals up to age 70). Built from death counts (dx) only.
 x3 = c(0, 1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70)
 dx = c(11728, 1998, 2190, 1336, 637, 1927, 420, 453, 475, 905, 1168,
        2123, 2395, 3764, 5182, 6555, 8652, 10687, 37405)
 LT15 <- LifeTable(x = x3, dx = dx)
 
 
-# Example 3 --- Abridge life table w ax ------------
+# Example 3 --- Abridged life table with custom ax ------------
+# Tests that a user-specified ax for the first age (infant) works correctly.
 ax <- LT15$lt$ax
-ax[1] <- 0.1
+ax[1] <- 0.1  # Override the default infant separation factor
 LT16 <- LifeTable(x = x3, dx = dx, ax = ax)
 
 
 # TESTS ----------------------------------------------
-# expect_warning((LT16 = LifeTable(x = 0:110, mx = ahmd$mx)))
+# Run two sets of tests:
+#   1. foo.test.lt() — validates basic life table properties for all 16 LTs.
+#   2. test_lt_consistency() — verifies that LTs built from different input types
+#      (Dx+Ex, mx, qx, lx, dx) produce identical life table columns.
 
 foo.test.lt <- function(X) {
   cn = c("x", "mx", "qx", "ax", "lx", "dx", "Lx", "Tx", "ex")
@@ -74,6 +90,9 @@ for (j in 1:16) {
 # round(LT1$lt$mx - LT4$lt$mx, 10)
 # round(LT1$lt$mx - LT5$lt$mx, 10)
 
+# Helper: verifies that a life table constructed from an alternative input (mx, qx, lx, dx)
+# matches the benchmark life table (built from Dx+Ex). The last row is excluded because
+# the closure method may differ depending on the input type.
 test_lt_consistency <- function(benchmark_LT, LT) {
   n <- nrow(benchmark_LT$lt)   # The last row can be different depending how the LT is closed. Do not test last row.
   B <- round(benchmark_LT$lt[-n, -1], 7)
@@ -94,10 +113,10 @@ for (k in 7:10) test_lt_consistency(LT6, get(paste0("LT", k)))
 
 
 
-# ----------------------------------------------
-# Test messages
+# Input validation: verify LifeTable catches incorrect usage ------------------
+# Each test below checks a specific invalid input scenario:
 
-# Error: 'ax' must be a numeric scalar (or NULL)
+# Error: 'ax' must be a numeric scalar (or NULL) — here it's a string.
 expect_error(
   LifeTable(x, mx = mx, ax = "ax")
 )
@@ -164,8 +183,9 @@ expect_warning(
 
 
 # ----------------------------------------------------------------------------
-# Test print function for multiple tables
-
+# Test print function for life tables with multiple columns (multi-population).
+# When mx is a matrix (multiple columns), LifeTable returns multiple life tables.
+# The print function should handle this case without error.
 expect_output(
   print(LifeTable(x = 0:110, mx = ahmd$mx))
 )

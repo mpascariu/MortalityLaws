@@ -1,3 +1,11 @@
+version 2.2.2
+- Documentation update for testing functions;
+
+version 2.2.0
+- Simplified optimisation process by using PORT routines for all models. 
+This should improve the fitting process and the convergence in some cases;
+- Documentation update for main functions;
+
 version 2.1.2
 - update web source for Australian Human Mortality Database;
 

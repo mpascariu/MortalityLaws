@@ -1,35 +1,44 @@
-# -------------------------------------------------------------- #
-# Author: Marius D. PASCARIU
-# Last Update: Mon Jan 15 16:54:54 2024
-# -------------------------------------------------------------- #
+# --------------------------------------------
+# Author: Marius D PASCARIU
+# Date: 2026-05-05 18:52:50
+# --------------------------------------------
 remove(list = ls())
 
-# Wrong index
+# Test 1: Invalid index argument
+# Logic: The function should error when given a non-existent indicator name ("DxDD").
 expect_error(ReadJMD(what = "DxDD"))
 
-# Wrong region
+# Test 2: Invalid region name
+# Logic: "Kyotooooooo" is not a valid Japanese prefecture name, so the function should error.
 expect_error(ReadJMD(what = "Dx",
                      regions = "Kyotooooooo"))
 
-# Wrong interval
+# Test 3: Invalid interval format
+# Logic: "1x50" is not a recognized interval format (should be like "1x1", "5x5", etc.).
 expect_error(ReadJMD(what = "Dx",
                      regions = "Kyoto",
                      interval = "1x50"))
 
-# Wrong interval for the index
+# Test 4: Interval mismatch for a lexis‑type index
+# Logic: For "Ex_lexis" data the interval must be "1x1"; using "1x1" is correct so no error,
+# but a message is expected regarding the interval format for this index type.
 expect_message(ReadJMD(what = "Ex_lexis",
                      regions = "Japan",
                      interval = "1x1"))
 
+# Test 5: Interval mismatch for life‑expectancy index
+# Logic: "e0" (life expectancy at birth) is a period measure and cannot be retrieved with a "5x1" interval;
+# the function should issue a message about the expected interval format.
 expect_message(ReadJMD(what = "e0",
                      regions = "Japan",
                      interval = "5x1"))
 
-# remove test since the case is now valid and available in the database.
+# (Commented out) Test that was previously expected to fail but is now valid.
 # expect_error(ReadJMD(what = "LT_f",
 #                      regions = "Kyoto",
 #                      interval = "1x1"))
 
+# Test that the built-in sample dataset JMD_sample prints without error.
 expect_output(
   print(JMD_sample)
 )
@@ -52,3 +61,4 @@ expect_output(
 #                            interval = "5x5",
 #                            show = FALSE))
 # expect_output(print(D))
+
