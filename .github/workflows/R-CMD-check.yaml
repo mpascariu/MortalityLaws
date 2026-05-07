@@ -1,129 +1,46 @@
-# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
-# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+name: R-CMD-check
+
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ "main", "master" ]
   pull_request:
-    branches:
-      - main
-      - master
-  schedule:
-    - cron: "0 0 * * *"
-
-name: R-CMD-check
+    branches: [ "main", "master" ]
 
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
 
     strategy:
       fail-fast: false
       matrix:
         config:
           - {os: windows-latest, r: 'release'}
-          - {os: macOS-latest, r: 'release'}
-          - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+          - {os: macos-latest,   r: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'devel'} # CRAN also checks against R-devel
 
     env:
-      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      RSPM: ${{ matrix.config.rspm }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      # prevent rgl issues because no X11 display is available
-      RGL_USE_NULL: true
-      R_PROFILE_USER: ~/.Rprofile
+      R_KEEP_PKG_SOURCE: yes
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-      - uses: r-lib/actions/setup-pandoc@v2
+          use-public-rspm: true
 
-      - name: Save CRAN repo to Rprofile
-        run: writeLines('options(repos = c(CRAN = "https://cran.rstudio.org"))', '~/.Rprofile')
-        shell: Rscript {0}
-
-      - name: Query dependencies
-        run: |
-          install.packages('remotes')
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
-          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
-        shell: Rscript {0}
-
-      - name: Cache R packages
-        if: runner.os != 'Windows'
-        uses: actions/cache@v4
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+          extra-packages: any::rcmdcheck
+          needs: check
 
-      # To install rgl in macOS it needs xquartz
-      - name: macOS dependencies
-        if: runner.os == 'macOS'
-        run: |
-          brew install [--cask] xquartz
-      # Adds manual deps to rgl in first line
-      - name: Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get install libglu1-mesa-dev libv8-dev
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
-      # To install rgl successfully in non-windows OS we need to export DISPLAY
-      - name: Install packages not windows
-        if: runner.os != 'Windows'
-        run: |
-          export DISPLAY=:99
-          Rscript -e 'remotes::install_deps(dependencies = TRUE); remotes::install_cran("rcmdcheck")'
-      - name: Install packages windows
-        if: runner.os == 'Windows'
-        run: |
-          remotes::install_deps(dependencies = TRUE)
-          remotes::install_cran("rcmdcheck")
-        shell: Rscript {0}
-
-        # Why a separate check for macOS/Linux? Because rgl needs to export DISPLAY
-        # in the check as well (this is also present for installing)
-      - name: Check in macOS/Linux
-        if: runner.os != 'Windows'
-        env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
-        run: |
-          export DISPLAY=:99
-          Rscript -e 'rcmdcheck::rcmdcheck(args = c("--no-manual"), error_on = "warning", check_dir = "check")'
-      - name: Check in Windows
-        if: runner.os == 'Windows'
-        env:
-          _R_CHECK_CRAN_INCOMING_REMOTE_: false
-        run: rcmdcheck::rcmdcheck(args = c("--no-manual"), error_on = "warning", check_dir = "check")
-        shell: Rscript {0}
-
-        # To make things simple we only run code coverage on linux
-        # because rstan generates problems installing
-      - name: Test coverage
-        if: runner.os == 'Linux'
-        run: covr::codecov()
-        shell: Rscript {0}
-
-        # To make things simpler, limit pkgdown deploy only to one OS
-      - name: Deploy package website to pkgdown
-        if: runner.os == 'Linux'
-        run: |
-          export DISPLAY=:99
-          R CMD INSTALL .
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          Rscript -e 'install.packages("pkgdown"); pkgdown::deploy_to_branch(new_process = FALSE)'
-      - name: Upload check results
-        if: failure()
-        uses: actions/upload-artifact@v4
+      - uses: r-lib/actions/check-r-package@v2
         with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
-          path: check
+          upload-snapshots: true
+          error-on: '"note"' # Uncomment this to fail on CRAN notes
