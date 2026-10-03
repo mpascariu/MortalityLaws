@@ -6,7 +6,7 @@
 \alias{MortalityLaws}
 \title{MortalityLaws: Parametric Mortality Models, Life Tables and HMD}
 \description{
-Fit the most popular human mortality 'laws', and construct full and abridge life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their life spans. For a comprehensive review of the most important mortality laws see Tabeau (2001) \doi{10.1007/0-306-47562-6_1}. Practical functions for downloading data from various human mortality databases are provided as well.
+Fit the most popular human mortality 'laws', and construct full and abridged life tables given various input indices. A mortality law is a parametric function that describes the dying-out process of individuals in a population during a significant portion of their life spans. For a comprehensive review of the most important mortality laws see Tabeau (2001) \doi{10.1007/0-306-47562-6_1}. Practical functions for downloading data from various human mortality databases are provided as well.
 }
 \details{
 To learn more about the package, start with the vignettes:
@@ -22,6 +22,11 @@ Useful links:
 }
 \author{
 \strong{Maintainer}: Marius D. Pascariu \email{mpascariu@outlook.com} (\href{https://orcid.org/0000-0002-2568-6489}{ORCID}) [copyright holder]
+
+Authors:
+\itemize{
+  \item Marius D. Pascariu \email{mpascariu@outlook.com} (\href{https://orcid.org/0000-0002-2568-6489}{ORCID}) [copyright holder]
+}
 
 Other contributors:
 \itemize{

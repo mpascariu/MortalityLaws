@@ -5,7 +5,9 @@
 \alias{ahmd}
 \title{MortalityLaws Test Data}
 \format{
-An object of class \code{list} of length 3.
+A list with the components \code{mx}, \code{Dx} and \code{Ex}.
+  Each component is a \code{data.frame} with 111 rows (ages 0 to 110) and
+  one column per year: 1850, 1900, 1950 and 2010.
 }
 \source{
 \href{https://www.mortality.org}{Human Mortality Database}

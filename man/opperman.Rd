@@ -16,7 +16,8 @@ default values will be assigned automatically.}
 A list of rates and model parameters
 }
 \description{
-Opperman Mortality Law - 1870
+The model is evaluated at ages shifted by one year (\code{x + 1}), which
+keeps the term \code{A/sqrt(x)} finite at age 0.
 }
 \examples{
 opperman(x = 1:25)

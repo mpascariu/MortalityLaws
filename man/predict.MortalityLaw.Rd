@@ -14,7 +14,10 @@
 \item{...}{Additional arguments affecting the predictions produced.}
 }
 \value{
-A vector of predicted hazard rates
+A vector (single fit) or matrix (one column per fit) of predicted
+mortality values: hazard rates \code{mu[x]} or death probabilities
+\code{q[x]} depending on the law (see the \code{FIT} column of
+\code{\link{availableLaws}}).
 }
 \description{
 Predict function for MortalityLaw

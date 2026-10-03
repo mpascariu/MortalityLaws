@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{Intro}
   %\VignetteEncoding{UTF-8}
-bibliography: Mlaw_Refrences.bib
+bibliography: Mlaw_References.bib
 biblio-style: "apalike"
 link-citations: true
 ---
@@ -20,23 +20,36 @@ opts_chunk$set(collapse = TRUE)
 
 # Package structure
 
-**MortalityLaws** is an R package that provides tools for fitting and analyzing a wide range of parametric mortality models. It exploits various optimisation methods to handle complex models efficiently. The package can construct full and abridged life tables from different inputs and download data directly from the Human Mortality Database (HMD).
+**MortalityLaws** is an R package that provides tools for fitting and analyzing a wide
+range of parametric mortality models. It exploits various optimisation methods to
+handle complex models efficiently. The package can construct full and abridged life
+tables from different inputs and download data directly from the Human Mortality
+Database (HMD).
 
 The core functions include:
 
-- `MortalityLaw` – fit parametric mortality models.
-- `LifeTable` – build life tables.
-- `LawTable` – generate life tables from a fitted mortality law.
-- `convertFx` – convert between mortality functions (e.g., `mx` to `qx`).
-- `ReadHMD` – download HMD data.
+- `MortalityLaw` : fit parametric mortality models.
+- `LifeTable` : build life tables.
+- `LawTable` : generate life tables from a fitted mortality law.
+- `convertFx` : convert between mortality functions (e.g., `mx` to `qx`).
+- `ReadHMD` : download HMD data.
 
-Support functions such as `availableLaws`, `availableLF`, and `availableHMD` return information about the implemented mortality laws, loss functions, and HMD data availability, respectively. Standard generics (`predict`, `plot`, `summary`, `fitted`, `residuals`) work on `MortalityLaw` and `LifeTable` objects.
+Support functions such as `availableLaws`, `availableLF`, and `availableHMD` return
+information about the implemented mortality laws, loss functions, and HMD data
+availability, respectively. Standard generics (`predict`, `plot`, `summary`, `fitted`,
+`residuals`) work on `MortalityLaw` objects. `LifeTable` objects have a `print`
+method, and the life table itself is a plain `data.frame` stored in the `$lt`
+component.
 
-A small built-in dataset (`ahmd`) is provided for testing. All functions are documented in the usual R way; after loading the package with `library(MortalityLaws)`, you can type `?MortalityLaw` to see its help file.
+A small built-in dataset (`ahmd`) is provided for testing. All functions are documented
+in the usual R way; after loading the package with `library(MortalityLaws)`, you can
+type `?MortalityLaw` to see its help file.
 
 # Downloading HMD data
 
-The `ReadHMD` function downloads data from the Human Mortality Database [@university_of_california_berkeley_human_2016]. To use it, you need a valid HMD account.
+The `ReadHMD` function downloads data from the Human Mortality Database
+[@university_of_california_berkeley_human_2016]. To use it, you need a valid HMD
+account.
 
 ```{r LoadPackages, message=FALSE}
 library(MortalityLaws)
@@ -56,21 +69,23 @@ HMD_Dx <- ReadHMD(
 
 You can similarly download:
 
-- `births` – birth records  
-- `Ex` – exposure-to-risk  
-- `lexis` – deaths by Lexis triangles  
-- `population` – population size  
-- `mx` – death rates  
-- `LT_f`, `LT_m`, `LT_t` – life tables by sex  
-- `e0` – life expectancy at birth  
-- `mxc` – cohort death rates  
-- `Exc` – cohort exposures  
+- `births` : birth records
+- `Ex` : exposure-to-risk
+- `Dx_lexis`, `Ex_lexis` : deaths and exposures by Lexis triangles
+- `population` : population size
+- `mx` : death rates
+- `LT_f`, `LT_m`, `LT_t` : life tables by sex
+- `e0` : life expectancy at birth
+- `mxc` : cohort death rates
+- `Exc` : cohort exposures
 
 for over 40 countries and regions in various formats (`1x1`, `1x5`, `5x1`, `5x5`).
 
 # Model fitting and diagnosis
 
-Once you have data, fitting a model is straightforward. Below we fit a Heligman–Pollard [@heligman1980] model to Swedish mortality in 1950 using a Poisson likelihood (loss function `"LF2"`).
+Once you have data, fitting a model is straightforward. Below we fit a
+Heligman–Pollard [@heligman1980] model to the bundled `ahmd` data (England & Wales,
+1950) using the squared log-ratio loss (loss function `"LF2"`).
 
 ```{r}
 year     <- 1950
@@ -105,11 +120,14 @@ Visual inspection is also easy:
 plot(fit)
 ```
 
-The default plot shows observed and fitted age‑specific death rates (or probabilities), the residuals, and the fitted parameters.
+The default plot shows observed and fitted age-specific death rates (or probabilities),
+the residuals, and a histogram of the residuals.
 
 ## Fitting on a subset of ages
 
-Sometimes you may want to fit the model only to a certain age range while still plotting over the full range. Use `fit.this.x` to specify the ages used during optimisation:
+Sometimes you may want to fit the model only to a certain age range while still
+plotting over the full range. Use `fit.this.x` to specify the ages used during
+optimisation:
 
 ```{r, fig.align='center', out.width='80%', fig.width=9}
 fit.subset <- MortalityLaw(
@@ -125,63 +143,71 @@ plot(fit.subset)
 
 The grey area indicates the ages that were actually used in the fit.
 
-## Age scaling for numerical stability
+## Age scaling
 
-When fitting models with exponential or power terms (e.g., Gompertz, Makeham), large age values can cause numerical overflow or slow convergence. **Centering and/or scaling the age variable** helps stabilise the optimisation.
+Some mortality laws model only a portion of the lifespan, and their exponential or
+power terms can become numerically unstable when evaluated at large ages. Such laws are
+flagged with `SCALE_X = TRUE` in `availableLaws()`, and `MortalityLaw` rescales the age
+vector automatically before fitting:
 
-The `MortalityLaw` function provides the argument `scale.age`. When set to `TRUE`, ages are centered by subtracting the mean age in the fitting range and scaled by dividing by the standard deviation. This transformation often improves convergence speed and parameter identifiability without affecting the shape of the mortality curve.
+$$x_{fit} = x - \min(x) + 1,$$
+
+so that the youngest age in the fitting range becomes 1. No user argument is involved:
+the flag travels with the law definition. The same transformation is applied
+consistently when the fit is evaluated, including in `predict()` and `LawTable()`, so
+extrapolated ages and life tables are built on the same age scale as the fit.
+
+Model parameters therefore refer to the scaled ages. They are not back-transformed to
+the original age scale, so they are not directly comparable with the parameterisation
+of the unscaled law. The fitted and predicted curves themselves are always drawn and
+returned on the original age scale.
 
 ```{r, eval=FALSE}
-# Fit with automatic age scaling
-fit_scaled <- MortalityLaw(
-  x          = ages,
-  Dx         = deaths,
-  Ex         = exposure,
-  law        = "gompertz",
-  scale.age  = TRUE
-)
+# Which laws are fitted on a rescaled age vector?
+A <- availableLaws()$table
+A[as.logical(A$SCALE_X), c("NAME", "CODE")]
 ```
-
-**Explanation:**  
-- Centering removes a large constant offset, reducing correlations between the intercept and slope parameters.  
-- Scaling brings all ages to a comparable magnitude, which is especially beneficial for algorithms like `nlm` or `optim` that assume unit‑scale variables.  
-- Internally, the model is fitted on the transformed ages, and the resulting parameters are back‑transformed so that the reported values correspond to the original age scale.
-
-You can also manually scale ages before passing them to `MortalityLaw` (e.g., `(x - mean(x))/sd(x)`), but using the built‑in `scale.age` argument is simpler and ensures correct back‑transformation.
 
 # Mortality laws in the package
 
-The following table lists all parametric mortality laws currently implemented. The **Code** column shows the string used in the `law` argument of `MortalityLaw`.
+The table below lists the mortality laws implemented in the package
+(`availableLaws()` returns the same list dynamically). The **Code** column shows the
+string used in the `law` argument of `MortalityLaw`.
 
 | Mortality Law | Predictor | Code |
 |---------------|-----------|------|
 | Gompertz | $\mu(x) = A e^{Bx}$ | `gompertz` |
 | Gompertz (reparam.) | $\mu(x) = \frac{1}{\sigma} \exp\left\{\frac{x-M}{\sigma}\right\}$ | `gompertz0` |
-| Inverse‑Gompertz | $\mu(x) = \frac{\frac{1}{\sigma}\exp\left\{\frac{x-M}{\sigma}\right\}}{\exp\left\{e^{-(x-M)/\sigma}\right\}-1}$ | `invgompertz` |
+| Inverse-Gompertz | $\mu(x) = \frac{\frac{1}{\sigma}\exp\left\{-\frac{x-M}{\sigma}\right\}}{\exp\left\{e^{-(x-M)/\sigma}\right\}-1}$ | `invgompertz` |
 | Makeham | $\mu(x) = A e^{Bx} + C$ | `makeham` |
 | Makeham (reparam.) | $\mu(x) = \frac{1}{\sigma} \exp\left\{\frac{x-M}{\sigma}\right\} + C$ | `makeham0` |
-| Opperman | $\mu(x) = \frac{A}{\sqrt{x}} + B + C \sqrt[3]{x}$ | `opperman` |
+| Opperman | $\mu(x) = \frac{A}{\sqrt{x}} - B + C \sqrt{x}$ | `opperman` |
 | Thiele | $\mu(x) = A_1 e^{-B_1 x} + A_2 e^{-\frac12 B_2 (x-C)^2} + A_3 e^{B_3 x}$ | `thiele` |
 | Wittstein | $q(x) = \frac{1}{B} A^{-(B x)^N} + A^{-(M - x)^N}$ | `wittstein` |
-| Perks | $\mu(x) = \frac{A + B C^x}{B C^{-x} + 1 + D C^x}$ | `perks` |
+| Perks | $\mu(x) = \frac{A + B C^x}{1 + D C^x}$ | `perks` |
 | Weibull | $\mu(x) = \frac{1}{\sigma} \left( \frac{x}{M} \right)^{\frac{M}{\sigma}-1}$ | `weibull` |
 | Inverse‑Weibull | $\mu(x) = \frac{\frac{1}{\sigma} \left( \frac{x}{M} \right)^{-\frac{M}{\sigma}-1}}{\exp\left\{\left( \frac{x}{M} \right)^{-\frac{M}{\sigma}}\right\}-1}$ | `invweibull` |
 | Van der Maen | $\mu(x) = A + Bx + Cx^2 + \frac{I}{N-x}$ | `vandermaen` |
 | Van der Maen (simpl.) | $\mu(x) = A + Bx + \frac{I}{N-x}$ | `vandermaen2` |
+| Strehler-Mildvan | $\mu(x) = A e^{Bx} \exp\left[-\frac{V}{B}\left(1 - e^{-Bx}\right)\right]$ | `strehler_mildvan` |
 | Quadratic | $\mu(x) = A + Bx + Cx^2$ | `quadratic` |
 | Beard | $\mu(x) = \frac{A e^{Bx}}{1 + K A e^{Bx}}$ | `beard` |
-| Makeham‑Beard | $\mu(x) = \frac{A e^{Bx}}{1 + K A e^{Bx}} + C$ | `makehambeard` |
+| Beard-Makeham | $\mu(x) = \frac{A e^{Bx}}{1 + K A e^{Bx}} + C$ | `beard_makeham` |
 | Gamma‑Gompertz | $\mu(x) = \frac{A e^{Bx}}{1 + \frac{AG}{B}(e^{Bx}-1)}$ | `ggompertz` |
 | Siler | $\mu(x) = A_1 e^{-B_1 x} + A_2 + A_3 e^{B_3 x}$ | `siler` |
 | Heligman–Pollard | $\frac{q(x)}{p(x)} = A^{(x+B)^C} + D e^{-E (\ln x - \ln F)^2} + G H^x$ | `HP` |
 | Heligman–Pollard (HP2) | $q(x) = A^{(x+B)^C} + D e^{-E (\ln x - \ln F)^2} + \frac{G H^x}{1+G H^x}$ | `HP2` |
 | Heligman–Pollard (HP3) | $q(x) = A^{(x+B)^C} + D e^{-E (\ln x - \ln F)^2} + \frac{G H^x}{1+K G H^x}$ | `HP3` |
+| Heligman–Pollard (HP4) | $q(x) = A^{(x+B)^C} + D e^{-E (\ln x - \ln F)^2} + \frac{G H^{x^K}}{1 + G H^{x^K}}$ | `HP4` |
 | Rogers–Planck | $q(x) = A_0 + A_1 e^{-Ax} + A_2 e^{B(x-U) - e^{-C(x-U)}} + A_3 e^{D x}$ | `rogersplanck` |
 | Martinelle | $\mu(x) = \frac{A e^{Bx} + C}{1 + D e^{Bx}} + K e^{Bx}$ | `martinelle` |
 | Carriere 1 | $S(x) = \psi_1 S_1(x) + \psi_2 S_2(x) + \psi_3 S_3(x)$ | `carriere1` |
 | Carriere 2 | $S(x) = \psi_1 S_1(x) + \psi_4 S_4(x) + \psi_3 S_3(x)$ | `carriere2` |
 | Kostaki | $\frac{q(x)}{p(x)} = A^{(x+B)^C} + D e^{-E_i (\ln x - \ln F)^2} + G H^x$ | `kostaki` |
-| Kannisto | $\mu(x) = \frac{A e^{Bx}}{1 + A e^{Bx}} + C$ | `kannisto` |
+| Kannisto | $\mu(x) = \frac{A e^{Bx}}{1 + A e^{Bx}}$ | `kannisto` |
+| Kannisto-Makeham | $\mu(x) = \frac{A e^{Bx}}{1 + A e^{Bx}} + C$ | `kannisto_makeham` |
+
+The `opperman` formula is evaluated internally at age $x + 1$.
 
 Use `availableLaws()` in R to see this list dynamically:
 
@@ -191,7 +217,10 @@ availableLaws()
 
 # Loss functions in the package
 
-A parametric mortality model is fitted by optimising a loss function (e.g., a negative log‑likelihood or a sum of squared errors). MortalityLaws provides eight loss functions that can emphasise different portions of the mortality curve. Use `availableLF()` to view their descriptions:
+A parametric mortality model is fitted by optimising a loss function (e.g., a negative
+log-likelihood or a sum of squared errors). MortalityLaws provides eight loss functions
+that can emphasise different portions of the mortality curve. Use `availableLF()` to
+view their descriptions:
 
 ```{r, message=FALSE, warning=FALSE}
 availableLF()
@@ -199,13 +228,16 @@ availableLF()
 
 # Custom mortality laws
 
-You are not limited to the built‑in laws – you can define your own hazard function and pass it via `custom.law`. As an example, we fit a reparametrised Gompertz model in terms of the modal age at death $M$ [@missov2015]:
+You are not limited to the built-in laws: you can define your own hazard function and
+pass it via `custom.law`. As an example, we fit a reparametrised Gompertz model in terms
+of the modal age at death $M$ [@missov2015]:
 
 \[
 \mu_x = \beta e^{\beta (x - M)}.
 \]
 
-First, define the hazard function. The function must return a list containing at least the hazard vector `hx`.
+First, define the hazard function. The function must return a list containing at least
+the hazard vector `hx`.
 
 ```{r}
 my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
@@ -242,7 +274,8 @@ plot(my_model)
 
 # Full life tables
 
-The `LifeTable` function can build complete or abridged life tables from several types of input:
+The `LifeTable` function can build complete or abridged life tables from several types
+of input:
 
 - Death counts and exposures (`Dx`, `Ex`)
 - Age‑specific death rates (`mx`)
@@ -250,7 +283,7 @@ The `LifeTable` function can build complete or abridged life tables from several
 - Survivorship (`lx`)
 - Death distribution (`dx`)
 
-Only one of these inputs needs to be specified – the rest are ignored if present.
+Only one of these inputs needs to be specified; the rest are ignored if present.
 
 ```{r}
 y  <- 1900
@@ -273,7 +306,8 @@ ls(LT1)   # components of the life table object
 
 # Abridged life tables
 
-Abridged life tables use wider age intervals (e.g., 0, 1–4, 5–9, ...). The same `LifeTable` function works for any abridged age structure.
+Abridged life tables use wider age intervals (e.g., 0, 1–4, 5–9, ...). The same
+`LifeTable` function works for any abridged age structure.
 
 ```{r}
 x  <- c(0, 1, seq(5, 110, by = 5))

@@ -44,6 +44,16 @@
 #' this limitation does not apply, and \code{LawTable} can be used for any 
 #' age range.
 #'
+#' \strong{Matching the coefficients to the model parameters}
+#'
+#' The coefficients supplied in \code{par} are matched to the parameters of 
+#' the chosen law \strong{by name and in any order}. For a matrix or a 
+#' data.frame the column names must therefore be the parameter names of that 
+#' law (e.g. \code{c("A", "B", "C")} for \code{"makeham"}); the row names are 
+#' used as the labels of the resulting life tables and must be supplied. An 
+#' unnamed vector keeps the positional convention, i.e. the coefficients are 
+#' read in the order in which the parameters are documented for the law.
+#'
 #' @inheritParams MortalityLaw
 #' @inheritParams LifeTable
 #'
@@ -53,8 +63,8 @@
 #'           single life table).
 #'     \item A numeric \strong{matrix} or \strong{data.frame} where each row 
 #'           corresponds to a separate set of parameters (producing multiple 
-#'           life tables). Column names should match the parameter names of 
-#'           the chosen law.
+#'           life tables). Column names must match the parameter names of 
+#'           the chosen law, as described in the details below.
 #'   }
 #'
 #' @inherit LifeTable return details
@@ -128,25 +138,29 @@ LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL) {
   xx      <- if (scale.x) scale_x(x) else x
 
   if (is.matrix(par) | is.data.frame(par)) {
-    hx <- NULL
-    for (j in 1:nrow(par)) {
-      hxj <- fn(xx, par[j, ])$hx
-      hx  <- cbind(hx, hxj)
-    }
+    hx <- lapply(
+      X   = seq_len(nrow(par)),
+      FUN = function(j) fn(x = xx, par = unlist(par[j, ]))$hx
+      )
+    hx <- do.call(what = cbind, args = hx)
     dimnames(hx) <- list(x, rownames(par))
 
   } else {
-    hx <- fn(xx, par)$hx
+    hx <- fn(x = xx, par = par)$hx
   }
 
-  thisIndex  <- info$model["FIT"]
+  # The law is evaluated on the (possibly scaled) ages, while the life table
+  # is built on the ages the user asked for, so that lt$x echoes the input.
+  thisIndex <- info$model["FIT"]
 
   if (thisIndex == "q[x]") {
-    out <- LifeTable(x = xx, qx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = x, qx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
+
   if (thisIndex == "mu[x]") {
-    out <- LifeTable(x = xx, mx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = x, mx = hx, sex = sex, lx0 = lx0, ax = ax)
   }
+
   out$call <- match.call()
   return(out)
 }

@@ -51,6 +51,7 @@ export(perks)
 export(quadratic)
 export(rogersplanck)
 export(siler)
+export(steffensen)
 export(strehler_mildvan)
 export(thiele)
 export(vandermaen)
@@ -60,34 +61,37 @@ export(wittstein)
 import(httr)
 import(rvest)
 importFrom(RCurl,getURL)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,barplot)
-importFrom(graphics,box)
-importFrom(graphics,hist)
-importFrom(graphics,layout)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,par)
-importFrom(graphics,plot)
-importFrom(graphics,rect)
+importFrom(graphics,
+  abline,
+  axis,
+  barplot,
+  box,
+  hist,
+  layout,
+  legend,
+  lines,
+  par,
+  plot,
+  rect
+)
 importFrom(methods,is)
-importFrom(pbapply,closepb)
-importFrom(pbapply,setpb)
-importFrom(pbapply,startpb)
-importFrom(stats,coef)
-importFrom(stats,df.residual)
-importFrom(stats,fitted)
-importFrom(stats,nlminb)
-importFrom(stats,optim)
-importFrom(stats,predict)
-importFrom(stats,printCoefmat)
-importFrom(stats,pt)
-importFrom(stats,qt)
-importFrom(stats,quantile)
-importFrom(stats,vcov)
-importFrom(tidyr,spread)
-importFrom(utils,head)
-importFrom(utils,read.csv)
-importFrom(utils,read.table)
-importFrom(utils,tail)
+importFrom(pbapply,
+  closepb,
+  setpb,
+  startpb
+)
+importFrom(stats,
+  coef,
+  df.residual,
+  fitted,
+  nlminb,
+  optim,
+  predict,
+  quantile,
+  residuals
+)
+importFrom(utils,
+  head,
+  read.table,
+  tail
+)

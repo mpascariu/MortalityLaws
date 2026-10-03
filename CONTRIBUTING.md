@@ -1,6 +1,7 @@
-## Contributing to the PACKAGE (MortalityLaws)
+## Contributing to MortalityLaws
 
-The goal of this guide is to help you contribute to the PACKAGE as quickly and as easily possible. The guide is divided into two main pieces:
+The goal of this guide is to help you contribute to MortalityLaws as quickly and as
+easily possible. The guide is divided into two main pieces:
 
 1. Filing a bug report or feature request in an issue.
 1. Suggesting a change via a pull request.
@@ -9,10 +10,10 @@ The goal of this guide is to help you contribute to the PACKAGE as quickly and a
 
 Before you file an issue:
 
-1.  Check that you're using the latest version of the PACKAGE. It's quite
+1.  Check that you're using the latest version of MortalityLaws. It's quite
     possible that the problem you're experiencing has already been fixed.
     
-1.  Check that the issue belongs in this PACKAGE. Much functionality now lives in 
+1.  Check that the issue belongs in MortalityLaws. Much functionality now lives in
     separate packages. 
     
 1.  Spend a few minutes looking at the existing issues. It's possible that
@@ -23,7 +24,10 @@ Before you file an issue:
     case. It's generally a bad idea to comment on a closed issue or a commit. 
     Those comments don't show up in the issue tracker and are easily misplaced.
 
-When filing an issue, the most important thing is to include a minimal reproducible example so that we can quickly verify the problem, and then figure out how to fix it. There are three things you need to include to make your example reproducible: required packages, data, code.
+When filing an issue, the most important thing is to include a minimal reproducible
+example so that we can quickly verify the problem, and then figure out how to fix it.
+There are three things you need to include to make your example reproducible: required
+packages, data, code.
 
 1.  **Packages** should be loaded at the top of the script, so it's easy to
     see which ones the example needs.
@@ -61,23 +65,24 @@ When filing an issue, the most important thing is to include a minimal reproduci
 ## Pull requests
 
 *   Your pull request will be easiest for us to read if you use a common
-    style: <http://r-pkgs.had.co.nz/r.html#style>. Please pay particular
+    style: <https://r-pkgs.had.co.nz/r.html#style>. Please pay particular
     attention to whitespace.
 
-*   You should always add a bullet point to `NEWS.md` motivating the change.
+*   You should always add a bullet point to `NEWS` motivating the change.
     It should look like "This is what changed (@yourusername, #issuenumber)".
     Please don't add headings like "bug fix" or "new features" - these are 
     added during the release process.
 
-*   If you can, also write a test. Testing devtools is particularly difficult
-    because most devtools functions are called for their side-effects, but do
-    the best you can.
+*   If you can, also write a test. The test suite lives in `tests/testthat/`; when
+    you fix a bug, add a regression test that fails before your fix and passes after
+    it.
 
 *   If you're adding new parameters or a new function, you'll also need
-    to document them with [roxygen2](http://r-pkgs.had.co.nz/man.html).
+    to document them with [roxygen2](https://r-pkgs.had.co.nz/man.html).
     Make sure to re-run `devtools::document()` on the code before submitting.
 
-A pull request is a process, and unless you're a practiced contributor it's unlikely that your pull request will be accepted as is. Typically the process looks like this:
+A pull request is a process, and unless you're a practiced contributor it's unlikely
+that your pull request will be accepted as is. Typically the process looks like this:
 
 1.  You submit the pull request.
 
@@ -92,8 +97,11 @@ A pull request is a process, and unless you're a practiced contributor it's unli
     otherwise we don't get any notification that your pull request is
     ready for review.
 
-Don't worry if your pull request isn't perfect. It's a learning process and we'll be happy to help you out. 
+Don't worry if your pull request isn't perfect. It's a learning process and we'll be
+happy to help you out.
 
-It can be frustrating that your PR is ignored for months, and then we request a whole bunch on changes within a short time period. Don't worry - if your PR doesn't make it for this release, it will for the next one.
+It can be frustrating that your PR is ignored for months, and then we request a whole
+bunch of changes within a short time period. Don't worry - if your PR doesn't make it
+for this release, it will for the next one.
 
 [markdown]: https://help.github.com/articles/basic-writing-and-formatting-syntax/

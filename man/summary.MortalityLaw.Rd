@@ -14,7 +14,7 @@
 \item{digits}{number of digits to display.}
 }
 \value{
-A list of model diagnosis
+A list of model diagnostics
 }
 \description{
 Summary MortalityLaw

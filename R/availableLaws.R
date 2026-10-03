@@ -49,7 +49,7 @@
 #' Scandinavian Actuarial Journal 1936 (3-4), 234-270.
 #' \doi{10.1080/03461238.1936.10405113}}
 #' \item{Weibull, W. (1951). A statistical distribution function of wide applicability.
-#' Journal of applied mechanics 103, 293-297.
+#' Journal of applied mechanics 18, 293-297.
 #'  \doi{10.1115/1.4010337}}
 #' \item{Beard, R. E. (1971).
 #' \href{http://longevity-science.org/Beard-1971.pdf}{
@@ -72,7 +72,7 @@
 #' Mortality, Migration, and Marital and Labor Force Status Transitions.}
 #' IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}
 #' \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
-#' Stockholm, Sweden, Statistiska Centralbyran, 1987. 55 p.
+#' Stockholm, Sweden, Statistiska centralbyran, 1987. 55 p.
 #' (R&D Report, Research-Methods-Development, U/STM No. 38)}
 #' \item{Carriere J.F. (1992). Parametric models for life tables.
 #' Transactions of the Society of Actuaries. Vol.44}
@@ -103,25 +103,26 @@ availableLaws <- function(law = NULL){
 
   if (is.null(law)) {
 
-    table <- as.data.frame(
+    law_table <- as.data.frame(
       matrix(
         ncol = 7,
         byrow = TRUE,
         data = c(
           1825, 'Gompertz', 'mu[x] = A exp[Bx]', 3, 'gompertz', 'mu[x]', TRUE,
-          NA, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-M)/sigma)]', 3, 'gompertz0', 'mu[x]', TRUE,
-          NA, 'Inverse-Gompertz', 'mu[x] = [1- exp(-(x-M)/sigma)] / [exp(-(x-M)/sigma) - 1]', 2, 'invgompertz', 'mu[x]', TRUE,
+          NA, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-M)/sigma]', 3, 'gompertz0', 'mu[x]', TRUE,
+          NA, 'Inverse-Gompertz', 'mu[x] = 1/sigma * exp[-(x-M)/sigma] / (exp(exp[-(x-M)/sigma]) - 1)', 2, 'invgompertz', 'mu[x]', TRUE,
           1860, 'Makeham', 'mu[x] = A exp[Bx] + C', 3, 'makeham', 'mu[x]', TRUE,
-          NA, 'Makeham', 'mu[x] = 1/sigma * exp[(x-M)/sigma)] + C', 3, 'makeham0', 'mu[x]', TRUE,
-          1870, 'Opperman', 'mu[x] = A/sqrt(x) - B + C*sqrt(x)', 1, 'opperman', 'mu[x]', FALSE,
-          1871, 'Thiele', 'mu[x] = A exp(-Bx) + C exp[-.5D (x-E)^2] + F exp(Gx)', 6, 'thiele', 'mu[x]', F,
+          NA, 'Makeham', 'mu[x] = 1/sigma * exp[(x-M)/sigma] + C', 3, 'makeham0', 'mu[x]', TRUE,
+          1870, 'Opperman', 'mu[x] = A/sqrt(x+1) - B + C*sqrt(x+1)', 1, 'opperman', 'mu[x]', FALSE,
+          1871, 'Thiele', 'mu[x] = A exp(-Bx) + C exp[-.5D (x-E)^2] + F exp(Gx)', 6, 'thiele', 'mu[x]', FALSE,
           1883, 'Wittstein', 'q[x] = (1/B) A^-[(Bx)^N] + A^-[(M-x)^N]', 6, 'wittstein', 'q[x]', FALSE,
-          1932, 'Perks', 'mu[x] = [A + BC^x] / [BC^-x + 1 + DC^x]', 3, 'perks', 'mu[x]', TRUE,
+          1930, 'Steffensen', 'mu[x] = [A + BC^x] / [BC^-x + 1 + DC^x]', 6, 'steffensen', 'mu[x]', TRUE,
+          1932, 'Perks', 'mu[x] = [A + BC^x] / [1 + DC^x]', 3, 'perks', 'mu[x]', TRUE,
           1939, 'Weibull', 'mu[x] = 1/sigma * (x/M)^(M/sigma - 1)', 1, 'weibull', 'mu[x]', FALSE,
           NA, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/M)^[-M/sigma - 1] / [exp((x/M)^(-M/sigma)) - 1]', 2, 'invweibull', 'mu[x]', TRUE,
           1943, 'Van der Maen', 'mu[x] = A + Bx + Cx^2 + I/[N - x]', 4, 'vandermaen', 'mu[x]', TRUE,
           1943, 'Van der Maen', 'mu[x] = A + Bx + I/[N - x]', 5, 'vandermaen2', 'mu[x]', TRUE,
-          1960, 'Strehler-Mildvan', 'mu[x] = K * exp[-V0 * (1 - Bx)/D]', 3, 'strehler_mildvan', 'mu[x]', TRUE,
+          1960, 'Strehler-Mildvan', 'mu[x] = A exp(Bx) exp[-(V/B)(1 - exp(-Bx))]', 3, 'strehler_mildvan', 'mu[x]', TRUE,
           NA, 'Quadratic', 'mu[x] = A + Bx + Cx^2', 5, 'quadratic', 'mu[x]', TRUE,
           1971, 'Beard', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)]', 4, 'beard', 'mu[x]', TRUE,
           1971, 'Beard-Makeham', 'mu[x] = A exp(Bx) / [1 + KA exp(Bx)] + C', 4, 'beard_makeham', 'mu[x]', TRUE,
@@ -142,7 +143,7 @@ availableLaws <- function(law = NULL){
         )
       )
 
-    colnames(table) <- c(
+    colnames(law_table) <- c(
       'YEAR',
       'NAME',
       'MODEL',
@@ -152,7 +153,7 @@ availableLaws <- function(law = NULL){
       "SCALE_X"
       )
 
-    legend <- as.data.frame(
+    law_legend <- as.data.frame(
       matrix(
         ncol = 2,
         byrow = TRUE,
@@ -167,7 +168,7 @@ availableLaws <- function(law = NULL){
         )
       )
 
-    colnames(legend) <- c("TYPE", "Coverage")
+    colnames(law_legend) <- c("TYPE", "Coverage")
   }
 
   if (!is.null(law)) {
@@ -178,13 +179,13 @@ availableLaws <- function(law = NULL){
         "Run 'availableLaws()' to see the implemented models.",
         call. = FALSE)
     }
-    table <- A$table[A$table$CODE %in% law, ]
-    legend <- A$legend[A$legend$TYPE %in% unique(table$TYPE), ]
+    law_table <- A$table[A$table$CODE %in% law, ]
+    law_legend <- A$legend[A$legend$TYPE %in% unique(law_table$TYPE), ]
   }
 
   out <- structure(
     class = "availableLaws",
-    list(table = table, legend = legend)
+    list(table = law_table, legend = law_legend)
     )
   return(out)
 }
@@ -193,7 +194,7 @@ availableLaws <- function(law = NULL){
 #' Print availableLaws
 #' @param x An object of class \code{"availableLaws"}
 #' @param ... Further arguments passed to or from other methods.
-#' @return print info on the console
+#' @return The object \code{x}, invisibly.
 #' @keywords internal
 #' @export
 print.availableLaws <- function(x, ...) {
@@ -210,5 +211,7 @@ print.availableLaws <- function(x, ...) {
     right = FALSE,
     row.names = FALSE
     )
+
+  return(invisible(x))
 }
 

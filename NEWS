@@ -1,3 +1,10 @@
+version 2.3.0 - "steady harbor"
+- Comparing models and building life tables is more reliable now, most
+noticeably for babies and at the oldest ages.
+- The affected models now follow their original published formulas, and
+one of them has a name of its own.
+- One old model was added. Error messages, plots and help pages improved.
+
 version 2.2.2
 - Documentation update for testing functions;
 
@@ -13,7 +20,9 @@ version 2.1.1
 - provide anchors to all documented external \links{};
 
 version 2.1.0
-- replace several stop errors with messages so the failure to connect to databases (for whatever reason) results in a gracefull ending of the process and to avoid triggering CRAN random error;
+- replace several stop errors with messages so the failure to connect to databases (for
+whatever reason) results in a graceful ending of the process and to avoid triggering
+CRAN random error;
 
 version 2.0.3
 - Change interaction with external resources and update documentation;
@@ -32,29 +41,30 @@ informative message if the resource is not available or has changed.
 version 1.8.1
 - LifeTable(): fix minor bug that prevented the closing of the life table with
 a qx = 1 in some situations;
-- Updata internal unit tests.
+- Update internal unit tests.
 
 version 1.8.0
-- readCHMD(): New function useful to download the Canadian Human Mortality Database;
-- readAHMD(): New function useful to download the Australian Human Mortality Database;
-- readJMD(): New function useful to download the Japanese Mortality Database;
+- ReadCHMD(): New function useful to download the Canadian Human Mortality Database;
+- ReadAHMD(): New function useful to download the Australian Human Mortality Database;
+- ReadJMD(): New function useful to download the Japanese Mortality Database;
 - convertFx(): improve the speed of the function > 5x;
 - availableHMD(): improve the speed of the function  > 100x;
-- LifeTable(): the argument 'ax' now accepts as input a numerical vector as well allowing the
-user to decide the timing of occurrence of death in each age interval;
-- Update LICENCE: MIT. Drop GLP-3.
+- LifeTable(): the argument 'ax' now accepts as input a numerical vector as well
+allowing the user to decide the timing of occurrence of death in each age interval;
+- Update LICENSE: MIT. Drop GPL-3.
 
 version 1.7.0
 - New models: Kannisto-Makeham (1998) and Strehler-Mildvan (1960);
-- ReadHMD() new functionalities. The function can now download cohort life tables, cohort life expectancy and exposure-to-risk by Lexis triangles data.
+- ReadHMD() new functionalities. The function can now download cohort life tables,
+cohort life expectancy and exposure-to-risk by Lexis triangles data.
 
 version 1.6.0
 - convertFx(): New function! Easy conversion between the life table indicators;
-- MortalityLaws(): Remove scale.x argument. Now, the function will identify
+- MortalityLaw(): Remove scale.x argument. Now, the function will identify
 by default which laws require a scaled x in fitting;
-- MortalityLaws(): When a mortality law is fitted on a subset of the input data,
-using fit.this.x argument, the residuals and fitted values are computed and plotted for
-the entire age range (in input). Previously only the fitted values followed this
+- MortalityLaw(): When a mortality law is fitted on a subset of the input data,
+using fit.this.x argument, the residuals and fitted values are computed and plotted
+for the entire age range (in input). Previously only the fitted values followed this
 approach;
 - MortalityLaw(): set the argument `show = FALSE` as default;
 - Drop `diagram` suggestion from DESCRIPTION and vignettes.
@@ -64,10 +74,11 @@ version 1.5.0
 - Fix bug in the ReadHMD() function due to HMD migration from http to https.
 
 version 1.4.0
-- Compute e[x] at the beginning of the age interval in LifeTable(). This affects only the ex column in the life table, all the other indicator remain unchanged;
+- Compute e[x] at the beginning of the age interval in LifeTable(). This affects only
+the ex column in the life table, all the other indicator remain unchanged;
 - New mortality model: Gamma-Gompertz (Vaupel.1979 version);
-- Fix bug related to fit.this.x argument in MortalityLaws();
-- More rigorous referencing in avalaibleLaws() function.
+- Fix bug related to fit.this.x argument in MortalityLaw();
+- More rigorous referencing in availableLaws() function.
 
 version 1.3.0
 - Add generic functions: deviance, df.residual;
@@ -75,8 +86,9 @@ version 1.3.0
 
 version 1.2.0
 - Vignettes;
-- Fix predict.MortalityLaws bug for cases where the input is of class matrix;
-- Solution for 'Kostaki' inflexion point due to high correlation between estimated parameters;
+- Fix predict.MortalityLaw bug for cases where the input is of class matrix;
+- Solution for 'Kostaki' inflexion point due to high correlation between estimated
+parameters;
 - Add 'scale.x' argument in MortalityLaw function;
 - Add 'ax' argument in LifeTable function;
 - Add 'show' argument in ReadHMD function;
@@ -85,5 +97,5 @@ version 1.2.0
 version 1.0.5
 - Fix issues with minpack.lm not being imported.
 
-version 1.0.0:
+version 1.0.0
 - First stable version (on CRAN).

@@ -18,8 +18,8 @@ For an abridged life table, use the lower bound of each interval
         single life table).
   \item A numeric \strong{matrix} or \strong{data.frame} where each row 
         corresponds to a separate set of parameters (producing multiple 
-        life tables). Column names should match the parameter names of 
-        the chosen law.
+        life tables). Column names must match the parameter names of 
+        the chosen law, as described in the details below.
 }}
 
 \item{law}{The name of the mortality law to be used (e.g., \code{"gompertz"},
@@ -42,7 +42,8 @@ lived in the age interval by those who die in that interval. If
 a standard formula. You may supply a single value (applied to all 
 intervals) or a vector of the same length as \code{x}. A common 
 assumption is \code{ax = 0.5}, which places deaths at the midpoint 
-of each interval.}
+of each interval. The value supplied for the open age interval is 
+ignored and replaced with \code{1/mx}; see \code{Details}.}
 }
 \value{
 An object of class \code{"LifeTable"} containing the following 
@@ -95,6 +96,16 @@ starts from the same lower age bound used during fitting.
 For models that do \emph{not} scale (e.g., Heligman-Pollard \code{"HP"}), 
 this limitation does not apply, and \code{LawTable} can be used for any 
 age range.
+
+\strong{Matching the coefficients to the model parameters}
+
+The coefficients supplied in \code{par} are matched to the parameters of 
+the chosen law \strong{by name and in any order}. For a matrix or a 
+data.frame the column names must therefore be the parameter names of that 
+law (e.g. \code{c("A", "B", "C")} for \code{"makeham"}); the row names are 
+used as the labels of the resulting life tables and must be supplied. An 
+unnamed vector keeps the positional convention, i.e. the coefficients are 
+read in the order in which the parameters are documented for the law.
 }
 \examples{
 # Example 1 --- Makeham --- multiple life tables from a matrix of parameters

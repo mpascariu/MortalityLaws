@@ -35,7 +35,7 @@ mx <- ReadHMD(what = "mx",
 my_Dxf <- Dx$data %>%
   filter(country == cntr, Year %in% years) %>%
   select(Year:Female) %>%
-  spread(key = Year, value = Female) %>%
+  tidyr::pivot_wider(names_from = Year, values_from = Female) %>%
   select(-Age)
 rownames(my_Dxf) <- 0:110
 head(my_Dxf)
@@ -43,7 +43,7 @@ head(my_Dxf)
 my_Exf <- Ex$data %>%
   filter(country == cntr, Year %in% years) %>%
   select(Year:Female) %>%
-  spread(key = Year, value = Female) %>%
+  tidyr::pivot_wider(names_from = Year, values_from = Female) %>%
   select(-Age)
 rownames(my_Exf) <- 0:110
 head(my_Exf)
@@ -51,7 +51,7 @@ head(my_Exf)
 my_mxf <- mx$data %>%
   filter(country == cntr, Year %in% years) %>%
   select(Year:Female) %>%
-  spread(key = Year, value = Female) %>%
+  tidyr::pivot_wider(names_from = Year, values_from = Female) %>%
   select(-Age)
 rownames(my_mxf) <- 0:110
 head(my_mxf)

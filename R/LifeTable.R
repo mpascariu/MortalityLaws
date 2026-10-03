@@ -15,8 +15,8 @@
 #'   \item Survivorship curve (\code{lx})
 #'   \item Distribution of deaths (\code{dx})
 #' }
-#' Only one of these input options needs to be provided; the others 
-#' are ignored if present. The input can be a numeric \code{vector}, 
+#' Exactly one of these input options must be provided; supplying more 
+#' than one is an error. The input can be a numeric \code{vector}, 
 #' \code{matrix}, or \code{data.frame}. When a \code{matrix} or 
 #' \code{data.frame} with multiple columns is supplied, the function 
 #' computes one life table per column.
@@ -41,6 +41,27 @@
 #' \code{ax} column are adjusted using the Coale-Demeny method, which 
 #' accounts for the different infant mortality patterns between males 
 #' and females.
+#'
+#' When \code{ax} is supplied by the user the conversion between 
+#' \code{mx} and \code{qx} uses the exact interval identity 
+#' \code{qx = nx * mx / (1 + (nx - ax) * mx)} (and its inverse) instead 
+#' of the CFM approximation, so that the \code{mx}, \code{qx} and 
+#' \code{ax} columns of the result are mutually consistent. An \code{ax} 
+#' that an interval cannot support (\code{ax * mx > 1}) is replaced with 
+#' the implied average, \code{1/mx}, and the affected ages are reported.
+#'
+#' The open (closing) age interval follows its own rule: 
+#' \code{ax[N] = 1/mx[N]}, \code{ex[N] = 1/mx[N]} and 
+#' \code{Lx[N] = lx[N]/mx[N]}, which keeps the closed table consistent 
+#' with \code{qx[N] = 1}. A user-supplied \code{ax[N]} is therefore 
+#' replaced, with a warning.
+#'
+#' Missing values in \code{mx} or \code{qx} are never masked. They 
+#' localise to the interval quantities of the affected row (which are 
+#' returned as \code{NA}) and to the cumulative \code{Tx} and \code{ex} 
+#' columns at and before that row, while the survivorship chain 
+#' \code{lx} is bridged across the gap, so the ages above it remain 
+#' computable. A warning names the affected ages.
 #'
 #' @usage
 #' LifeTable(x, Dx = NULL, Ex = NULL,
@@ -97,7 +118,8 @@
 #'   a standard formula. You may supply a single value (applied to all 
 #'   intervals) or a vector of the same length as \code{x}. A common 
 #'   assumption is \code{ax = 0.5}, which places deaths at the midpoint 
-#'   of each interval.
+#'   of each interval. The value supplied for the open age interval is 
+#'   ignored and replaced with \code{1/mx}; see \code{Details}.
 #'
 #' @return An object of class \code{"LifeTable"} containing the following 
 #'   components:
@@ -156,8 +178,7 @@
 #' # Note that 'ax' must have the same length as 'x', otherwise an error
 #' # will be returned.
 #'
-#' my_ax <- c(0.1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-#'            2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1)
+#' my_ax <- c(0.1, 1.5, rep(2, 19), 1, 1, 1)
 #'
 #' LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 #'
@@ -175,34 +196,46 @@ LifeTable <- function(x,
 
   input <- c(as.list(environment()))
   X     <- LifeTable.check(input)
-  LT    <- NULL
+  x     <- X$x
+  x.int <- paste0("[", x, ",", c(x[-1], "+"), ")")
 
   if (any(X$iclass == "numeric")) {
-    LT <- with(X, LifeTable.core(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax))
+    LT <- LifeTable.core(x = x,
+                         Dx = X$Dx,
+                         Ex = X$Ex,
+                         mx = X$mx,
+                         qx = X$qx,
+                         lx = X$lx,
+                         dx = X$dx,
+                         sex = X$sex,
+                         lx0 = X$lx0,
+                         ax = X$ax,
+                         case = X$case,
+                         x.int = x.int)
 
   } else {
-    for (i in 1:X$nLT) {
-      LTi <- with(
-        X,
-        LifeTable.core(
-          x,
-          Dx = Dx[, i],
-          Ex = Ex[, i],
-          mx = mx[, i],
-          qx = qx[, i],
-          lx = lx[, i],
-          dx = dx[, i],
-          sex = sex,
-          lx0 = lx0,
-          ax = ax
-          )
-        )
+    nm <- X$LTnames
+    LT <- vector(mode = "list", length = X$nLT)
 
-      N   <- X$LTnames
-      LTn <- if (is.na(N[i])) i else N[i]
-      LTi <- cbind(LT = LTn, LTi)
-      LT  <- rbind(LT, LTi)
+    for (i in seq_len(X$nLT)) {
+      LTi <- LifeTable.core(x = x,
+                            Dx = X$Dx[, i],
+                            Ex = X$Ex[, i],
+                            mx = X$mx[, i],
+                            qx = X$qx[, i],
+                            lx = X$lx[, i],
+                            dx = X$dx[, i],
+                            sex = X$sex,
+                            lx0 = X$lx0,
+                            ax = X$ax,
+                            case = X$case,
+                            x.int = x.int)
+
+      LTn     <- if (is.null(nm) || is.na(nm[i])) i else nm[i]
+      LT[[i]] <- cbind(LT = LTn, LTi)
     }
+
+    LT <- do.call(rbind, LT)
   }
 
   # Exit
@@ -216,386 +249,213 @@ LifeTable <- function(x,
 }
 
 
-#' LifeTable.core
-#' @inheritParams LifeTable
-#' @return A data.frame containing life table results
-#' @keywords internal
-LifeTable.core <- function(x, Dx, Ex, mx, qx, lx, dx, sex, lx0, ax){
+#' Compute a single life table
+#'
+#' Resolves the input case into the canonical mx/qx pair, builds the
+#' survivorship chain and derives the remaining life-table columns. The
+#' case and the age-interval labels can be supplied by \code{LifeTable}
+#' to avoid recomputing them for every column.
+#' @noRd
+LifeTable.core <- function(x,
+                           Dx = NULL,
+                           Ex = NULL,
+                           mx = NULL,
+                           qx = NULL,
+                           lx = NULL,
+                           dx = NULL,
+                           sex = NULL,
+                           lx0 = 1e5,
+                           ax = NULL,
+                           case = NULL,
+                           x.int = NULL) {
 
-  my.case  <- find.my.case(Dx, Ex, mx, qx, lx, dx)$case
-  gr_names <- paste0("[", x,",", c(x[-1], "+"), ")")
-  N        <- length(x)
-  df       <- diff(x)
-  nx       <- c(df, df[N - 1])
-
-  if (my.case == "C1_DxEx") {
-    Dx <- as.numeric(Dx)
-    Ex <- as.numeric(Ex)
-    mx <- Dx/Ex
-    mx <- uxAbove100(x, mx)
-    qx <- mx_qx(x, nx, mx, out = "qx")
-    lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
-    dx <- dx_lx(lx, out = "dx")
-  }
-  if (my.case == "C2_mx") {
-    mx <- as.numeric(mx)
-    qx <- mx_qx(x, nx, mx, out = "qx")
-    lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
-    dx <- dx_lx(lx, out = "dx")
-  }
-  if (my.case == "C3_qx") {
-    qx <- as.numeric(qx)
-    mx <- mx_qx(x, nx, qx, out = "mx")
-    lx <- lx0 * c(1, cumprod(1 - qx)[1:(N - 1)])
-    dx <- dx_lx(lx, out = "dx")
-  }
-  if (my.case == "C4_lx") {
-    lx <- as.numeric(lx)
-    lx <- lx * lx0/lx[1]
-    dx <- dx_lx(lx, out = "dx")
-    qx <- dx/lx
-    qx <- uxAbove100(x, qx)
-    mx <- mx_qx(x, nx, qx, out = "mx")
-  }
-  if (my.case == "C5_dx") {
-    dx <- as.numeric(dx)
-    dx <- dx * lx0/sum(dx)
-    lx <- dx_lx(dx, out = "lx")
-    qx <- dx/lx
-    qx <- uxAbove100(x, qx)
-    mx <- mx_qx(x, nx, qx, out = "mx")
+  if (is.null(case)) {
+    case <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx,
+                         lx = lx, dx = dx)$case
   }
 
-  if (is.null(ax)) {
-    ax <- compute.ax(x, mx, qx)
-    if (!is.null(sex)) ax <- coale.demeny.ax(x, mx, ax, sex)
+  if (is.null(x.int)) {
+    x.int <- paste0("[", x, ",", c(x[-1], "+"), ")")
+  }
 
-  } else if (length(ax) == 1){
+  N       <- length(x)
+  df      <- diff(x)
+  nx      <- c(df, df[N - 1])
+  user_ax <- !is.null(ax)
+
+  if (user_ax && length(ax) == 1) {
     ax <- rep(ax, N)
-
-  } else if (length(ax) == N){
-    ax <- as.numeric(ax)
   }
 
-  Lx    <- nx * lx - (nx - ax) * dx
-  Lx[N] <- ax[N] * dx[N]
-  Lx[is.na(Lx)] <- 0
-  Tx    <- rev(cumsum(rev(Lx)))
-  ex    <- Tx/lx
-  ex[is.na(ex)] <- 0
-  ex[N] <- if (ex[N - 1] == 0) 0 else ax[N]
+  R <- lt_case_rates(case = case, x = x, nx = nx, Dx = Dx, Ex = Ex,
+                     mx = mx, qx = qx, lx = lx, dx = dx, lx0 = lx0,
+                     ax = ax)
 
-  last_check = all(is.na(mx)) | all(is.nan(mx)) | all(is.infinite(mx)) | all(mx == 0)
-  if (last_check) mx = qx = ax = lx = dx = Lx = Tx = ex <- NA
+  if (user_ax) {
+    ax <- R$ax
+  }
 
-  out <- data.frame(x.int = gr_names,
+  mx <- repair_mx(mx = R$mx, nx = nx)
+  qx <- R$qx
+
+  if (is.null(R$lx)) {
+    L <- lx_dx(qx = qx, lx0 = lx0)
+
+  } else {
+    L <- list(lx = R$lx, dx = R$dx)
+  }
+
+  lx <- L$lx
+  dx <- L$dx
+
+  # A missing rate leaves the deaths of its interval unknown: that row and
+  # every younger age become unknown in the cumulative columns, while the
+  # ages above it remain computable.
+  if (any(R$miss)) {
+    dx[R$miss] <- NA
+  }
+
+  ax <- lt_ax(x = x, ax = ax, mx = mx, qx = qx, nx = nx, sex = sex,
+              user = user_ax)
+
+  C <- lt_columns(mx = mx, ax = ax, lx = lx, dx = dx, nx = nx)
+
+  out <- data.frame(x.int = x.int,
                     x = x,
                     mx = mx,
                     qx = qx,
                     ax = ax,
                     lx = lx,
                     dx = dx,
-                    Lx = Lx,
-                    Tx = Tx,
-                    ex = ex)
+                    Lx = C$Lx,
+                    Tx = C$Tx,
+                    ex = C$ex)
+
+  if (lt_degenerate(mx = mx)) {
+    out[, !names(out) %in% c("x.int", "x")] <- NA
+  }
+
   return(out)
 }
 
 
-#' Function that identifies the case/problem we have to solve
-#' @inheritParams LifeTable
-#' @return A list containing problem solving details
-#' @keywords internal
-find.my.case <- function(Dx = NULL,
-                         Ex = NULL,
-                         mx = NULL,
-                         qx = NULL,
-                         lx = NULL,
-                         dx = NULL) {
-
-  input   <- c(as.list(environment()))
-
-  # Matrix of possible cases --------------------
-  rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
-  cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
-  mat <- matrix(
-    ncol = 6,
-    byrow = TRUE,
-    dimnames = list(rn, cn),
-    data = c(T,T,F,F,F,F,
-             F,F,T,F,F,F,
-             F,F,F,T,F,F,
-             F,F,F,F,T,F,
-             F,F,F,F,F,T)
-    )
-  # ----------------------------------------------
-  L1 <- !unlist(lapply(input, is.null))
-  L2 <- apply(mat, 1, function(x) all(L1 == x))
-  my_case <- rn[L2]
-
-  if (sum(L1[c(1, 2)]) == 1) {
-    stop("If you input 'Dx' you must input 'Ex' as well, and viceversa",
-         call. = FALSE)
-  }
-
-  if (!any(L2)) {
-    stop("The input is not specified correctly. Check again the function ",
-         "arguments and make sure the input data is added properly.",
-         call. = FALSE)
-  }
-
-  X       <- input[L1][[1]]
-
-  if (length(dim(X)) == 1){
-    # TR changed here:
-    # The following input isn't detected with is.vector()
-    # X = structure(c(0.0036542739116619, 0.000150960486092765, 2.77881983521598e-05,
-    # 0.000136941279579316, 0.00018946827083136, 0.00026606712873658,
-    # 0.000258838755220895, 0.000557913403869528, 0.000665917509468515,
-    # 0.00114979916336982, 0.0021040113433655, 0.00384681333263752,
-    # 0.00632225868307671, 0.00937214337262448, 0.0154497258185624,
-    # 0.023117866694913, 0.0363617070194365, 0.0609184108563059, 0.120398389987367,
-    # 0.221461187214612, 0.420152946468736), .Dim = 21L)
-    # nLT would come as NA
-    # and iclass would be array
-    X <- c(X)
-  }
-
-  nLT     <- 1
-  LTnames <- NA
-
-  # TR: change from !is.vector
-  if (length(dim(X)) == 2 ) {
-
-    nLT     <- ncol(X)     # number of LTs to be created
-    LTnames <- colnames(X) # the names to be assigned to LTs
-  }
-
-  out <- list(case = my_case,
-              iclass = class(X), # TR: if inputs are matrix,
-                                 # then this is two elements
-              nLT = nLT,
-              LTnames = LTnames)
-  return(out)
-}
-
-
-#' mx to qx
+#' Assign the average person-years lived in each age interval
 #'
-#' Function to convert mx into qx and back, using the constant force of
-#' mortality assumption (CFM).
-#' @inheritParams LifeTable
-#' @param nx Length of the age-intervals.
-#' @param ux A vector of mx or qx.
-#' @param out Type of the output: mx or qx.
-#' @return A vector of rates
-#' @keywords internal
-mx_qx <- function(x, nx, ux, out = c("qx", "mx")){
-  out <- match.arg(out)
+#' Derives ax from the rates when it is not supplied by the user, adjusts
+#' the first two intervals with the Coale-Demeny coefficients when a sex is
+#' given, and applies the rule of the open age interval.
+#' @noRd
+lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE) {
 
-  if (out == "qx") {
-    eta <- 1 - exp(-nx * ux)
-    eta[length(nx)] <- 1  # The life table should always close with q[x] = 1
-
-  } else {
-    eta <- suppressWarnings(-log(1 - ux)/nx)
-    # If qx[last-age] = 1 then mx[last-age] = Inf. Not nice to have Inf's;
-    # they distort the results in the subsequent processes.
-    # We apply a simple extrapolation method of the last mx.
-    N <- length(x)
-    eta[N] <- eta[N - 1]^2 / eta[N - 2]
-  }
-
-  eta <- uxAbove100(x, eta)
-  return(eta)
-}
-
-
-#' Educate mx or qx on how to behave above age 100 if it gets in trouble
-#' (with NA's, zero's and Inf)
-#' @inheritParams LifeTable
-#' @inheritParams mx_qx
-#' @param omega Threshold age. Default: 100.
-#' @param verbose A logical value. Set \code{verbose = FALSE} to silent
-#' the process that take place inside the function and avoid progress messages.
-#' @return A vector of rates
-#' @keywords internal
-uxAbove100 <- function(x,
-                       ux,
-                       omega = 100,
-                       verbose = FALSE) {
-
-  if (is.vector(ux)) {
-    L <- x >= 100 & (is.na(ux) | is.infinite(ux) | ux == 0)
-
-    if (any(L)) {
-      mux   <- max(ux[!L])
-      ux[L] <- mux
-
-      if (verbose)
-        warning("The input data contains NA's, Inf or zero's over the age of ",
-                "100. These have been replaced with maximum observed value: ",
-                round(mux, 4), call. = FALSE)
-    }
-
-  } else {
-    for (i in 1:ncol(ux)) {
-      ux[, i] = uxAbove100(x, ux[, i], omega, verbose)
-    }
-
-  }
-
-  return(ux)
-}
-
-
-#' dx to lx
-#'
-#' Function to convert dx into lx and back
-#' @param ux A vector of dx or lx data.
-#' @param out Type of the output: dx or lx.
-#' @return A vector containing dx or lx values
-#' @keywords internal
-dx_lx <- function(ux, out = c("dx", "lx")) {
-  out <- match.arg(out)
-
-  if (out == "dx") {
-    ux_ <- rev(diff(rev(ux)))
-    d   <- ux[1] - sum(ux_)
-    eta <- c(ux_, d)
-
-  } else {
-    eta <- rev(cumsum(rev(ux)))
-  }
-  return(eta)
-}
-
-
-#' Find ax indicator
-#'
-#' @inheritParams LifeTable
-#' @return \code{ax} - the point in the age interval where 50% of the deaths
-#' have already occurred
-#' @keywords internal
-compute.ax <- function(x, mx, qx) {
-  nx <- c(diff(x), Inf)
-  N  <- length(x)
-  ax <- nx + 1/mx - nx/qx
-
-  for (i in 1:(N - 1)) {
-    if (is.infinite(ax[i + 1]) | is.na(ax[i + 1])) ax[i + 1] = ax[i]
-  }
-  return(ax)
-}
-
-
-#' Find ax[1:2] indicators using Coale-Demeny coefficients
-#' Here we adjust the first two values of ax to account for infant
-#' mortality more accurately
-#' @inheritParams LifeTable
-#' @return A vector of coefficients
-#' @keywords internal
-coale.demeny.ax <- function(x, mx, ax, sex) {
-
-  if (mx[1] < 0) stop("'m[1]' must be greater than 0", call. = FALSE)
-
-  nx  <- c(diff(x), Inf)
-  m0  <- mx[1]
-  a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684 * m0)
-  a1M <- ifelse(m0 >= 0.107, 0.330, 1.651 - 2.816 * m0)
-  a0F <- ifelse(m0 >= 0.107, 0.350, 0.053 + 2.800 * m0)
-  a1F <- ifelse(m0 >= 0.107, 0.350, 1.522 - 1.518 * m0)
-  a0T <- (a0M + a0F)/2
-  a1T <- (a1M + a1F)/2
-
-  f  <- nx[1:2] / c(1, 4)
-
-  if (sex == "male")   ax[1:2] <- c(a0M, a1M) * f
-  if (sex == "female") ax[1:2] <- c(a0F, a1F) * f
-  if (sex == "total")  ax[1:2] <- c(a0T, a1T) * f
-
-  return(ax)
-}
-
-
-#' Check LifeTable input
-#' @param input A list containing the input arguments of the LifeTable functions.
-#' @return A list of life table validated data
-#' @keywords internal
-LifeTable.check <- function(input) {
-
-  with(input, {
-    # ----------------------------------------------
-    K <- find.my.case(Dx, Ex, mx, qx, lx, dx)
-    C <- K$case
-    valid_classes <- c("numeric", "matrix", "data.frame", NULL)
-
-    if (!any(K$iclass %in% valid_classes)) {
-      stop(paste0("The class of the input should be: ",
-                  paste(valid_classes, collapse = ", ")), call. = FALSE)
-    }
-    # ----------------------------------------------
-    SMS <- "contains missing values. These have been replaced with "
+  if (!user) {
+    ax <- compute.ax(x = x, mx = mx, qx = qx)
 
     if (!is.null(sex)) {
-      if (!any(sex %in% c("male", "female", "total")))
-        stop("'sex' should be: 'male', 'female', 'total' or 'NULL'.",
-             call. = FALSE)
+      ax <- coale.demeny.ax(x = x, mx = mx, ax = ax, sex = sex)
     }
+  }
 
-    if (C == "C1_DxEx") {
-      if (any(is.na(Dx))) warning("'Dx'", SMS, 0, call. = FALSE)
-      if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = FALSE)
-      Dx[is.na(Dx)] <- 0
-      Ex[is.na(Ex) | Ex == 0] <- 0.01
-    }
-
-    if (C == "C2_mx") {
-      mx <- uxAbove100(x, mx)
-
-    }
-    if (C == "C3_qx") {
-      qx <- uxAbove100(x, qx)
-    }
-
-    if (C == "C4_lx") {
-      if (any(is.na(lx))) warning("'lx'", SMS, 0, call. = FALSE)
-      lx[is.na(lx) & x >= 100] <- 0
-    }
-
-    if (C == "C5_dx") {
-      if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = FALSE)
-      dx[is.na(dx)] <- 0
-    }
-
-    if (!is.null(ax)) {
-      if (!is.numeric(ax))
-        stop("'ax' must be a numeric scalar (or NULL)", call. = FALSE)
-
-      if (!any(length(ax) %in% c(1, length(x))))
-        stop("'ax' must be a scalar of length 1 or a ",
-             "vector of the same dimension as 'x'",
-             call. = FALSE)
-    }
-
-    # Exit
-    out <- list(x = x,
-                Dx = Dx,
-                Ex = Ex,
-                mx = mx,
-                qx = qx,
-                lx = lx,
-                dx = dx,
-                sex = sex,
-                lx0 = lx0,
-                ax = ax,
-                iclass = K$iclass,
-                nLT = K$nLT,
-                LTnames = K$LTnames)
-    return(out)
-  })
+  ax <- lt_open_ax(x = x, ax = ax, mx = mx, nx = nx, warn = user)
+  return(ax)
 }
 
+
+#' Derive the person-years, total person-years and life expectancy columns
+#'
+#' Keeps the table closed in the open age interval (Lx = lx/mx, ex = ax)
+#' and assigns zero person-years and zero life expectancy where the table
+#' has already closed (lx = 0).
+#' @noRd
+lt_columns <- function(mx, ax, lx, dx, nx) {
+  N  <- length(lx)
+  Lx <- nx * lx - (nx - ax) * dx
+  Lx[N] <- if (is.finite(mx[N]) && mx[N] > 0) lx[N]/mx[N] else ax[N] * dx[N]
+
+  closed <- !is.na(lx) & lx == 0
+  Lx[closed] <- 0
+
+  Tx <- rev(cumsum(rev(Lx)))
+  ex <- Tx/lx
+  ex[N] <- ax[N]
+  ex[closed] <- 0
+
+  out <- list(Lx = Lx, Tx = Tx, ex = ex)
+  return(out)
+}
+
+
+#' Detect a vector of rates carrying no information at all
+#'
+#' Returns \code{TRUE} when every rate is missing or non-finite, or when
+#' all of them are zero.
+#' @noRd
+lt_degenerate <- function(mx) {
+  out <- all(is.na(mx)) || all(is.nan(mx)) || all(is.infinite(mx)) ||
+    (!any(is.na(mx)) && all(mx == 0))
+  return(out)
+}
+
+
+#' Resolve the input case into canonical life-table vectors
+#'
+#' Converts any of the five accepted inputs into mortality rates (mx) and
+#' death probabilities (qx) and, for the survivorship and death
+#' distribution inputs, into the corresponding lx and dx columns. The
+#' identity between mx and qx uses the supplied ax when available and the
+#' constant force of mortality assumption otherwise. An ax that the
+#' interval cannot support is capped, and rows holding a missing input are
+#' flagged so that the caller can propagate them.
+#' @noRd
+lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
+
+  miss <- rep(FALSE, length(x))
+
+  if (case == "C1_DxEx") {
+    mx <- as.numeric(Dx)/as.numeric(Ex)
+    mx <- uxAbove100(x = x, ux = mx)
+    ax <- lt_feasible_ax(x = x, ax = ax, mx = mx)
+    qx <- mx_qx(x = x, nx = nx, ux = mx, out = "qx", ax = ax)
+  }
+
+  if (case == "C2_mx") {
+    mx   <- as.numeric(mx)
+    miss <- is.na(mx)
+    mx   <- repair_mx(mx = mx, nx = nx)
+    ax   <- lt_feasible_ax(x = x, ax = ax, mx = mx)
+    qx   <- mx_qx(x = x, nx = nx, ux = mx, out = "qx", ax = ax)
+  }
+
+  if (case == "C3_qx") {
+    miss <- is.na(qx)
+    qx   <- as.numeric(qx)
+    mx   <- mx_qx(x = x, nx = nx, ux = qx, out = "mx", ax = ax)
+    ax   <- lt_feasible_ax(x = x, ax = ax, mx = mx)
+    qx   <- lt_close_qx(qx = qx)
+  }
+
+  if (case == "C4_lx") {
+    miss <- is.na(lx)
+    lx   <- as.numeric(lx)
+    lx   <- lx * lx0/lx[1]
+    dx   <- dx_lx(ux = lx, out = "dx")
+    qx   <- lt_snap_qx(lt_qx(dx = dx, lx = lx))
+    mx   <- mx_qx(x = x, nx = nx, ux = qx, out = "mx", ax = ax)
+    ax   <- lt_feasible_ax(x = x, ax = ax, mx = mx)
+  }
+
+  if (case == "C5_dx") {
+    miss <- is.na(dx)
+    dx   <- as.numeric(dx)
+    dx   <- dx * lx0/sum(dx)
+    lx   <- dx_lx(ux = dx, out = "lx")
+    qx   <- lt_snap_qx(lt_qx(dx = dx, lx = lx))
+    mx   <- mx_qx(x = x, nx = nx, ux = qx, out = "mx", ax = ax)
+    ax   <- lt_feasible_ax(x = x, ax = ax, mx = mx)
+  }
+
+  out <- list(mx = mx, qx = qx, lx = lx, dx = dx, ax = ax, miss = miss)
+  return(out)
+}
 
 #' Print LifeTable
 #' @param x An object of class \code{"LifeTable"}
@@ -638,5 +498,3 @@ print.LifeTable <- function(x, ...){
   cat("Age intervals:", head_tail(lt$x.int, hlength = 3, tlength = 3), "\n\n")
   print(out, row.names = FALSE)
 }
-
-

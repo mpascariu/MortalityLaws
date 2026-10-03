@@ -17,6 +17,6 @@ tools::compactPDF(paths = paste0(getwd(),"/inst/doc/"),
 # Thu Dec 21 10:26:56 2017 ------------------------------
 # Marius Pascariu
 
-R CMD build MortalityLaws
-R CMD build --compact-vignettes=gs+qpdf MortalityLaws
-R CMD CHECK --as-cran MortalityLaws_1.7.6.tar.gz
+# R CMD build MortalityLaws
+# R CMD build --compact-vignettes=gs+qpdf MortalityLaws
+# R CMD CHECK --as-cran MortalityLaws_1.7.6.tar.gz

@@ -50,7 +50,7 @@ See \code{\link{availableLF}} for details.}
 
 \item{parS}{Optional starting parameter values for the optimisation. If
 \code{NULL}, sensible defaults are automatically chosen via
-\code{\link{bring_parameters}}.}
+\code{bring_parameters}.}
 
 \item{fit.this.x}{A subset of \code{x} over which to fit the model. The
 default is the entire \code{x} vector. Use this to exclude, for example,
@@ -76,10 +76,9 @@ components:
 vector for a single fit, or a matrix for multiple fits.}
 \item{fitted.values}{Fitted hazard rates (or death probabilities) evaluated
 at the input ages \code{x}.}
-\item{residuals}{Deviance residuals, computed as observed minus fitted
-values.}
-\item{goodness.of.fit}{List or matrix of goodness-of-fit measures: AIC,
-BIC and log-likelihood (available only for likelihood-based methods).}
+\item{residuals}{Raw residuals, observed minus fitted values.}
+\item{goodness.of.fit}{Named numeric vector (single fit) or matrix (one row
+per fit) with log-likelihood, AIC and BIC (NaN for non-likelihood methods).}
 \item{opt.diagnosis}{Object returned by the optimisation routine, useful
 for checking convergence.}
 \item{df}{Number of parameters and residual degrees of freedom.}

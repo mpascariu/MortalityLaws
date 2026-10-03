@@ -10,11 +10,9 @@
 #' \code{browseVignettes(package = "MortalityLaws")}
 #'
 #' @importFrom RCurl getURL
-#' @importFrom tidyr spread
 #' @importFrom graphics plot abline axis barplot box hist layout legend lines par rect
-#' @importFrom utils read.table read.csv head tail
-#' @importFrom stats fitted coef optim predict quantile nlminb pt printCoefmat
-#' df.residual qt vcov
+#' @importFrom utils read.table head tail
+#' @importFrom stats fitted coef optim predict quantile nlminb residuals df.residual
 #' @importFrom pbapply startpb closepb setpb
 #' @importFrom methods is
 #' @import rvest httr

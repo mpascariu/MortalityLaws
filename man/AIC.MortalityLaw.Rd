@@ -7,6 +7,8 @@
 \method{AIC}{MortalityLaw}(object, ...)
 }
 \arguments{
+\item{object}{an object of class \code{"MortalityLaw"}}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \value{

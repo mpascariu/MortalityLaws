@@ -16,7 +16,9 @@ default values will be assigned automatically.}
 A list of rates and model parameters
 }
 \description{
-Strehler-Mildvan Model - 1960
+Implements the published Strehler-Mildvan (1960) form
+\code{hx = A*exp(B*x)*exp(-(V/B)*(1 - exp(-B*x)))} with parameters
+\code{A}, \code{B} and \code{V}.
 }
 \examples{
 strehler_mildvan(x = 30:85)

@@ -4,7 +4,13 @@
 \alias{convertFx}
 \title{Convert Life Table Indicators}
 \usage{
-convertFx(x, data, from, to, ...)
+convertFx(
+  x,
+  data,
+  from = c("mx", "qx", "dx", "lx"),
+  to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"),
+  ...
+)
 }
 \arguments{
 \item{x}{Numeric vector of ages at the beginning of each age interval. 
@@ -53,10 +59,12 @@ The supported \strong{output} types (\code{to}) are:
 \code{ex}.
 
 There are 28 possible \code{from}-\code{to} combinations (4 inputs 
-\eqn{\times} 7 outputs). All conversions pass through the full life-table 
-computation; for example, converting \code{mx} to \code{ex} will 
-internally compute \code{qx}, \code{lx}, \code{dx}, \code{Lx}, and 
-\code{Tx} in sequence.
+\eqn{\times} 7 outputs). Conversions that need a single life-table 
+identity, such as \code{mx} to \code{qx} or \code{dx} to \code{lx}, are 
+computed directly from that relation. All the other conversions are 
+obtained from the full life-table computation; for example, converting 
+\code{mx} to \code{ex} will internally compute \code{qx}, \code{lx}, 
+\code{dx}, \code{Lx}, and \code{Tx} in sequence.
 
 When \code{data} is a \code{vector}, the function returns a named vector. 
 When \code{data} is a \code{matrix} or \code{data.frame} with multiple 

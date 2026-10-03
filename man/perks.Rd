@@ -16,7 +16,9 @@ default values will be assigned automatically.}
 A list of rates and model parameters
 }
 \description{
-Perks Model - 1932
+Implements the published Perks (1932) form. A previous denominator
+extension (the \code{B*C^-x} term, attributed to Steffensen (1930)) was a
+misattribution; it now ships separately as \code{steffensen}.
 }
 \examples{
 perks(x = 50:100)

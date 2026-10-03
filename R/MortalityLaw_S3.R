@@ -13,8 +13,9 @@ print.MortalityLaw <- function(x, ...) {
   L    <- x$input$law == "custom.law"
   info <- if (L) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
   cat(paste(info, collapse = " model: "))
-  fv <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
+  fv   <- if (!is.null(x$input$qx)) "qx" else "mx"
   cat("\nFitted values:", fv, "\n")
+  return(invisible(x))
 }
 
 
@@ -22,33 +23,54 @@ print.MortalityLaw <- function(x, ...) {
 #' @param object an object of class \code{"MortalityLaw"}
 #' @param digits number of digits to display.
 #' @param ... additional arguments affecting the summary produced.
-#' @return A list of model diagnosis
+#' @return A list of model diagnostics
 #' @keywords internal
 #' @export
 summary.MortalityLaw <- function(object, ...,
                                  digits = max(3L, getOption("digits") - 3L)) {
-  x     <- object
-  L1    <- x$input$law == "custom.law"
-  mi    <- if (L1) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
-  res   <- summary(as.vector(as.matrix(x$residuals)))
-  fv    <- ifelse(!is.null(x$input$qx), 'qx', 'mx')
-  gof   <- round(x$goodness.of.fit, digits)
-  param <- round(coef(x), digits)
-  sigma <- mean(sqrt(x$deviance))
-  nc    <- nrow(param)
-  L2    <- is.null(nc)
-  L3    <- x$input$opt.method %in% c("poissonL", "binomialL")
+  x      <- object
+  L1     <- x$input$law == "custom.law"
+  mi     <- if (L1) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
+  res    <- summary(as.vector(as.matrix(x$residuals)))
+  fv     <- if (!is.null(x$input$qx)) "qx" else "mx"
+  gof    <- round(x$goodness.of.fit, digits)
+  param  <- round(coef(x), digits)
+  df_res <- if (is.matrix(x$df)) x$df[, "df.residual"] else x$df["df.residual"]
+  sigma  <- mean(sqrt(x$deviance / df_res))
+  nc     <- nrow(param)
+  L2     <- is.null(nc)
+  L3     <- x$input$opt.method %in% c("poissonL", "binomialL")
 
-  if (!L2) {
-    if (nc > 4) {
-      param <- head_tail(param, hlength = 2, tlength = 2, digits = digits)
-      gof   <- head_tail(gof, hlength = 2, tlength = 2, digits = digits)
-    }
+  if (!L2 && nc > 4) {
+    param <- head_tail(
+      x       = param,
+      hlength = 2,
+      tlength = 2,
+      digits  = digits
+      )
+    gof   <- head_tail(
+      x       = gof,
+      hlength = 2,
+      tlength = 2,
+      digits  = digits
+      )
   }
-  out  <- list(info = mi, call = x$info$call, gof = gof, sigma = sigma,
-               fv = fv, resid = res, param = param, df = x$df, digits = digits,
-               L1 = L1, L2 = L2, L3 = L3)
-  out  <- structure(class = "summary.MortalityLaw", out)
+
+  out <- list(
+    info   = mi,
+    call   = x$info$call,
+    gof    = gof,
+    sigma  = sigma,
+    fv     = fv,
+    resid  = res,
+    param  = param,
+    df     = x$df,
+    digits = digits,
+    L1     = L1,
+    L2     = L2,
+    L3     = L3
+    )
+  out <- structure(class = "summary.MortalityLaw", out)
   return(out)
 }
 
@@ -65,58 +87,91 @@ print.summary.MortalityLaw <- function(x, ...) {
     cat("\nFitted values:", fv)
     cat("\n\nCall: ")
     print(call)
-    cat('\nDeviance Residuals:\n')
+    cat("\nResiduals:\n")
     print(round(resid, digits))
     cat("\nParameters:\n")
     print(param)
     sg <- format(signif(sigma, digits))
+
     if (L3) {
       cat("\nGoodness of fit:\n")
       print(gof)
     }
+
     if (L2) {
       cat("\nResidual standard error:", sg, "on", df[2], "degrees of freedom")
     } else {
-      cat("\nAverage residual standard error:", sg, "on", df[1, 2], "degrees of freedom")
+      cat("\nAverage residual standard error:", sg, "on", df[1, 2],
+          "degrees of freedom")
     }
   })
+  return(invisible(x))
 }
 
 
 #' logLik function for MortalityLaw
-#' @inheritParams print.MortalityLaw
+#' @param object an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
 #' @return Model log-likelihood value
 #' @keywords internal
 #' @export
 logLik.MortalityLaw <- function(object, ...) {
-  c(object$goodness.of.fit["logLik"])
+  gof <- object$goodness.of.fit
+
+  if (is.matrix(gof)) {
+    out <- gof[, "logLik"]
+  } else {
+    df_fit <- object$df["n.param"]
+    df_res <- object$df["df.residual"]
+    value  <- unname(gof["logLik"])
+    out    <- structure(
+      value,
+      class = "logLik",
+      df    = unname(df_fit),
+      nobs  = unname(df_fit) + unname(df_res)
+      )
+  }
+
+  return(out)
 }
 
 #' AIC function for MortalityLaw
-#' @inheritParams print.MortalityLaw
+#' @param object an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
 #' @return model AIC value
 #' @keywords internal
 #' @export
 AIC.MortalityLaw <- function(object, ...) {
-  c(object$goodness.of.fit["AIC"])
+  gof <- object$goodness.of.fit
+  out <- if (is.matrix(gof)) gof[, "AIC"] else gof["AIC"]
+
+  return(out)
 }
 
 #' deviance function for MortalityLaw
-#' @inheritParams print.MortalityLaw
+#' @param object an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
 #' @return model deviance value
 #' @keywords internal
 #' @export
 deviance.MortalityLaw <- function(object, ...) {
-  object$deviance
+  out <- object$deviance
+
+  return(out)
 }
 
 #' df.residual function for MortalityLaw
-#' @inheritParams print.MortalityLaw
+#' @param object an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
 #' @return model residual value
 #' @keywords internal
 #' @export
 df.residual.MortalityLaw <- function(object, ...) {
-  object$df[2]
+  df_all <- object$df
+
+  out <- if (is.matrix(df_all)) df_all[, "df.residual"] else df_all["df.residual"]
+
+  return(out)
 }
 
 
@@ -124,7 +179,10 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' @param object An object of class \code{"MortalityLaw"}
 #' @param x Vector of ages to be considered in prediction
 #' @param ... Additional arguments affecting the predictions produced.
-#' @return A vector of predicted hazard rates
+#' @return A vector (single fit) or matrix (one column per fit) of predicted
+#' mortality values: hazard rates \code{mu[x]} or death probabilities
+#' \code{q[x]} depending on the law (see the \code{FIT} column of
+#' \code{\link{availableLaws}}).
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
 #' @examples
@@ -139,32 +197,43 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' # See more examples in MortalityLaw function help page.
 #' @export
 predict.MortalityLaw <- function(object, x, ...){
-  if (min(x) < 0) stop("'x' must be greater or equal to zero.", call. = F)
+  if (min(x) < 0) {
+    stop("'x' must be greater or equal to zero.", call. = FALSE)
+  }
+
   law   <- object$input$law
   sx    <- object$input$scale.x
   new.x <- x
 
   if (sx) {
     fit.this.x <- object$input$fit.this.x
-    d <- fit.this.x[1] - scale_x(fit.this.x)[1]
+    d     <- fit.this.x[1] - scale_x(x = fit.this.x)[1]
     new.x <- x - d
   }
 
-  Par <- coef(object)
+  Par    <- coef(object)
+  single <- !is.matrix(Par)
 
-  if (!is.matrix(Par)) {
+  if (single) {
     Par <- matrix(Par, nrow = 1, dimnames = list("", names(Par)))
   }
 
   fn <- if (law == "custom.law") object$input$custom.law else get(law)
-  hx <- apply(X = Par, 1, FUN = function(X) fn(x = new.x, par = X)$hx)
-  rownames(hx) <- x
 
-  if (ncol(hx) == 1) {
-    hx <- as.numeric(hx)
-    names(hx) <- x
+  hx <- apply(
+    X      = Par,
+    MARGIN = 1,
+    FUN    = function(X) fn(x = new.x, par = X)$hx
+    )
+  hx <- matrix(hx, nrow = length(x))
+  rownames(hx) <- x
+  colnames(hx) <- rownames(Par)
+
+  if (single) {
+    value        <- as.numeric(hx)
+    names(value) <- x
+    hx           <- value
   }
+
   return(hx)
 }
-
-

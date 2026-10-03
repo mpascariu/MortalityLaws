@@ -25,17 +25,17 @@
 #' \code{ex}.
 #'
 #' There are 28 possible \code{from}-\code{to} combinations (4 inputs 
-#' \eqn{\times} 7 outputs). All conversions pass through the full life-table 
-#' computation; for example, converting \code{mx} to \code{ex} will 
-#' internally compute \code{qx}, \code{lx}, \code{dx}, \code{Lx}, and 
-#' \code{Tx} in sequence.
+#' \eqn{\times} 7 outputs). Conversions that need a single life-table 
+#' identity, such as \code{mx} to \code{qx} or \code{dx} to \code{lx}, are 
+#' computed directly from that relation. All the other conversions are 
+#' obtained from the full life-table computation; for example, converting 
+#' \code{mx} to \code{ex} will internally compute \code{qx}, \code{lx}, 
+#' \code{dx}, \code{Lx}, and \code{Tx} in sequence.
 #'
 #' When \code{data} is a \code{vector}, the function returns a named vector. 
 #' When \code{data} is a \code{matrix} or \code{data.frame} with multiple 
 #' columns, the function applies the conversion column-wise and returns a 
 #' matrix with the same row and column names as the input.
-#'
-#' @usage convertFx(x, data, from, to, ...)
 #'
 #' @inheritParams LifeTable
 #'
@@ -103,31 +103,94 @@ convertFx <- function(x,
 
   from <- match.arg(from)
   to   <- match.arg(to)
+  lx0  <- list(...)[["lx0"]]
 
-  LifeTable_foo <- switch(
+  LT <- switch(
     from,
-    mx = function(x, w, ...) LifeTable(x, mx = w, ...),
-    qx = function(x, w, ...) LifeTable(x, qx = w, ...),
-    dx = function(x, w, ...) LifeTable(x, dx = w, ...),
-    lx = function(x, w, ...) LifeTable(x, lx = w, ...)
+    mx = function(w) LifeTable(x = x, mx = w, ...),
+    qx = function(w) LifeTable(x = x, qx = w, ...),
+    dx = function(w) LifeTable(x = x, dx = w, ...),
+    lx = function(w) LifeTable(x = x, lx = w, ...)
     )
 
   if (is.vector(data)) {
-    if (length(x) != length(data))
+    if (length(x) != length(data)) {
       stop("The 'x' and 'data' do not have the same length", call. = FALSE)
+    }
 
-    out <- LifeTable_foo(x = x, data, ...)$lt[, to]
+    out <- LT(data)$lt[, to]
     names(out) <- names(data)
 
   } else {
-    if (length(x) != nrow(data))
+    if (length(x) != nrow(data)) {
       stop("The length of 'x' must be equal to the number of rows in 'data'",
            call. = FALSE)
+    }
 
-    LT  <- function(D) LifeTable_foo(x = x, as.numeric(D), ...)$lt[, to]
-    out <- apply(X = data, 2, FUN = LT)
-    dimnames(out) <- dimnames(data)
+    out <- convert_fx_matrix(x = x, data = data, from = from, to = to,
+                             LT = LT, lx0 = lx0)
   }
 
+  return(out)
+}
+
+
+#' Convert a Matrix of Life Table Indicators Column by Column
+#'
+#' Internal workhorse of \code{\link{convertFx}} for matrix and data frame
+#' input. It uses the life-table primitives directly when the requested
+#' \code{from}-\code{to} pair is a single identity and falls back on one call
+#' to \code{\link{LifeTable}} for the whole matrix otherwise.
+#'
+#' @param x Numeric vector of ages.
+#' @param data A numeric matrix or data frame, one column per life table.
+#' @param from The type of indicator supplied in \code{data}.
+#' @param to The desired output indicator.
+#' @param LT A function calling \code{\link{LifeTable}} with the argument
+#' named after \code{from}.
+#' @param lx0 The radix, or \code{NULL} to use the \code{\link{LifeTable}}
+#' default.
+#' @return A numeric matrix with the converted indicator.
+#' @noRd
+convert_fx_matrix <- function(x, data, from, to, LT, lx0) {
+
+  M    <- as.matrix(data)
+  N    <- length(x)
+  nx   <- c(diff(x), diff(x)[N - 1])
+  case <- paste0(from, "_to_", to)
+  # A one-step identity needs a finite input and at least two age intervals.
+  ok   <- length(nx) == N && all(is.finite(M))
+  one  <- switch(
+    case,
+    mx_to_qx = ok && all(M > 0),
+    qx_to_mx = ok && all(M > 0) && all(M <= 1) && all(M[N, ] == 1),
+    dx_to_lx = ok && all(M >= 0) && all(colSums(M) > 0),
+    lx_to_dx = ok && all(M >= 0) && all(M[1, ] > 0),
+    FALSE
+    )
+
+  if (one && case == "mx_to_qx") {
+    out <- mx_qx(x = x, nx = nx, ux = M, out = "qx")
+    out[N, ] <- 1
+
+  } else if (one && case == "qx_to_mx") {
+    out <- mx_qx(x = x, nx = nx, ux = M, out = "mx")
+
+  } else if (one && case == "dx_to_lx") {
+    if (is.null(lx0)) lx0 <- 1e5
+    M   <- sweep(M * lx0, 2, colSums(M), "/")
+    out <- apply(M, 2, FUN = function(w) dx_lx(ux = w, out = "lx"))
+
+  } else if (one && case == "lx_to_dx") {
+    if (is.null(lx0)) lx0 <- 1e5
+    M   <- sweep(M * lx0, 2, M[1, ], "/")
+    out <- apply(M, 2, FUN = function(w) dx_lx(ux = w, out = "dx"))
+
+  } else {
+    if (is.null(colnames(M))) colnames(M) <- seq_len(ncol(M))
+    out <- matrix(LT(M)$lt[, to], nrow = N)
+  }
+
+  dimnames(out) <- dimnames(data)
   return(out)
 }

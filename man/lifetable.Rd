@@ -59,7 +59,8 @@ lived in the age interval by those who die in that interval. If
 a standard formula. You may supply a single value (applied to all 
 intervals) or a vector of the same length as \code{x}. A common 
 assumption is \code{ax = 0.5}, which places deaths at the midpoint 
-of each interval.}
+of each interval. The value supplied for the open age interval is 
+ignored and replaced with \code{1/mx}; see \code{Details}.}
 }
 \value{
 An object of class \code{"LifeTable"} containing the following 
@@ -84,8 +85,8 @@ The function accepts:
   \item Survivorship curve (\code{lx})
   \item Distribution of deaths (\code{dx})
 }
-Only one of these input options needs to be provided; the others 
-are ignored if present. The input can be a numeric \code{vector}, 
+Exactly one of these input options must be provided; supplying more 
+than one is an error. The input can be a numeric \code{vector}, 
 \code{matrix}, or \code{data.frame}. When a \code{matrix} or 
 \code{data.frame} with multiple columns is supplied, the function 
 computes one life table per column.
@@ -110,6 +111,27 @@ If the \code{sex} argument is supplied, the first two values of the
 \code{ax} column are adjusted using the Coale-Demeny method, which 
 accounts for the different infant mortality patterns between males 
 and females.
+
+When \code{ax} is supplied by the user the conversion between 
+\code{mx} and \code{qx} uses the exact interval identity 
+\code{qx = nx * mx / (1 + (nx - ax) * mx)} (and its inverse) instead 
+of the CFM approximation, so that the \code{mx}, \code{qx} and 
+\code{ax} columns of the result are mutually consistent. An \code{ax} 
+that an interval cannot support (\code{ax * mx > 1}) is replaced with 
+the implied average, \code{1/mx}, and the affected ages are reported.
+
+The open (closing) age interval follows its own rule: 
+\code{ax[N] = 1/mx[N]}, \code{ex[N] = 1/mx[N]} and 
+\code{Lx[N] = lx[N]/mx[N]}, which keeps the closed table consistent 
+with \code{qx[N] = 1}. A user-supplied \code{ax[N]} is therefore 
+replaced, with a warning.
+
+Missing values in \code{mx} or \code{qx} are never masked. They 
+localise to the interval quantities of the affected row (which are 
+returned as \code{NA}) and to the cumulative \code{Tx} and \code{ex} 
+columns at and before that row, while the survivorship chain 
+\code{lx} is bridged across the gap, so the ages above it remain 
+computable. A warning names the affected ages.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ------------
@@ -150,8 +172,7 @@ LT6
 # Note that 'ax' must have the same length as 'x', otherwise an error
 # will be returned.
 
-my_ax <- c(0.1, 1.5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-           2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1)
+my_ax <- c(0.1, 1.5, rep(2, 19), 1, 1, 1)
 
 LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 

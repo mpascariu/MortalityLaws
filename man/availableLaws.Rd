@@ -58,7 +58,7 @@ Journal of the Institute of Actuaries, 63(1), 12-57.
 Scandinavian Actuarial Journal 1936 (3-4), 234-270.
 \doi{10.1080/03461238.1936.10405113}}
 \item{Weibull, W. (1951). A statistical distribution function of wide applicability.
-Journal of applied mechanics 103, 293-297.
+Journal of applied mechanics 18, 293-297.
  \doi{10.1115/1.4010337}}
 \item{Beard, R. E. (1971).
 \href{http://longevity-science.org/Beard-1971.pdf}{
@@ -81,7 +81,7 @@ MODEL: A General Program for Estimating Parametrized Model Schedules of Fertilit
 Mortality, Migration, and Marital and Labor Force Status Transitions.}
 IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}
 \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
-Stockholm, Sweden, Statistiska Centralbyran, 1987. 55 p.
+Stockholm, Sweden, Statistiska centralbyran, 1987. 55 p.
 (R&D Report, Research-Methods-Development, U/STM No. 38)}
 \item{Carriere J.F. (1992). Parametric models for life tables.
 Transactions of the Society of Actuaries. Vol.44}

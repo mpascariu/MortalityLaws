@@ -15,7 +15,7 @@
 #' @keywords internal
 #' @export
 gompertz <- function(x, par = NULL){
-  par <- bring_parameters('gompertz', par)
+  par <- bring_parameters(law = 'gompertz', par = par)
   hx  <- with(as.list(par), A*exp(B*x) )
   Hx  <- with(as.list(par), A/B * (exp(B*x) - 1) )
   Sx  <- exp(-Hx)
@@ -30,7 +30,7 @@ gompertz <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 gompertz0 <- function(x, par = NULL){
-  par <- bring_parameters('gompertz0', par)
+  par <- bring_parameters(law = 'gompertz0', par = par)
   hx  <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) )
   Hx  <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) )
   Sx  <- exp(-Hx)
@@ -47,7 +47,7 @@ gompertz0 <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 invgompertz <- function(x, par = NULL){
-  par <- bring_parameters('invgompertz', par)
+  par <- bring_parameters(law = 'invgompertz', par = par)
   hx  <- with(as.list(par), 1/sigma * exp(-(x - M)/sigma) / (exp(exp(-(x - M)/sigma)) - 1))
   Sx  <- with(as.list(par), (1 - exp(-exp(-(x - M)/sigma))) / (1 - exp(-exp(M/sigma))))
   Hx  <- -log(Sx)
@@ -61,11 +61,11 @@ invgompertz <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 makeham <- function(x, par = NULL){
-  par <- bring_parameters('makeham', par)
+  par <- bring_parameters(law = 'makeham', par = par)
   hx  <- with(as.list(par), A*exp(B*x) + C)
   Hx  <- with(as.list(par), A/B * (exp(B*x) - 1) + x*C )
   Sx  <- exp(-Hx)
-  return(list(hx = hx, par = par))
+  return(list(hx = hx, par = par, Sx = Sx))
 }
 
 
@@ -76,7 +76,7 @@ makeham <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 makeham0 <- function(x, par = NULL){
-  par <- bring_parameters('makeham0', par)
+  par <- bring_parameters(law = 'makeham0', par = par)
   hx <- with(as.list(par), (1/sigma) * exp((x - M)/sigma) + C)
   Hx <- with(as.list(par), exp(-M/sigma) * (exp(x/sigma) - 1) + x*C)
   Sx <- exp(-Hx)
@@ -85,13 +85,16 @@ makeham0 <- function(x, par = NULL){
 
 
 #' Opperman Mortality Law - 1870
+#'
+#' The model is evaluated at ages shifted by one year (\code{x + 1}), which
+#' keeps the term \code{A/sqrt(x)} finite at age 0.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples opperman(x = 1:25)
 #' @keywords internal
 #' @export
 opperman <- function(x, par = NULL){
-  par <- bring_parameters('opperman', par)
+  par <- bring_parameters(law = 'opperman', par = par)
   x  <- x + 1
   hx <- with(as.list(par), A/sqrt(x) - B + C*sqrt(x))
   hx <- pmax(0, hx)
@@ -106,11 +109,11 @@ opperman <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 thiele <- function(x, par = NULL){
-  par <- bring_parameters('thiele', par)
+  par <- bring_parameters(law = 'thiele', par = par)
   mu1 <- with(as.list(par), A*exp(-B*x) )
   mu2 <- with(as.list(par), C*exp(-.5*D*(x - E)^2) )
   mu3 <- with(as.list(par), F_*exp(G*x) )
-  hx <- ifelse(x == 0, mu1 + mu3, mu1 + mu2 + mu3)
+  hx  <- mu1 + mu2 + mu3
   return(list(hx = hx, par = par))
 }
 
@@ -122,7 +125,7 @@ thiele <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 wittstein <- function(x, par = NULL){
-  par <- bring_parameters('wittstein', par)
+  par <- bring_parameters(law = 'wittstein', par = par)
   hx  <- with(as.list(par), (1/B)*A^-((B*x)^N) + A^-((M - x)^N) )
   return(list(hx = hx, par = par))
 }
@@ -141,7 +144,7 @@ wittstein <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 weibull <- function(x, par = NULL){
-  par <- bring_parameters('weibull', par)
+  par <- bring_parameters(law = 'weibull', par = par)
   hx <- with(as.list(par), 1/sigma * (x/M)^(M/sigma - 1) )
   hx[x == 0] <- 1
   Hx <- with(as.list(par), (x/M)^(M/sigma) )
@@ -162,7 +165,7 @@ weibull <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 invweibull <- function(x, par = NULL){
-  par <- bring_parameters('invweibull', par)
+  par <- bring_parameters(law = 'invweibull', par = par)
   hx <- with(as.list(par),
              (1/sigma) * (x/M)^(-M/sigma - 1) / (exp((x/M)^(-M/sigma)) - 1) )
   Hx <- with(as.list(par), -log(1 - exp(-(x/M)^(-M/sigma))) )
@@ -172,14 +175,42 @@ invweibull <- function(x, par = NULL){
 
 
 #' Perks Model - 1932
+#'
+#' Implements the published Perks (1932) form. A previous denominator
+#' extension (the \code{B*C^-x} term, attributed to Steffensen (1930)) was a
+#' misattribution; it now ships separately as \code{steffensen}.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples perks(x = 50:100)
 #' @keywords internal
 #' @export
 perks <- function(x, par = NULL){
-  par <- bring_parameters('perks', par)
-  hx  <- with(as.list(par), (A + B*C^x) / (B*(C^-x) + 1 + D*C^x) )
+  par <- bring_parameters(law = 'perks', par = par)
+  hx  <- with(as.list(par), (A + B*C^x) / (1 + D*C^x))
+  return(list(hx = hx, par = par))
+}
+
+
+#' Steffensen Model - 1930
+#'
+#' The Perks hazard with an additional \code{B*C^-x} term in the
+#' denominator, attributed to Steffensen, J.F. (1930), "Infantile mortality
+#' from an actuarial point of view", \emph{Skandinavisk Aktuarietidskrift}
+#' 13(2), 272-286, \doi{10.1080/03461238.1930.10416902}. The citation is
+#' verified; the formula's presence in the 1930 text itself is not (the scan
+#' is paywalled). The term peaks at birth and
+#' decays geometrically, so the hazard equals the Perks hazard divided by
+#' \code{1 + B*C^-x/(1 + D*C^x)}: dampened at young ages and converging to
+#' the Perks form at old ages. This is the formula the package shipped as
+#' \code{perks} before it was separated out.
+#' @inheritParams gompertz
+#' @inherit gompertz return
+#' @examples steffensen(x = 0:100)
+#' @keywords internal
+#' @export
+steffensen <- function(x, par = NULL){
+  par <- bring_parameters(law = 'steffensen', par = par)
+  hx  <- with(as.list(par), (A + B*C^x) / (B*(C^-x) + 1 + D*C^x))
   return(list(hx = hx, par = par))
 }
 
@@ -191,8 +222,9 @@ perks <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 vandermaen <- function(x, par = NULL){
-  par <- bring_parameters('vandermaen', par)
-  hx  <- with(as.list(par), A + B*x + C*(x^2) + I/(N - x))
+  par <- bring_parameters(law = 'vandermaen', par = par)
+  d   <- par[['N']] - x
+  hx  <- with(as.list(par), A + B*x + C*(x^2) + ifelse(d > 0, I/d, NA_real_))
   return(list(hx = hx, par = par))
 }
 
@@ -204,21 +236,26 @@ vandermaen <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 vandermaen2 <- function(x, par = NULL){
-  par <- bring_parameters('vandermaen2', par)
-  hx  <- with(as.list(par), A + B*x + I/(N - x))
+  par <- bring_parameters(law = 'vandermaen2', par = par)
+  d   <- par[['N']] - x
+  hx  <- with(as.list(par), A + B*x + ifelse(d > 0, I/d, NA_real_))
   return(list(hx = hx, par = par))
 }
 
 
 #' Strehler-Mildvan Model - 1960
+#'
+#' Implements the published Strehler-Mildvan (1960) form
+#' \code{hx = A*exp(B*x)*exp(-(V/B)*(1 - exp(-B*x)))} with parameters
+#' \code{A}, \code{B} and \code{V}.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples strehler_mildvan(x = 30:85)
 #' @keywords internal
 #' @export
 strehler_mildvan <- function(x, par = NULL){
-  par <- bring_parameters('strehler_mildvan', par)
-  hx  <- with(as.list(par), K * exp(-V0 * (1 - B * x)/D) )
+  par <- bring_parameters(law = 'strehler_mildvan', par = par)
+  hx  <- with(as.list(par), A*exp(B*x)*exp(-(V/B)*(1 - exp(-B*x))) )
   return(list(hx = hx, par = par))
 }
 
@@ -230,7 +267,7 @@ strehler_mildvan <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 beard <- function(x, par = NULL){
-  par <- bring_parameters('beard', par)
+  par <- bring_parameters(law = 'beard', par = par)
   hx  <- with(as.list(par), (A*exp(B*x)) / (1 + K*A*exp(B*x)) )
   return(list(hx = hx, par = par))
 }
@@ -243,7 +280,7 @@ beard <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 beard_makeham <- function(x, par = NULL){
-  par <- bring_parameters('beard_makeham', par)
+  par <- bring_parameters(law = 'beard_makeham', par = par)
   hx  <- with(as.list(par), A*exp(B*x) / (1 + K*A*exp(B*x)) + C)
   return(list(hx = hx, par = par))
 }
@@ -256,7 +293,7 @@ beard_makeham <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 ggompertz <- function(x, par = NULL){
-  par <- bring_parameters('ggompertz', par)
+  par <- bring_parameters(law = 'ggompertz', par = par)
   hx  <- with(as.list(par), (A*exp(B*x)) / (1 + (A*G/B)*(exp(B*x) - 1)) )
   return(list(hx = hx, par = par))
 }
@@ -269,7 +306,7 @@ ggompertz <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 quadratic <- function(x, par = NULL){
-  par <- bring_parameters('quadratic', par)
+  par <- bring_parameters(law = 'quadratic', par = par)
   hx  <- with(as.list(par), A + B*x + C*(x^2))
   return(list(hx = hx, par = par))
 }
@@ -282,7 +319,7 @@ quadratic <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 siler <- function(x, par = NULL){
-  par <- bring_parameters('siler', par)
+  par <- bring_parameters(law = 'siler', par = par)
   hx <- with(as.list(par), A*exp(-B*x) + C + D*exp(E*x))
   return(list(hx = hx, par = par))
 }
@@ -295,7 +332,7 @@ siler <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 HP <- function(x, par = NULL){
-  par <- bring_parameters('HP', par)
+  par <- bring_parameters(law = 'HP', par = par)
   mu1 <- with(as.list(par), A^((x + B)^C) + G*H^x )
   mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta <- ifelse(x == 0, mu1, mu1 + mu2)
@@ -310,7 +347,7 @@ HP <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 HP2 <- function(x, par = NULL){
-  par <- bring_parameters('HP2', par)
+  par <- bring_parameters(law = 'HP2', par = par)
   mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + G*H^x) )
   mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta <- ifelse(x == 0, mu1, mu1 + mu2)
@@ -325,7 +362,7 @@ HP2 <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 HP3 <- function(x, par = NULL){
-  par <- bring_parameters('HP3', par)
+  par <- bring_parameters(law = 'HP3', par = par)
   mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^x)/(1 + K*G*H^x) )
   mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta <- ifelse(x == 0, mu1, mu1 + mu2)
@@ -340,7 +377,7 @@ HP3 <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 HP4 <- function(x, par = NULL){
-  par <- bring_parameters('HP4', par)
+  par <- bring_parameters(law = 'HP4', par = par)
   mu1 <- with(as.list(par), A^((x + B)^C) + (G*H^(x^K)) / (1 + G*H^(x^K)) )
   mu2 <- with(as.list(par), D*exp(-E*(log(x/F_))^2) )
   eta <- ifelse(x == 0, mu1, mu1 + mu2)
@@ -356,7 +393,7 @@ HP4 <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 martinelle <- function(x, par = NULL){
-  par <- bring_parameters('martinelle', par)
+  par <- bring_parameters(law = 'martinelle', par = par)
   hx  <- with(as.list(par), (A*exp(B*x) + C) / (1 + D*exp(B*x)) + K*exp(B*x))
   return(list(hx = hx, par = par))
 }
@@ -369,34 +406,56 @@ martinelle <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 rogersplanck <- function(x, par = NULL){
-  par <- bring_parameters('rogersplanck', par)
+  par <- bring_parameters(law = 'rogersplanck', par = par)
   hx  <- with(as.list(par),
           A0 + A1*exp(-A*x) + A2*exp(B*(x - U) - exp(-C*(x - U))) + A3*exp(D*x))
   return(list(hx = hx, par = par))
 }
 
 
+#' Normalise Carriere Mixture Weights to the Simplex
+#'
+#' Clamps the first two weights into (0, 1) and rescales them proportionally
+#' so that the third weight stays positive.
+#' @param P1,P2 Weights of the first two mixture components (numeric).
+#' @return Named numeric vector with the normalised weights P1, P2 and P3.
+#' @noRd
+carriere_weights <- function(P1, P2) {
+  f1 <- min(max(P1, 1e-4), 1)
+  f2 <- min(max(P2, 1e-4), 1)
+
+  if (f1 + f2 > 1 - 1e-4) {
+    scaling <- (1 - 1e-4) / (f1 + f2)
+    f1 <- f1 * scaling
+    f2 <- f2 * scaling
+  }
+
+  f3 <- 1 - f1 - f2
+  return(c(P1 = f1, P2 = f2, P3 = f3))
+}
+
+
 #' Carriere Mortality Law - 1992
 #'
-#' Carriere1 = weibull + invweibull + gompertz
+#' Carriere1 = weibull + invweibull + gompertz. The mixture weights P1 and P2
+#' are normalised to the simplex before the components are combined.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples carriere1(x = 0:100)
 #' @keywords internal
 #' @export
 carriere1 <- function(x, par = NULL){
-  par <- bring_parameters('carriere1', par)
+  par <- bring_parameters(law = 'carriere1', par = par)
   # Compute distribution functions
-  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_iwei <- invweibull(x, par[c('sigma1', 'M2')])$Sx
-  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  S_wei  <- weibull(x = x, par = unname(par[c('sigma1', 'M1')]))$Sx
+  S_iwei <- invweibull(x = x, par = unname(par[c('sigma2', 'M2')]))$Sx
+  S_gom  <- gompertz0(x = x, par = unname(par[c('sigma3', 'M3')]))$Sx
 
-  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
-  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
-  f3 <- 1 - f1 - f2
+  w <- carriere_weights(P1 = par[['P1']], P2 = par[['P2']])
+  par['P1'] <- w[['P1']]
+  par['P2'] <- w[['P2']]
 
-  Sx <- f1*S_wei + f2*S_iwei + f3*S_gom
-  Sx <- pmax(0, pmin(1, Sx))
+  Sx <- w[['P1']]*S_wei + w[['P2']]*S_iwei + w[['P3']]*S_gom
   Hx <- -log(Sx)
   hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution!
   return(list(hx = hx, par = par))
@@ -405,25 +464,25 @@ carriere1 <- function(x, par = NULL){
 
 #' Carriere Mortality Law - 1992
 #'
-#' Carriere2 = weibull + invgompertz + gompertz
+#' Carriere2 = weibull + invgompertz + gompertz. The mixture weights P1 and
+#' P2 are normalised to the simplex before the components are combined.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples carriere2(x = 0:100)
 #' @keywords internal
 #' @export
 carriere2 <- function(x, par = NULL){
-  par <- bring_parameters('carriere2', par)
+  par <- bring_parameters(law = 'carriere2', par = par)
   # Compute distribution functions
-  S_wei  <- weibull(x, par[c('sigma1', 'M1')])$Sx
-  S_igom <- invgompertz(x, par[c('sigma2', 'M2')])$Sx
-  S_gom  <- gompertz0(x, par[c('sigma3', 'M3')])$Sx
+  S_wei  <- weibull(x = x, par = unname(par[c('sigma1', 'M1')]))$Sx
+  S_igom <- invgompertz(x = x, par = unname(par[c('sigma2', 'M2')]))$Sx
+  S_gom  <- gompertz0(x = x, par = unname(par[c('sigma3', 'M3')]))$Sx
 
-  f1 <- par['P1'] <- max(0.0001, min(par['P1'], 1))
-  f2 <- par['P2'] <- max(0.0001, min(par['P2'], 1))
-  f3 <- 1 - f1 - f2
+  w <- carriere_weights(P1 = par[['P1']], P2 = par[['P2']])
+  par['P1'] <- w[['P1']]
+  par['P2'] <- w[['P2']]
 
-  Sx <- f1*S_wei + f2*S_igom + f3*S_gom
-  Sx <- pmax(0, pmin(1, Sx))
+  Sx <- w[['P1']]*S_wei + w[['P2']]*S_igom + w[['P3']]*S_gom
   Hx <- -log(Sx)
   hx <- c(Hx[1], diff(Hx)) # here we will need a numerical solution!
   return(list(hx = hx, par = par))
@@ -437,7 +496,7 @@ carriere2 <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 kostaki <- function(x, par = NULL){
-  par <- bring_parameters('kostaki', par)
+  par <- bring_parameters(law = 'kostaki', par = par)
   with(as.list(par), {
     # Sometimes the difference between estimated parameters E1 and E2 is
     # very large, in which case the resulting mortality curve will exhibit
@@ -464,12 +523,12 @@ kostaki <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 kannisto <- function(x, par = NULL){
-  par <- bring_parameters('kannisto', par)
+  par <- bring_parameters(law = 'kannisto', par = par)
   with(as.list(par), {
     hx  <- A*exp(B*x) / (1 + A*exp(B*x))
-    Hx  <- 1/A * log((1 + B*exp(B*x)) / (1 + A))
+    Hx  <- (1/B) * log((1 + A*exp(B*x)) / (1 + A))
     Sx  <- exp(-Hx)
-    return(list(hx = hx, par = par))
+    return(list(hx = hx, par = par, Sx = Sx))
   })
 }
 
@@ -481,7 +540,7 @@ kannisto <- function(x, par = NULL){
 #' @keywords internal
 #' @export
 kannisto_makeham <- function(x, par = NULL){
-  par <- bring_parameters('kannisto_makeham', par)
+  par <- bring_parameters(law = 'kannisto_makeham', par = par)
   with(as.list(par), {
     hx  <- A*exp(B*x) / (1 + A*exp(B*x)) + C
     return(list(hx = hx, par = par))
@@ -489,14 +548,62 @@ kannisto_makeham <- function(x, par = NULL){
 }
 
 
+#' Validate User-Supplied Parameters of a Mortality Law
+#'
+#' Checks that the supplied parameters form a numeric vector with the right
+#' names and strictly positive values, ordered like the law's defaults.
+#' @param law Name of the mortality law (character string).
+#' @param par User-supplied parameter values.
+#' @param Spar Default parameters of the law (named numeric vector).
+#' @return A named numeric vector with the validated parameters.
+#' @noRd
+check_parameters <- function(law, par, Spar) {
+
+  if (!is.numeric(par) || !is.null(dim(par))) {
+    stop("'par' for law '", law, "' must be a numeric vector.", call. = FALSE)
+  }
+
+  if (!is.null(names(par))) {
+    if (anyDuplicated(names(par)) > 0 || !setequal(names(par), names(Spar))) {
+      stop(
+        "Invalid parameter names for law '", law, "'. Expected: ",
+        paste(names(Spar), collapse = ", "), "; got: ",
+        paste(names(par), collapse = ", "), ".",
+        call. = FALSE)
+    }
+    par <- par[names(Spar)]
+  } else {
+    if (length(par) != length(Spar)) {
+      stop(
+        "'par' for law '", law, "' must have ", length(Spar),
+        " elements (", paste(names(Spar), collapse = ", "), "); got ",
+        length(par), ".",
+        call. = FALSE)
+    }
+    names(par) <- names(Spar)
+  }
+
+  if (anyNA(par) || any(par <= 0)) {
+    stop(
+      "All parameters in 'par' for law '", law,
+      "' must be positive numeric values.",
+      call. = FALSE)
+  }
+
+  return(par)
+}
+
+
 #' Bring or Rename Starting Parameters in the Law Functions
+#'
+#' Provides the defaults when \code{par} is \code{NULL}, otherwise matches a
+#' named \code{par} by name (unnamed positionally) and validates it.
 #' @inheritParams MortalityLaw
 #' @inheritParams gompertz
 #' @return Vector or initial model parameters
-#' @keywords internal
+#' @noRd
 bring_parameters <- function(law, par = NULL) {
   Spar <- switch(law,
-            demoivre    = c(A = 105),
             gompertz    = c(A = 0.0002, B = 0.13),
             gompertz0   = c(sigma = 7.7, M = 49),
             invgompertz = c(sigma = 7.7, M = 49),
@@ -506,12 +613,13 @@ bring_parameters <- function(law, par = NULL) {
             thiele      = c(A = .02474, B = .3, C = .004, D = .5,
                            E = 25, F_ = .0001, G = .13),
             wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
-            perks       = c(A = .002, B = .13, C = .01, D = .01),
+            perks       = c(A = .0005, B = .0002, C = 1.1, D = .01),
+            steffensen  = c(A = .0005, B = .02, C = 1.05, D = .1),
             weibull     = c(sigma = 2, M = 1),
             invweibull  = c(sigma = 10, M = 5),
             vandermaen  = c(A = .01, B = 1, C = .01, I = 100, N = 200),
             vandermaen2 = c(A = .01, B = 1, I = 100, N = 200),
-            strehler_mildvan = c(K = .01, V0 = 2.5, B = 0.2, D = 6),
+            strehler_mildvan = c(A = 0.0001, B = 0.1, V = 1),
             quadratic   = c(A = .01, B = 1, C = .01),
             beard       = c(A = .002, B = .13, K = 1),
             beard_makeham = c(A = .002, B = .13, C = .01, K = 1),
@@ -539,8 +647,20 @@ bring_parameters <- function(law, par = NULL) {
             kannisto   = c(A = 0.5, B = 0.13),
             kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001)
             )
-  if (is.null(par)) par <- Spar
-  # If 'par' is provided, just give them a name anyway.
-  names(par) <- names(Spar)
+
+  if (is.null(Spar)) {
+    stop("Unknown mortality law '", law, "'.", call. = FALSE)
+  }
+
+  if (is.null(par)) {
+    par <- Spar
+  } else {
+    par <- check_parameters(
+      law = law,
+      par = par,
+      Spar = Spar
+      )
+  }
+
   return(par)
 }

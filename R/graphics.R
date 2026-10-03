@@ -19,20 +19,22 @@ plot.MortalityLaw <- function(x, ...){
 
   with(
     data = x$input,
-    if (find.my.case(Dx, Ex, mx, qx)$iclass != "numeric") {
+    if (!any(find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$iclass ==
+             "numeric")) {
       stop("Plot function not available for multiple mortality curves",
-           call. = FALSE)})
+           call. = FALSE)
+      }
+    )
 
-  age      <- x$input$x
-  age2     <- x$input$fit.this.x
-  select.x <- age %in% age2
-  law      <- x$input$law
+  age  <- x$input$x
+  age2 <- x$input$fit.this.x
+  law  <- x$input$law
 
   if (law == "custom.law") {
     lawN <- "Custom Mortality"
 
   } else {
-    lawN = unlist(availableLaws(law)$table['NAME'])
+    lawN <- unlist(availableLaws(law)$table['NAME'])
   }
 
   lay_mat <- matrix(c(1, 2, 3, 1, 2, 3), ncol = 3, byrow = TRUE)
@@ -50,13 +52,18 @@ plot.MortalityLaw <- function(x, ...){
     )
 
   if (!is.null(x$input$qx)) {
-    y = x$input$qx
+    y <- x$input$qx
 
   } else {
-    y = with(x$input, if (is.null(mx)) Dx/Ex else mx)
+    y <- with(x$input, if (is.null(mx)) Dx/Ex else mx)
   }
 
   fit_y <- x$fitted.values
+
+  # The left panel is on a log scale: values the model cannot place on it
+  # (non-positive rates from out-of-range extrapolation) are omitted there.
+  y[!is.finite(y) | y <= 0] <- NA_real_
+  fit_y[!is.finite(fit_y) | fit_y <= 0] <- NA_real_
   pos_x <- quantile(
     x = age,
     p = seq(0, 1, by = 0.25),
@@ -110,7 +117,6 @@ plot.MortalityLaw <- function(x, ...){
     )
 
   # ----- Plot 2 -----
-  # resid <- x$residuals[select.x]
   resid <- x$residuals
   par(
     mar = c(5, 5, 4, 1),
@@ -155,13 +161,15 @@ plot.MortalityLaw <- function(x, ...){
     cex.lab = 0.9,
     cex.axis = 1.3
     )
-  barplot(
+  bp <- barplot(
     height = xhist$counts,
     axes = TRUE,
     space = 0,
     horiz = TRUE,
     xlab = 'Frequency'
     )
+
+  return(invisible(bp))
 }
 
 

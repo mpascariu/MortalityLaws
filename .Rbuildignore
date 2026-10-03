@@ -2,10 +2,8 @@
 ^check$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^\.travis\.yml$
 ^CODE_OF_CONDUCT.md$
 ^CONTRIBUTING.md$
-^appveyor\.yml$
 ^LICENSE\.md$
 ^doc$
 ^Meta$

@@ -2,10 +2,6 @@
 # Author: Marius D PASCARIU
 # Date: 2026-05-05 18:51:58
 # --------------------------------------------
-remove(list = ls())
-library(MortalityLaws)
-library(testthat)
-
 # Setup: define a baseline age grid (x1) covering the full lifespan from
 # infancy to age 100, with corresponding mortality rates (mx). This data
 # is used throughout to test consistency of model fits across input formats.
@@ -37,27 +33,31 @@ M2 <- function() MortalityLaw(x = x2,
                               law = law,
                               fit.this.x = x2,
                               opt.method = opt.method)
-opt.method = "LF2"
+opt.method <- "LF2"
 
 
 
 # Helper: runs a battery of consistency checks for each mortality law.
 # Checks:
-#   (1) fitted(M1) for ages x2 == fitted(M2) — same subset, same fit.
-#   (2) fitted(M1) for x2 == predict(M1, x = x2) — fitted vs predict match.
-#   (3) fitted(M1) for all x1 == predict(M1, x = x1) — full-range consistency.
-#   (4) fitted(M1) for all x1 == predict(M2, x = x1) — cross-model consistency.
+#   (1) fitted(M1) for ages x2 == fitted(M2) : same subset, same fit.
+#   (2) fitted(M1) for x2 == predict(M1, x = x2) : fitted vs predict match.
+#   (3) fitted(M1) for all x1 == predict(M1, x = x1) : full-range consistency.
+#   (4) fitted(M1) for all x1 == predict(M2, x = x1) : cross-model consistency.
 #   (5) coefficients identical across both fitting approaches.
-#   (6-7) plotting functions return non-NULL.
+#   (6-7) plotting works for both fitted objects.
 testFN <- function(M1, M2) {
   test_that(paste(law, "Model"), {
+    # fits may warn while the optimiser probes extreme parameter regions or
+    # when nlminb reports non-convergence (pinned in test_regression_pins.R)
+    M1 <- suppressWarnings(M1())
+    M2 <- suppressWarnings(M2())
     expect_identical(fitted(M1)[paste(x2)], fitted(M2))
     expect_identical(fitted(M1)[paste(x2)], predict(M1, x = x2))
     expect_identical(fitted(M1), predict(M1, x = x1))
     expect_identical(fitted(M1), predict(M2, x = x1))
     expect_identical(coef(M1), coef(M2))
-    expect_false(is.null(plot(M1)))
-    expect_false(is.null(plot(M2)))
+    expect_no_error(plot(M1))
+    expect_no_error(plot(M2))
   })
 }
 
@@ -115,6 +115,12 @@ testFN(M1(), M2())
 # Test perks -- Perks: middle-to-old ages (20-80).
 law = "perks"
 x2 = seq(20, 80, 5)
+testFN(M1(), M2())
+# ----------------------------------------------
+# Test steffensen -- Steffensen: full lifespan (0-100), the model's
+# distinguishing behaviour lives at the young ages.
+law = "steffensen"
+x2 = seq(0, 100, 5)
 testFN(M1(), M2())
 # ----------------------------------------------
 # Test weibull -- Weibull: early ages (0-15) where failure-rate models apply.

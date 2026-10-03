@@ -12,7 +12,7 @@
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-print info on the console
+The object \code{x}, invisibly.
 }
 \description{
 Print availableLaws

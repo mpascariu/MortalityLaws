@@ -16,7 +16,8 @@ default values will be assigned automatically.}
 A list of rates and model parameters
 }
 \description{
-Carriere1 = weibull + invweibull + gompertz
+Carriere1 = weibull + invweibull + gompertz. The mixture weights P1 and P2
+are normalised to the simplex before the components are combined.
 }
 \examples{
 carriere1(x = 0:100)
