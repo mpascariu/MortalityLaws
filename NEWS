@@ -1,3 +1,7 @@
+version 2.3.1 - "open channel"
+- Data downloads from the Human Mortality Database work again; the login had
+stopped working, so downloads with credentials always reported a failure.
+
 version 2.3.0 - "steady harbor"
 - Comparing models and building life tables is more reliable now, most
 noticeably for babies and at the oldest ages.

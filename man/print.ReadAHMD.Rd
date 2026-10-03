@@ -2,12 +2,12 @@
 % Please edit documentation in R/readAHMD.R
 \name{print.ReadAHMD}
 \alias{print.ReadAHMD}
-\title{Print ReadCHMD}
+\title{Print ReadAHMD}
 \usage{
 \method{print}{ReadAHMD}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"ReadCHMD"}}
+\item{x}{An object of class \code{"ReadAHMD"}}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
@@ -15,6 +15,6 @@
 Print data on console
 }
 \description{
-Print ReadCHMD
+Print ReadAHMD
 }
 \keyword{internal}

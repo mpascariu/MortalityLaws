@@ -81,7 +81,7 @@
 #' \code{\link{ReadHMD}}
 #' \code{\link{ReadAHMD}}
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Download demographic data for Quebec and Saskatchewan regions in 1x1 format
 #'
 #' # Death counts. We don't want to export data outside R.
@@ -126,12 +126,11 @@ ReadCHMD <- function(what,
     }
 
     D <- rbind(D, ReadHMD.core(
-      what = what,
-      country = regions[i],
+      what     = what,
+      country  = regions[i],
       interval = interval,
-      username = NULL,
-      password = NULL,
-      link = "https://www.prdh.umontreal.ca/BDLC/data/"))
+      session  = NULL,
+      link     = "https://www.prdh.umontreal.ca/BDLC/data/"))
   }
 
   if (length(D) != 0) {
@@ -155,9 +154,9 @@ ReadCHMD <- function(what,
 }
 
 
-#' Country codes
-#' @return a vector
-#' @keywords internal
+#' Canadian region codes
+#' @return A character vector with the region codes accepted by CHMD.
+#' @noRd
 CANregions <- function() {
   c("CAN",
     "NFL",
@@ -177,17 +176,40 @@ CANregions <- function() {
 
 #' Check input for ReadCHMD
 #' @param x A list with the input values for ReadCHMD
-#' @return No return value, called for input validation 
-#' @keywords internal
-#' 
+#' @return No return value, called for input validation
+#' @noRd
 check_input_ReadCHMD <- function(x) {
   wht <- c("births", "population", "Dx_lexis", "Dx",
            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
 
+  if (length(x$what) != 1) {
+    stop("Please specify exactly one data type in 'what'. You supplied ",
+         length(x$what), " values: ", paste(x$what, collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (length(x$interval) != 1) {
+    stop("Please specify exactly one interval. You supplied ",
+         length(x$interval), " values: ", paste(x$interval, collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (length(x$regions) == 0) {
+    stop("Please specify at least one region in 'regions'.", call. = FALSE)
+  }
+
   if (!(x$interval %in% data_format())) {
-        stop("The interval ", x$interval, " does not exist in CHMD. ",
+    stop("The interval ", x$interval, " does not exist in CHMD. ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
+  }
+
+  bad <- x$regions[!(x$regions %in% CANregions())]
+
+  if (length(bad) > 0) {
+    stop("Unknown region code(s) in 'regions': ", paste(bad, collapse = ", "),
+         ".\nTry one or more of these options:\n",
+         paste(CANregions(), collapse = ", "), call. = FALSE)
   }
 
   if (!(x$what %in% wht)) {
@@ -195,24 +217,42 @@ check_input_ReadCHMD <- function(x) {
          paste(wht, collapse = ", "), call. = FALSE)
   }
 
-  if (all(!(x$regions %in% CANregions()))) {
-    stop("Something is wrong in the region codes supplied.\n",
-         "Try one or more of these options:\n",
-         paste(CANregions(), collapse = ", "), call. = FALSE)
-  }
+  check_availability_ReadCHMD(what = x$what, regions = x$regions,
+                              interval = x$interval)
+}
+
+
+#' Check the CHMD data types against the requested region and interval
+#' @param what A single CHMD data type, one of the options in
+#'   \code{check_input_ReadCHMD()}.
+#' @param regions A character vector with the requested CHMD region codes.
+#' @param interval A single interval, one of \code{data_format()}.
+#' @return No return value, called for input validation
+#' @noRd
+check_availability_ReadCHMD <- function(what, regions, interval) {
 
   # Availability of Death and Exposures
-  if ((x$what %in% c("Dx", "Ex")) & !(x$interval %in% c("1x1", "5x1"))) {
-    stop("Data type ", x$what,
+  if ((what %in% c("Dx", "Ex")) & !(interval %in% c("1x1", "5x1"))) {
+    stop("Data type ", what,
          " is available only in the following format: '1x1' and '5x1'.",
          call. = FALSE)
   }
 
-  if (any(x$region %in% c("NWT", "YUK")) &
-    (x$what %in% c("LT_m", "LT_f", "LT_t")) &
-      (x$interval %in% c("1x1", "5x1"))) {
+  # Population is served in every interval: ReadHMD.core reads the single-age
+  # 'Population' file for the 1-year formats and the 5-year age group
+  # 'Population5' file for the 5-year formats. Both files exist on CHMD.
+  # Births have no 5-year age product, so only '1x1' can be served.
+  if ((what == "births") & (interval != "1x1")) {
+    stop("Data type births is not available in CHMD in the ", interval,
+         " format. Births data is published only in the 1-year product, '1x1'.",
+         call. = FALSE)
+  }
+
+  if (any(regions %in% c("NWT", "YUK")) &
+    (what %in% c("LT_m", "LT_f", "LT_t")) &
+      (interval %in% c("1x1", "5x1"))) {
     stop("For the regions of Northwest Territories & Nunavut (NWT) and Yukon (YUK),",
-         "\ndata type ", x$what, " is NOT available in the following format:",
+         "\ndata type ", what, " is NOT available in the following format:",
          "'1x1' and '5x1'.",
          "\nTo download the life-tables for all the other regions use the argument:",
          "\nregions = c('CAN', 'NFL', 'PEI', 'NSC', 'NBR', 'QUE', 'ONT', 'MAN', 'SAS', 'ALB', 'BCO')",

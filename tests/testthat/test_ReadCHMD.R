@@ -1,64 +1,190 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-05 18:52:25
+# Date: 2026-10-03
 # --------------------------------------------
-remove(list = ls())
+# Rewritten against the real ReadCHMD contract (review F34/F36/F48):
+# input validation and the availability rules run before any HTTP call, and
+# every download failure is reported with message() and a NULL return.
+# The default suite is offline: fetch_text() is replaced with
+# testthat::local_mocked_bindings() and the captured files under fixtures/
+# stand in for the live downloads.
+# --------------------------------------------
 
-# Test 1: Invalid index (indicator) name
-# Logic: "DxDD" is not a valid CHMD indicator; the function should raise
-# an error during input validation before attempting any data retrieval.
-expect_error(ReadCHMD(what = "DxDD"))
 
-# Test 2: Invalid region name
-# Logic: "CANN" is not a valid Canadian region code; the function's internal
-# validation should detect this and throw an error.
-expect_error(ReadCHMD(what = "Dx",
-                      regions = "CANN"))
+# Return a captured fixture as one string, the way fetch_text() returns it.
+read_fixture <- function(name) {
+  path <- test_path("fixtures", name)
+  out  <- paste(readLines(path, warn = FALSE), collapse = "\n")
+  return(out)
+}
 
-# Test 3: Invalid interval format
-# Logic: "1x50" is not a recognized interval pattern; the function should error.
-expect_error(ReadCHMD(what = "Dx",
-                      regions = "CAN",
-                      interval = "1x50"))
 
-# Test 4: Wrong region for a cohort-type index
-# Logic: "LT_fc" (cohort life table - females) is not available for region
-# "SAS" (Saskatchewan) in CHMD; the function should error.
-expect_error(ReadCHMD(what = "LT_fc",
-                      regions = "SAS",
-                      interval = "1x1"))
+test_that("ReadCHMD rejects an unknown indicator before any download", {
+  expect_error(ReadCHMD(what     = "DxDD",
+                        regions  = "CAN",
+                        interval = "1x1"),
+               regexp = "DxDD does not exist in CHMD")
+})
 
-# Test 5: Wrong interval for period life expectancy
-# Logic: "e0" (period life expectancy at birth) requires a "1x1" interval;
-# using "5x1" should trigger a message informing the user about the correct
-# interval requirement (since the function may auto-correct it).
-expect_message(
-  ReadCHMD(what = "e0",
-           regions = "CAN",
-           interval = "5x1",
-           show = F))
+test_that("ReadCHMD rejects cohort life tables the CHMD does not serve", {
+  expect_error(ReadCHMD(what     = "LT_fc",
+                        regions  = "SAS",
+                        interval = "1x1"),
+               regexp = "LT_fc does not exist in CHMD")
+})
 
-# Test 6: Wrong interval for period life table by sex
-# Logic: "LT_f" (female period life table) requires a "1x1" interval;
-# using "5x1" is invalid and should error.
-expect_error(ReadCHMD(what = "LT_f",
-                      regions = "YUK",
-                      interval = "5x1",
-                      show = F))
+test_that("ReadCHMD rejects a region code that is not Canadian", {
+  expect_error(ReadCHMD(what     = "Dx",
+                        regions  = "CANN",
+                        interval = "1x1"),
+               regexp = "CANN")
+})
 
-# Test that the built-in sample dataset CHMD_sample prints without error.
-# This verifies the print method for CHMD sample data.
-expect_output(
-  print(CHMD_sample)
-)
+test_that("ReadCHMD rejects the whole list when one region code is unknown", {
+  expect_error(ReadCHMD(what     = "Dx",
+                        regions  = c("CAN", "ZZZ"),
+                        interval = "1x1"),
+               regexp = "ZZZ")
+})
 
-# The tests below have been removed because internet-dependent tests can
-# cause false CRAN failures when the remote server is temporarily down.
-# We only test the input validation checks (which require no internet).
-# # Test the show arg and print function
-# expect_silent(D <- ReadCHMD(what = "LT_f",
-#                             regions = "CAN",
-#                             interval = "5x10",
-#                             show = F))
-# expect_output(print(D))
+test_that("ReadCHMD rejects an interval CHMD does not serve", {
+  expect_error(ReadCHMD(what     = "Dx",
+                        regions  = "CAN",
+                        interval = "1x50"),
+               regexp = "The interval 1x50 does not exist in CHMD")
+})
 
+test_that("ReadCHMD requires a single 'what' and a single interval", {
+  # The old validators compared vectors with if(), so length > 1 warned
+  # "the condition has length > 1" instead of stopping with a clear message.
+  err_what <- expect_no_warning(
+    tryCatch(
+      ReadCHMD(what     = c("Dx", "mx"),
+               regions  = "CAN",
+               interval = "1x1"),
+      error = function(e) conditionMessage(e)
+    )
+  )
+  expect_match(err_what, "exactly one data type")
+  expect_no_match(err_what, "condition has length")
+
+  err_interval <- expect_no_warning(
+    tryCatch(
+      ReadCHMD(what     = "Dx",
+               regions  = "CAN",
+               interval = c("1x1", "5x1")),
+      error = function(e) conditionMessage(e)
+    )
+  )
+  expect_match(err_interval, "exactly one interval")
+  expect_no_match(err_interval, "condition has length")
+})
+
+test_that("ReadCHMD restricts Dx to the 1x1 and 5x1 formats", {
+  expect_error(ReadCHMD(what     = "Dx",
+                        regions  = "CAN",
+                        interval = "1x5"),
+               regexp = "Dx is available only in the following format")
+})
+
+test_that("ReadCHMD rejects life tables for Yukon in the 1x1 and 5x1 formats", {
+  expect_error(ReadCHMD(what     = "LT_f",
+                        regions  = "YUK",
+                        interval = "5x1",
+                        show     = FALSE),
+               regexp = "LT_f is NOT available")
+})
+
+test_that("ReadCHMD restricts births to the 1x1 format", {
+  expect_error(ReadCHMD(what     = "births",
+                        regions  = "CAN",
+                        interval = "5x5"),
+               regexp = "births is not available in CHMD in the 5x5 format")
+  expect_error(ReadCHMD(what     = "births",
+                        regions  = "CAN",
+                        interval = "1x5"),
+               regexp = "published only in the 1-year product")
+})
+
+test_that("ReadCHMD reads the 5-year population file in the 5-year formats", {
+  # ReadHMD.core picks Population.txt for the single-age formats and
+  # Population5.txt for the 5-year age formats; the 1x1 file must not be
+  # served for a 5x* request under the label of the 1x1 product.
+  seen_urls <- character()
+  local_mocked_bindings(
+    fetch_text = function(url, session = NULL) {
+      seen_urls <<- c(seen_urls, url)
+      list(status = 200L,
+           text   = read_fixture("hmd_deaths_1x1.txt"),
+           error  = NULL,
+           html   = FALSE)
+    },
+    .package = "MortalityLaws"
+  )
+
+  ReadCHMD(what     = "population",
+           regions  = "CAN",
+           interval = "5x5",
+           show     = FALSE)
+
+  expect_equal(
+    seen_urls,
+    "https://www.prdh.umontreal.ca/BDLC/data/CAN/Population5.txt"
+  )
+})
+
+test_that("ReadCHMD parses a captured 1x1 file into integer ages 0 to 110", {
+  seen_urls <- character()
+  local_mocked_bindings(
+    fetch_text = function(url, session = NULL) {
+      seen_urls <<- c(seen_urls, url)
+      list(status = 200L,
+           text   = read_fixture("hmd_deaths_1x1.txt"),
+           error  = NULL,
+           html   = FALSE)
+    },
+    .package = "MortalityLaws"
+  )
+
+  out <- ReadCHMD(what     = "Dx",
+                  regions  = "CAN",
+                  interval = "1x1",
+                  show     = FALSE)
+
+  expect_equal(
+    seen_urls,
+    "https://www.prdh.umontreal.ca/BDLC/data/CAN/Deaths_1x1.txt"
+  )
+  expect_s3_class(out, "ReadCHMD")
+  # 1 year x 111 single ages in the captured file.
+  expect_equal(nrow(out$data), 111)
+  expect_equal(unique(out$data$Age), 0:110)
+  expect_equal(unique(out$data$country), "CAN")
+  expect_equal(out$data$Female[1], 123, tolerance = 1e-12)
+})
+
+test_that("ReadCHMD reports a missing file and returns NULL", {
+  local_mocked_bindings(
+    fetch_text = function(url, session = NULL) {
+      list(status = 404L,
+           text   = NULL,
+           error  = paste0("The server returned HTTP 404 for ", url),
+           html   = FALSE)
+    },
+    .package = "MortalityLaws"
+  )
+
+  out <- NULL
+  expect_message(
+    out <- ReadCHMD(what     = "Dx",
+                    regions  = "CAN",
+                    interval = "1x1",
+                    show     = FALSE),
+    regexp = "HTTP 404"
+  )
+  expect_null(out)
+})
+
+test_that("the bundled CHMD sample still prints", {
+  expect_output(print(CHMD_sample))
+})

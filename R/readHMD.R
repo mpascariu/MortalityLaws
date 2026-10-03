@@ -24,7 +24,8 @@
 #'
 #' @param what What type of data are you looking for? The following options
 #' might be available for some or all the countries and regions: \itemize{
-#'   \item{\code{"births"}} -- birth records;
+#'   \item{\code{"births"}} -- birth records (the 1-year product only; HMD does
+#'   not publish births by 5-year age group or by multi-year periods);
 #'   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
 #'   \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
 #'   \item{\code{"population"}} -- population size;
@@ -131,35 +132,64 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
     setpb(pb, 0)
   }
   
-  # Step 2 - Do the loop for the other countries
-  D <- data.frame()
-  for (i in 1:nr) {
-    if (show) {
-      setpb(pb, i)
-      cat(paste("      :Downloading", countries[i], "    "))
-    }
-    
-    D <- rbind(D, ReadHMD.core(what, country = countries[i], interval,
-                               username, password,
-                               link = "https://www.mortality.org/File/GetDocument/hmd.v6/"))
-  }
-  
-  if (length(D) != 0) {
-    out <- list(input = input,
-                data = D,
-                download.date = date(),
-                years = sort(unique(D$Year)),
-                ages = unique(D$Age))
-    out <- structure(class = "ReadHMD", out)
-    
-    # Step 3 - Write a file with the database in your working directory
-    if (show) setpb(pb, nr + 1)
-    if (save) saveOutput(out, show, prefix = "HMD")
-    
-  } else {
+  # Step 2 - Log in once, then download each country with the same session
+  session <- tryCatch(
+    hmd_session(username = username, password = password),
+    error = function(e) e
+  )
+
+  if (inherits(session, "error")) {
+    message(conditionMessage(session))
     out <- NULL
+
+  } else {
+    D <- data.frame()
+    for (i in 1:nr) {
+      if (show) {
+        setpb(pb, i)
+        cat(paste("      :Downloading", countries[i], "    "))
+      }
+
+      D <- rbind(D, tryCatch(
+        ReadHMD.core(
+          what     = what,
+          country  = countries[i],
+          interval = interval,
+          session  = session,
+          link     = "https://www.mortality.org/File/GetDocument/hmd.v6/"
+        ),
+        error = function(e) {
+          message("\nThe ", what, " data for ", countries[i],
+                  " could not be read. The download reported: ",
+                  conditionMessage(e))
+          NULL
+        }
+      ))
+    }
+
+    if (length(D) != 0) {
+      out <- list(input         = input,
+                  data          = D,
+                  download.date = date(),
+                  years         = sort(unique(D$Year)),
+                  ages          = unique(D$Age))
+      out <- structure(class = "ReadHMD", out)
+
+      # Step 3 - Write a file with the database in your working directory
+      if (show) setpb(pb, nr + 1)
+      if (save) {
+        saveOutput(
+          out    = out,
+          show   = show,
+          prefix = "HMD"
+        )
+      }
+
+    } else {
+      out <- NULL
+    }
   }
-  
+
   # Exit
   return(out)
 }
@@ -168,8 +198,9 @@ ReadHMD <- function(what, countries = NULL, interval = "1x1",
 #' Save Output in the working directory
 #' @param out Output file
 #' @inheritParams ReadHMD
+#' @param prefix File name prefix for the saved object, e.g. "HMD".
 #' @return No return value, called for side effects
-#' @keywords internal
+#' @noRd
 saveOutput <- function(out, show, prefix) {
   fn  <- paste0(prefix, "_", out$input$what) # file name
   assign(fn, value = out)
@@ -179,8 +210,8 @@ saveOutput <- function(out, show, prefix) {
 
 
 #' Print message when saving an object
-#' @inherit saveOutput return
-#' @keywords internal
+#' @return No return value, called for side effects
+#' @noRd
 saveMsg <- function() {
   wd  <- getwd()
   n   <- nchar(wd)
@@ -191,107 +222,132 @@ saveMsg <- function() {
 }
 
 
+#' HMD file name for a data type and interval
+#' @inheritParams ReadHMD
+#' @return A character string with the file name stub, without the \code{.txt}
+#'   extension. \code{NULL} if the data type is not one offered by HMD.
+#' @noRd
+hmd_file_name <- function(what, interval) {
+
+  if (what == "e0" & interval == "1x1") {
+    which_file <- "E0per"
+
+  } else if (what == "e0c" & interval == "1x1") {
+    which_file <- "E0coh"
+
+  } else if (what == "population" & startsWith(interval, "5")) {
+    # The 5-year product is a separate file: Population5.txt, 24 rows per year
+    # with the age groups 0, 1-4, 5-9, ... (verified on SWE, ACT and CAN).
+    which_file <- "Population5"
+
+  } else {
+    which_file <- switch(
+      what,
+      births     = "Births",
+      population = "Population",
+      Dx_lexis   = "Deaths_lexis",
+      Ex_lexis   = "Exposures_lexis",
+      Dx         = paste0("Deaths_", interval),
+      Ex         = paste0("Exposures_", interval),
+      mx         = paste0("Mx_", interval),
+      LT_f       = paste0("fltper_", interval),
+      LT_m       = paste0("mltper_", interval),
+      LT_t       = paste0("bltper_", interval),
+      e0         = paste0("E0per_", interval),
+      Exc        = paste0("cExposures_", interval),
+      mxc        = paste0("cMx_", interval),
+      LT_fc      = paste0("fltcoh_", interval),
+      LT_mc      = paste0("mltcoh_", interval),
+      LT_tc      = paste0("bltcoh_", interval),
+      e0c        = paste0("E0coh_", interval)
+    )
+  }
+
+  return(which_file)
+}
+
+
 #' Function to Download Data for a one Country
 #' @inheritParams ReadHMD
 #' @param country HMD country code for the selected country. Character;
+#' @param session A login cookie string returned by \code{hmd_session()}, or
+#'   \code{NULL} for databases that need no authentication.
 #' @param link the main link to the database.
-#' @return A data.frame containing demographic data
-#' @keywords internal
-ReadHMD.core <- function(what, country, interval, username, password, link){
-  
-  if (what == "e0" & interval == "1x1") {
-    whichFile <- "E0per"
-    
-  } else if (what == "e0c" & interval == "1x1"){
-    whichFile <- "E0coh"
-    
-  } else {
-    whichFile <- switch(what,
-                        births = "Births",
-                        population = "Population",
-                        Dx_lexis = "Deaths_lexis",
-                        Ex_lexis = "Exposures_lexis",
-                        Dx   = paste0("Deaths_", interval),    # deaths
-                        Ex   = paste0("Exposures_", interval), # exposure
-                        mx   = paste0("Mx_", interval),        # death rates
-                        LT_f = paste0("fltper_", interval),    # Life tables, Females
-                        LT_m = paste0("mltper_", interval),    # Life tables, Males
-                        LT_t = paste0("bltper_", interval),    # Life tables, Both sexes
-                        e0   = paste0("E0per_", interval),     # Life expectancy
-                        # Cohort data
-                        Exc = paste0("cExposures_", interval),
-                        mxc = paste0("cMx_", interval),
-                        LT_fc = paste0("fltcoh_", interval),
-                        LT_mc = paste0("mltcoh_", interval),
-                        LT_tc = paste0("bltcoh_", interval),
-                        e0c = paste0("E0coh_", interval)
-    )}
-  
-  
+#' @return A data.frame containing demographic data, or \code{NULL} when the
+#'   download fails. Failures are reported with a message, never an error.
+#' @noRd
+ReadHMD.core <- function(what, country, interval, session = NULL, link){
+
+  which_file <- hmd_file_name(what = what, interval = interval)
+
+  if (is.null(which_file)) {
+    message("\n", what, " is not a data type available in HMD.\n",
+            "Try one of these options:\n",
+            paste(HMDindices(), collapse = ", "))
+    return(NULL)
+  }
+
   if (link %in% c("https://www.mortality.org/File/GetDocument/hmd.v6/",
                   "https://www.ipss.go.jp/p-toukei/JMD/")) {
     interlude <- "/STATS/"
-    
+
   } else {
     interlude <- "/"
   }
-  
-  path     <- paste0(link, country, interlude, whichFile, ".txt")
-  response <- ""
-  
-  if (is.null(username) | is.null(password)) {
-    response <- try(silent = TRUE, GET(url = path))
 
-  } else {
-    # "We did not find the right method to login yet. Following the HMD website
-    # change the line below no longer works."
-    response <- try(silent = TRUE,
-               RCurl::getURL(url = path, userpwd = paste0(username, ":", password))
-    )
+  path <- paste0(link, country, interlude, which_file, ".txt")
+  res  <- fetch_text(url = path, session = session)
+
+  if (!is.null(res$error)) {
+    message(res$error)
+    return(NULL)
   }
-  
-  status_code_response <- if(is(response, "response")) status_code(response) else 404
-  
-  # Check if the request was successful (status code 200 means success)
-  if (status_code_response == 200) {
-    # Read the content of the text file
-    txt <- content(response, "text", encoding = "UTF-8")
-    
-    con  <- try(textConnection(txt),
-                stop("\nThe function failed to connect to ", link,
-                     " Maybe the website is down at this moment?", call. = FALSE))
-    
-    JPNcodes <- substrRight(paste0(0, 0:47), 2)
-    if (any(country %in% JPNcodes)) {
-      country <- JPNregions()[as.numeric(country) + 1]
-    }
-    
-        dat  <- try(read.table(con, skip = 2, header = TRUE, na.strings = "."),
-                stop("\n", what, " data for ", country, " in the ", interval,
-                     " format could not be found. Looked here:\n",
-                     path, call. = FALSE))
-    
-    close(con)
-    out <- cbind(country, dat)
-    if (any(interval %in% c("1x1", "1x5", "1x10")) &
-        !any(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c"))) {
-      out$Age <- 0:110
-    }
-    
-  } else {
-    message("\nThe internet connection to ", link, " failed with status code:", 
-            status_code_response, "!",
-            "\nMaybe the website is down at this moment?")
-    out <- NULL
+
+  if (isTRUE(res$html)) {
+    message("\nThe response for ", path, " is an HTML page, not a data file.",
+            "\nThe login to the database failed or the session has expired.")
+    return(NULL)
   }
-  
+
+  if (is.null(res$text)) {
+    message("\nThe server returned an empty response for ", path, ".")
+    return(NULL)
+  }
+
+  con <- textConnection(res$text)
+  on.exit(close(con))
+
+  dat <- tryCatch(
+    read.table(con, skip = 2, header = TRUE, na.strings = "."),
+    error = function(e) {
+      message("\nThe ", what, " data for ", country, " in the ", interval,
+              " format could not be parsed. Looked here:\n", path,
+              "\nThe parser reported: ", conditionMessage(e))
+      NULL
+    }
+  )
+
+  if (is.null(dat)) {
+    return(NULL)
+  }
+
+  out <- cbind(country, dat)
+
+  if (any(interval %in% c("1x1", "1x5", "1x10")) &
+      !any(what %in% c("births", "Dx_lexis", "Ex_lexis", "e0", "e0c")) &
+      !is.null(dat$Age)) {
+    # One age per row, taken as-is from the file; the open interval "110+"
+    # becomes the integer 110.
+    out$Age <- as.integer(sub("\\+$", "", as.character(dat$Age)))
+  }
+
   return(out)
 }
 
 
 #' Country codes
-#' @return a vector
-#' @keywords internal
+#' @return A character vector with the HMD country codes.
+#' @noRd
 HMDcountries <- function() {
   c("AUS","AUT","BEL","BGR","BLR",
     "CAN","CHL","HRV","CHE","CZE",
@@ -306,14 +362,14 @@ HMDcountries <- function() {
 }
 
 #' Data formats
-#' @return a vector
-#' @keywords internal
+#' @return A character vector with the available age and time intervals.
+#' @noRd
 data_format <- function() c("1x1", "1x5", "1x10", "5x1", "5x5","5x10")
 
 
 #' HMD Indices
-#' @return a vector
-#' @keywords internal
+#' @return A character vector with the available data types.
+#' @noRd
 HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
                            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0",
                            "mxc", "Exc", "LT_fc", "LT_mc", "LT_tc", "e0c")
@@ -321,25 +377,39 @@ HMDindices <- function() c("births", "population", "Dx_lexis", "Ex_lexis", "Dx",
 #' Check input ReadHMD
 #' @param x a list containing the input arguments from ReadHMD function
 #' @return No return value, called for validating input data
-#' @keywords internal
+#' @noRd
 check_input_ReadHMD <- function(x) {
   coh_countries <- c("DNK", "FIN", "FRATNP", "FRACNP", "ISL", "ITA", "NLD",
                      "NOR", "SWE", "CHE", "GBRTENW", "GBRCENW", "GBR_SCO")
-  
+
+  if (length(x$what) != 1) {
+    stop("Please specify exactly one data type in 'what'. You supplied ",
+         length(x$what), " values: ", paste(x$what, collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (length(x$interval) != 1) {
+    stop("Please specify exactly one interval. You supplied ",
+         length(x$interval), " values: ", paste(x$interval, collapse = ", "),
+         call. = FALSE)
+  }
+
   if (!any(x$interval %in% data_format())) {
     stop("The interval ", x$interval, " does not exist in HMD ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
-  
+
   if (!any(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in HMD. Try one of these options:\n",
          paste(HMDindices(), collapse = ", "), call. = FALSE)
   }
-  
-  if (all(!(x$countries %in% HMDcountries()))) {
-    stop("Something is wrong in the country/countries added by you.\n",
-         "Try one or more of these options:\n",
+
+  bad <- x$countries[!(x$countries %in% HMDcountries())]
+
+  if (length(bad) > 0) {
+    stop("Unknown country code(s) in 'countries': ", paste(bad, collapse = ", "),
+         ".\nTry one or more of these options:\n",
          paste(HMDcountries(), collapse = ", "), call. = FALSE)
   }
   
@@ -357,6 +427,16 @@ check_input_ReadHMD <- function(x) {
       !(x$interval %in% c("1x1", "1x5", "1x10"))) {
     stop("Data type ", x$what,
          " is available only in the following formats: '1x1', '1x5', '1x10'.",
+         call. = FALSE)
+  }
+
+  # Availability of Births Data. The file is the annual Births.txt whatever
+  # the interval says, so only the true 1-year product is accepted; a 1x5 or
+  # 1x10 request would silently return the same annual rows.
+  if (any(x$what == "births") & x$interval != "1x1") {
+    stop("Data type births is available only in the 1-year product ('1x1'). ",
+         "HMD does not publish births by 5-year age group, nor by period ",
+         "intervals other than one year.",
          call. = FALSE)
   }
 }
@@ -384,9 +464,10 @@ print.ReadHMD <- function(x, ...){
 
 
 #' What age(s) are we looking at?
-#' @inheritParams print.ReadHMD
+#' @inheritParams ReadHMD
+#' @param x An object of class \code{"ReadHMD"}.
 #' @return A scalar or character indicating age groups
-#' @keywords internal
+#' @noRd
 ageMsg <- function(what, x) {
   if (any(what %in% c("e0", "e0c"))) {
     0

@@ -100,7 +100,7 @@ thru 2011. For comparison purposes, various life tables published by
 governmental organizations are also available for download in PDF format.
 }
 \examples{
-\donttest{
+\dontrun{
 # Download demographic data for Quebec and Saskatchewan regions in 1x1 format
 
 # Death counts. We don't want to export data outside R.

@@ -7,11 +7,9 @@
 ReadJMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
 }
 \arguments{
-\item{what}{What type of data are you looking for? The following options
-might be available for some or all the countries and regions: \itemize{
+\item{what}{What type of data are you looking for? The following options are
+available for JMD: \itemize{
   \item{\code{"births"}} -- birth records;
-  \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
-  \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
   \item{\code{"population"}} -- population size;
   \item{\code{"Dx"}} -- death counts;
   \item{\code{"Ex"}} -- exposure-to-risk;
@@ -20,12 +18,6 @@ might be available for some or all the countries and regions: \itemize{
   \item{\code{"LT_m"}} -- period life tables for males;
   \item{\code{"LT_t"}} -- period life tables both sexes combined;
   \item{\code{"e0"}} -- period life expectancy at birth;
-  \item{\code{"Exc"}} -- cohort exposures;
-  \item{\code{"mxc"}} -- cohort death-rates;
-  \item{\code{"LT_fc"}} -- cohort life tables for females;
-  \item{\code{"LT_mc"}} -- cohort life tables for males;
-  \item{\code{"LT_tc"}} -- cohort life tables both sexes combined;
-  \item{\code{"e0c"}} -- cohort life expectancy at birth;
   }}
 
 \item{regions}{Specify the region specific data you want to download by
@@ -107,7 +99,7 @@ new methodology is adopted. Please refer to "Methods" for further
 information.
 }
 \examples{
-\donttest{
+\dontrun{
 # Download demographic data for Fukushima and Tokyo regions in 1x1 format
 
 # Death counts. We don't want to export data outside R.

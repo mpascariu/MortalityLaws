@@ -9,7 +9,8 @@ ReadAHMD(what, regions = NULL, interval = "1x1", save = FALSE, show = TRUE)
 \arguments{
 \item{what}{What type of data are you looking for? The following options
 might be available for some or all the countries and regions: \itemize{
-  \item{\code{"births"}} -- birth records;
+  \item{\code{"births"}} -- birth records (the 1-year product only; HMD does
+  not publish births by 5-year age group or by multi-year periods);
   \item{\code{"Dx_lexis"}} -- deaths by Lexis triangles;
   \item{\code{"Ex_lexis"}} -- exposure-to-risk by Lexis triangles;
   \item{\code{"population"}} -- population size;
@@ -99,7 +100,7 @@ from 1971 thru 2016. For comparison purposes, various life tables published
 by governmental organizations are also available for download in PDF format.
 }
 \examples{
-\donttest{
+\dontrun{
 # Download demographic data for Australian Capital Territory and
 # Tasmania regions in 5x1 format
 

@@ -10,11 +10,16 @@
 #' for each country or region.
 #' @param link URL to the HMD available data.
 #' Default: "https://www.mortality.org/Data/DataAvailability"
-#' @return A tibble.
+#' @return A tibble with one row per country or region. Returns \code{NULL}
+#' when the website cannot be reached, when the response status is not 200,
+#' or when the response body cannot be parsed as HTML. Every failure also
+#' emits a \code{message()}.
 #' @seealso \code{\link{ReadHMD}}
 #' @author Marius D. Pascariu
 #' @examples
+#' \dontrun{
 #' availableHMD()
+#' }
 #' 
 #' @export
 availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability") {
@@ -27,19 +32,32 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
   # Check if the website is accessible
   if (!is.null(response)) {
     
-    if (http_status(response)$message == "Success: (200) OK") {
-      # Read the HTML content of the webpage
-      webpage <- read_html(response)
+    if (status_code(response) == 200) {
+      # A 200 response can still carry a body that is not HTML.
+      webpage <- tryCatch(
+        read_html(x = response),
+        error = function(e) NULL
+      )
       
-      # Extract the table from the webpage
-      table_data <- html_table(webpage, fill = TRUE)
-      
-      # from the list of tables extracted above the table of interest is the first one:
-      if (length(table_data) > 0) {
-        out <- table_data[[1]]
+      if (!is.null(webpage)) {
+        # Extract the table from the webpage
+        table_data <- html_table(x = webpage, fill = TRUE)
+        
+        # from the list of tables extracted above the table of interest is the first one:
+        if (length(table_data) > 0) {
+          out <- table_data[[1]]
+          
+        } else {
+          message("No tables found on the webpage.")
+        }
         
       } else {
-        message("No tables found on the webpage.")
+        content_type <- httr::headers(response)[["content-type"]]
+        if (is.null(content_type) || is.na(content_type)) content_type <- "unknown"
+        message(
+          "The response body could not be parsed as HTML. ",
+          "The response reported content-type: ", content_type, "."
+        )
       }
       
     } else {
@@ -48,7 +66,7 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
     
   } else { 
     message(error_message)
-    }
+  }
   
   return(out)
 }
@@ -56,15 +74,18 @@ availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability
 
 
 #' Make HTTP request
+#'
+#' Returns the \code{httr} response for \code{url}, or \code{NULL} when the
+#' request raises an error.
 #' @param url URL
-#' @return url response
-#' @keywords internal
+#' @return An \code{httr} response, or \code{NULL} if the request fails.
+#' @noRd
 #' 
 make_http_request <- function(url) {
   response <- NULL
   
   tryCatch({
-    response <- GET(url)
+    response <- GET(url = url)
     
   }, error = function(e) {
     # Error: Display the error message

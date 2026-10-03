@@ -60,7 +60,7 @@
 #' \code{\link{ReadHMD}}
 #' \code{\link{ReadCHMD}}
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Download demographic data for Australian Capital Territory and
 #' # Tasmania regions in 5x1 format
 #'
@@ -104,12 +104,12 @@ ReadAHMD <- function(what,
       cat(paste("      :Downloading", regions[i], "    "))
     }
 
-    D <- rbind(D, ReadHMD.core(what = what,
-                               country = regions[i],
-                               interval = interval,
-                               username = NULL,
-                               password = NULL,
-                               link = "https://aushd.org/assets/txtFiles/humanMortality/"))
+    D <- rbind(D, ReadHMD.core(
+      what     = what,
+      country  = regions[i],
+      interval = interval,
+      session  = NULL,
+      link     = "https://aushd.org/assets/txtFiles/humanMortality/"))
   }
 
   if(length(D) != 0) {
@@ -133,9 +133,9 @@ ReadAHMD <- function(what,
 }
 
 
-#' region codes
-#' @return a vector
-#' @keywords internal
+#' Australian region codes
+#' @return A character vector with the region codes accepted by AHMD.
+#' @noRd
 AUSregions <- function() {
   c("ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA")
 }
@@ -144,31 +144,66 @@ AUSregions <- function() {
 #' Check input ReadAHMD
 #' @param x a list containing the input arguments from ReadAHMD function
 #' @return No return value, called for checking stuff
-#' @keywords internal
+#' @noRd
 check_input_ReadAHMD <- function(x) {
 
+  if (length(x$what) != 1) {
+    stop("Please specify exactly one data type in 'what'. You supplied ",
+         length(x$what), " values: ", paste(x$what, collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (length(x$interval) != 1) {
+    stop("Please specify exactly one interval. You supplied ",
+         length(x$interval), " values: ", paste(x$interval, collapse = ", "),
+         call. = FALSE)
+  }
+
+  if (length(x$regions) == 0) {
+    stop("Please specify at least one region in 'regions'.", call. = FALSE)
+  }
+
   if (!(x$interval %in% data_format())) {
-    stop("The interval ", x$interval, " does not exist in AHMD ",
+    stop("The interval ", x$interval, " does not exist in AHMD. ",
          "Try one of these options:\n", paste(data_format(), collapse = ", "),
          call. = FALSE)
   }
-  
+
+  bad <- x$regions[!(x$regions %in% AUSregions())]
+
+  if (length(bad) > 0) {
+    stop("Unknown region code(s) in 'regions': ", paste(bad, collapse = ", "),
+         ".\nTry one or more of these options:\n",
+         paste(AUSregions(), collapse = ", "), call. = FALSE)
+  }
+
   if (!(x$what %in% HMDindices())) {
     stop(x$what, " does not exist in AHMD. Try one of these options:\n",
          paste(HMDindices(), collapse = ", "), call. = FALSE)
   }
 
-  if (all(!(x$regions %in% AUSregions()))) {
-    stop("Something is wrong in the region codes supplied.\n",
-         "Try one or more of these options:\n",
-         paste(AUSregions(), collapse = ", "), call. = FALSE)
+  # Population is served in every interval: ReadHMD.core reads the single-age
+  # 'Population' file for the 1-year formats and the 5-year age group
+  # 'Population5' file for the 5-year formats. Both files exist on AHMD.
+  # Births have no 5-year age product, so only '1x1' can be served.
+  if ((x$what == "births") & (x$interval != "1x1")) {
+    stop("Data type births is not available in AHMD in the ", x$interval,
+         " format. Births data is published only in the 1-year product, '1x1'.",
+         call. = FALSE)
+  }
+
+  # The 5-year e0 files are missing, so only the single-age formats work.
+  if ((x$what == "e0") & !(x$interval %in% c("1x1", "1x5", "1x10"))) {
+    stop("Data type 'e0' is not available in AHMD in the ", x$interval,
+         " format. Try one of these formats: '1x1', '1x5', '1x10'.",
+         call. = FALSE)
   }
 }
 
 
 
-#' Print ReadCHMD
-#' @param x An object of class \code{"ReadCHMD"}
+#' Print ReadAHMD
+#' @param x An object of class \code{"ReadAHMD"}
 #' @param ... Further arguments passed to or from other methods.
 #' @return Print data on console
 #' @keywords internal

@@ -11,7 +11,10 @@ availableHMD(link = "https://www.mortality.org/Data/DataAvailability")
 Default: "https://www.mortality.org/Data/DataAvailability"}
 }
 \value{
-A tibble.
+A tibble with one row per country or region. Returns \code{NULL}
+when the website cannot be reached, when the response status is not 200,
+or when the response body cannot be parsed as HTML. Every failure also
+emits a \code{message()}.
 }
 \description{
 Returns information about the data available in the Human Mortality 
@@ -19,7 +22,9 @@ Database (HMD), including the range of years covered by the life tables
 for each country or region.
 }
 \examples{
+\dontrun{
 availableHMD()
+}
 
 }
 \seealso{

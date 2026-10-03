@@ -58,9 +58,6 @@ export(vandermaen)
 export(vandermaen2)
 export(weibull)
 export(wittstein)
-import(httr)
-import(rvest)
-importFrom(RCurl,getURL)
 importFrom(graphics,
   abline,
   axis,
@@ -74,11 +71,23 @@ importFrom(graphics,
   plot,
   rect
 )
-importFrom(methods,is)
+importFrom(httr,
+  GET,
+  POST,
+  content,
+  cookies,
+  set_cookies,
+  status_code,
+  timeout
+)
 importFrom(pbapply,
   closepb,
   setpb,
   startpb
+)
+importFrom(rvest,
+  html_table,
+  read_html
 )
 importFrom(stats,
   coef,
