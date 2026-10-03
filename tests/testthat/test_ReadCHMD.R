@@ -107,7 +107,7 @@ test_that("ReadCHMD restricts births to the 1x1 format", {
 })
 
 test_that("ReadCHMD reads the 5-year population file in the 5-year formats", {
-  # ReadHMD.core picks Population.txt for the single-age formats and
+  # read_hmd_file picks Population.txt for the single-age formats and
   # Population5.txt for the 5-year age formats; the 1x1 file must not be
   # served for a 5x* request under the label of the 1x1 product.
   seen_urls <- character()

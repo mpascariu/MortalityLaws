@@ -16,14 +16,15 @@
 #' Canadian mortality and population data to researchers, students, journalists,
 #' policy analysts, and others interested in the history of human longevity.
 #' The project is an achievement of the Mortality and Longevity research team at
-#' the Department of Demography, Universite de Montreal, under the supervision
-#' of Professor Robert Bourbeau, in collaboration with demographers at the
-#' Max Plank Institute for Demographic Research (Rostock, Germany) and the
-#' Department of Demography, University of California at Berkeley.
-#' Nadine Ouellette, researcher at the Institut national d'etudes demographiques
+#' the Department of Demography, \enc{Université}{Universite} de
+#' \enc{Montréal}{Montreal}, under the supervision of Professor Robert
+#' Bourbeau, in collaboration with demographers at the Max Planck Institute for
+#' Demographic Research (Rostock, Germany) and the Department of Demography,
+#' University of California at Berkeley. Nadine Ouellette, researcher at the
+#' Institut national d'\enc{études}{etudes} \enc{démographiques}{demographiques}
 #' in Paris and member of the Mortality and Longevity research team at the
-#' Universite de Montreal, is in charge of computing all CHMD life tables and
-#' updating the CHMD web site.
+#' \enc{Université}{Universite} de \enc{Montréal}{Montreal}, is in charge of
+#' computing all CHMD life tables and updating the CHMD web site.
 #'
 #' The CHMD is a "satellite" of the Human Mortality Database (HMD), an
 #' international database which currently holds detailed data for multiple
@@ -35,7 +36,7 @@
 #' its provinces and its territories. One of the great advantages of the
 #' database is to include data that is validated and corrected, when required,
 #' and rendered comparable, if possible, for the period ranging from 1921
-#' thru 2011. For comparison purposes, various life tables published by
+#' through 2011. For comparison purposes, various life tables published by
 #' governmental organizations are also available for download in PDF format.
 #'
 #' @inheritParams ReadHMD
@@ -102,51 +103,31 @@ ReadCHMD <- function(what,
                      interval = "1x1",
                      save = FALSE,
                      show = TRUE){
-  # Step 1 - Validate input & Progress bar setup
+  # Step 1 - Validate input
   if (is.null(regions)) {
-    regions <- CANregions()
+    regions <- can_regions()
   }
 
   input <- as.list(environment())
-  check_input_ReadCHMD(input)
-  nr <- length(regions)
+  check_input_read_chmd(input)
 
-  if (show) {
-    pb <- startpb(0, nr + 1)
-    on.exit(closepb(pb))
-    setpb(pb, 0)
-  }
+  # Step 2 - Download each region
+  D <- download_regions(regions  = regions,
+                        what     = what,
+                        interval = interval,
+                        session  = NULL,
+                        link     = "https://www.prdh.umontreal.ca/BDLC/data/",
+                        show     = show)
 
-  # Step 2 - Do the loop for the other regions
-  D <- data.frame()
-  for (i in 1:nr) {
-    if (show) {
-      setpb(pb, i)
-      cat(paste("      :Downloading", regions[i], "    "))
-    }
-
-    D <- rbind(D, ReadHMD.core(
-      what     = what,
-      country  = regions[i],
-      interval = interval,
-      session  = NULL,
-      link     = "https://www.prdh.umontreal.ca/BDLC/data/"))
-  }
-
-  if (length(D) != 0) {
-    out <- list(input = input,
-                data = D,
-                download.date = date(),
-                years = sort(unique(D$Year)),
-                ages = unique(D$Age))
-    out <- structure(class = "ReadCHMD", out)
-  
-    # Step 3 - Write a file with the database in your working directory
-    if (show) setpb(pb, nr + 1)
-    if (save) saveOutput(out, show, prefix = "CHMD")
-    
+  # Step 3 - Assemble the object and write a copy when asked to
+  out <- if (is.null(D)) {
+    NULL
   } else {
-    out <- NULL
+    new_read_object(data   = D,
+                    input  = input,
+                    prefix = "CHMD",
+                    class  = "ReadCHMD",
+                    show   = show)
   }
 
   # Exit
@@ -157,7 +138,7 @@ ReadCHMD <- function(what,
 #' Canadian region codes
 #' @return A character vector with the region codes accepted by CHMD.
 #' @noRd
-CANregions <- function() {
+can_regions <- function() {
   c("CAN",
     "NFL",
     "PEI",
@@ -178,58 +159,29 @@ CANregions <- function() {
 #' @param x A list with the input values for ReadCHMD
 #' @return No return value, called for input validation
 #' @noRd
-check_input_ReadCHMD <- function(x) {
+check_input_read_chmd <- function(x) {
   wht <- c("births", "population", "Dx_lexis", "Dx",
            "mx", "Ex", "LT_f", "LT_m", "LT_t", "e0")
 
-  if (length(x$what) != 1) {
-    stop("Please specify exactly one data type in 'what'. You supplied ",
-         length(x$what), " values: ", paste(x$what, collapse = ", "),
-         call. = FALSE)
-  }
+  check_reader_input(x = x, database = "CHMD", what_set = wht)
+  check_reader_regions(regions = x$regions,
+                       known   = can_regions(),
+                       label   = "region code")
 
-  if (length(x$interval) != 1) {
-    stop("Please specify exactly one interval. You supplied ",
-         length(x$interval), " values: ", paste(x$interval, collapse = ", "),
-         call. = FALSE)
-  }
-
-  if (length(x$regions) == 0) {
-    stop("Please specify at least one region in 'regions'.", call. = FALSE)
-  }
-
-  if (!(x$interval %in% data_format())) {
-    stop("The interval ", x$interval, " does not exist in CHMD. ",
-         "Try one of these options:\n", paste(data_format(), collapse = ", "),
-         call. = FALSE)
-  }
-
-  bad <- x$regions[!(x$regions %in% CANregions())]
-
-  if (length(bad) > 0) {
-    stop("Unknown region code(s) in 'regions': ", paste(bad, collapse = ", "),
-         ".\nTry one or more of these options:\n",
-         paste(CANregions(), collapse = ", "), call. = FALSE)
-  }
-
-  if (!(x$what %in% wht)) {
-    stop(x$what, " does not exist in CHMD. Try one of these options:\n",
-         paste(wht, collapse = ", "), call. = FALSE)
-  }
-
-  check_availability_ReadCHMD(what = x$what, regions = x$regions,
-                              interval = x$interval)
+  check_availability_read_chmd(what     = x$what,
+                               regions  = x$regions,
+                               interval = x$interval)
 }
 
 
 #' Check the CHMD data types against the requested region and interval
 #' @param what A single CHMD data type, one of the options in
-#'   \code{check_input_ReadCHMD()}.
+#'   \code{check_input_read_chmd()}.
 #' @param regions A character vector with the requested CHMD region codes.
 #' @param interval A single interval, one of \code{data_format()}.
 #' @return No return value, called for input validation
 #' @noRd
-check_availability_ReadCHMD <- function(what, regions, interval) {
+check_availability_read_chmd <- function(what, regions, interval) {
 
   # Availability of Death and Exposures
   if ((what %in% c("Dx", "Ex")) & !(interval %in% c("1x1", "5x1"))) {
@@ -238,7 +190,7 @@ check_availability_ReadCHMD <- function(what, regions, interval) {
          call. = FALSE)
   }
 
-  # Population is served in every interval: ReadHMD.core reads the single-age
+  # Population is served in every interval: read_hmd_file reads the single-age
   # 'Population' file for the 1-year formats and the 5-year age group
   # 'Population5' file for the 5-year formats. Both files exist on CHMD.
   # Births have no 5-year age product, so only '1x1' can be served.
@@ -271,12 +223,12 @@ check_availability_ReadCHMD <- function(what, regions, interval) {
 print.ReadCHMD <- function(x, ...){
   what <- x$input$what
   cat("Canadian Human Mortality Database\n")
-  cat("Web Address   : https://www.bdlc.umontreal.ca/chmd\n")
+  cat("Web Address   : https://www.prdh.umontreal.ca/BDLC/\n")
   cat("Download Date :", x$download.date, "\n")
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat(paste("Ages          :", age_message(what, x), "\n"))
   cat("Regions       :", x$input$regions, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))

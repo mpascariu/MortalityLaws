@@ -3,7 +3,7 @@
 # Date: 2026-10-03
 # --------------------------------------------
 # Rewritten against the real ReadJMD contract (review F3/F34/F36/F48).
-# The F3 regression is pinned offline twice: JMDregion_code() must return the
+# The F3 regression is pinned offline twice: jmd_region_code() must return the
 # JIS prefecture codes (the old position-based mapping sent "Fukushima" to
 # folder 06, which serves Yamagata), and the mocked download must hit the
 # "/07/STATS/" folder. The only live test is opt-in and needs HMD_USER.
@@ -93,22 +93,22 @@ test_that("ReadJMD restricts births and e0 to the intervals JMD serves", {
                regexp = "Data type 'e0' is available in JMD only")
 })
 
-test_that("JMDregion_code returns the JIS prefecture codes (F3)", {
+test_that("jmd_region_code returns the JIS prefecture codes (F3)", {
   # The legacy position-based mapping returned "06" for Fukushima (which is
   # Yamagata on the server). These are the JIS codes of the same names.
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Fukushima"), "07")
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Tokyo"), "13")
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Kyoto"), "26")
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Hokkaido"), "01")
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Okinawa"), "47")
-  expect_equal(MortalityLaws:::JMDregion_code(region = "Japan"), "00")
-  expect_error(MortalityLaws:::JMDregion_code(region = "Atlantis"),
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Fukushima"), "07")
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Tokyo"), "13")
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Kyoto"), "26")
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Hokkaido"), "01")
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Okinawa"), "47")
+  expect_equal(MortalityLaws:::jmd_region_code(region = "Japan"), "00")
+  expect_error(MortalityLaws:::jmd_region_code(region = "Atlantis"),
                regexp = "Unknown JMD region: Atlantis")
 })
 
-test_that("the JIS map covers every JPNregions() name exactly once (F3)", {
-  codes   <- MortalityLaws:::JPNregion_codes()
-  regions <- MortalityLaws:::JPNregions()
+test_that("the JIS map covers every jpn_regions() name exactly once (F3)", {
+  codes   <- MortalityLaws:::jpn_region_codes()
+  regions <- MortalityLaws:::jpn_regions()
 
   expect_length(regions, 48)
   expect_setequal(names(codes), regions)

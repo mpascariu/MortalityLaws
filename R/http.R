@@ -11,7 +11,7 @@
 #' The HMD login is an ASP.NET cookie-session form login, so HTTP Basic
 #' authentication is not accepted. The helper fetches the login page, reads
 #' the antiforgery token from its HTML with a regular expression (no
-#' `rvest` dependency), and posts the credentials together with the page
+#' third-party HTML parser), and posts the credentials together with the page
 #' cookies. A successful login lands on `Home/Index` and sets the
 #' `Authorization` cookie that every later HMD request must carry.
 #'

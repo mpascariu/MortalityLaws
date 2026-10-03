@@ -68,7 +68,7 @@ head_tail <- function(x,
 #' @param n The number of characters to extract, counted from the right.
 #' @return A character vector with the last \code{n} characters of \code{x}.
 #' @noRd
-substrRight <- function(x, n) {
+substr_right <- function(x, n) {
 
   out <- substr(x, nchar(x) - n + 1, nchar(x))
   return(out)

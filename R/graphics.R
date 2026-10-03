@@ -19,7 +19,7 @@ plot.MortalityLaw <- function(x, ...){
 
   with(
     data = x$input,
-    if (!any(find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$iclass ==
+    if (!any(detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$iclass ==
              "numeric")) {
       stop("Plot function not available for multiple mortality curves",
            call. = FALSE)

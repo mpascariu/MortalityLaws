@@ -1,3 +1,10 @@
+version 2.4.0 - "swept deck"
+- The internet address shown for the Canadian mortality database now works;
+it used to point to a page that could not be opened.
+- Four numbers in the country list were missing their commas, and a few names
+were misspelled in the help pages.
+- Installing the package now needs one fewer outside library.
+
 version 2.3.1 - "open channel"
 - Data downloads from the Human Mortality Database work again; the login had
 stopped working, so downloads with credentials always reported a failure.

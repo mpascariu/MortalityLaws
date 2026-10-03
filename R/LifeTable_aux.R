@@ -12,7 +12,7 @@
 #' case name together with the input class, the number of tables to
 #' compute and the names to be assigned to them.
 #' @noRd
-find.my.case <- function(Dx = NULL,
+detect_case <- function(Dx = NULL,
                          Ex = NULL,
                          mx = NULL,
                          qx = NULL,
@@ -79,7 +79,10 @@ find.my.case <- function(Dx = NULL,
 
 #' Convert between mx and qx
 #'
-#' Converts a vector of mortality rates into death probabilities and back.
+#' Converts a vector or a matrix of mortality rates into death probabilities
+#' and back. A matrix is treated column by column: the closing rule, the
+#' non-finite repair and the omega repair apply to the last age of every
+#' column, never to the last element of the flattened matrix.
 #' When the average person-years lived in the interval (ax) is supplied the
 #' exact identities \code{qx = nx * mx / (1 + (nx - ax) * mx)} and 
 #' \code{mx = qx / (ax * qx + nx * (1 - qx))} are used, otherwise the
@@ -90,7 +93,8 @@ find.my.case <- function(Dx = NULL,
 #' @noRd
 mx_qx <- function(x, nx, ux, out = c("qx", "mx"), ax = NULL) {
   out   <- match.arg(out)
-  N     <- length(ux)
+  dims  <- dim(ux)
+  N     <- if (is.null(dims)) length(ux) else dims[1]
   exact <- !is.null(ax)
 
   if (out == "qx") {
@@ -100,7 +104,12 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx"), ax = NULL) {
       1 - exp(-nx * ux)
     }
 
-    eta[N] <- 1  # The life table should always close with q[x] = 1
+    # The life table always closes with q[x] = 1, in every column.
+    if (is.null(dims)) {
+      eta[N] <- 1
+    } else {
+      eta[N, ] <- 1
+    }
 
   } else {
     eta <- if (exact) {
@@ -113,7 +122,7 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx"), ax = NULL) {
     eta <- repair_mx(mx = eta, nx = nx)
   }
 
-  eta <- uxAbove100(x = x, ux = eta)
+  eta <- repair_above_omega(x = x, ux = eta)
   return(eta)
 }
 
@@ -187,8 +196,18 @@ lt_close_qx <- function(qx) {
 #' of the two previous rates when these are available, the last finite rate
 #' otherwise, and the rate implied by a uniform distribution of deaths as a
 #' last resort. Entries that are NA mark missing input and are preserved.
+#' A matrix is repaired column by column, so each column follows its own
+#' rates rather than the tail of the flattened matrix.
 #' @noRd
 repair_mx <- function(mx, nx) {
+  if (is.matrix(mx)) {
+    for (j in seq_len(ncol(mx))) {
+      mx[, j] <- repair_mx(mx = mx[, j], nx = nx)
+    }
+
+    return(mx)
+  }
+
   N <- length(mx)
 
   for (i in seq_len(N)) {
@@ -255,7 +274,7 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
 #'   the process that takes place inside the function and avoid progress
 #'   messages.
 #' @noRd
-uxAbove100 <- function(x,
+repair_above_omega <- function(x,
                        ux,
                        omega = 100,
                        verbose = FALSE) {
@@ -278,7 +297,7 @@ uxAbove100 <- function(x,
 
   } else {
     for (i in 1:ncol(ux)) {
-      ux[, i] <- uxAbove100(x = x, ux = ux[, i], omega = omega,
+      ux[, i] <- repair_above_omega(x = x, ux = ux[, i], omega = omega,
                             verbose = verbose)
     }
 
@@ -291,11 +310,20 @@ uxAbove100 <- function(x,
 #' dx to lx
 #'
 #' Function to convert dx into lx and back
-#' @param ux A vector of dx or lx data.
+#' @param ux A vector or a matrix of dx or lx data. A matrix is converted
+#'   column by column.
 #' @param out Type of the output: dx or lx.
 #' @noRd
 dx_lx <- function(ux, out = c("dx", "lx")) {
   out <- match.arg(out)
+
+  if (is.matrix(ux)) {
+    for (j in seq_len(ncol(ux))) {
+      ux[, j] <- dx_lx(ux = ux[, j], out = out)
+    }
+
+    return(ux)
+  }
 
   if (out == "dx") {
     ux_ <- rev(diff(rev(ux)))
@@ -348,7 +376,7 @@ lt_qx <- function(dx, lx) {
 #' @return A vector of the average person-years lived in the interval by
 #'   those who die in the interval.
 #' @noRd
-compute.ax <- function(x, mx, qx) {
+compute_ax <- function(x, mx, qx) {
   nx <- c(diff(x), Inf)
   N  <- length(x)
   ax <- nx + 1/mx - nx/qx
@@ -410,7 +438,7 @@ compute.ax <- function(x, mx, qx) {
 #' the PAS software). Below m0 = 0.107 the coefficients are interpolated
 #' from the same table.
 #' @noRd
-coale.demeny.ax <- function(x, mx, ax, sex) {
+coale_demeny_ax <- function(x, mx, ax, sex) {
 
   if (!is.na(mx[1]) && mx[1] < 0) {
     stop("'m[1]' must be greater than 0", call. = FALSE)
@@ -439,7 +467,7 @@ coale.demeny.ax <- function(x, mx, ax, sex) {
 #'
 #' Turns NaN into NA and warns about the missing or non-finite rate values,
 #' naming the affected ages and the treatment they receive. Values from age
-#' 100 onwards are repaired by \code{uxAbove100}; the remaining affected
+#' 100 onwards are repaired by \code{repair_above_omega}; the remaining affected
 #' rows are returned as NA.
 #' @noRd
 lt_repair_input <- function(x, ux, what, omega = 100) {
@@ -461,7 +489,7 @@ lt_repair_input <- function(x, ux, what, omega = 100) {
             "rate observed there.", call. = FALSE)
   }
 
-  ux <- uxAbove100(x = x, ux = ux, omega = omega)
+  ux <- repair_above_omega(x = x, ux = ux, omega = omega)
   return(ux)
 }
 
@@ -474,11 +502,11 @@ lt_repair_input <- function(x, ux, what, omega = 100) {
 #'   functions.
 #' @return A list of life table validated data
 #' @noRd
-LifeTable.check <- function(input) {
+check_life_table_input <- function(input) {
 
   with(input, {
     # ----------------------------------------------
-    K <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx)
+    K <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx)
     C <- K$case
     valid_classes <- c("numeric", "matrix", "data.frame", NULL)
 

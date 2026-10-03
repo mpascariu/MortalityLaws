@@ -132,7 +132,7 @@
 #' @export
 LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL) {
 
-  info    <- addDetails(law)
+  info    <- law_details(law)
   scale.x <- info$scale.x
   fn      <- get(law)
   xx      <- if (scale.x) scale_x(x) else x

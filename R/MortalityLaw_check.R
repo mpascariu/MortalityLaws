@@ -83,7 +83,7 @@ check_input_data <- function(x, Dx, Ex, mx, qx) {
 #' @param input A list of input arguments to \code{\link{MortalityLaw}}.
 #' @return No return value, called for side effects
 #' @noRd
-check.MortalityLaw <- function(input){
+check_mortality_law_input <- function(input){
   with(input,
        {
          # Errors ---

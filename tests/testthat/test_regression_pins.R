@@ -471,3 +471,122 @@ test_that("Coverage: every available loss function executes", {
     }
   }
 })
+
+
+# ---- C4: the mx/qx and dx/lx bridges are matrix-safe -------------------------
+
+test_that("C4: mx_qx closes the last age of every column, not the last element", {
+  x  <- 0:10
+  nx <- c(diff(x), 1)
+  M  <- cbind(a = seq(0.01, 0.20, length.out = 11),
+              b = seq(0.02, 0.30, length.out = 11))
+
+  qx <- mx_qx(x = x, nx = nx, ux = M, out = "qx")
+
+  # q[x] = 1 in each column; the old vector index wrote it only at M[11, 2].
+  expect_identical(dim(qx), dim(M))
+  expect_equal(unname(qx[11, ]), c(1, 1))
+  expect_lt(max(qx[1:10, ]), 1)
+})
+
+test_that("C4: repair_mx follows each column's own rates", {
+  x  <- 0:10
+  nx <- c(diff(x), 1)
+  M  <- cbind(a = seq(0.01, 0.20, length.out = 11),
+              b = seq(0.02, 0.30, length.out = 11))
+  M[11, 1] <- Inf   # a non-finite closing rate in column 1 only
+
+  r <- repair_mx(mx = M, nx = nx)
+
+  expect_true(all(is.finite(r)))
+  # Geometric continuation of the two previous rates of column 1:
+  #   mx[11] = mx[10]^2 / mx[9]
+  expect_equal(r[11, 1], M[10, 1]^2/M[9, 1], tolerance = 1e-12)
+  # Column 2 was finite, so it is untouched.
+  expect_equal(r[, 2], M[, 2], tolerance = 1e-12)
+})
+
+test_that("C4: dx_lx converts a whole matrix, column by column", {
+  x  <- 0:10
+  dx <- cbind(a = seq(20, 5, length.out = 11),
+              b = seq(10, 2, length.out = 11))
+
+  lx <- dx_lx(ux = dx, out = "lx")
+  expect_identical(dim(lx), dim(dx))
+  expect_equal(lx[1, ], colSums(dx), tolerance = 1e-12)
+  expect_equal(lx[, 1], dx_lx(ux = dx[, 1], out = "lx"), tolerance = 1e-12)
+
+  # Round trip back to dx
+  expect_equal(dx_lx(ux = lx, out = "dx"), dx, tolerance = 1e-12)
+})
+
+test_that("C4: convertFx matrix output equals the single-column output", {
+  x  <- 0:60
+  M  <- ahmd$mx[paste(x), c("1950", "2010")]
+
+  for (pair in list(c("mx", "dx"), c("dx", "lx"), c("lx", "dx"),
+                    c("mx", "qx"), c("qx", "mx"))) {
+    # The qx round trip warns that the derived qx was not closed; that is the
+    # documented closure rule, not a defect, so it must not fail the pin.
+    out <- suppressWarnings(
+      convertFx(x = x, data = M, from = pair[1], to = pair[2], lx0 = 1e5)
+    )
+
+    for (j in seq_len(ncol(M))) {
+      one <- suppressWarnings(
+        convertFx(x = x, data = M[, j], from = pair[1], to = pair[2], lx0 = 1e5)
+      )
+      expect_equal(unname(out[, j]), unname(one), tolerance = 1e-10)
+    }
+  }
+})
+
+
+# ---- C3: the HMD availability table parses without an HTML dependency --------
+
+test_that("C3: parse_html_table reads a table with a header and padded rows", {
+  html <- paste0(
+    "<html><body><table class=\"x\">",
+    "<thead><tr><th>Country and data series</th><th>Code</th>",
+    "<th>Period Life Tables</th></tr></thead>",
+    "<tbody><tr><td><a href=\"/x\">Australia</a></td><td>AUS</td>",
+    "<td>1921 - 2021</td></tr>",
+    "<tr><td>Iceland</td><td>ISL</td></tr></tbody>",
+    "</table></body></html>"
+  )
+
+  tab <- parse_html_table(html = html)
+
+  expect_s3_class(tab, "data.frame")
+  expect_identical(dim(tab), c(2L, 3L))
+  expect_identical(colnames(tab),
+                   c("Country and data series", "Code", "Period Life Tables"))
+  # Markup inside a cell is dropped; the link text survives.
+  expect_identical(tab[[1]], c("Australia", "Iceland"))
+  expect_identical(tab[[2]], c("AUS", "ISL"))
+  # A row with fewer cells than the header is padded with missing values.
+  expect_identical(tab[[3]], c("1921 - 2021", NA_character_))
+
+  # An empty cell is an empty string, not a missing value.
+  empty <- parse_html_table(
+    html = "<table><tr><th>a</th><th>b</th></tr><tr><td>x</td><td></td></tr></table>"
+  )
+  expect_identical(empty[[2]], "")
+})
+
+test_that("C3: parse_html_table resolves entities and collapses whitespace", {
+  html <- paste0(
+    "<table><tr><th>Country</th><th>Range</th></tr>",
+    "<tr><td>Trinidad &amp; Tobago</td><td>1921 &#8211; 2021</td></tr></table>"
+  )
+
+  tab <- parse_html_table(html = html)
+
+  expect_identical(tab[[1]], "Trinidad & Tobago")
+  expect_identical(tab[[2]], "1921 \u2013 2021")
+})
+
+test_that("C3: parse_html_table returns NULL when there is no table", {
+  expect_null(parse_html_table(html = "<html><body>no table here</body></html>"))
+  expect_null(parse_html_table(html = NULL))
+})

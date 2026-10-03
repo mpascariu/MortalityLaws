@@ -168,12 +168,12 @@ MortalityLaw <- function(x,
                          show = FALSE,
                          ...){
 
-  info    <- addDetails(law = law, custom.law = custom.law, parS = parS)
+  info    <- law_details(law = law, custom.law = custom.law, parS = parS)
   law     <- info$law
   scale.x <- info$scale.x
   parS    <- info$parS
   input   <- c(as.list(environment()))
-  K       <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)
+  K       <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)
 
   # TR: if inputs are matrix, then we have class matrix, array, and this
   # throws a warning. If we have a dim attribute then this won't work. Even
@@ -202,13 +202,13 @@ MortalityLaw <- function(x,
 #' Runs the input checks and the optimisation and returns the components of a
 #' \code{"MortalityLaw"} object for one mortality curve.
 #' @param input A list of input arguments to \code{\link{MortalityLaw}}.
-#' @param K Problem case details as returned by \code{find.my.case}.
+#' @param K Problem case details as returned by \code{detect_case}.
 #' @return A list with the components of a \code{"MortalityLaw"} object.
 #' @noRd
 fit_single <- function(input, K) {
 
   with(as.list(input), {
-    check.MortalityLaw(input = input)
+    check_mortality_law_input(input = input)
 
     # Set-up progress bar
     if (show) {
@@ -256,7 +256,7 @@ fit_single <- function(input, K) {
 #' @param fit Fitted hazard values, one per fitted age.
 #' @param optim.model Result of \code{choose_optim}.
 #' @param input A list of input arguments to \code{\link{MortalityLaw}}.
-#' @param K Problem case details as returned by \code{find.my.case}.
+#' @param K Problem case details as returned by \code{detect_case}.
 #' @return A list with the residuals, deviance, degrees of freedom and
 #' goodness-of-fit measures.
 #' @noRd
@@ -297,7 +297,7 @@ fit_statistics <- function(fit, optim.model, input, K) {
 #' \code{\link{MortalityLaw}} on each column, then binds the per-column results
 #' into the multi-fit components of a \code{"MortalityLaw"} object.
 #' @param input A list of input arguments to \code{\link{MortalityLaw}}.
-#' @param K Problem case details as returned by \code{find.my.case}.
+#' @param K Problem case details as returned by \code{detect_case}.
 #' @return A list with the components of a \code{"MortalityLaw"} object.
 #' @noRd
 fit_multiple <- function(input, K) {
@@ -362,7 +362,7 @@ fit_multiple <- function(input, K) {
 #' the fitting loop.
 #' @param fits List of per-column \code{"MortalityLaw"} objects.
 #' @param x Vector of ages at which the law was fitted.
-#' @param K Problem case details as returned by \code{find.my.case}.
+#' @param K Problem case details as returned by \code{detect_case}.
 #' @return A list with the multi-fit components of a \code{"MortalityLaw"}
 #' object.
 #' @noRd
@@ -405,7 +405,7 @@ bind_fits <- function(fits, x, K) {
 #' @return A list with the law name, starting parameters, model information and
 #' the scaling flag.
 #' @noRd
-addDetails <- function(law,
+law_details <- function(law,
                        custom.law = NULL,
                        parS = NULL) {
 
@@ -473,7 +473,7 @@ law_function <- function(law, custom.law = NULL) {
 objective_fun <- function(par, x, Dx, Ex, mx, qx,
                           law, opt.method, custom.law) {
 
-  case <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$case
+  case <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$case
   fn   <- law_function(law = law, custom.law = custom.law)
   out  <- objective_loss(par = par, x = x, Dx = Dx, Ex = Ex, mx = mx, qx = qx,
                          case = case, fn = fn, opt.method = opt.method)
@@ -621,7 +621,7 @@ choose_optim <- function(input) {
     # Normalise the fitting subset to the order of x and drop duplicates
     fit.this.x <- x[x %in% fit.this.x]
     select.x   <- x %in% fit.this.x
-    case       <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$case
+    case       <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$case
     fn         <- law_function(law = law, custom.law = custom.law)
 
     if (scale.x) {

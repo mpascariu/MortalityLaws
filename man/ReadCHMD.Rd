@@ -77,14 +77,15 @@ The Canadian Human Mortality Database (CHMD) was created to provide detailed
 Canadian mortality and population data to researchers, students, journalists,
 policy analysts, and others interested in the history of human longevity.
 The project is an achievement of the Mortality and Longevity research team at
-the Department of Demography, Universite de Montreal, under the supervision
-of Professor Robert Bourbeau, in collaboration with demographers at the
-Max Plank Institute for Demographic Research (Rostock, Germany) and the
-Department of Demography, University of California at Berkeley.
-Nadine Ouellette, researcher at the Institut national d'etudes demographiques
+the Department of Demography, \enc{Université}{Universite} de
+\enc{Montréal}{Montreal}, under the supervision of Professor Robert
+Bourbeau, in collaboration with demographers at the Max Planck Institute for
+Demographic Research (Rostock, Germany) and the Department of Demography,
+University of California at Berkeley. Nadine Ouellette, researcher at the
+Institut national d'\enc{études}{etudes} \enc{démographiques}{demographiques}
 in Paris and member of the Mortality and Longevity research team at the
-Universite de Montreal, is in charge of computing all CHMD life tables and
-updating the CHMD web site.
+\enc{Université}{Universite} de \enc{Montréal}{Montreal}, is in charge of
+computing all CHMD life tables and updating the CHMD web site.
 
 The CHMD is a "satellite" of the Human Mortality Database (HMD), an
 international database which currently holds detailed data for multiple
@@ -96,7 +97,7 @@ size, exposure-to-risk, death rates) to compute life tables for Canada,
 its provinces and its territories. One of the great advantages of the
 database is to include data that is validated and corrected, when required,
 and rendered comparable, if possible, for the period ranging from 1921
-thru 2011. For comparison purposes, various life tables published by
+through 2011. For comparison purposes, various life tables published by
 governmental organizations are also available for download in PDF format.
 }
 \examples{

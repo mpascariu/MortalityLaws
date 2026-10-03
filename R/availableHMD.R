@@ -10,10 +10,10 @@
 #' for each country or region.
 #' @param link URL to the HMD available data.
 #' Default: "https://www.mortality.org/Data/DataAvailability"
-#' @return A tibble with one row per country or region. Returns \code{NULL}
-#' when the website cannot be reached, when the response status is not 200,
-#' or when the response body cannot be parsed as HTML. Every failure also
-#' emits a \code{message()}.
+#' @return A data frame with one row per country or region. Returns
+#'   \code{NULL} when the website cannot be reached, when the response
+#'   status is not 200, or when the response body carries no HTML table.
+#'   Every failure also emits a \code{message()}.
 #' @seealso \code{\link{ReadHMD}}
 #' @author Marius D. Pascariu
 #' @examples
@@ -24,75 +24,40 @@
 #' @export
 availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability") {
   out <- NULL
-  error_message <- "Website connection failed. Please check your internet connection or the URL."
-  
-  # Check website connectivity
-  response <- make_http_request(link)
-  
-  # Check if the website is accessible
-  if (!is.null(response)) {
-    
-    if (status_code(response) == 200) {
-      # A 200 response can still carry a body that is not HTML.
-      webpage <- tryCatch(
-        read_html(x = response),
-        error = function(e) NULL
-      )
-      
-      if (!is.null(webpage)) {
-        # Extract the table from the webpage
-        table_data <- html_table(x = webpage, fill = TRUE)
-        
-        # from the list of tables extracted above the table of interest is the first one:
-        if (length(table_data) > 0) {
-          out <- table_data[[1]]
-          
-        } else {
-          message("No tables found on the webpage.")
-        }
-        
-      } else {
-        content_type <- httr::headers(response)[["content-type"]]
-        if (is.null(content_type) || is.na(content_type)) content_type <- "unknown"
-        message(
-          "The response body could not be parsed as HTML. ",
-          "The response reported content-type: ", content_type, "."
-        )
-      }
-      
-    } else {
-      message(error_message)
-    }
-    
-  } else { 
-    message(error_message)
+
+  response <- tryCatch(
+    httr::GET(url = link, config = httr::timeout(seconds = 300)),
+    error = function(e) e
+  )
+
+  if (inherits(response, "condition")) {
+    message("Could not connect to ", link, ": ", conditionMessage(response))
+    return(out)
   }
-  
+
+  if (httr::status_code(response) != 200) {
+    message("The website returned HTTP ", httr::status_code(response),
+            ". Please check your internet connection or the URL.")
+    return(out)
+  }
+
+  html <- httr::content(x = response, as = "text", encoding = "UTF-8")
+
+  if (is.null(html) || !nzchar(html)) {
+    message("The website returned an empty response.")
+    return(out)
+  }
+
+  table_data <- parse_html_table(html = html)
+
+  if (!is.null(table_data)) {
+    out <- table_data
+
+  } else {
+    message("The response body could not be parsed as HTML. ")
+  }
+
   return(out)
-}
-
-
-
-#' Make HTTP request
-#'
-#' Returns the \code{httr} response for \code{url}, or \code{NULL} when the
-#' request raises an error.
-#' @param url URL
-#' @return An \code{httr} response, or \code{NULL} if the request fails.
-#' @noRd
-#' 
-make_http_request <- function(url) {
-  response <- NULL
-  
-  tryCatch({
-    response <- GET(url = url)
-    
-  }, error = function(e) {
-    # Error: Display the error message
-    paste("Error:", conditionMessage(e))
-  })
-  
-  return(response)
 }
 
 

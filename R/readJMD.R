@@ -13,11 +13,11 @@
 #' @details
 #' (Description taken from the JMD website).
 #'
-#' The Japanese Mortality Database is a comprehensively-reorganized mortality
+#' The Japanese Mortality Database is a comprehensively reorganized mortality
 #' database that is optimized for mortality research and consistent with the
 #' Human Mortality Database. This database is provided as a part of the research
 #' project "Demographic research on the causes and the socio-economic
-#' consequence of longetivity extension in Japan" (2011-2013), "Demographic
+#' consequence of longevity extension in Japan" (2011-2013), "Demographic
 #' research on longevity extension, population aging, and their effects on the
 #' social security and socio-economic structures in Japan" (2014-2016), and
 #' "Comprehensive research from a demographic viewpoint on the longevity
@@ -100,61 +100,34 @@ ReadJMD <- function(what,
                     interval = "1x1",
                     save = FALSE,
                     show = TRUE){
-  # Step 1 - Validate input & Progress bar setup
+  # Step 1 - Validate input
   if (is.null(regions)) {
-    regions <- JPNregions()
+    regions <- jpn_regions()
   }
 
   input <- as.list(environment())
-  check_input_ReadJMD(input)
-  nr <- length(regions)
+  check_input_read_jmd(input)
 
-  if (show) {
-    pb <- startpb(0, nr + 1)
-    on.exit(closepb(pb))
-    setpb(pb, 0)
-  }
+  # Step 2 - Download each region; the folder is its JIS prefecture code
+  codes <- vapply(regions, FUN = jmd_region_code, FUN.VALUE = character(1))
+  D <- download_regions(regions    = unname(codes),
+                        what       = what,
+                        interval   = interval,
+                        session    = NULL,
+                        link       = "https://www.ipss.go.jp/p-toukei/JMD/",
+                        label      = "region",
+                        row_labels = regions,
+                        show       = show)
 
-  # Step 2 - Do the loop for the other regions
-  D <- data.frame()
-  for (i in 1:nr) {
-    if (show) {
-      setpb(pb, i)
-      cat(paste("      :Downloading", regions[i], "    "))
-    }
-    region_code <- JMDregion_code(regions[i])
-    d <- ReadHMD.core(
-      what     = what,
-      country  = region_code,
-      interval = interval,
-      session  = NULL,
-      link     = "https://www.ipss.go.jp/p-toukei/JMD/")
-
-    if (!is.null(d)) {
-      # The folder code alone cannot label the rows, so use the region name.
-      d[["country"]] <- regions[i]
-      colnames(d)[colnames(d) == "country"] <- "region"
-      D <- rbind(D, d)
-    }
-  }
-
-  if (length(D) != 0) {
-    
-    out <- list(
-      input = input,
-      data = D,
-      download.date = date(),
-      years = sort(unique(D$Year)),
-      ages = unique(D$Age)
-      )
-    out <- structure(class = "ReadJMD", out)
-  
-    # Step 3 - Write a file with the database in your working directory
-    if (show) setpb(pb, nr + 1)
-    if (save) saveOutput(out, show, prefix = "JMD")
-    
+  # Step 3 - Assemble the object and write a copy when asked to
+  out <- if (is.null(D)) {
+    NULL
   } else {
-    out <- NULL
+    new_read_object(data   = D,
+                    input  = input,
+                    prefix = "JMD",
+                    class  = "ReadJMD",
+                    show   = show)
   }
 
   # Exit
@@ -165,8 +138,8 @@ ReadJMD <- function(what,
 #' JMD region names
 #' @return A character vector with the region names accepted by \code{ReadJMD()}.
 #' @noRd
-JPNregions <- function() {
-  out <- names(JPNregion_codes())
+jpn_regions <- function() {
+  out <- names(jpn_region_codes())
   return(out)
 }
 
@@ -178,7 +151,7 @@ JPNregions <- function() {
 #'
 #' @return A named character vector: region names to 2-digit JIS codes.
 #' @noRd
-JPNregion_codes <- function() {
+jpn_region_codes <- function() {
   c(
     "Japan"     = "00",
     "Aichi"     = "23",
@@ -233,17 +206,17 @@ JPNregion_codes <- function() {
 
 
 #' Download folder code of one JMD region
-#' @param region A single region name, one of \code{JPNregions()}.
+#' @param region A single region name, one of \code{jpn_regions()}.
 #' @return The 2-digit JIS code used in the JMD download URLs.
 #' @noRd
-JMDregion_code <- function(region) {
-  out <- unname(JPNregion_codes()[region])
+jmd_region_code <- function(region) {
+  out <- unname(jpn_region_codes()[region])
 
   if (is.na(out)) {
     stop(
       "Unknown JMD region: ", region, ".\n",
       "Try one or more of these options:\n",
-      paste(JPNregions(), collapse = ", "),
+      paste(jpn_regions(), collapse = ", "),
       call. = FALSE
       )
   }
@@ -262,7 +235,7 @@ JMDregion_code <- function(region) {
 #'
 #' @return A character vector with the JMD data types.
 #' @noRd
-JMDindices <- function() {
+jmd_indices <- function() {
   out <- c(
     "births",
     "population",
@@ -282,66 +255,13 @@ JMDindices <- function() {
 #' @param x a list containing the input arguments from ReadJMD function
 #' @return No return value, called for validating input data
 #' @noRd
-check_input_ReadJMD <- function(x) {
+check_input_read_jmd <- function(x) {
+  check_reader_input(x = x, database = "JMD", what_set = jmd_indices())
+  check_reader_regions(regions = x$regions,
+                       known   = jpn_regions(),
+                       label   = "region name")
 
-  if (length(x$what) != 1) {
-    stop(
-      "Please specify exactly one data type in 'what'. You supplied ",
-      length(x$what), " values: ",
-      paste(x$what, collapse = ", "),
-      call. = FALSE
-      )
-  }
-
-  if (length(x$interval) != 1) {
-    stop(
-      "Please specify exactly one interval. You supplied ",
-      length(x$interval), " values: ",
-      paste(x$interval, collapse = ", "),
-      call. = FALSE
-      )
-  }
-
-  if (length(x$regions) == 0) {
-    stop(
-      "Please specify at least one region in 'regions'.",
-      call. = FALSE
-      )
-  }
-
-  if (!(x$interval %in% data_format())) {
-    stop(
-      "The interval ",
-      x$interval,
-      " does not exist in JMD. ",
-      "Try one of these options:\n",
-      paste(data_format(), collapse = ", "),
-      call. = FALSE
-      )
-  }
-
-  bad <- x$regions[!(x$regions %in% JPNregions())]
-
-  if (length(bad) > 0) {
-    stop(
-      "Unknown region name(s) in 'regions': ",
-      paste(bad, collapse = ", "),
-      ".\nTry one or more of these options:\n",
-      paste(JPNregions(), collapse = ", "),
-      call. = FALSE
-      )
-  }
-
-  if (!(x$what %in% JMDindices())) {
-    stop(
-      x$what,
-      " does not exist in JMD. Try one of these options:\n",
-      paste(JMDindices(), collapse = ", "),
-      call. = FALSE
-      )
-  }
-
-  check_interval_ReadJMD(what = x$what, interval = x$interval)
+  check_interval_read_jmd(what = x$what, interval = x$interval)
 }
 
 
@@ -350,11 +270,11 @@ check_input_ReadJMD <- function(x) {
 #' A data type is accepted only in the intervals that JMD actually serves, so
 #' a dead download is stopped before any request is made.
 #'
-#' @param what A single JMD data type, one of \code{JMDindices()}.
+#' @param what A single JMD data type, one of \code{jmd_indices()}.
 #' @param interval A single interval, one of \code{data_format()}.
 #' @return No return value, called for validating input data
 #' @noRd
-check_interval_ReadJMD <- function(what, interval) {
+check_interval_read_jmd <- function(what, interval) {
 
   # JMD serves births as one annual file, Births.txt. There is no Births5.txt,
   # so a 5-year request can only be an error.
@@ -369,7 +289,7 @@ check_interval_ReadJMD <- function(what, interval) {
   # population needs no clause here: the server serves it as two files,
   # Population.txt (one-year age groups) and Population5.txt (five-year age
   # groups, ages 0, 1-4, 5-9, ...), and both exist in every region folder.
-  # ReadHMD.core() picks the file from the interval, so all the intervals in
+  # read_hmd_file() picks the file from the interval, so all the intervals in
   # data_format() download.
 
   # Verified 2026-10-03: E0per, E0per_1x5 and E0per_1x10 exist on the server.
@@ -401,7 +321,7 @@ print.ReadJMD <- function(x, ...){
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat(paste("Ages          :", age_message(what, x), "\n"))
   cat("Regions       :", x$input$regions, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))

@@ -195,12 +195,12 @@ LifeTable <- function(x,
                       ax = NULL){
 
   input <- c(as.list(environment()))
-  X     <- LifeTable.check(input)
+  X     <- check_life_table_input(input)
   x     <- X$x
   x.int <- paste0("[", x, ",", c(x[-1], "+"), ")")
 
   if (any(X$iclass == "numeric")) {
-    LT <- LifeTable.core(x = x,
+    LT <- compute_life_table(x = x,
                          Dx = X$Dx,
                          Ex = X$Ex,
                          mx = X$mx,
@@ -218,7 +218,7 @@ LifeTable <- function(x,
     LT <- vector(mode = "list", length = X$nLT)
 
     for (i in seq_len(X$nLT)) {
-      LTi <- LifeTable.core(x = x,
+      LTi <- compute_life_table(x = x,
                             Dx = X$Dx[, i],
                             Ex = X$Ex[, i],
                             mx = X$mx[, i],
@@ -256,7 +256,7 @@ LifeTable <- function(x,
 #' case and the age-interval labels can be supplied by \code{LifeTable}
 #' to avoid recomputing them for every column.
 #' @noRd
-LifeTable.core <- function(x,
+compute_life_table <- function(x,
                            Dx = NULL,
                            Ex = NULL,
                            mx = NULL,
@@ -270,7 +270,7 @@ LifeTable.core <- function(x,
                            x.int = NULL) {
 
   if (is.null(case)) {
-    case <- find.my.case(Dx = Dx, Ex = Ex, mx = mx, qx = qx,
+    case <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx,
                          lx = lx, dx = dx)$case
   }
 
@@ -348,10 +348,10 @@ LifeTable.core <- function(x,
 lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE) {
 
   if (!user) {
-    ax <- compute.ax(x = x, mx = mx, qx = qx)
+    ax <- compute_ax(x = x, mx = mx, qx = qx)
 
     if (!is.null(sex)) {
-      ax <- coale.demeny.ax(x = x, mx = mx, ax = ax, sex = sex)
+      ax <- coale_demeny_ax(x = x, mx = mx, ax = ax, sex = sex)
     }
   }
 
@@ -412,7 +412,7 @@ lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
 
   if (case == "C1_DxEx") {
     mx <- as.numeric(Dx)/as.numeric(Ex)
-    mx <- uxAbove100(x = x, ux = mx)
+    mx <- repair_above_omega(x = x, ux = mx)
     ax <- lt_feasible_ax(x = x, ax = ax, mx = mx)
     qx <- mx_qx(x = x, nx = nx, ux = mx, out = "qx", ax = ax)
   }

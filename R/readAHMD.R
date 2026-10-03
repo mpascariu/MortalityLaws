@@ -18,7 +18,7 @@
 #' human longevity. The project is an achievement of the Mortality,
 #' Ageing & Health research team in the ANU School of Demography under the
 #' supervision of Associate Professor Vladimir Canudas-Romo, in collaboration
-#' with demographers at the Max Plank Institute for Demographic Research
+#' with demographers at the Max Planck Institute for Demographic Research
 #' (Rostock, Germany) and the Department of Demography, University of
 #' California at Berkeley.
 #'
@@ -32,7 +32,7 @@
 #' for Australia, its states and its territories. One of the great advantages
 #' of the database is to include data that is validated and corrected, when
 #' required, and rendered comparable, if possible, for the period ranging
-#' from 1971 thru 2016. For comparison purposes, various life tables published
+#' from 1971 through 2016. For comparison purposes, various life tables published
 #' by governmental organizations are also available for download in PDF format.
 #'
 #' @inheritParams ReadHMD
@@ -81,51 +81,31 @@ ReadAHMD <- function(what,
                      interval = "1x1",
                      save = FALSE,
                      show = TRUE){
-  # Step 1 - Validate input & Progress bar setup
+  # Step 1 - Validate input
   if (is.null(regions)) {
-    regions <- AUSregions()
+    regions <- aus_regions()
   }
 
   input <- as.list(environment())
-  check_input_ReadAHMD(input)
-  nr <- length(regions)
+  check_input_read_ahmd(input)
 
-  if (show) {
-    pb <- startpb(0, nr + 1)
-    on.exit(closepb(pb))
-    setpb(pb, 0)
-  }
+  # Step 2 - Download each region
+  D <- download_regions(regions  = regions,
+                        what     = what,
+                        interval = interval,
+                        session  = NULL,
+                        link     = "https://aushd.org/assets/txtFiles/humanMortality/",
+                        show     = show)
 
-  # Step 2 - Do the loop for the other regions
-  D <- data.frame()
-  for (i in 1:nr) {
-    if (show) {
-      setpb(pb, i)
-      cat(paste("      :Downloading", regions[i], "    "))
-    }
-
-    D <- rbind(D, ReadHMD.core(
-      what     = what,
-      country  = regions[i],
-      interval = interval,
-      session  = NULL,
-      link     = "https://aushd.org/assets/txtFiles/humanMortality/"))
-  }
-
-  if(length(D) != 0) {
-    out <- list(input = input,
-                data = D,
-                download.date = date(),
-                years = sort(unique(D$Year)),
-                ages = unique(D$Age))
-    out <- structure(class = "ReadAHMD", out)
-  
-    # Step 3 - Write a file with the database in your working directory
-    if (show) setpb(pb, nr + 1)
-    if (save) saveOutput(out, show, prefix = "AHMD")
-    
+  # Step 3 - Assemble the object and write a copy when asked to
+  out <- if (is.null(D)) {
+    NULL
   } else {
-    out <- NULL
+    new_read_object(data   = D,
+                    input  = input,
+                    prefix = "AHMD",
+                    class  = "ReadAHMD",
+                    show   = show)
   }
 
   # Exit
@@ -136,7 +116,7 @@ ReadAHMD <- function(what,
 #' Australian region codes
 #' @return A character vector with the region codes accepted by AHMD.
 #' @noRd
-AUSregions <- function() {
+aus_regions <- function() {
   c("ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA")
 }
 
@@ -145,44 +125,13 @@ AUSregions <- function() {
 #' @param x a list containing the input arguments from ReadAHMD function
 #' @return No return value, called for checking stuff
 #' @noRd
-check_input_ReadAHMD <- function(x) {
+check_input_read_ahmd <- function(x) {
+  check_reader_input(x = x, database = "AHMD", what_set = hmd_indices())
+  check_reader_regions(regions = x$regions,
+                       known   = aus_regions(),
+                       label   = "region code")
 
-  if (length(x$what) != 1) {
-    stop("Please specify exactly one data type in 'what'. You supplied ",
-         length(x$what), " values: ", paste(x$what, collapse = ", "),
-         call. = FALSE)
-  }
-
-  if (length(x$interval) != 1) {
-    stop("Please specify exactly one interval. You supplied ",
-         length(x$interval), " values: ", paste(x$interval, collapse = ", "),
-         call. = FALSE)
-  }
-
-  if (length(x$regions) == 0) {
-    stop("Please specify at least one region in 'regions'.", call. = FALSE)
-  }
-
-  if (!(x$interval %in% data_format())) {
-    stop("The interval ", x$interval, " does not exist in AHMD. ",
-         "Try one of these options:\n", paste(data_format(), collapse = ", "),
-         call. = FALSE)
-  }
-
-  bad <- x$regions[!(x$regions %in% AUSregions())]
-
-  if (length(bad) > 0) {
-    stop("Unknown region code(s) in 'regions': ", paste(bad, collapse = ", "),
-         ".\nTry one or more of these options:\n",
-         paste(AUSregions(), collapse = ", "), call. = FALSE)
-  }
-
-  if (!(x$what %in% HMDindices())) {
-    stop(x$what, " does not exist in AHMD. Try one of these options:\n",
-         paste(HMDindices(), collapse = ", "), call. = FALSE)
-  }
-
-  # Population is served in every interval: ReadHMD.core reads the single-age
+  # Population is served in every interval: read_hmd_file reads the single-age
   # 'Population' file for the 1-year formats and the 5-year age group
   # 'Population5' file for the 5-year formats. Both files exist on AHMD.
   # Births have no 5-year age product, so only '1x1' can be served.
@@ -216,7 +165,7 @@ print.ReadAHMD <- function(x, ...){
   cat("Type of data  :", what, "\n")
   cat(paste("Interval      :", x$input$interval, "\n"))
   cat(paste("Years         :", x$years[1], "--", rev(x$years)[1], "\n"))
-  cat(paste("Ages          :", ageMsg(what, x), "\n"))
+  cat(paste("Ages          :", age_message(what, x), "\n"))
   cat("Regions       :", x$input$regions, "\n")
   cat("\nData:\n")
   print(head_tail(x$data, hlength = 5, tlength = 5))

@@ -14,7 +14,6 @@
 #' @importFrom stats fitted coef optim predict quantile nlminb residuals df.residual
 #' @importFrom pbapply startpb closepb setpb
 #' @importFrom httr GET POST set_cookies cookies content status_code timeout
-#' @importFrom rvest read_html html_table
 #' @name MortalityLaws
 #' @docType package
 "_PACKAGE"

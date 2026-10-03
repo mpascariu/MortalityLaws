@@ -85,10 +85,6 @@ importFrom(pbapply,
   setpb,
   startpb
 )
-importFrom(rvest,
-  html_table,
-  read_html
-)
 importFrom(stats,
   coef,
   df.residual,

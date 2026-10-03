@@ -18,7 +18,7 @@ demographic data from the following sources are provided:
 
 - the [Human Mortality Database (HMD)](https://www.mortality.org/)
 - the [Australian Human Mortality Database (AHMD)](https://aushd.org/)
-- the [Canadian Human Mortality Database (CHMD)](https://www.bdlc.umontreal.ca/chmd/index.htm)
+- the [Canadian Human Mortality Database (CHMD)](https://www.prdh.umontreal.ca/BDLC/)
 - the [Japanese Mortality Database (JMD)](https://www.ipss.go.jp/p-toukei/JMD/index-en.asp)
 
 

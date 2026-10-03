@@ -179,12 +179,12 @@ convert_fx_matrix <- function(x, data, from, to, LT, lx0) {
   } else if (one && case == "dx_to_lx") {
     if (is.null(lx0)) lx0 <- 1e5
     M   <- sweep(M * lx0, 2, colSums(M), "/")
-    out <- apply(M, 2, FUN = function(w) dx_lx(ux = w, out = "lx"))
+    out <- dx_lx(ux = M, out = "lx")
 
   } else if (one && case == "lx_to_dx") {
     if (is.null(lx0)) lx0 <- 1e5
     M   <- sweep(M * lx0, 2, M[1, ], "/")
-    out <- apply(M, 2, FUN = function(w) dx_lx(ux = w, out = "dx"))
+    out <- dx_lx(ux = M, out = "dx")
 
   } else {
     if (is.null(colnames(M))) colnames(M) <- seq_len(ncol(M))

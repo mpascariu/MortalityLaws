@@ -82,7 +82,7 @@ journalists, policy analysts, and others interested in the history of
 human longevity. The project is an achievement of the Mortality,
 Ageing & Health research team in the ANU School of Demography under the
 supervision of Associate Professor Vladimir Canudas-Romo, in collaboration
-with demographers at the Max Plank Institute for Demographic Research
+with demographers at the Max Planck Institute for Demographic Research
 (Rostock, Germany) and the Department of Demography, University of
 California at Berkeley.
 
@@ -96,7 +96,7 @@ population size, exposure-to-risk, death rates) to compute life tables
 for Australia, its states and its territories. One of the great advantages
 of the database is to include data that is validated and corrected, when
 required, and rendered comparable, if possible, for the period ranging
-from 1971 thru 2016. For comparison purposes, various life tables published
+from 1971 through 2016. For comparison purposes, various life tables published
 by governmental organizations are also available for download in PDF format.
 }
 \examples{
