@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-03
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 # One HTTP layer for the database readers: the HMD form login and a text
@@ -15,8 +15,7 @@
 #' cookies. A successful login lands on `Home/Index` and sets the
 #' `Authorization` cookie that every later HMD request must carry.
 #'
-#' @param username HMD username, normally the account email address.
-#' @param password HMD account password.
+#' @inheritParams ReadHMD
 #' @return A character string with the session cookies as `name=value`
 #'   pairs joined by `"; "`, ready to be passed to `fetch_text` as
 #'   `session`. The function raises an error when the login page has no

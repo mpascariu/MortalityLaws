@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-05 18:53:46
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Convert Life Table Indicators
@@ -158,14 +158,12 @@ convertFx <- function(x,
 #' \code{from}-\code{to} pair is a single identity and falls back on one call
 #' to \code{\link{LifeTable}} for the whole matrix otherwise.
 #'
-#' @param x Numeric vector of ages.
+#' @inheritParams LifeTable
 #' @param data A numeric matrix or data frame, one column per life table.
 #' @param from The type of indicator supplied in \code{data}.
 #' @param to The desired output indicator.
 #' @param LT A function calling \code{\link{LifeTable}} with the argument
 #' named after \code{from}.
-#' @param lx0 The radix, or \code{NULL} to use the \code{\link{LifeTable}}
-#'   default.
 #' @param ax The \code{ax} argument supplied to \code{\link{convertFx}}, or
 #'   \code{NULL}. The closing identities in this function are the constant
 #'   force of mortality ones and carry no \code{ax}, so any supplied \code{ax}

@@ -2,19 +2,24 @@
 % Please edit documentation in R/readJMD.R
 \name{print.ReadJMD}
 \alias{print.ReadJMD}
-\title{Print ReadJMD}
+\title{Print a ReadJMD Object}
 \usage{
 \method{print}{ReadJMD}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"ReadJMD"}}
+\item{x}{An object of class \code{"ReadJMD"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print info on the console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print ReadJMD
+Prints the header of a JMD download (web address, download date, data
+type, interval, year and age coverage, regions) followed by the first and
+the last rows of the data.
+}
+\seealso{
+\code{\link{ReadJMD}}.
 }
 \keyword{internal}

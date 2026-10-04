@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:31:48
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Download the Japanese Mortality Database (JMD)
@@ -11,40 +11,15 @@
 #' Japanese Mortality Database}.
 #'
 #' @details
-#' (Description taken from the JMD website).
+#' The Japanese Mortality Database is a mortality database reorganised to be
+#' consistent with the Human Mortality Database, for all Japan and by
+#' prefecture; see the JMD website for its research project and methods. The
+#' database is open, so no login is needed. Its life tables are built to be
+#' internationally comparable, so they need not match the official Japanese
+#' life tables, which use a different base population and estimation method.
 #'
-#' The Japanese Mortality Database is a comprehensively reorganized mortality
-#' database that is optimized for mortality research and consistent with the
-#' Human Mortality Database. This database is provided as a part of the research
-#' project "Demographic research on the causes and the socio-economic
-#' consequence of longevity extension in Japan" (2011-2013), "Demographic
-#' research on longevity extension, population aging, and their effects on the
-#' social security and socio-economic structures in Japan" (2014-2016), and
-#' "Comprehensive research from a demographic viewpoint on the longevity
-#' revolution" (2017-2019) at the National Institute of Population and Social
-#' Security Research.
-#'
-#' The Japanese Mortality Database is designed to provide the life tables to all
-#' the people who are interested in Japanese mortality including domestic and
-#' foreign mortality researchers for the purpose of mortality research.
-#' Especially because we have structured it to conform with the HMD, our
-#' database is suitable for international comparison, we put emphasis on the
-#' compatibility with the HMD more than our country's particular
-#' characteristics. Therefore, the life tables by JMD do not necessarily
-#' exhibit the same values as ones by the official life tables prepared and
-#' released by the Statistics and Information Department, Minister's
-#' Secretariat, Ministry of Health, Labor and Welfare according to the different
-#' base population or the methods for estimating the tables. When doing things
-#' other than mortality research, if life table that statistically displays our
-#' country's mortality situation is necessary, please use the official life
-#' table that has been prepared by the Statistics and Information Department,
-#' Minister's Secretariat, Ministry of Health, Labor and Welfare.
-#'
-#' At the present time, we offer the data for All Japan and by prefecture.
-#' The project team is studying the methodology for estimating life tables
-#' along with data preparation. Therefore, the data may be updated when a
-#' new methodology is adopted. Please refer to "Methods" for further
-#' information.
+#' The region codes are prefecture names, not the numeric JIS codes used in
+#' the server's folder names; the reader maps one to the other internally.
 #'
 #' @inheritParams ReadHMD
 #' @param what What type of data are you looking for? The following options are
@@ -307,10 +282,15 @@ check_interval_read_jmd <- function(what, interval) {
 
 
 
-#' Print ReadJMD
-#' @param x An object of class \code{"ReadJMD"}
+#' Print a ReadJMD Object
+#'
+#' Prints the header of a JMD download (web address, download date, data
+#' type, interval, year and age coverage, regions) followed by the first and
+#' the last rows of the data.
+#' @param x An object of class \code{"ReadJMD"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return Print info on the console
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{ReadJMD}}.
 #' @keywords internal
 #' @export
 print.ReadJMD <- function(x, ...){

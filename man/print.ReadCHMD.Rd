@@ -2,19 +2,24 @@
 % Please edit documentation in R/readCHMD.R
 \name{print.ReadCHMD}
 \alias{print.ReadCHMD}
-\title{Print ReadCHMD}
+\title{Print a ReadCHMD Object}
 \usage{
 \method{print}{ReadCHMD}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"ReadCHMD"}}
+\item{x}{An object of class \code{"ReadCHMD"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print data on the console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print ReadCHMD
+Prints the header of a CHMD download (web address, download date, data
+type, interval, year and age coverage, regions) followed by the first and
+the last rows of the data.
+}
+\seealso{
+\code{\link{ReadCHMD}}.
 }
 \keyword{internal}

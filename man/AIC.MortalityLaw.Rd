@@ -2,19 +2,33 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{AIC.MortalityLaw}
 \alias{AIC.MortalityLaw}
-\title{AIC function for MortalityLaw}
+\title{Extract the AIC of a Fitted Mortality Law}
 \usage{
 \method{AIC}{MortalityLaw}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-model AIC value
+The AIC value for a single fit, or a named vector of AIC values
+  for a multiple fit.
 }
 \description{
-AIC function for MortalityLaw
+Returns the Akaike information criterion of a \code{"MortalityLaw"} fit,
+\code{2 * k - 2 * logLik}, with \eqn{k} the number of fitted parameters.
+Like the log-likelihood it is defined only for the likelihood-based
+objectives and is \code{NaN} otherwise. Use it to compare candidate laws
+fitted to the same data.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"],
+                   law = "makeham", opt.method = "poissonL")
+AIC(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}}; \code{\link{logLik.MortalityLaw}}.
+}

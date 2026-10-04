@@ -1,12 +1,18 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:32:19
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
-#' Print MortalityLaw
-#' @param x an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return Print data on console
+#' Print a Fitted Mortality Law
+#'
+#' Prints a compact one-line description of a \code{"MortalityLaw"} object:
+#' the law that was fitted and whether the fitted values are hazards
+#' (\code{mx}) or death probabilities (\code{qx}).
+#' @param x An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{MortalityLaw}} to fit a law;
+#'   \code{\link{summary.MortalityLaw}} for the full diagnostic summary.
 #' @keywords internal
 #' @export
 print.MortalityLaw <- function(x, ...) {
@@ -19,12 +25,27 @@ print.MortalityLaw <- function(x, ...) {
 }
 
 
-#' Summary MortalityLaw
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param digits number of digits to display.
-#' @param ... additional arguments affecting the summary produced.
-#' @return A list of model diagnostics
-#' @keywords internal
+#' Summarise a Fitted Mortality Law
+#'
+#' Collects the fitted coefficients, the goodness-of-fit measures, the
+#' dispersion and a five-number summary of the residuals into a compact
+#' object for printing, and rounds them to \code{digits}. For models with
+#' more than four parameters only the first and the last two coefficients
+#' and fit measures are kept, so the output fits on one screen.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param digits Number of significant digits to display.
+#' @param ... Additional arguments affecting the summary produced.
+#' @return An object of class \code{"summary.MortalityLaw"}, a list holding
+#'   the model information, the matched call, the goodness-of-fit measures,
+#'   the dispersion, the residual summary, the rounded coefficients and the
+#'   degrees of freedom.
+#' @seealso \code{\link{MortalityLaw}} to fit a law;
+#'   \code{\link{coef}} and \code{\link{fitted}} for the extracted values.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"], law = "makeham")
+#' summary(M1)
 #' @export
 summary.MortalityLaw <- function(object, ...,
                                  digits = max(3L, getOption("digits") - 3L)) {
@@ -78,10 +99,16 @@ summary.MortalityLaw <- function(object, ...,
 }
 
 
-#' Print summary.MortalityLaw
-#' @param x an object of class \code{"summary.MortalityLaw"}
-#' @param ... additional arguments affecting the summary produced.
-#' @return Print data on console
+#' Print a MortalityLaw Summary
+#'
+#' Prints the contents of a \code{"summary.MortalityLaw"} object: the model
+#' description, the matched call, the residual summary, the coefficients and,
+#' for likelihood-based fits, the goodness-of-fit measures and the
+#' degrees of freedom.
+#' @param x An object of class \code{"summary.MortalityLaw"}.
+#' @param ... Additional arguments affecting the summary produced.
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{summary.MortalityLaw}}.
 #' @keywords internal
 #' @export
 print.summary.MortalityLaw <- function(x, ...) {
@@ -111,11 +138,24 @@ print.summary.MortalityLaw <- function(x, ...) {
 }
 
 
-#' logLik function for MortalityLaw
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return Model log-likelihood value
-#' @keywords internal
+#' Extract the Log-Likelihood of a Fitted Mortality Law
+#'
+#' Returns the maximised log-likelihood of a \code{"MortalityLaw"} fit. It is
+#' only defined when the objective was a likelihood, that is when the model
+#' was fitted with \code{opt.method = "poissonL"} or \code{"binomialL"}; for
+#' the loss-function objectives the value is \code{NaN}. For a multiple fit
+#' the log-likelihoods are returned as a named vector.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return An object of class \code{"logLik"} for a single fit, or a named
+#'   numeric vector of log-likelihoods for a multiple fit.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{AIC.MortalityLaw}}.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"],
+#'                    law = "makeham", opt.method = "poissonL")
+#' logLik(M1)
 #' @export
 logLik.MortalityLaw <- function(object, ...) {
   gof <- object$goodness.of.fit
@@ -137,11 +177,25 @@ logLik.MortalityLaw <- function(object, ...) {
   return(out)
 }
 
-#' AIC function for MortalityLaw
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return model AIC value
-#' @keywords internal
+
+#' Extract the AIC of a Fitted Mortality Law
+#'
+#' Returns the Akaike information criterion of a \code{"MortalityLaw"} fit,
+#' \code{2 * k - 2 * logLik}, with \eqn{k} the number of fitted parameters.
+#' Like the log-likelihood it is defined only for the likelihood-based
+#' objectives and is \code{NaN} otherwise. Use it to compare candidate laws
+#' fitted to the same data.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The AIC value for a single fit, or a named vector of AIC values
+#'   for a multiple fit.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{logLik.MortalityLaw}}.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"],
+#'                    law = "makeham", opt.method = "poissonL")
+#' AIC(M1)
 #' @export
 AIC.MortalityLaw <- function(object, ...) {
   gof <- object$goodness.of.fit
@@ -150,11 +204,25 @@ AIC.MortalityLaw <- function(object, ...) {
   return(out)
 }
 
-#' deviance function for MortalityLaw
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return model deviance value
-#' @keywords internal
+
+#' Extract the Deviance of a Fitted Mortality Law
+#'
+#' Returns the deviance of a \code{"MortalityLaw"} fit. For a fit entered
+#' from death counts and exposures (\code{Dx, Ex}) it is the Poisson
+#' deviance, the quantity \code{opt.method = "poissonL"} minimises. For a fit
+#' entered from rates (\code{mx} or \code{qx}) there is no count likelihood,
+#' so it is the sum of squared log-residuals.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The deviance for a single fit, or a named vector of deviances for
+#'   a multiple fit.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{dispersion}}.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"],
+#'                    law = "makeham", opt.method = "poissonL")
+#' deviance(M1)
 #' @export
 deviance.MortalityLaw <- function(object, ...) {
   out <- object$deviance
@@ -162,11 +230,22 @@ deviance.MortalityLaw <- function(object, ...) {
   return(out)
 }
 
-#' df.residual function for MortalityLaw
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return model residual value
-#' @keywords internal
+
+#' Extract the Residual Degrees of Freedom of a Fitted Mortality Law
+#'
+#' Returns the residual degrees of freedom of a \code{"MortalityLaw"} fit,
+#' the number of fitted ages minus the number of estimated parameters.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The residual degrees of freedom for a single fit, or a named
+#'   vector for a multiple fit.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{dispersion}}.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"],
+#'                    law = "makeham", opt.method = "poissonL")
+#' df.residual(M1)
 #' @export
 df.residual.MortalityLaw <- function(object, ...) {
   df_all <- object$df
@@ -177,17 +256,25 @@ df.residual.MortalityLaw <- function(object, ...) {
 }
 
 
-#' dispersion function for MortalityLaw
+#' Dispersion of a Fitted Mortality Law
 #'
-#' Returns the dispersion of the fit. For the count cases it is the Pearson
-#' chi-square divided by the residual degrees of freedom (1 for a correctly
-#' specified Poisson model); for the rate cases it is the mean squared
-#' log-residual.
-#' @param object an object of class \code{"MortalityLaw"}
-#' @param ... further arguments passed to or from other methods.
-#' @return The dispersion of the fit (a scalar for a single fit, a named
-#' vector for multiple fits).
-#' @keywords internal
+#' Returns the dispersion of the fit, a scalar measure of how far the fitted
+#' values spread around the data. For the count cases it is the Pearson
+#' chi-square divided by the residual degrees of freedom, the GLM dispersion
+#' (about 1 for a correctly specified Poisson model); for the rate cases it
+#' is the mean squared log-residual. The value is also reported by
+#' \code{\link{summary.MortalityLaw}}.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The dispersion for a single fit, or a named vector of dispersions
+#'   for a multiple fit.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{deviance.MortalityLaw}}.
+#' @examples
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"],
+#'                    law = "makeham", opt.method = "poissonL")
+#' dispersion(M1)
 #' @export
 dispersion <- function(object, ...) {
   UseMethod("dispersion")
@@ -200,15 +287,23 @@ dispersion.MortalityLaw <- function(object, ...) {
 }
 
 
-#' Predict function for MortalityLaw
-#' @param object An object of class \code{"MortalityLaw"}
-#' @param x Vector of ages to be considered in prediction
+#' Predict from a Fitted Mortality Law
+#'
+#' Evaluates a fitted mortality law at new ages. The coefficients are reused
+#' as they are, so the prediction is an extrapolation of the fitted curve:
+#' it is meaningful over the ages that the law describes and becomes
+#' unreliable far outside the fitted range. Models that scale the age vector
+#' during fitting (the \code{SCALE_X} column of \code{\link{availableLaws}})
+#' are rescaled internally, so the prediction stays consistent with the
+#' coefficients.
+#' @param object An object of class \code{"MortalityLaw"}.
+#' @param x Vector of ages at which to evaluate the fitted law.
 #' @param ... Additional arguments affecting the predictions produced.
-#' @return A vector (single fit) or matrix (one column per fit) of predicted
-#' mortality values: hazard rates \code{mu[x]} or death probabilities
-#' \code{q[x]} depending on the law (see the \code{FIT} column of
-#' \code{\link{availableLaws}}).
-#' @seealso \code{\link{MortalityLaw}}
+#' @return A named vector of predicted mortality values for a single fit, or
+#'   a matrix with one column per fit. The values are hazards
+#'   (\code{mu[x]}) or death probabilities (\code{q[x]}), depending on the
+#'   law; see the \code{FIT} column of \code{\link{availableLaws}}.
+#' @seealso \code{\link{MortalityLaw}}; \code{\link{fitted}}.
 #' @author Marius D. Pascariu
 #' @examples
 #' # Extrapolate old-age mortality with the Kannisto model

@@ -91,17 +91,16 @@ and regions in a single object from the \href{https://www.mortality.org/}{
 Human Mortality Database}.
 }
 \details{
-The Human Mortality Database (HMD) was created to provide detailed mortality
-and population data to researchers, students, journalists, policy analysts,
-and others interested in the history of human longevity. The project began
-as an outgrowth of earlier projects in the Department of Demography at the
-University of California, Berkeley, USA, and at the Max Planck Institute for
-Demographic Research in Rostock, Germany (see history). It is the work of two
-teams of researchers in the USA and Germany (see research teams), with the
-help of financial backers and scientific collaborators from around the world
-(see acknowledgements). The Center on the Economics and Development of Aging
-(CEDA) French Institute for Demographic Studies (INED) has also supported the
-further development of the database in recent years.
+The Human Mortality Database is the reference source of detailed national
+mortality and population data; see the project's own pages for its history
+and research teams. A free account (and acceptance of the user agreement)
+is required, and a dataset is only as detailed as the country publishes:
+not every \code{what} exists for every country.
+
+The login is performed once per call and reused for every country, so a
+long \code{countries} vector costs one authentication. The password is
+never stored in the returned object; \code{input} carries everything else,
+for reproducibility.
 }
 \examples{
 \dontrun{

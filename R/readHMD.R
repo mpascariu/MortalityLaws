@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:31:33
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 # The Human Mortality Database reader and its input check. The HTTP fetch,
@@ -15,17 +15,16 @@
 #' Human Mortality Database}.
 #'
 #' @details
-#' The Human Mortality Database (HMD) was created to provide detailed mortality
-#' and population data to researchers, students, journalists, policy analysts,
-#' and others interested in the history of human longevity. The project began
-#' as an outgrowth of earlier projects in the Department of Demography at the
-#' University of California, Berkeley, USA, and at the Max Planck Institute for
-#' Demographic Research in Rostock, Germany (see history). It is the work of two
-#' teams of researchers in the USA and Germany (see research teams), with the
-#' help of financial backers and scientific collaborators from around the world
-#' (see acknowledgements). The Center on the Economics and Development of Aging
-#' (CEDA) French Institute for Demographic Studies (INED) has also supported the
-#' further development of the database in recent years.
+#' The Human Mortality Database is the reference source of detailed national
+#' mortality and population data; see the project's own pages for its history
+#' and research teams. A free account (and acceptance of the user agreement)
+#' is required, and a dataset is only as detailed as the country publishes:
+#' not every \code{what} exists for every country.
+#'
+#' The login is performed once per call and reused for every country, so a
+#' long \code{countries} vector costs one authentication. The password is
+#' never stored in the returned object; \code{input} carries everything else,
+#' for reproducibility.
 #'
 #' @param what What type of data are you looking for? The following options
 #' might be available for some or all the countries and regions: \itemize{
@@ -207,10 +206,15 @@ check_input_read_hmd <- function(x) {
 }
 
 
-#' Print ReadHMD
-#' @param x An object of class \code{"ReadHMD"}
+#' Print a ReadHMD Object
+#'
+#' Prints the header of an HMD download (web address, account, download date,
+#' data type, interval, year and age coverage, countries) followed by the
+#' first and the last rows of the data.
+#' @param x An object of class \code{"ReadHMD"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return Print data on the console
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{ReadHMD}}.
 #' @keywords internal
 #' @export
 print.ReadHMD <- function(x, ...){

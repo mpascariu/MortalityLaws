@@ -2,19 +2,33 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{deviance.MortalityLaw}
 \alias{deviance.MortalityLaw}
-\title{deviance function for MortalityLaw}
+\title{Extract the Deviance of a Fitted Mortality Law}
 \usage{
 \method{deviance}{MortalityLaw}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-model deviance value
+The deviance for a single fit, or a named vector of deviances for
+  a multiple fit.
 }
 \description{
-deviance function for MortalityLaw
+Returns the deviance of a \code{"MortalityLaw"} fit. For a fit entered
+from death counts and exposures (\code{Dx, Ex}) it is the Poisson
+deviance, the quantity \code{opt.method = "poissonL"} minimises. For a fit
+entered from rates (\code{mx} or \code{qx}) there is no count likelihood,
+so it is the sum of squared log-residuals.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"],
+                   law = "makeham", opt.method = "poissonL")
+deviance(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}}; \code{\link{dispersion}}.
+}

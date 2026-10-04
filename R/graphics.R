@@ -1,17 +1,26 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:38:03
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
-#' Plot Method for MortalityLaw
+#' Plot a Fitted Mortality Law
+#'
+#' Draws a three-panel diagnostic of a \code{"MortalityLaw"} fit: the
+#' observed and the fitted mortality on a log scale, with the fitted age
+#' range shaded; the residuals against age; and a histogram of the
+#' residuals.
 #' @param x An object of class \code{"MortalityLaw"}.
 #' @param ... Further arguments passed to graphical methods, such as
-#' parameters (see \code{\link{par}}).
-#' @return A plot is generated as a side effect.
-#' @seealso \code{\link{MortalityLaw}}
+#'   parameters (see \code{\link{par}}).
+#' @return The result of the histogram barplot, invisibly. Called for the
+#'   plot it draws.
+#' @seealso \code{\link{MortalityLaw}}.
 #' @author Marius D. Pascariu
 #' @examples
-#' # See complete example in MortalityLaw help page
+#' x  <- 45:75
+#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+#'                    Ex = ahmd$Ex[as.character(x), "1950"], law = "makeham")
+#' plot(M1)
 #' @export
 plot.MortalityLaw <- function(x, ...){
   oldpar <- par(no.readonly = TRUE)

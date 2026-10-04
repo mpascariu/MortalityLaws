@@ -2,21 +2,37 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{summary.MortalityLaw}
 \alias{summary.MortalityLaw}
-\title{Summary MortalityLaw}
+\title{Summarise a Fitted Mortality Law}
 \usage{
 \method{summary}{MortalityLaw}(object, ..., digits = max(3L, getOption("digits") - 3L))
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{additional arguments affecting the summary produced.}
+\item{...}{Additional arguments affecting the summary produced.}
 
-\item{digits}{number of digits to display.}
+\item{digits}{Number of significant digits to display.}
 }
 \value{
-A list of model diagnostics
+An object of class \code{"summary.MortalityLaw"}, a list holding
+  the model information, the matched call, the goodness-of-fit measures,
+  the dispersion, the residual summary, the rounded coefficients and the
+  degrees of freedom.
 }
 \description{
-Summary MortalityLaw
+Collects the fitted coefficients, the goodness-of-fit measures, the
+dispersion and a five-number summary of the residuals into a compact
+object for printing, and rounds them to \code{digits}. For models with
+more than four parameters only the first and the last two coefficients
+and fit measures are kept, so the output fits on one screen.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"], law = "makeham")
+summary(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}} to fit a law;
+  \code{\link{coef}} and \code{\link{fitted}} for the extracted values.
+}

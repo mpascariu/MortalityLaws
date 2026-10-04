@@ -2,19 +2,24 @@
 % Please edit documentation in R/readHMD.R
 \name{print.ReadHMD}
 \alias{print.ReadHMD}
-\title{Print ReadHMD}
+\title{Print a ReadHMD Object}
 \usage{
 \method{print}{ReadHMD}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"ReadHMD"}}
+\item{x}{An object of class \code{"ReadHMD"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print data on the console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print ReadHMD
+Prints the header of an HMD download (web address, account, download date,
+data type, interval, year and age coverage, countries) followed by the
+first and the last rows of the data.
+}
+\seealso{
+\code{\link{ReadHMD}}.
 }
 \keyword{internal}

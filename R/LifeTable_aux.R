@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 22:59:32
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 # Internal helpers behind LifeTable(): the mx/qx bridge, the ax
@@ -11,6 +11,9 @@
 #' Detects which of the five accepted inputs was supplied and returns the
 #' case name together with the input class, the number of tables to
 #' compute and the names to be assigned to them.
+#' @inheritParams LifeTable
+#' @return A list with \code{case}, the input class, the number of tables
+#'   \code{nLT} and the names \code{LTnames} to be assigned to them.
 #' @noRd
 detect_case <- function(Dx = NULL,
                          Ex = NULL,
@@ -92,6 +95,11 @@ detect_case <- function(Dx = NULL,
 #' always 1 so that the table closes, and a non-finite rate in the last
 #' interval is replaced with the geometric continuation of the two
 #' previous rates.
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @param ux The input vector or matrix of mx or qx values.
+#' @param out Which direction to convert: \code{"qx"} or \code{"mx"}.
+#' @return A vector or matrix of the converted probabilities or rates.
 #' @noRd
 mx_qx <- function(x, nx, ux, out = c("qx", "mx"), ax = NULL) {
   out   <- match.arg(out)
@@ -135,6 +143,8 @@ mx_qx <- function(x, nx, ux, out = c("qx", "mx"), ax = NULL) {
 #' distribution is 1 up to floating point rounding. Values within a small
 #' tolerance of 1 are set to exactly 1 so that every input shape closes
 #' the table in the same way.
+#' @inheritParams LifeTable
+#' @return The same vector with values within \code{1e-8} of 1 set to 1.
 #' @noRd
 lt_snap_qx <- function(qx) {
   near <- !is.na(qx) & abs(qx - 1) < 1e-8
@@ -149,6 +159,9 @@ lt_snap_qx <- function(qx) {
 #' \code{ax * mx <= 1}. A value above that bound is replaced with the
 #' implied average, 1/mx, which closes the interval, and the affected ages
 #' are reported. Returns the input untouched when no ax was supplied.
+#' @inheritParams LifeTable
+#' @return The \code{ax} vector with the infeasible entries capped at
+#'   \code{1/mx}, or \code{NULL} when no ax was supplied.
 #' @noRd
 lt_feasible_ax <- function(x, ax, mx) {
 
@@ -173,6 +186,8 @@ lt_feasible_ax <- function(x, ax, mx) {
 #'
 #' Forces the probability of dying in the last interval to 1, so that the
 #' life table closes, warning when the supplied values were not closed.
+#' @inheritParams LifeTable
+#' @return The input vector with its last element set to 1.
 #' @noRd
 lt_close_qx <- function(qx) {
   N  <- length(qx)
@@ -200,6 +215,10 @@ lt_close_qx <- function(qx) {
 #' last resort. Entries that are NA mark missing input and are preserved.
 #' A matrix is repaired column by column, so each column follows its own
 #' rates rather than the tail of the flattened matrix.
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @return The \code{mx} vector, or matrix, with the non-finite entries
+#'   replaced by finite stand-ins.
 #' @noRd
 repair_mx <- function(mx, nx) {
   if (is.matrix(mx)) {
@@ -240,6 +259,12 @@ repair_mx <- function(mx, nx) {
 #' quantity is missing too, and when it is not usable the interval falls
 #' back to half of the last closed interval. A user-supplied value is
 #' replaced, with a warning.
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @param warn Logical; warn when a user-supplied open-interval value is
+#'   replaced.
+#' @return The \code{ax} vector with the open interval assigned
+#'   \code{1/mx}.
 #' @noRd
 lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
   N   <- length(ax)
@@ -299,6 +324,11 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
 #' drives the exact \code{mx} to \code{qx} identity. The others adjust
 #' \code{ax} after the fact and leave the constant force of mortality
 #' conversion in place.
+#' @inheritParams LifeTable
+#' @return A list with the numeric \code{ax} (or \code{NULL}) and the
+#'   resolved \code{ax_method}. Raises an error when \code{ax} is neither
+#'   numeric nor a known method name, or has a length other than 1 or
+#'   \code{length(x)}.
 #' @noRd
 check_ax <- function(x, ax = "andreev_kingkade") {
 
@@ -343,8 +373,7 @@ check_ax <- function(x, ax = "andreev_kingkade") {
 #' The default law is the Kannisto logistic, the field standard for old-age
 #' mortality.
 #'
-#' @param x Numeric vector of ages at the beginning of the age intervals.
-#' @param mx Numeric vector of death rates, one per age in \code{x}.
+#' @inheritParams LifeTable
 #' @param law The mortality law used to close. Default \code{"kannisto"}.
 #' @param fit_from The age from which the law is fitted. \code{NULL} chooses
 #'   60, or the last 20 years of the input when the input is shorter.
@@ -398,6 +427,10 @@ lt_close_model <- function(x, mx, law = NULL, fit_from = NULL,
 #'
 #' Wraps \code{\link{MortalityLaw}} and returns \code{NULL} instead of an
 #' error or a warning when the fit is not usable.
+#' @inheritParams LifeTable
+#' @param law The mortality-law code to fit, see \code{\link{availableLaws}}.
+#' @return A fitted \code{"MortalityLaw"} object, or \code{NULL} when the
+#'   fit fails.
 #' @noRd
 lt_fit_law <- function(x, mx, law) {
 
@@ -419,6 +452,8 @@ lt_fit_law <- function(x, mx, law) {
 #'
 #' By default 60 and above when the input reaches age 85, otherwise the last
 #' 20 years of the input. Always excludes the open interval itself.
+#' @inheritParams LifeTable
+#' @return A logical vector, \code{TRUE} at the ages used to fit the law.
 #' @noRd
 lt_fit_ages <- function(x, fit_from = NULL) {
 
@@ -447,9 +482,7 @@ lt_fit_ages <- function(x, fit_from = NULL) {
 #' The default law is the Kannisto logistic, the field standard for old-age
 #' mortality. Values below the open age are kept as supplied.
 #'
-#' @param x Numeric vector of ages at the beginning of the age intervals.
-#' @param mx Numeric vector of death rates, one per age in \code{x}.
-#' @param omega The age at which the extended table closes.
+#' @inheritParams LifeTable
 #' @param law The mortality law used to extrapolate. Default
 #'   \code{"kannisto"}.
 #' @param fit_from The age from which the law is fitted. \code{NULL} chooses
@@ -498,7 +531,10 @@ lt_extend_omega <- function(x, mx, omega, law = NULL, fit_from = NULL) {
 #' Validate the closing method
 #'
 #' Returns \code{NULL} for the standard reciprocal close and the validated
-#' law code otherwise.
+#' law code otherwise. Raises an error when \code{close} is neither
+#'   \code{"standard"} nor a code listed by \code{\link{availableLaws}}.
+#' @inheritParams LifeTable
+#' @return \code{NULL} for the standard close, or the validated law code.
 #' @noRd
 check_close <- function(close) {
 
@@ -525,6 +561,10 @@ check_close <- function(close) {
 #'
 #' Returns \code{NULL} when no extension is requested and the validated,
 #' numeric omega otherwise.
+#' @inheritParams LifeTable
+#' @return \code{NULL} when no extension is requested, the validated
+#'   numeric \code{omega} otherwise; warns when \code{omega} does not
+#'   exceed the last age.
 #' @noRd
 check_omega <- function(x, omega) {
 
@@ -551,12 +591,14 @@ check_omega <- function(x, omega) {
 #'
 #' Replaces missing, zero and non-finite rates from age \code{omega}
 #' onwards with the highest usable rate observed in that same age range.
-#' @param x Numeric vector of ages at the beginning of the age intervals.
+#' @inheritParams LifeTable
 #' @param ux A vector or a matrix of mx or qx values.
 #' @param omega Threshold age. Default: 100.
 #' @param verbose A logical value. Set \code{verbose = FALSE} to silence
 #'   the process that takes place inside the function and avoid progress
 #'   messages.
+#' @inheritParams LifeTable
+#' @return The input with the repaired rows, on the same shape.
 #' @noRd
 repair_above_omega <- function(x,
                        ux,
@@ -597,6 +639,7 @@ repair_above_omega <- function(x,
 #' @param ux A vector or a matrix of dx or lx data. A matrix is converted
 #'   column by column.
 #' @param out Type of the output: dx or lx.
+#' @return A vector or matrix of the converted values.
 #' @noRd
 dx_lx <- function(ux, out = c("dx", "lx")) {
   out <- match.arg(out)
@@ -627,6 +670,9 @@ dx_lx <- function(ux, out = c("dx", "lx")) {
 #' (1 - qx[j])} from the radix \code{lx0} and derives the death
 #' distribution from it. Missing probabilities add no deaths to the chain;
 #' the caller marks the affected rows in the derived columns.
+#' @inheritParams LifeTable
+#' @return A list with \code{lx} (survivorship) and \code{dx} (death
+#'   distribution).
 #' @noRd
 lx_dx <- function(qx, lx0) {
   N  <- length(qx)
@@ -642,6 +688,8 @@ lx_dx <- function(qx, lx0) {
 #'
 #' The ratio dx/lx where the table is still open and 1 where the table has
 #' already closed (lx = 0).
+#' @inheritParams LifeTable
+#' @return A numeric vector of death probabilities.
 #' @noRd
 lt_qx <- function(dx, lx) {
   qx <- dx/lx
@@ -657,8 +705,9 @@ lt_qx <- function(dx, lx) {
 #' deaths are assigned half of the interval length, and the open age
 #' interval is assigned 1/mx. NA entries mark missing input and are
 #' propagated.
-#' @return A vector of the average person-years lived in the interval by
-#'   those who die in the interval.
+#' @inheritParams LifeTable
+#' @return A numeric vector of the average person-years lived in each
+#'   interval by those who die in it.
 #' @noRd
 compute_ax <- function(x, mx, qx) {
   nx <- c(diff(x), Inf)
@@ -722,6 +771,10 @@ compute_ax <- function(x, mx, qx) {
 #' Coale-Demeny rule expects. A non-positive discriminant only occurs well
 #' above the q0 = 0.1 cutoff, where the constant branch applies anyway; such
 #' rows return 0.2 to select it, as in the original implementation.
+#' @param m0 The death rate in the first year of life.
+#' @param alpha,beta The published Coale-Demeny separation-factor
+#'   coefficients of the sex in question.
+#' @return A numeric vector of the implied \code{q0} values.
 #' @noRd
 cd_q0_from_m0 <- function(m0, alpha, beta) {
 
@@ -754,6 +807,8 @@ cd_q0_from_m0 <- function(m0, alpha, beta) {
 #'   in terms of m0; \code{"coale_demeny"} for the original 1983 rule,
 #'   expressed in terms of q0, recovered from m0 by
 #'   \code{cd_q0_from_m0}.
+#' @return A list with the \code{male} and \code{female} pairs
+#'   \code{c(a0, 4a1)}.
 #' @noRd
 coale_demeny_ax_coefs <- function(m0, method) {
 
@@ -837,8 +892,7 @@ ak_a0_coefs <- function(m0, sex = c("male", "female", "total")) {
 #' interval is a genuine first year of life. A table that starts above age 0 or
 #' whose first interval is wider has no such interval, so the function returns
 #' \code{NULL} and the caller keeps the ordinary value.
-#' @inheritParams ak_a0_coefs
-#' @param x Numeric vector of ages at the beginning of each age interval.
+#' @inheritParams LifeTable
 #' @param m0 The first-interval death rate.
 #' @return The value of a0, or \code{NULL} when the rule does not apply.
 #' @noRd
@@ -876,14 +930,10 @@ andreev_kingkade_a0 <- function(x, m0, sex = NULL) {
 #'
 #' A table that does not start at birth with a one-year first interval carries
 #' no m0, so its first interval keeps the ordinary value as well.
-#' @param x Numeric vector of ages at the beginning of each age interval.
-#' @param mx Numeric vector of death rates, one per age in \code{x}.
+#' @inheritParams LifeTable
 #' @param qx Numeric vector of death probabilities, one per age in \code{x},
 #'   used for the wide intervals, where the constant force of mortality value
 #'   \code{n + 1/m - n/q} takes over from the midpoint.
-#' @param sex One of \code{"male"}, \code{"female"}, \code{"total"} or
-#'   \code{NULL}. \code{NULL} uses the total convention, the mean of the male
-#'   and female a0.
 #' @return A numeric vector the same length as \code{x}.
 #' @noRd
 hmd_ax_vector <- function(x, mx, qx, sex = NULL) {
@@ -921,6 +971,9 @@ hmd_ax_vector <- function(x, mx, qx, sex = NULL) {
 #' PAS software. They agree exactly once m0 reaches 0.107 and differ by at
 #' most a few thousandths of a year below it. The total population row
 #' averages the male and female values.
+#' @inheritParams LifeTable
+#' @param method \code{"preston"} or \code{"coale_demeny"}.
+#' @return The \code{ax} vector with the first two intervals adjusted.
 #' @noRd
 coale_demeny_ax <- function(x, mx, ax, sex, method = "preston") {
 
@@ -948,6 +1001,11 @@ coale_demeny_ax <- function(x, mx, ax, sex, method = "preston") {
 #' naming the affected ages and the treatment they receive. Values from age
 #' 100 onwards are repaired by \code{repair_above_omega}; the remaining affected
 #' rows are returned as NA.
+#' @inheritParams LifeTable
+#' @param ux A vector or a matrix of mx or qx values.
+#' @param what The name of the input, used in the warning message.
+#' @param omega Threshold age. Default: 100.
+#' @return The input with the repairs applied.
 #' @noRd
 lt_repair_input <- function(x, ux, what, omega = 100) {
 

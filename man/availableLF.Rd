@@ -15,6 +15,16 @@ A list of class \code{availableLF} with the components:
 Returns information about the loss functions implemented for use with the
 optimisation procedure in the \code{\link{MortalityLaw}} function.
 }
+\details{
+The two likelihoods (\code{"poissonL"}, \code{"binomialL"}) are the only
+objectives that yield a log-likelihood, an AIC and a BIC; the six loss
+functions (\code{"LF1"} to \code{"LF6"}) leave those measures undefined
+(\code{NaN}) and are compared on the deviance or the loss itself.
+\code{"LF2"}, the squared log-ratio, is the default: it is scale-free and
+robust, and it has been observed to return reliable estimates for the
+high-parameter laws such as Heligman-Pollard. There is no universally best
+choice, so it is worth trying more than one.
+}
 \examples{
 availableLF()
 }

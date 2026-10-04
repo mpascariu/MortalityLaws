@@ -3,25 +3,36 @@
 \name{dispersion}
 \alias{dispersion}
 \alias{dispersion.MortalityLaw}
-\title{dispersion function for MortalityLaw}
+\title{Dispersion of a Fitted Mortality Law}
 \usage{
 dispersion(object, ...)
 
 \method{dispersion}{MortalityLaw}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-The dispersion of the fit (a scalar for a single fit, a named
-vector for multiple fits).
+The dispersion for a single fit, or a named vector of dispersions
+  for a multiple fit.
 }
 \description{
-Returns the dispersion of the fit. For the count cases it is the Pearson
-chi-square divided by the residual degrees of freedom (1 for a correctly
-specified Poisson model); for the rate cases it is the mean squared
-log-residual.
+Returns the dispersion of the fit, a scalar measure of how far the fitted
+values spread around the data. For the count cases it is the Pearson
+chi-square divided by the residual degrees of freedom, the GLM dispersion
+(about 1 for a correctly specified Poisson model); for the rate cases it
+is the mean squared log-residual. The value is also reported by
+\code{\link{summary.MortalityLaw}}.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"],
+                   law = "makeham", opt.method = "poissonL")
+dispersion(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}}; \code{\link{deviance.MortalityLaw}}.
+}

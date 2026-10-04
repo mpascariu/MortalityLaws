@@ -1,3 +1,7 @@
+version 2.9.1 - "quiet shelf"
+- The death models no longer crowd the help pages; the model catalogue now
+lists them in one place, with where each fits and its source paper.
+
 version 2.9.0 - "backwards glance"
 - Life tables can now be built from a vector of life expectancy. The
 function works out the survival curve and the death rates that reproduce the

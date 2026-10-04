@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:30:55
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Check one data vector for missing, infinite or negative values
@@ -41,8 +41,7 @@ check_values <- function(value, name, positive = FALSE) {
 #' Verifies that the supplied data have the same length as the age vector
 #' \code{x} and that their values pass \code{check_values}. Counts (\code{Ex})
 #' must be strictly positive; the other inputs must be non-negative.
-#' @param x A numeric vector of ages.
-#' @param Dx,Ex,mx,qx The data vectors supplied to \code{\link{MortalityLaw}}.
+#' @inheritParams MortalityLaw
 #' @return No return value, called for side effects
 #' @noRd
 check_input_data <- function(x, Dx, Ex, mx, qx) {

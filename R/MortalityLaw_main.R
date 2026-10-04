@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:33:16
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Fit Mortality Laws
@@ -470,9 +470,7 @@ bind_fits <- function(fits, x, K) {
 #'
 #' Returns the internal law name, the starting parameters, the model
 #' information table and the \code{SCALE_X} flag for the chosen law.
-#' @param law The requested law, or \code{NULL} when a custom law is supplied.
-#' @param custom.law Optional user-defined law function.
-#' @param parS Optional starting parameter values.
+#' @inheritParams MortalityLaw
 #' @return A list with the law name, starting parameters, model information and
 #' the scaling flag.
 #' @noRd
@@ -509,8 +507,7 @@ law_details <- function(law,
 
 #' Resolve the function that computes the hazard of a mortality law
 #'
-#' @param law Name of the mortality law, or \code{"custom.law"}.
-#' @param custom.law Optional user-defined law function.
+#' @inheritParams MortalityLaw
 #' @return A function with arguments \code{x} and \code{par}.
 #' @noRd
 law_function <- function(law, custom.law = NULL) {
@@ -533,12 +530,10 @@ law_function <- function(law, custom.law = NULL) {
 #' the specified mortality law. The problem case and the law function are
 #' resolved once per call; \code{\link{objective_loss}} does the work in the
 #' optimiser hot loop.
+#' @inheritParams MortalityLaw
 #' @param par Parameter vector on the log scale.
-#' @param x Vector of ages at which the law is evaluated.
 #' @param Dx,Ex,mx,qx Observed data; the cases that do not apply are \code{NULL}.
-#' @param law The mortality law to be fitted, see \code{\link{availableLaws}}.
 #' @param opt.method The loss function, see \code{\link{availableLF}}.
-#' @param custom.law Optional user-defined law function.
 #' @return A scalar loss value to be minimised.
 #' @noRd
 objective_fun <- function(par, x, Dx, Ex, mx, qx,
@@ -561,12 +556,12 @@ objective_fun <- function(par, x, Dx, Ex, mx, qx,
 #' \code{NA}, so \code{log()} never warns while the optimiser probes invalid
 #' regions, and every non-finite loss term is replaced by a penalty of
 #' \code{1e5}.
+#' @inheritParams MortalityLaw
 #' @param par Parameter vector on the log scale.
-#' @param x Vector of ages at which the law is evaluated.
 #' @param Dx,Ex,mx,qx Observed data; the cases that do not apply are \code{NULL}.
+#' @param opt.method The loss function, see \code{\link{availableLF}}.
 #' @param case Problem case, one of \code{C1_DxEx}, \code{C2_mx}, \code{C3_qx}.
 #' @param fn Function computing \code{hx} when called as \code{fn(x = , par = )}.
-#' @param opt.method The loss function, see \code{\link{availableLF}}.
 #' @return A scalar loss value to be minimised.
 #' @noRd
 objective_loss <- function(par, x, Dx, Ex, mx, qx, case, fn, opt.method) {
@@ -626,7 +621,7 @@ objective_loss <- function(par, x, Dx, Ex, mx, qx, case, fn, opt.method) {
 #'
 #' Rescales the ages so that the minimum age becomes 1, which keeps the
 #' exponentiated terms of the laws within a reasonable range.
-#' @param x A numeric vector of ages.
+#' @inheritParams MortalityLaw
 #' @return A numeric vector of scaled ages, where min(x) == 1.
 #' @noRd
 scale_x <- function(x) {
@@ -640,7 +635,7 @@ scale_x <- function(x) {
 #' optimiser does not converge.
 #' @param foo Objective function of the parameter vector on the log scale.
 #' @param start Starting values of the parameters on the log scale.
-#' @param law The mortality law being fitted.
+#' @inheritParams MortalityLaw
 #' @return The optimisation object with an added \code{fnvalue} component.
 #' @noRd
 run_optimiser <- function(foo, start, law) {

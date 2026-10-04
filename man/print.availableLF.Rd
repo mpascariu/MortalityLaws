@@ -2,19 +2,20 @@
 % Please edit documentation in R/availableLF.R
 \name{print.availableLF}
 \alias{print.availableLF}
-\title{Print availableLF}
+\title{Print Available Loss Functions}
 \usage{
 \method{print}{availableLF}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"availableLF"}}
+\item{x}{An object of class \code{"availableLF"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-print info on the console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print availableLF
+Prints the table of loss functions and their codes, with the legend that
+explains the notation, followed by a short note on choosing between them.
 }
 \keyword{internal}

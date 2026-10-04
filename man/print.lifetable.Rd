@@ -2,19 +2,24 @@
 % Please edit documentation in R/LifeTable.R
 \name{print.LifeTable}
 \alias{print.LifeTable}
-\title{Print LifeTable}
+\title{Print a Life Table}
 \usage{
 \method{print}{LifeTable}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"LifeTable"}}
+\item{x}{An object of class \code{"LifeTable"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print data on the console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print LifeTable
+Prints a life table in a readable form: a header with the type (full or
+abridged), the number of tables and the age intervals, then the first and
+the last rows of every column, with the middle rows elided.
+}
+\seealso{
+\code{\link{LifeTable}}.
 }
 \keyword{internal}

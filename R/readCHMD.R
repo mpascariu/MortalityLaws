@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:32:03
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Download the Canadian Human Mortality Database (CHMD)
@@ -10,34 +10,11 @@
 #' Canadian Human Mortality Database.
 #'
 #' @details
-#' (Description taken from the CHMD website).
-#'
-#' The Canadian Human Mortality Database (CHMD) was created to provide detailed
-#' Canadian mortality and population data to researchers, students, journalists,
-#' policy analysts, and others interested in the history of human longevity.
-#' The project is an achievement of the Mortality and Longevity research team at
-#' the Department of Demography, \enc{Université}{Universite} de
-#' \enc{Montréal}{Montreal}, under the supervision of Professor Robert
-#' Bourbeau, in collaboration with demographers at the Max Planck Institute for
-#' Demographic Research (Rostock, Germany) and the Department of Demography,
-#' University of California at Berkeley. Nadine Ouellette, researcher at the
-#' Institut national d'\enc{études}{etudes} \enc{démographiques}{demographiques}
-#' in Paris and member of the Mortality and Longevity research team at the
-#' \enc{Université}{Universite} de \enc{Montréal}{Montreal}, is in charge of
-#' computing all CHMD life tables and updating the CHMD web site.
-#'
-#' The CHMD is a "satellite" of the Human Mortality Database (HMD), an
-#' international database which currently holds detailed data for multiple
-#' countries or regions. Consequently, the CHMD's underlying methodology
-#' corresponds to the one used for the HMD.
-#'
-#' The CHMD gathers all required data (deaths counts, births counts, population
-#' size, exposure-to-risk, death rates) to compute life tables for Canada,
-#' its provinces and its territories. One of the great advantages of the
-#' database is to include data that is validated and corrected, when required,
-#' and rendered comparable, if possible, for the period ranging from 1921
-#' through 2011. For comparison purposes, various life tables published by
-#' governmental organizations are also available for download in PDF format.
+#' The Canadian Human Mortality Database is a "satellite" of the Human
+#' Mortality Database, built with the same methodology, so the two are
+#' directly comparable. It covers Canada, its provinces and its territories.
+#' See the CHMD website for its history and research team; the data are
+#' validated and corrected for the period it covers.
 #'
 #' @inheritParams ReadHMD
 #' @param what What type of data are you looking for? The following options are
@@ -214,10 +191,15 @@ check_availability_read_chmd <- function(what, regions, interval) {
 
 
 
-#' Print ReadCHMD
-#' @param x An object of class \code{"ReadCHMD"}
+#' Print a ReadCHMD Object
+#'
+#' Prints the header of a CHMD download (web address, download date, data
+#' type, interval, year and age coverage, regions) followed by the first and
+#' the last rows of the data.
+#' @param x An object of class \code{"ReadCHMD"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return Print data on the console
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{ReadCHMD}}.
 #' @keywords internal
 #' @export
 print.ReadCHMD <- function(x, ...){

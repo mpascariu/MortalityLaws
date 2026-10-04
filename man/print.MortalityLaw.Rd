@@ -2,19 +2,25 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{print.MortalityLaw}
 \alias{print.MortalityLaw}
-\title{Print MortalityLaw}
+\title{Print a Fitted Mortality Law}
 \usage{
 \method{print}{MortalityLaw}(x, ...)
 }
 \arguments{
-\item{x}{an object of class \code{"MortalityLaw"}}
+\item{x}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print data on console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print MortalityLaw
+Prints a compact one-line description of a \code{"MortalityLaw"} object:
+the law that was fitted and whether the fitted values are hazards
+(\code{mx}) or death probabilities (\code{qx}).
+}
+\seealso{
+\code{\link{MortalityLaw}} to fit a law;
+  \code{\link{summary.MortalityLaw}} for the full diagnostic summary.
 }
 \keyword{internal}

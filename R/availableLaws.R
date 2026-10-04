@@ -1,21 +1,61 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:31:17
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
-#' Check Available Mortality Laws
+#' Check the Available Mortality Laws
 #'
-#' The function returns information about the parametric models that can be
-#' called and fitted in the \code{\link{MortalityLaw}} function.
-#' For a comprehensive review of the most important mortality laws,
-#' Tabeau (2001) is a good starting point.
+#' The law catalogue. It lists every parametric model that
+#' \code{\link{MortalityLaw}} can fit, with the formula and the code to pass
+#' through \code{law}, and says where each model applies. Use it to choose a
+#' law before fitting; there is no need to know the functional form, only its
+#' code and the age range it is meant for. For a comprehensive review of the
+#' mortality laws themselves, Tabeau (2001) is a good starting point.
+#'
+#' The \code{TYPE} column says where on the lifespan the law belongs, read off
+#' the legend in the second component of the result: a law covering the whole
+#' range (6) is fitted over all ages, while a law for old age (5) is fitted
+#' from the adult ages up. The \code{FIT} column says whether the law
+#' describes a hazard, \code{mu[x]}, or a death probability, \code{q[x]};
+#' \code{\link{MortalityLaw}} and \code{\link{LawTable}} handle both. The
+#' \code{SCALE_X} column flags the laws whose age vector is rescaled during
+#' fitting for numerical stability, which matters when the fitted
+#' coefficients are reused outside the fitted age range (see
+#' \code{\link{LawTable}}).
+#'
+#' The mortality laws are internal to the package: they are reached through
+#' the \code{law} argument of \code{\link{MortalityLaw}} and are not exported
+#' as functions. A law that is not in the catalogue can still be fitted by
+#' passing it as a function through the \code{custom.law} argument; see the
+#' examples on the \code{\link{MortalityLaw}} page.
+#'
+#' A few laws carry a caveat worth knowing before choosing them, all
+#' documented in the model catalogue and their catalogue entries:
+#' \itemize{
+#'   \item \code{"scholey"}: its truncation parameter is identified only on
+#'         day- or week-level data over the first year of life; on
+#'         single-year ages it collapses and the fit reduces to
+#'         \code{"scholey_shifted_power"}, with a warning.
+#'   \item \code{"opperman"}: the published middle term has a free sign; the
+#'         package uses the negative branch the log-scale engine permits,
+#'         which is the branch mortality data occupy.
+#'   \item \code{"steffensen"}: the formula is attributed to Steffensen
+#'         (1930), but the attribution is not verified against the paywalled
+#'         source.
+#'   \item \code{"HP"}, \code{"HP2"}, \code{"HP3"}, \code{"HP4"} and
+#'         \code{"kostaki"}: high-parameter models; fit them with
+#'         \code{opt.method = "LF2"}.
+#' }
 #'
 #' @param law Optional. Default: \code{NULL}. One can extract details about
 #' a certain model by specifying its codename.
 #' @return The output is of the \code{"availableLaws"} class with the following
 #' components:
-#'  \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}.}
+#'  \item{table}{Table with mortality models and codes to be used in \code{\link{MortalityLaw}}, the model formula, the lifespan section (\code{TYPE}), the code (\code{CODE}), whether the law describes \code{mu[x]} or \code{q[x]} (\code{FIT}) and whether fitting rescales the ages (\code{SCALE_X}).}
 #'  \item{legend}{Table with details about the section of the mortality curve.}
+#' @seealso \code{\link{MortalityLaw}} to fit a law; \code{\link{LawTable}}
+#'   to build a life table from fitted coefficients; \code{\link{availableLF}}
+#'   for the loss functions.
 #' @references
 #' \enumerate{
 #' \item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the
@@ -207,10 +247,14 @@ availableLaws <- function(law = NULL){
 }
 
 
-#' Print availableLaws
-#' @param x An object of class \code{"availableLaws"}
+#' Print the Available Mortality Laws
+#'
+#' Prints the catalogue of mortality laws (year, name, model formula, type
+#' and code) followed by the legend that explains the type numbers.
+#' @param x An object of class \code{"availableLaws"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return The object \code{x}, invisibly.
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{availableLaws}}.
 #' @keywords internal
 #' @export
 print.availableLaws <- function(x, ...) {

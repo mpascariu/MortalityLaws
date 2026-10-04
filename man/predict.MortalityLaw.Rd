@@ -2,25 +2,31 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{predict.MortalityLaw}
 \alias{predict.MortalityLaw}
-\title{Predict function for MortalityLaw}
+\title{Predict from a Fitted Mortality Law}
 \usage{
 \method{predict}{MortalityLaw}(object, x, ...)
 }
 \arguments{
-\item{object}{An object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{x}{Vector of ages to be considered in prediction}
+\item{x}{Vector of ages at which to evaluate the fitted law.}
 
 \item{...}{Additional arguments affecting the predictions produced.}
 }
 \value{
-A vector (single fit) or matrix (one column per fit) of predicted
-mortality values: hazard rates \code{mu[x]} or death probabilities
-\code{q[x]} depending on the law (see the \code{FIT} column of
-\code{\link{availableLaws}}).
+A named vector of predicted mortality values for a single fit, or
+  a matrix with one column per fit. The values are hazards
+  (\code{mu[x]}) or death probabilities (\code{q[x]}), depending on the
+  law; see the \code{FIT} column of \code{\link{availableLaws}}.
 }
 \description{
-Predict function for MortalityLaw
+Evaluates a fitted mortality law at new ages. The coefficients are reused
+as they are, so the prediction is an extrapolation of the fitted curve:
+it is meaningful over the ages that the law describes and becomes
+unreliable far outside the fitted range. Models that scale the age vector
+during fitting (the \code{SCALE_X} column of \code{\link{availableLaws}})
+are rescaled internally, so the prediction stays consistent with the
+coefficients.
 }
 \examples{
 # Extrapolate old-age mortality with the Kannisto model
@@ -34,7 +40,7 @@ predict(M1, x = 80:120)
 # See more examples in MortalityLaw function help page.
 }
 \seealso{
-\code{\link{MortalityLaw}}
+\code{\link{MortalityLaw}}; \code{\link{fitted}}.
 }
 \author{
 Marius D. Pascariu

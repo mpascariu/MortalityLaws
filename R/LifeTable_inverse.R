@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 # Inverse life table: build a table from a vector of life expectancy e(x).
@@ -18,8 +18,7 @@
 #' with infant mortality (life expectancy at birth is lower than at age one);
 #' the sweep does not require monotonicity, only that the implied death
 #' probabilities stay in \code{[0, 1]}, which \code{ex_inverse} checks.
-#' @param x Numeric vector of ages at the beginning of the age intervals.
-#' @param ex Numeric vector of life expectancy, one per age in \code{x}.
+#' @inheritParams LifeTable
 #' @return The life expectancy vector, or the matrix, with non-finite entries
 #'   reported rather than repaired.
 #' @noRd
@@ -77,12 +76,8 @@ lt_repair_ex <- function(x, ex) {
 #' mean the input curve is not a feasible life table, for example a value of
 #' \eqn{e_x} below its own \eqn{a_x}; these are an error naming the ages.
 #'
-#' @param x Numeric vector of ages at the beginning of the age intervals.
+#' @inheritParams LifeTable
 #' @param nx Numeric vector of interval widths, one per age.
-#' @param ex Numeric vector of life expectancy, one per age.
-#' @param ax The average person-years lived in the interval by those who die
-#'   in it, or \code{NULL} to solve each interval to the method in force.
-#' @param sex Sex of the population, passed to the ax rule, or \code{NULL}.
 #' @param ax_method The ax method in force; one of \code{"andreev_kingkade"},
 #'   \code{"cfm"}, \code{"preston"} or \code{"coale_demeny"}.
 #' @return A list with \code{mx}, \code{qx} and the \code{ax} actually used.
@@ -217,7 +212,8 @@ ex_inverse <- function(x, nx, ex, ax = NULL, sex = NULL,
 #' bisection, with \eqn{a(r)} the ax rule in force expressed through the
 #' ratio alone. The root is unique: the left side is continuous and strictly
 #' decreasing in \eqn{r} for every ax rule the package offers.
-#' @inheritParams ex_inverse
+#' @param x,nx,ex,sex,ax_method As in \code{ex_inverse}, the internal solver
+#'   of the inverse life table.
 #' @param m0 The first interval's rate for the Coale-Demeny childhood rule, or
 #'   \code{NULL} when the rule does not apply. \code{NA} on the first interval
 #'   means "solve this interval to the a0 rule of its own rate".
@@ -269,7 +265,7 @@ ex_interval_ratio <- function(x, nx, ex, sex, ax_method, m0, i) {
 #' the recovered rates carry exactly the ax the forward pipeline would
 #' compute. The Coale-Demeny childhood value of the second interval is a
 #' function of the first interval's rate \code{m0}, not of \code{r}.
-#' @inheritParams ex_interval_ratio
+#' @param x,nx,sex,ax_method,m0,i As in \code{ex_interval_ratio}.
 #' @param r The interval's survivorship ratio.
 #' @return The value of ax for the interval.
 #' @noRd
@@ -318,7 +314,7 @@ ex_interval_ax <- function(x, nx, r, sex, ax_method, m0, i) {
 #' The West separation factor of interval \code{i} for a given first-interval
 #' rate \code{m0}, expressed as the person-years lived in the interval. Used
 #' for the first two intervals when a sex is supplied.
-#' @inheritParams ex_interval_ratio
+#' @param x,nx,m0,sex,ax_method,i As in \code{ex_interval_ratio}.
 #' @return The value of ax for the interval.
 #' @noRd
 coale_demeny_interval_ax <- function(x, nx, m0, sex, ax_method, i) {
@@ -357,7 +353,9 @@ ex_mx_from_r <- function(r, nx) {
 #' would assign to that table had it been entered from rates. The
 #' Andreev-Kingkade rule is its own vector; the other methods share the
 #' constant-force identity with the Coale-Demeny childhood adjustment.
-#' @inheritParams ex_inverse
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @param ax_method The ax method name, see \code{\link{LifeTable}}.
 #' @param mx Numeric vector of recovered death rates.
 #' @param qx Numeric vector of recovered death probabilities.
 #' @return A numeric vector the same length as \code{x}.

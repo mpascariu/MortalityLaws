@@ -2,19 +2,23 @@
 % Please edit documentation in R/availableLaws.R
 \name{print.availableLaws}
 \alias{print.availableLaws}
-\title{Print availableLaws}
+\title{Print the Available Mortality Laws}
 \usage{
 \method{print}{availableLaws}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"availableLaws"}}
+\item{x}{An object of class \code{"availableLaws"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-The object \code{x}, invisibly.
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print availableLaws
+Prints the catalogue of mortality laws (year, name, model formula, type
+and code) followed by the legend that explains the type numbers.
+}
+\seealso{
+\code{\link{availableLaws}}.
 }
 \keyword{internal}

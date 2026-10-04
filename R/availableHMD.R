@@ -1,19 +1,23 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 23:38:13
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Check Data Availability in HMD
 #'
-#' Returns information about the data available in the Human Mortality 
-#' Database (HMD), including the range of years covered by the life tables 
+#' Returns information about the data available in the Human Mortality
+#' Database (HMD), including the range of years covered by the life tables
 #' for each country or region.
+#'
+#' The function scrapes the availability table published on the HMD site, so
+#' it needs no account. It is a thin companion to \code{\link{ReadHMD}},
+#' useful for checking what exists before a download; every failure (no
+#' connection, a non-200 status, a body that is not a table) is reported with
+#' a \code{message()} and returns \code{NULL} rather than raising an error.
 #' @param link URL to the HMD available data.
 #' Default: "https://www.mortality.org/Data/DataAvailability"
-#' @return A data frame with one row per country or region. Returns
-#'   \code{NULL} when the website cannot be reached, when the response
-#'   status is not 200, or when the response body carries no HTML table.
-#'   Every failure also emits a \code{message()}.
+#' @return A data frame with one row per country or region, or \code{NULL}
+#'   when the website cannot be reached or the response carries no table.
 #' @seealso \code{\link{ReadHMD}}
 #' @author Marius D. Pascariu
 #' @examples

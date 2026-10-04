@@ -2,19 +2,33 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{logLik.MortalityLaw}
 \alias{logLik.MortalityLaw}
-\title{logLik function for MortalityLaw}
+\title{Extract the Log-Likelihood of a Fitted Mortality Law}
 \usage{
 \method{logLik}{MortalityLaw}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Model log-likelihood value
+An object of class \code{"logLik"} for a single fit, or a named
+  numeric vector of log-likelihoods for a multiple fit.
 }
 \description{
-logLik function for MortalityLaw
+Returns the maximised log-likelihood of a \code{"MortalityLaw"} fit. It is
+only defined when the objective was a likelihood, that is when the model
+was fitted with \code{opt.method = "poissonL"} or \code{"binomialL"}; for
+the loss-function objectives the value is \code{NaN}. For a multiple fit
+the log-likelihoods are returned as a named vector.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"],
+                   law = "makeham", opt.method = "poissonL")
+logLik(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}}; \code{\link{AIC.MortalityLaw}}.
+}

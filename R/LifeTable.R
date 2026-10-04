@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-05-04 22:59:32
+# Date: 2026-10-04 17:46:32
 # --------------------------------------------
 
 #' Compute Life Tables from Mortality Data
@@ -454,6 +454,18 @@ LifeTable <- function(x,
 #' survivorship chain and derives the remaining life-table columns. The
 #' case and the age-interval labels can be supplied by \code{LifeTable}
 #' to avoid recomputing them for every column.
+#' @inheritParams LifeTable
+#' @param ax The \code{ax} argument already resolved to a numeric vector, or
+#'   \code{NULL} when it still has to be derived.
+#' @param ax_method The resolved ax method name, see \code{\link{LifeTable}}.
+#' @param case The problem case, one of \code{C1_DxEx}, \code{C2_mx},
+#'   \code{C3_qx}, \code{C4_lx}, \code{C5_dx}, \code{C6_ex}, or \code{NULL}
+#'   to detect it from the data.
+#' @param x.int Optional character vector of interval labels; computed when
+#'   \code{NULL}.
+#' @return A \code{data.frame} with one row per age and the columns
+#'   \code{x.int}, \code{x}, \code{mx}, \code{qx}, \code{ax}, \code{lx},
+#'   \code{dx}, \code{Lx}, \code{Tx} and \code{ex}.
 #' @noRd
 compute_life_table <- function(x,
                            Dx = NULL,
@@ -665,6 +677,13 @@ compute_life_table <- function(x,
 #' Derives ax from the rates when it is not supplied by the user, adjusts
 #' the first two intervals with the Coale-Demeny coefficients when a sex is
 #' given, and applies the rule of the open age interval.
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @param user Logical; \code{TRUE} when \code{ax} was supplied or built by
+#'   the caller, so it is kept rather than derived.
+#' @param ax_method The ax method name, see \code{\link{LifeTable}}.
+#' @return A numeric vector of the average person-years lived in each
+#'   interval by those who die in it.
 #' @noRd
 lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE,
                   ax_method = "preston") {
@@ -688,6 +707,10 @@ lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE,
 #' Keeps the table closed in the open age interval (Lx = lx/mx, ex = ax)
 #' and assigns zero person-years and zero life expectancy where the table
 #' has already closed (lx = 0).
+#' @inheritParams LifeTable
+#' @param nx Numeric vector of interval widths, one per age.
+#' @return A list with \code{Lx} (person-years lived), \code{Tx} (total
+#'   person-years remaining) and \code{ex} (life expectancy).
 #' @noRd
 lt_columns <- function(mx, ax, lx, dx, nx) {
   N  <- length(lx)
@@ -711,6 +734,8 @@ lt_columns <- function(mx, ax, lx, dx, nx) {
 #'
 #' Returns \code{TRUE} when every rate is missing or non-finite, or when
 #' all of them are zero.
+#' @inheritParams LifeTable
+#' @return A single logical value.
 #' @noRd
 lt_degenerate <- function(mx) {
   out <- all(is.na(mx)) || all(is.nan(mx)) || all(is.infinite(mx)) ||
@@ -728,6 +753,13 @@ lt_degenerate <- function(mx) {
 #' constant force of mortality assumption otherwise. An ax that the
 #' interval cannot support is capped, and rows holding a missing input are
 #' flagged so that the caller can propagate them.
+#' @inheritParams LifeTable
+#' @param case The problem case, see \code{compute_life_table}.
+#' @param nx Numeric vector of interval widths, one per age.
+#' @param ax The resolved numeric \code{ax} vector, or \code{NULL}.
+#' @return A list with the canonical \code{mx}, \code{qx}, \code{lx},
+#'   \code{dx} and \code{ax} vectors, plus \code{miss}, a logical vector
+#'   flagging the rows that hold a missing input.
 #' @noRd
 lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
 
@@ -780,10 +812,15 @@ lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
   return(out)
 }
 
-#' Print LifeTable
-#' @param x An object of class \code{"LifeTable"}
+#' Print a Life Table
+#'
+#' Prints a life table in a readable form: a header with the type (full or
+#' abridged), the number of tables and the age intervals, then the first and
+#' the last rows of every column, with the middle rows elided.
+#' @param x An object of class \code{"LifeTable"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return Print data on the console
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{LifeTable}}.
 #' @keywords internal
 #' @export
 print.LifeTable <- function(x, ...){

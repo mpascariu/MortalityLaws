@@ -2,7 +2,7 @@
 % Please edit documentation in R/graphics.R
 \name{plot.MortalityLaw}
 \alias{plot.MortalityLaw}
-\title{Plot Method for MortalityLaw}
+\title{Plot a Fitted Mortality Law}
 \usage{
 \method{plot}{MortalityLaw}(x, ...)
 }
@@ -13,16 +13,23 @@
 parameters (see \code{\link{par}}).}
 }
 \value{
-A plot is generated as a side effect.
+The result of the histogram barplot, invisibly. Called for the
+  plot it draws.
 }
 \description{
-Plot Method for MortalityLaw
+Draws a three-panel diagnostic of a \code{"MortalityLaw"} fit: the
+observed and the fitted mortality on a log scale, with the fitted age
+range shaded; the residuals against age; and a histogram of the
+residuals.
 }
 \examples{
-# See complete example in MortalityLaw help page
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"], law = "makeham")
+plot(M1)
 }
 \seealso{
-\code{\link{MortalityLaw}}
+\code{\link{MortalityLaw}}.
 }
 \author{
 Marius D. Pascariu

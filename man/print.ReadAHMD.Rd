@@ -2,19 +2,24 @@
 % Please edit documentation in R/readAHMD.R
 \name{print.ReadAHMD}
 \alias{print.ReadAHMD}
-\title{Print ReadAHMD}
+\title{Print a ReadAHMD Object}
 \usage{
 \method{print}{ReadAHMD}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{"ReadAHMD"}}
+\item{x}{An object of class \code{"ReadAHMD"}.}
 
 \item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-Print data on console
+The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
-Print ReadAHMD
+Prints the header of an AHMD download (web address, download date, data
+type, interval, year and age coverage, regions) followed by the first and
+the last rows of the data.
+}
+\seealso{
+\code{\link{ReadAHMD}}.
 }
 \keyword{internal}

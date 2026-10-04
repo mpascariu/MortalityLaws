@@ -2,19 +2,30 @@
 % Please edit documentation in R/MortalityLaw_S3.R
 \name{df.residual.MortalityLaw}
 \alias{df.residual.MortalityLaw}
-\title{df.residual function for MortalityLaw}
+\title{Extract the Residual Degrees of Freedom of a Fitted Mortality Law}
 \usage{
 \method{df.residual}{MortalityLaw}(object, ...)
 }
 \arguments{
-\item{object}{an object of class \code{"MortalityLaw"}}
+\item{object}{An object of class \code{"MortalityLaw"}.}
 
-\item{...}{further arguments passed to or from other methods.}
+\item{...}{Further arguments passed to or from other methods.}
 }
 \value{
-model residual value
+The residual degrees of freedom for a single fit, or a named
+  vector for a multiple fit.
 }
 \description{
-df.residual function for MortalityLaw
+Returns the residual degrees of freedom of a \code{"MortalityLaw"} fit,
+the number of fitted ages minus the number of estimated parameters.
 }
-\keyword{internal}
+\examples{
+x  <- 45:75
+M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
+                   Ex = ahmd$Ex[as.character(x), "1950"],
+                   law = "makeham", opt.method = "poissonL")
+df.residual(M1)
+}
+\seealso{
+\code{\link{MortalityLaw}}; \code{\link{dispersion}}.
+}

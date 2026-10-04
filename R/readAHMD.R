@@ -1,6 +1,6 @@
 # ------------------------------------------------- #
 # Author: Marius D. Pascariu
-# Last update: Wed Apr  2 11:03:28 2025
+# Last update: Sun Oct  4 17:46:32 2026
 # ------------------------------------------------- #
 
 #' Download the Australian Human Mortality Database (AHMD)
@@ -10,30 +10,11 @@
 #' \href{https://aushd.org/}{Australian Human Mortality Database}.
 #'
 #' @details
-#' (Description taken from the AHMD website).
-#'
-#' The Australian Human Mortality Database (AHMD) was created to provide
-#' detailed Australian mortality and population data to researchers, students,
-#' journalists, policy analysts, and others interested in the history of
-#' human longevity. The project is an achievement of the Mortality,
-#' Ageing & Health research team in the ANU School of Demography under the
-#' supervision of Associate Professor Vladimir Canudas-Romo, in collaboration
-#' with demographers at the Max Planck Institute for Demographic Research
-#' (Rostock, Germany) and the Department of Demography, University of
-#' California at Berkeley.
-#'
-#' The AHMD is a "satellite" of the Human Mortality Database (HMD),
-#' an international database which currently holds detailed data for multiple
-#' countries or regions. Consequently, the AHMD's underlying methodology
-#' corresponds to the one used for the HMD.
-#'
-#' The AHMD gathers all required data (deaths counts, births counts,
-#' population size, exposure-to-risk, death rates) to compute life tables
-#' for Australia, its states and its territories. One of the great advantages
-#' of the database is to include data that is validated and corrected, when
-#' required, and rendered comparable, if possible, for the period ranging
-#' from 1971 through 2016. For comparison purposes, various life tables published
-#' by governmental organizations are also available for download in PDF format.
+#' The Australian Human Mortality Database is a "satellite" of the Human
+#' Mortality Database, built with the same methodology, so the two are
+#' directly comparable. It covers Australia, its states and its territories.
+#' See the AHMD website for its history and research team. The database is
+#' open, so no login is needed.
 #'
 #' @inheritParams ReadHMD
 #' @param regions Specify the region specific data you want to download by
@@ -151,10 +132,15 @@ check_input_read_ahmd <- function(x) {
 
 
 
-#' Print ReadAHMD
-#' @param x An object of class \code{"ReadAHMD"}
+#' Print a ReadAHMD Object
+#'
+#' Prints the header of an AHMD download (web address, download date, data
+#' type, interval, year and age coverage, regions) followed by the first and
+#' the last rows of the data.
+#' @param x An object of class \code{"ReadAHMD"}.
 #' @param ... Further arguments passed to or from other methods.
-#' @return Print data on console
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{ReadAHMD}}.
 #' @keywords internal
 #' @export
 print.ReadAHMD <- function(x, ...){
