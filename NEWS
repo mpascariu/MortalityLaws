@@ -1,3 +1,7 @@
+version 2.6.1 - "second opinion"
+- Fit summaries now judge the quality of a fit more reliably, and models
+fitted from death counts and exposures are compared on the correct scale.
+
 version 2.6.0 - "early hours"
 - Four new models for the first years of life are available: the negative
 Gompertz, the Pareto II, the shifted power, and the truncated power model.

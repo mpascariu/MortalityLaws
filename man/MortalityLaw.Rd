@@ -77,12 +77,27 @@ vector for a single fit, or a matrix for multiple fits.}
 \item{fitted.values}{Fitted hazard rates (or death probabilities) evaluated
 at the input ages \code{x}.}
 \item{residuals}{Raw residuals, observed minus fitted values.}
+\item{deviance.residuals}{Deviance residuals. For the count cases
+(\code{Dx}/\code{Ex}) they are the Poisson deviance residuals; for the rate
+cases (\code{mx}, \code{qx}) they are the log-residuals.}
+\item{pearson.residuals}{Pearson residuals. For the count cases they are the
+Poisson Pearson residuals; for the rate cases they are the log-residuals.}
 \item{goodness.of.fit}{Named numeric vector (single fit) or matrix (one row
-per fit) with log-likelihood, AIC and BIC (NaN for non-likelihood methods).}
+per fit) with log-likelihood, AIC and BIC (NaN for non-likelihood methods).
+For count fits the log-likelihood is the Poisson or binomial kernel: the
+data-only additive constants are dropped, which leaves model comparison
+(AIC/BIC) unaffected but makes the absolute value differ from \code{glm}.}
 \item{opt.diagnosis}{Object returned by the optimisation routine, useful
 for checking convergence.}
-\item{df}{Number of parameters and residual degrees of freedom.}
-\item{deviance}{Sum of squared log-residuals, used as a deviance measure.}
+\item{df}{Number of parameters, residual degrees of freedom and the
+dispersion.}
+\item{dispersion}{Dispersion of the fit. For the count cases it is the
+Pearson chi-square divided by the residual degrees of freedom (the GLM
+dispersion, 1 for a correctly specified Poisson model); for the rate cases
+it is the mean squared log-residual.}
+\item{deviance}{The deviance of the fit. For the count cases this is the
+Poisson deviance, the quantity minimised by \code{"poissonL"}; for the rate
+cases it is the sum of squared log-residuals.}
 }
 \description{
 Fit parametric mortality models given a set of input data. The data can be

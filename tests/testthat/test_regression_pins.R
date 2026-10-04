@@ -309,6 +309,63 @@ test_that("Contract 4: scholey is the truncated power hazard and nests its child
   expect_equal(scholey(x, par_b)$hx, as.numeric(pt), tolerance = 1e-10)
 })
 
+test_that("Contract 2: count deviance, residuals and dispersion match a Poisson GLM", {
+  x  <- 45:95
+  Dx <- ahmd$Dx[paste(x), "1950"]
+  Ex <- ahmd$Ex[paste(x), "1950"]
+
+  # gompertz (mu = A exp(Bx)) is log-linear, so glm(Dx ~ x, offset(log Ex))
+  # has the same mean structure and is an exact reference.
+  M <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = "gompertz",
+                    opt.method = "poissonL")
+  g <- glm(Dx ~ x, offset = log(Ex), family = poisson(link = "log"))
+
+  # The reported deviance is the Poisson deviance the optimiser minimised.
+  expect_equal(deviance(M), deviance(g), tolerance = 1e-6)
+  # Pearson and deviance residuals match the GLM's.
+  expect_equal(unname(M$pearson.residuals), unname(residuals(g, "pearson")),
+               tolerance = 1e-4)
+  expect_equal(unname(M$deviance.residuals), unname(residuals(g)),
+               tolerance = 1e-4)
+  # Dispersion is the Pearson chi-square over the residual df (the GLM
+  # dispersion estimate; summary(glm)$dispersion is fixed at 1 for the Poisson
+  # family and is not this quantity).
+  x2 <- sum(residuals(g, "pearson")^2)
+  expect_equal(dispersion(M), x2 / df.residual(g), tolerance = 1e-4)
+  # Residual df excludes the fitted parameters.
+  expect_equal(unname(df.residual(M)), length(x) - 2)
+})
+
+test_that("Contract 2: rate fits keep the squared log-residual deviance", {
+  x  <- 45:95
+  mx <- ahmd$mx[paste(x), "1950"]
+  M  <- MortalityLaw(x = x, mx = mx, law = "gompertz", opt.method = "LF2")
+
+  mu  <- as.numeric(fitted(M))
+  sse <- sum((log(mx) - log(mu))^2)
+  expect_equal(deviance(M), sse, tolerance = 1e-10)
+  # For a rate fit the residuals are the log-residuals and the dispersion is
+  # their mean square.
+  expect_equal(unname(M$pearson.residuals), log(mx) - log(mu), tolerance = 1e-12)
+  expect_equal(dispersion(M), sse / (length(x) - 2), tolerance = 1e-10)
+})
+
+test_that("Contract 2: count dispersion is 1 for a saturated Poisson fit", {
+  # A Poisson model that fits the data exactly (n parameters, n points) leaves
+  # the Pearson chi-square at ~0 and the dispersion at ~0.
+  x  <- 45:50
+  Dx <- ahmd$Dx[paste(x), "1950"]
+  Ex <- ahmd$Ex[paste(x), "1950"]
+  M  <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, law = "custom.law",
+                     custom.law = function(x, par = c(a = 1)) {
+                       list(hx = Dx / Ex, par = c(a = 1))
+                     },
+                     opt.method = "poissonL")
+  # fitted equals the observed rate, so every Poisson residual vanishes.
+  expect_lt(dispersion(M), 1e-6)
+  expect_lt(deviance(M), 1e-6)
+})
+
 test_that("Contract 4: scholey warns when the truncation is unidentified", {
   x  <- 0:15
   mx <- ahmd$mx[paste(x), "1950"]

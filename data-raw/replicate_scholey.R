@@ -20,9 +20,9 @@
 ##      B = 1 -> Pareto II).
 ##
 ## NOTE on the metric: the paper compares models by the POISSON deviance and a
-## pseudo-R2 based on it. The package's own deviance() component is the sum of
-## squared log-residuals and is NOT the Poisson deviance, so it is computed
-## here directly from the fitted hazard and the observed counts/exposures.
+## pseudo-R2 based on it. Since the F59 fix the package's deviance() returns
+## exactly that for count fits, so it is used directly below; the manual Poisson
+## formula is kept as a cross-check.
 
 suppressMessages(pkgload::load_all(".", quiet = TRUE))
 
@@ -41,22 +41,23 @@ x  <- ic$x      # interval start, days since birth (row 1 = age 0)
 Dx <- ic$nDx    # deaths in the interval
 Ex <- ic$nEx    # person-days exposed
 
-# --- Poisson deviance and pseudo-R2, exactly as the paper defines them -------
-pois_dev <- function(mu, Dx, Ex) {
+# --- Poisson deviance and pseudo-R2, as the paper defines them ---------------
+## manual formula, used as a cross-check of the package's deviance()
+pois_dev_manual <- function(mu, Dx, Ex) {
   if (any(!is.finite(mu)) || any(mu <= 0)) return(Inf)
   2 * sum(Dx * log(Dx / (mu * Ex)) - (Dx - mu * Ex))
 }
 pseudo_r2 <- function(mu, Dx, Ex) {
   mu0 <- sum(Dx) / sum(Ex)
   null_dev <- 2 * sum(Dx * log(Dx / (mu0 * Ex)) - (Dx - mu0 * Ex))
-  1 - pois_dev(mu, Dx, Ex) / null_dev
+  1 - pois_dev_manual(mu, Dx, Ex) / null_dev
 }
 fit_law <- function(law, idx) {
   xs <- x[idx]; Ds <- Dx[idx]; Es <- Ex[idx]
   m  <- suppressWarnings(MortalityLaw(x = xs, Dx = Ds, Ex = Es, law = law,
                                       opt.method = "poissonL"))
   mu <- get(law, asNamespace("MortalityLaws"))(xs, coef(m))$hx
-  c(r2 = pseudo_r2(mu, Ds, Es), dev = pois_dev(mu, Ds, Es))
+  c(r2 = pseudo_r2(mu, Ds, Es), dev = deviance(m), dev_manual = pois_dev_manual(mu, Ds, Es))
 }
 
 # --- A. Figure 3: the nested ladder on the complete first year --------------
@@ -66,8 +67,13 @@ paper_r2 <- c(neggompertz = 47.5, pareto_2 = 90.1,
 all_idx <- rep(TRUE, length(x))
 for (L in names(paper_r2)) {
   r <- fit_law(L, all_idx)
-  cat(sprintf("  %-22s pseudo-R2 = %6.2f%%  [%.1f%%]\n", L, 100 * r[["r2"]], paper_r2[[L]]))
+  cat(sprintf("  %-22s pseudo-R2 = %6.2f%%  [%.1f%%]   deviance() = %10.3f\n",
+              L, 100 * r[["r2"]], paper_r2[[L]], r[["dev"]]))
 }
+# cross-check: the package deviance() equals the manual Poisson deviance (F59)
+r_chk <- fit_law("scholey", all_idx)
+cat(sprintf("  cross-check deviance(): package %.6f vs manual Poisson %.6f\n",
+            r_chk[["dev"]], r_chk[["dev_manual"]]))
 
 # --- B. Figure 3b: post-neonatal decline (paper: 97.8%) ---------------------
 cat("\n=== B. Post-neonatal (day 30+), his Fig. 3b ===\n")

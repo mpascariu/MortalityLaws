@@ -35,8 +35,11 @@ summary.MortalityLaw <- function(object, ...,
   fv     <- if (!is.null(x$input$qx)) "qx" else "mx"
   gof    <- round(x$goodness.of.fit, digits)
   param  <- round(coef(x), digits)
-  df_res <- if (is.matrix(x$df)) x$df[, "df.residual"] else x$df["df.residual"]
-  sigma  <- mean(sqrt(x$deviance / df_res))
+  # Dispersion: for count fits it is the Pearson chi-square over the residual
+  # degrees of freedom (a GLM dispersion); for rate fits it is the mean squared
+  # log-residual. Both are reported by fit_statistics.
+  disp   <- x$dispersion
+  sigma  <- if (is.matrix(disp)) rowMeans(disp) else mean(disp)
   nc     <- nrow(param)
   L2     <- is.null(nc)
   L3     <- x$input$opt.method %in% c("poissonL", "binomialL")
@@ -99,10 +102,9 @@ print.summary.MortalityLaw <- function(x, ...) {
     }
 
     if (L2) {
-      cat("\nResidual standard error:", sg, "on", df[2], "degrees of freedom")
+      cat("\nDispersion:", sg, "on", df[2], "degrees of freedom")
     } else {
-      cat("\nAverage residual standard error:", sg, "on", df[1, 2],
-          "degrees of freedom")
+      cat("\nAverage dispersion:", sg, "on", df[1, 2], "degrees of freedom")
     }
   })
   return(invisible(x))
@@ -172,6 +174,29 @@ df.residual.MortalityLaw <- function(object, ...) {
   out <- if (is.matrix(df_all)) df_all[, "df.residual"] else df_all["df.residual"]
 
   return(out)
+}
+
+
+#' dispersion function for MortalityLaw
+#'
+#' Returns the dispersion of the fit. For the count cases it is the Pearson
+#' chi-square divided by the residual degrees of freedom (1 for a correctly
+#' specified Poisson model); for the rate cases it is the mean squared
+#' log-residual.
+#' @param object an object of class \code{"MortalityLaw"}
+#' @param ... further arguments passed to or from other methods.
+#' @return The dispersion of the fit (a scalar for a single fit, a named
+#' vector for multiple fits).
+#' @keywords internal
+#' @export
+dispersion <- function(object, ...) {
+  UseMethod("dispersion")
+}
+
+#' @rdname dispersion
+#' @export
+dispersion.MortalityLaw <- function(object, ...) {
+  return(object$dispersion)
 }
 
 

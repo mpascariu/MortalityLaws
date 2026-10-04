@@ -85,12 +85,27 @@
 #' \item{fitted.values}{Fitted hazard rates (or death probabilities) evaluated
 #' at the input ages \code{x}.}
 #' \item{residuals}{Raw residuals, observed minus fitted values.}
+#' \item{deviance.residuals}{Deviance residuals. For the count cases
+#' (\code{Dx}/\code{Ex}) they are the Poisson deviance residuals; for the rate
+#' cases (\code{mx}, \code{qx}) they are the log-residuals.}
+#' \item{pearson.residuals}{Pearson residuals. For the count cases they are the
+#' Poisson Pearson residuals; for the rate cases they are the log-residuals.}
 #' \item{goodness.of.fit}{Named numeric vector (single fit) or matrix (one row
-#' per fit) with log-likelihood, AIC and BIC (NaN for non-likelihood methods).}
+#' per fit) with log-likelihood, AIC and BIC (NaN for non-likelihood methods).
+#' For count fits the log-likelihood is the Poisson or binomial kernel: the
+#' data-only additive constants are dropped, which leaves model comparison
+#' (AIC/BIC) unaffected but makes the absolute value differ from \code{glm}.}
 #' \item{opt.diagnosis}{Object returned by the optimisation routine, useful
 #' for checking convergence.}
-#' \item{df}{Number of parameters and residual degrees of freedom.}
-#' \item{deviance}{Sum of squared log-residuals, used as a deviance measure.}
+#' \item{df}{Number of parameters, residual degrees of freedom and the
+#' dispersion.}
+#' \item{dispersion}{Dispersion of the fit. For the count cases it is the
+#' Pearson chi-square divided by the residual degrees of freedom (the GLM
+#' dispersion, 1 for a correctly specified Poisson model); for the rate cases
+#' it is the mean squared log-residual.}
+#' \item{deviance}{The deviance of the fit. For the count cases this is the
+#' Poisson deviance, the quantity minimised by \code{"poissonL"}; for the rate
+#' cases it is the sum of squared log-residuals.}
 #' @seealso
 #' \code{\link{availableLaws}} for a list of all implemented models;
 #' \code{\link{availableLF}} for loss function details;
@@ -240,9 +255,12 @@ fit_single <- function(input, K) {
       coefficients = cf,
       fitted.values = fit,
       residuals = stat$residuals,
+      deviance.residuals = stat$deviance.residuals,
+      pearson.residuals = stat$pearson.residuals,
       goodness.of.fit = stat$goodness.of.fit,
       opt.diagnosis = dgn,
       df = stat$df,
+      dispersion = stat$dispersion,
       deviance = stat$deviance
       )
     return(out)
@@ -252,38 +270,79 @@ fit_single <- function(input, K) {
 #' Compute the residuals, deviance and goodness-of-fit of a single fit
 #'
 #' Compares the fitted hazard with the observed data of the problem case and
-#' derives the goodness-of-fit measures of a \code{"MortalityLaw"} object.
+#' derives the residuals, the deviance and the statistical diagnostics of a
+#' \code{"MortalityLaw"} object.
+#'
+#' For the count cases (\code{Dx}/\code{Ex}) the deviance, the Pearson
+#' chi-square and the log-likelihood follow the Poisson definitions, so that a
+#' fit obtained with \code{opt.method = "poissonL"} or \code{"binomialL"}
+#' reports the same measures a GLM would, and the reported deviance is the
+#' quantity the optimiser actually minimised. For the rate cases (\code{mx},
+#' \code{qx}) there is no count likelihood, so the deviance is the sum of
+#' squared log-residuals (a least-squares measure on the log scale) and the
+#' dispersion is the mean squared log-residual, the analogue of the residual
+#' variance on the log scale.
 #' @param fit Fitted hazard values, one per fitted age.
 #' @param optim.model Result of \code{choose_optim}.
 #' @param input A list of input arguments to \code{\link{MortalityLaw}}.
 #' @param K Problem case details as returned by \code{detect_case}.
-#' @return A list with the residuals, deviance, degrees of freedom and
-#' goodness-of-fit measures.
+#' @return A list with the residuals, deviance, degrees of freedom, dispersion
+#' and goodness-of-fit measures.
 #' @noRd
 fit_statistics <- function(fit, optim.model, input, K) {
 
   with(as.list(input), {
-    p <- length(optim.model$C)
-    resid <- switch(K$case,
-      C1_DxEx = Dx/Ex - fit,
-      C2_mx = mx - fit,
-      C3_qx = qx - fit
+    p   <- length(optim.model$C)
+    obs <- switch(K$case,
+      C1_DxEx = Dx / Ex,
+      C2_mx   = mx,
+      C3_qx   = qx
       )
-    # Deviance is computed as the sum of squared log-residuals
-    dev <- switch(K$case,
-      C1_DxEx = log(Dx/Ex) - log(fit),
-      C2_mx   = log(mx) - log(fit),
-      C3_qx   = log(qx) - log(fit)
-      )
-    dev <- sum(dev^2)
+    # Raw residuals: observed minus fitted
+    resid <- obs - fit
 
-    # Residual degrees of freedom: fitted observations minus parameters
-    rdf <- sum(x %in% fit.this.x) - p
-    df  <- c(n.param = p, df.residual = rdf)
-    gof <- with(optim.model, c(logLik = logLik, AIC = AIC, BIC = BIC))
+    if (K$case == "C1_DxEx") {
+      # Poisson diagnostics on the count scale. mu is the fitted hazard, so the
+      # expected count is mu * Ex and the Poisson log-likelihood is
+      # sum(Dx * log(mu) - mu * Ex).
+      exp_count  <- fit * Ex
+      pearson    <- (Dx - exp_count) / sqrt(exp_count)
+      dev_resid  <- sign(Dx - exp_count) *
+        sqrt(2 * (ifelse(Dx > 0, Dx * log(Dx / exp_count), 0) - (Dx - exp_count)))
+      dev        <- sum(dev_resid^2)
+      logLik     <- sum(Dx * log(fit) - exp_count)
+      rdf        <- sum(x %in% fit.this.x) - p
+      disp       <- sum(pearson^2) / rdf
+
+    } else {
+      # Rate cases: no count likelihood. The deviance is the sum of squared
+      # log-residuals; the dispersion is its mean, i.e. the residual variance
+      # on the log scale.
+      log_resid  <- log(obs) - log(fit)
+      dev        <- sum(log_resid^2)
+      dev_resid  <- log_resid
+      pearson    <- log_resid
+      logLik     <- NaN
+      rdf        <- sum(x %in% fit.this.x) - p
+      disp       <- dev / rdf
+    }
+
+    # The likelihood-based information criteria are only defined when the
+    # objective was a likelihood; otherwise the fit reports NaN (see
+    # choose_optim).
+    logLik_opt <- optim.model$logLik
+    AIC_opt    <- optim.model$AIC
+    BIC_opt    <- optim.model$BIC
+
+    df  <- c(n.param = p, df.residual = rdf, dispersion = disp)
+    gof <- c(logLik = logLik_opt, AIC = AIC_opt, BIC = BIC_opt)
+
     out <- list(
       residuals = resid,
       deviance = dev,
+      deviance.residuals = dev_resid,
+      pearson.residuals = pearson,
+      dispersion = disp,
       df = df,
       goodness.of.fit = gof
       )
@@ -345,9 +404,12 @@ fit_multiple <- function(input, K) {
       coefficients = parts$coefficients,
       fitted.values = parts$fitted.values,
       residuals = parts$residuals,
+      deviance.residuals = parts$deviance.residuals,
+      pearson.residuals = parts$pearson.residuals,
       goodness.of.fit = parts$goodness.of.fit,
       opt.diagnosis = parts$opt.diagnosis,
       df = parts$df,
+      dispersion = parts$dispersion,
       deviance = parts$deviance
       )
     return(out)
@@ -371,25 +433,34 @@ bind_fits <- function(fits, x, K) {
   cf    <- do.call(rbind, lapply(fits, coef))
   fit   <- do.call(cbind, lapply(fits, fitted))
   resid <- do.call(cbind, lapply(fits, residuals))
+  dres  <- do.call(cbind, lapply(fits, function(M) M$deviance.residuals))
+  pres  <- do.call(cbind, lapply(fits, function(M) M$pearson.residuals))
   gof   <- do.call(rbind, lapply(fits, function(M) M$goodness.of.fit))
   df    <- do.call(rbind, lapply(fits, function(M) M$df))
   dgn   <- lapply(fits, function(M) M$opt.diagnosis)
   dev   <- unlist(lapply(fits, function(M) M$deviance))
+  disp  <- unlist(lapply(fits, function(M) M$dispersion))
 
   rownames(cf)  <- K$LTnames
   rownames(gof) <- K$LTnames
   rownames(df)  <- K$LTnames
   names(dev)    <- K$LTnames
+  names(disp)   <- K$LTnames
   dimnames(fit)   <- list(x, K$LTnames)
   dimnames(resid) <- list(x, K$LTnames)
+  dimnames(dres)  <- list(x, K$LTnames)
+  dimnames(pres)  <- list(x, K$LTnames)
 
   out <- list(
     coefficients = cf,
     fitted.values = fit,
     residuals = resid,
+    deviance.residuals = dres,
+    pearson.residuals = pres,
     goodness.of.fit = gof,
     opt.diagnosis = dgn,
     df = df,
+    dispersion = disp,
     deviance = dev
     )
   return(out)
