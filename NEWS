@@ -1,3 +1,7 @@
+version 2.10.1 - "open shelf"
+- The mortality models can be called by name again, as before, without
+crowding the help index.
+
 version 2.10.0 - "late bend"
 - Three models are new: two forms of the Gompertz-Makeham family for old age,
 and the 1725 straight-line law, which warns that it applies only to the ages

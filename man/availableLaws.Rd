@@ -36,11 +36,13 @@ fitting for numerical stability, which matters when the fitted
 coefficients are reused outside the fitted age range (see
 \code{\link{LawTable}}).
 
-The mortality laws are internal to the package: they are reached through
-the \code{law} argument of \code{\link{MortalityLaw}} and are not exported
-as functions. A law that is not in the catalogue can still be fitted by
-passing it as a function through the \code{custom.law} argument; see the
-examples on the \code{\link{MortalityLaw}} page.
+A law is normally reached through the \code{law} argument of
+\code{\link{MortalityLaw}}, but each one is also a function that can be
+called by name for a plain hazard or death probability curve; those help
+pages exist for reference and are kept out of the help index. A law that is
+not in the catalogue can still be fitted by passing it as a function
+through the \code{custom.law} argument; see the examples on the
+\code{\link{MortalityLaw}} page.
 
 A few laws carry a caveat worth knowing before choosing them, all
 documented in the model catalogue and their catalogue entries:
