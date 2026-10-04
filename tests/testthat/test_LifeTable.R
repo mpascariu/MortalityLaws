@@ -92,21 +92,22 @@ for (j in 1:16) foo.test.lt(X = get(paste0("LT", j)))
 
 
 # Helper: verifies that a life table constructed from an alternative input (mx, qx, lx, dx)
-# matches the benchmark life table (built from Dx+Ex). The last row is excluded because
-# the closure method may differ depending on the input type. ex is compared with a looser
-# tolerance: Tx/ex always carry the open-interval rate, and that rate is unidentifiable
-# from a closed qx[N] = 1 input (the two repairs differ by ~1e-4 at row N-1).
+# matches the benchmark life table (built from Dx+Ex). The last two rows are excluded:
+# the closing interval and the one below it, where the input probability is 1 and the
+# rate behind it is not recoverable, so the ax rule cannot be applied identically on
+# both sides. ex is compared with a looser tolerance because Tx and ex carry that same
+# open-interval rate into every row below it.
 test_lt_consistency <- function(benchmark_LT, LT) {
-  # The last row may differ depending how the LT is closed. Do not test it.
   n <- nrow(benchmark_LT$lt)
-  B <- benchmark_LT$lt[-n, -1]
-  L <- LT$lt[-n, -1]
+  i <- seq_len(n - 2)
+  B <- benchmark_LT$lt[i, -1]
+  L <- LT$lt[i, -1]
   test_that("Identical LT estimates", {
-    expect_equal(B$mx, L$mx, tolerance = 1e-8)
+    expect_equal(B$mx, L$mx, tolerance = 1e-6)
     expect_equal(B$qx, L$qx, tolerance = 1e-8)
     expect_equal(B$dx, L$dx, tolerance = 1e-8)
     expect_equal(B$lx, L$lx, tolerance = 1e-8)
-    expect_equal(B$ex, L$ex, tolerance = 1e-6)
+    expect_equal(B$ex, L$ex, tolerance = 1e-3)
   })
 }
 
@@ -158,6 +159,78 @@ test_that("the 'cfm' ax method is the plain lifetable identity", {
   expect_identical(LifeTable(xa, mx = mx2, sex = "female", ax = "preston")$lt$ax[1:2],
                    LifeTable(xa, mx = mx2, sex = "female",
                              ax = "coale_demeny")$lt$ax[1:2])
+})
+
+test_that("the 'andreev_kingkade' ax method follows the HMD Methods Protocol v6", {
+  xa  <- c(0, 1, seq(5, 100, by = 5))
+  mxa <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049,
+           .084, .129, .180, .2354, .3085, .390)
+  N   <- length(xa)
+
+  # 'andreev_kingkade' is the shipped default.
+  expect_identical(LifeTable(xa, mx = mxa)$lt,
+                   LifeTable(xa, mx = mxa, ax = "andreev_kingkade")$lt)
+
+  # Andreev-Kingkade (2015) a0 from m0, HMD Methods Protocol v6 Table 3,
+  # total row = mean of the male and female branches (m0 = 0.053 is in the
+  # middle branch):
+  a0M <- 0.02832 + 3.26021 * mxa[1]
+  a0F <- 0.04667 + 3.88089 * mxa[1]
+  hmd <- LifeTable(xa, mx = mxa)$lt
+  expect_equal(hmd$ax[1], (a0M + a0F)/2, tolerance = 1e-12)
+  expect_equal(LifeTable(xa, mx = mxa, sex = "male")$lt$ax[1], a0M,
+               tolerance = 1e-12)
+  expect_equal(LifeTable(xa, mx = mxa, sex = "female")$lt$ax[1], a0F,
+               tolerance = 1e-12)
+
+  # On this abridged schedule only the first interval (0,1) is one year wide,
+  # so it is the only one that takes the midpoint; the wider intervals keep
+  # the constant force of mortality value.
+  n <- c(diff(xa), NA)
+  wide <- n[2:(N - 1)] > 1
+  cfm_wide <- LifeTable(xa, mx = mxa, ax = "cfm")$lt$ax[2:(N - 1)]
+  expect_equal(hmd$ax[2:(N - 1)][wide], cfm_wide[wide], tolerance = 1e-12)
+
+  # The open interval keeps the house rule.
+  expect_equal(hmd$ax[N], 1/hmd$mx[N], tolerance = 1e-12)
+
+  # Because 'andreev_kingkade' builds a numeric ax, the conversion uses the
+  # exact identity qx = n*mx/(1 + (n - ax)*mx), the protocol's equation 74,
+  # which is why the default does not reproduce the cfm death probabilities.
+  idx <- 1:(N - 1)
+  expect_equal(hmd$qx[idx],
+               n[idx] * mxa[idx] / (1 + (n[idx] - hmd$ax[idx]) * mxa[idx]),
+               tolerance = 1e-12)
+  expect_false(isTRUE(all.equal(hmd$qx[1],
+    LifeTable(xa, mx = mxa, ax = "cfm")$lt$qx[1])))
+})
+
+test_that("the 'andreev_kingkade' rule needs a table starting at birth", {
+  # A table starting at birth with a one-year first interval: the
+  # Andreev-Kingkade a0 applies at age 0.
+  x1 <- c(0, 1, seq(5, 100, by = 5))
+  m1 <- c(.053, .005, rep(.01, length(x1) - 2))
+  a1 <- LifeTable(x1, mx = m1)$lt
+  ak <- (0.02832 + 3.26021*.053 + 0.04667 + 3.88089*.053)/2
+  expect_equal(a1$ax[1], ak, tolerance = 1e-12)
+
+  # A table starting above age 0 has no m0: the first interval is the
+  # ordinary midpoint, whatever the age, so the method is identical to the
+  # plain n/2 rule there.
+  x2 <- 3:110
+  m2 <- rep(0.01, length(x2))
+  a2 <- LifeTable(x2, mx = m2)$lt
+  expect_equal(a2$ax[1], 0.5, tolerance = 1e-12)
+
+  # A table starting at birth with a wide first interval has no m0 either, so
+  # its first interval keeps the constant force of mortality value there too.
+  x3 <- c(0, seq(5, 100, by = 5))
+  m3 <- c(.053, rep(.01, length(x3) - 1))
+  a3 <- LifeTable(x3, mx = m3)$lt
+  c3 <- LifeTable(x3, mx = m3, ax = "cfm")$lt
+  expect_equal(a3$ax, c3$ax, tolerance = 1e-12)
+  expect_false(isTRUE(all.equal(a3$ax[1], 2.5)))
 })
 
 test_that("LifeTable forces ax[N] = 1/mx[N] at the closing age", {

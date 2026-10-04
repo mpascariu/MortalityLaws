@@ -10,10 +10,14 @@ x  <- 0:105
 mx <- ahmd$mx[paste0(x), ]
 
 # Basic conversions: convert mx into other life table functions (qx, dx, lx).
-# These will be used as sources for the combinatorial test below.
-qx <- convertFx(x, data = mx, from = "mx", to = "qx")
-dx <- convertFx(x, data = mx, from = "mx", to = "dx")
-lx <- convertFx(x, data = mx, from = "mx", to = "lx")
+# These will be used as sources for the combinatorial test below. A single
+# constant ax is carried through every conversion in this file: the default
+# ax is input-shape dependent by design, and this test is about the
+# conversion identity, which needs the same ax on both sides.
+ax50 <- rep(0.5, length(x))
+qx <- convertFx(x, data = mx, from = "mx", to = "qx", ax = ax50)
+dx <- convertFx(x, data = mx, from = "mx", to = "dx", ax = ax50)
+lx <- convertFx(x, data = mx, from = "mx", to = "lx", ax = ax50)
 
 
 test_that("convertFx covers all 28 from-to combinations", {
@@ -27,7 +31,13 @@ test_that("convertFx covers all 28 from-to combinations", {
     In  <- as.character(K[i, "from"])
     Out <- as.character(K[i, "to"])
     N   <- paste0(Out, "_from_", In)
-    assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
+    # A single ax for every input kind. The conversion identity is what
+    # convertFx promises, and it holds exactly only when the ax is the same
+    # on both sides; the default ax is input-shape dependent by design (the
+    # rate cases read the Andreev-Kingkade a0 from m0, the probability cases
+    # from q0, and the closed intervals carry no recoverable rate).
+    assign(N, convertFx(x = x, data = get(In), from = In, to = Out,
+                        ax = rep(0.5, length(x))))
   }
 
   # Cross-input consistency. The closing row follows the qx[N] = 1 closure

@@ -19,6 +19,14 @@
 #' mortality law, and \code{law} must be one of the valid codes listed by 
 #' \code{\link{availableLaws}}.
 #'
+#' The \code{ax} argument is passed straight to \code{\link{LifeTable}}; its
+#' default, \code{"andreev_kingkade"}, is the rule the Human Mortality
+#' Database applies to its period life tables (Methods Protocol, version 6;
+#' see \code{\link{LifeTable}} for the alternatives). Because a law is
+#' evaluated on a possibly scaled age vector, the first interval is only
+#' treated as a one-year interval with the Andreev-Kingkade rule when the
+#' ages passed in \code{x} really start one year apart.
+#'
 #' \strong{Important caveat: age scaling during fitting}
 #'
 #' Several mortality laws (e.g., Gompertz, Makeham) internally \emph{scale} 
@@ -130,7 +138,8 @@
 #' # Note that e3 = 70.31 in both tables, confirming consistency.
 #'
 #' @export
-LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = "cfm") {
+LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5,
+                     ax = "andreev_kingkade") {
 
   info    <- law_details(law)
   scale.x <- info$scale.x

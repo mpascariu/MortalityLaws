@@ -11,7 +11,7 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              dx = NULL,
              sex = NULL,
              lx0 = 1e5,
-             ax  = "cfm",
+             ax  = "andreev_kingkade",
              close = NULL,
              omega = NULL,
              fit_from = NULL)
@@ -56,19 +56,35 @@ and females.}
 age 0. Default is \code{100,000}. All subsequent life-table columns 
 (\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.}
 
-\item{ax}{The average number of person-years lived in each age interval 
-  by those who die in it, given either as values or as the method that 
+\item{ax}{The average number of person-years lived in each age interval
+  by those who die in it, given either as values or as the method that
   produces them. Accepts two forms: 
   \itemize{ 
   \item a numeric scalar or vector: a scalar is applied to all intervals, 
         a vector must have the same length as \code{x}. A common 
         assumption is \code{ax = 0.5}, which places deaths at the 
         midpoint of each interval; 
-  \item a method name, one of \code{"cfm"} (the default), 
-        \code{"preston"} or \code{"coale_demeny"} (see below). 
+  \item a method name, one of \code{"andreev_kingkade"} (the default), 
+        \code{"cfm"}, \code{"preston"} or \code{"coale_demeny"} (see 
+        below). 
   } 
 
-  The three methods share the same basis, the standard lifetable 
+  \code{"andreev_kingkade"} follows the rule the Human Mortality Database
+  applies to its period life tables (Methods Protocol, version 6, section
+  7.1): the Andreev-Kingkade (2015) formula sets the value for the first
+  year of life from \code{m0}, every other closed interval uses half its
+  length (\code{n/2}), and the open interval uses
+  \code{1/mx}. It is the most accurate of the four methods and the one
+  that reproduces the published HMD life tables most closely. Because it
+  produces a numeric \code{ax} before the rates are converted, the
+  \code{mx} to \code{qx} step uses the exact identity
+  \code{qx = n*mx/(1 + (n - ax)*mx)}, which is the identity the protocol
+  uses (equation 74). The Andreev-Kingkade value is a property of a
+  one-year first interval that starts at birth, so when the first interval
+  is wider or the table starts above age 0 the interval keeps the ordinary
+  midpoint value instead.
+
+  The other three methods share the same basis, the standard lifetable 
   identity \code{ax = n + 1/m - n/q} under a constant force of mortality 
   (Preston, Heuveline and Guillot 2001, eq. 3.15), and differ in how 
   they treat the first two intervals: 
@@ -85,7 +101,10 @@ age 0. Default is \code{100,000}. All subsequent life-table columns
   \code{"preston"} and \code{"coale_demeny"} agree exactly once 
   \code{mx[1]} reaches 0.107, and differ by at most a few thousandths of 
   a year below it. Both coincide with \code{"cfm"} when \code{sex} is 
-  \code{NULL}. 
+  \code{NULL}. \code{"cfm"} and the Coale-Demeny variants adjust
+  \code{ax} after the rates have been converted, so they leave the
+  constant force of mortality conversion in place; only
+  \code{"andreev_kingkade"} changes the conversion itself.
 
   The value for the open age interval is always replaced with \code{1/mx} 
   (or the model-implied value when \code{close} is set); see 
@@ -165,19 +184,24 @@ summarises the mortality experience of a population. For each age
 }
 The life table is constructed sequentially: from the input data the 
 function derives \code{mx}, then \code{qx}, then \code{lx}, \code{dx}, 
-\code{Lx}, \code{Tx}, and finally \code{ex}. The constant-force-of-mortality 
-(CFM) assumption is used to convert between \code{mx} and \code{qx} and 
-provides the \code{ax = n + 1/m - n/q} identity, which is the default 
-\code{ax = "cfm"}. If the \code{sex} argument is supplied, the first two 
-values of the \code{ax} column can instead be adjusted using the 
-Coale-Demeny method, which accounts for the different infant mortality 
-patterns between males and females. Two published parameterisations of 
-that adjustment are available through \code{ax}: \code{"preston"}, 
-expressed in terms of \code{mx}, and \code{"coale_demeny"}, expressed in 
-terms of \code{qx} and retrieved from \code{mx} by the PAS inversion. The 
-second reproduces the coefficients used by the Coale-Demeny 1983 regional 
-model tables and by the PAS software; the two differ by a few thousandths 
-of a year in the first two intervals when infant mortality is low.
+\code{Lx}, \code{Tx}, and finally \code{ex}. The conversion between 
+\code{mx} and \code{qx} follows the \code{ax} method. The default, 
+\code{ax = "andreev_kingkade"}, is the rule the Human Mortality Database 
+applies to its period life tables (Methods Protocol, version 6): the 
+Andreev-Kingkade (2015) formula for the first year of life and half the 
+interval width elsewhere, converted through the exact 
+interval identity so that the \code{mx}, \code{qx} and \code{ax} columns 
+are mutually consistent. The constant-force-of-mortality (CFM) 
+assumption, \code{ax = n + 1/m - n/q}, is available with \code{ax = 
+"cfm"}. When \code{sex} is given, the first two values of the \code{ax} 
+column can instead be adjusted using the Coale-Demeny method, which 
+accounts for the different infant mortality patterns between males and 
+females; two published parameterisations of that adjustment are available 
+through \code{ax = "preston"}, expressed in terms of \code{mx}, and 
+\code{ax = "coale_demeny"}, expressed in terms of \code{qx} and retrieved 
+from \code{mx} by the PAS inversion. The latter reproduces the 
+coefficients used by the Coale-Demeny 1983 regional model tables and by 
+the PAS software.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ------------
@@ -222,18 +246,19 @@ my_ax <- c(0.1, 1.5, rep(2, 19), 1, 1, 1)
 
 LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 
-# Example 5 --- The Coale-Demeny parameterisations ---------
-# The default 'cfm' is the plain identity (no childhood adjustment).
-# 'preston' uses the coefficients expressed in m0 and 'coale_demeny'
-# the original q0-based rule; the two differ only below m0 = 0.107
-# (here m0 = 0.053) and converge above it.
+# Example 5 --- The ax methods ------------------------------
+# The default 'andreev_kingkade' follows the HMD Methods Protocol v6
+# (Andreev-Kingkade a0, half-interval elsewhere). 'cfm' is the plain
+# constant-force identity; 'preston' and 'coale_demeny' are the two
+# Coale-Demeny conventions for the first two intervals (identical above
+# m0 = 0.107).
 
 LT8  <- LifeTable(x, mx = mx, sex = "female")
-LT9  <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
-LT10 <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
-LT8$lt$ax[1:2]
-LT9$lt$ax[1:2]
-LT10$lt$ax[1:2]
+LT9  <- LifeTable(x, mx = mx, sex = "female", ax = "cfm")
+LT10 <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
+LT11 <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
+rbind(ak = LT8$lt$ax[1:2], cfm = LT9$lt$ax[1:2],
+      preston = LT10$lt$ax[1:2], coale_demeny = LT11$lt$ax[1:2])
 
 # Example 6 --- Closing the open interval accurately -----------
 # The data stop at 75+; closing there assumes a constant hazard above 75.
@@ -243,10 +268,10 @@ LT10$lt$ax[1:2]
 x5  <- c(0, 1, seq(5, 75, by = 5))
 mx5 <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
          .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
-LT10 <- LifeTable(x5, mx = mx5, close = "kannisto")
-LT11 <- LifeTable(x5, mx = mx5, omega = 110)
-c(close = LT10$lt$ex[1], omega = LT11$lt$ex[1])
-tail(LT10$lt)
+LT12 <- LifeTable(x5, mx = mx5, close = "kannisto")
+LT13 <- LifeTable(x5, mx = mx5, omega = 110)
+c(close = LT12$lt$ex[1], omega = LT13$lt$ex[1])
+tail(LT12$lt)
 
 }
 \references{
@@ -258,11 +283,13 @@ Preston, S. H., Heuveline, P., and Guillot, M. (2001).
 \emph{Demography: Measuring and Modeling Population Processes}. 
 Oxford: Blackwell Publishers.
 
-When \code{ax} is supplied by the user the conversion between 
-\code{mx} and \code{qx} uses the exact interval identity 
+When \code{ax} is supplied by the user as a numeric vector the conversion 
+between \code{mx} and \code{qx} uses the exact interval identity 
 \code{qx = nx * mx / (1 + (nx - ax) * mx)} (and its inverse) instead 
 of the CFM approximation, so that the \code{mx}, \code{qx} and 
-\code{ax} columns of the result are mutually consistent. An \code{ax} 
+\code{ax} columns of the result are mutually consistent. The 
+\code{"andreev_kingkade"} method does the same, because it builds a 
+numeric \code{ax} before the conversion. An \code{ax} 
 that an interval cannot support (\code{ax * mx > 1}) is replaced with 
 the implied average, \code{1/mx}, and the affected ages are reported.
 

@@ -4,7 +4,7 @@
 \alias{LawTable}
 \title{Compute Life Tables from Parameters of a Mortality Law}
 \usage{
-LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = "cfm")
+LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = "andreev_kingkade")
 }
 \arguments{
 \item{x}{Numeric vector of ages at the beginning of each age interval. 
@@ -36,19 +36,35 @@ and females.}
 age 0. Default is \code{100,000}. All subsequent life-table columns 
 (\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.}
 
-\item{ax}{The average number of person-years lived in each age interval 
-  by those who die in it, given either as values or as the method that 
+\item{ax}{The average number of person-years lived in each age interval
+  by those who die in it, given either as values or as the method that
   produces them. Accepts two forms: 
   \itemize{ 
   \item a numeric scalar or vector: a scalar is applied to all intervals, 
         a vector must have the same length as \code{x}. A common 
         assumption is \code{ax = 0.5}, which places deaths at the 
         midpoint of each interval; 
-  \item a method name, one of \code{"cfm"} (the default), 
-        \code{"preston"} or \code{"coale_demeny"} (see below). 
+  \item a method name, one of \code{"andreev_kingkade"} (the default), 
+        \code{"cfm"}, \code{"preston"} or \code{"coale_demeny"} (see 
+        below). 
   } 
 
-  The three methods share the same basis, the standard lifetable 
+  \code{"andreev_kingkade"} follows the rule the Human Mortality Database
+  applies to its period life tables (Methods Protocol, version 6, section
+  7.1): the Andreev-Kingkade (2015) formula sets the value for the first
+  year of life from \code{m0}, every other closed interval uses half its
+  length (\code{n/2}), and the open interval uses
+  \code{1/mx}. It is the most accurate of the four methods and the one
+  that reproduces the published HMD life tables most closely. Because it
+  produces a numeric \code{ax} before the rates are converted, the
+  \code{mx} to \code{qx} step uses the exact identity
+  \code{qx = n*mx/(1 + (n - ax)*mx)}, which is the identity the protocol
+  uses (equation 74). The Andreev-Kingkade value is a property of a
+  one-year first interval that starts at birth, so when the first interval
+  is wider or the table starts above age 0 the interval keeps the ordinary
+  midpoint value instead.
+
+  The other three methods share the same basis, the standard lifetable 
   identity \code{ax = n + 1/m - n/q} under a constant force of mortality 
   (Preston, Heuveline and Guillot 2001, eq. 3.15), and differ in how 
   they treat the first two intervals: 
@@ -65,7 +81,10 @@ age 0. Default is \code{100,000}. All subsequent life-table columns
   \code{"preston"} and \code{"coale_demeny"} agree exactly once 
   \code{mx[1]} reaches 0.107, and differ by at most a few thousandths of 
   a year below it. Both coincide with \code{"cfm"} when \code{sex} is 
-  \code{NULL}. 
+  \code{NULL}. \code{"cfm"} and the Coale-Demeny variants adjust
+  \code{ax} after the rates have been converted, so they leave the
+  constant force of mortality conversion in place; only
+  \code{"andreev_kingkade"} changes the conversion itself.
 
   The value for the open age interval is always replaced with \code{1/mx} 
   (or the model-implied value when \code{close} is set); see 
@@ -97,6 +116,14 @@ externally (e.g., via \code{\link{MortalityLaw}} or by hand). The
 \code{par} argument must contain the estimated coefficients of the 
 mortality law, and \code{law} must be one of the valid codes listed by 
 \code{\link{availableLaws}}.
+
+The \code{ax} argument is passed straight to \code{\link{LifeTable}}; its
+default, \code{"andreev_kingkade"}, is the rule the Human Mortality
+Database applies to its period life tables (Methods Protocol, version 6;
+see \code{\link{LifeTable}} for the alternatives). Because a law is
+evaluated on a possibly scaled age vector, the first interval is only
+treated as a one-year interval with the Andreev-Kingkade rule when the
+ages passed in \code{x} really start one year apart.
 
 \strong{Important caveat: age scaling during fitting}
 

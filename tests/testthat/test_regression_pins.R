@@ -109,13 +109,21 @@ test_that("Coale-Demeny variants: default unchanged, both conventions correct", 
           .004, .005, .006, .0093, .0129, .019, .031, .049,
           .084, .129, .180, .2354, .3085, .390, .478, .551)
 
-  # The default is the plain CFM identity: byte-identical to spelling it out.
+  # The default replaces the whole ax vector: Andreev-Kingkade a0 at age 0
+  # and n/2 elsewhere, so it differs from cfm only in the first interval on
+  # this abridged schedule (mx <= 0.551, so no n/2 cap binds).
   base <- LifeTable(x, mx = mx, sex = "female")
+  ak   <- LifeTable(x, mx = mx, sex = "female", ax = "andreev_kingkade")
   cfm  <- LifeTable(x, mx = mx, sex = "female", ax = "cfm")
   pr   <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
   cd   <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
-  expect_identical(base$lt$ax, cfm$lt$ax)
-  expect_identical(base$lt, cfm$lt)
+  expect_identical(base$lt, ak$lt)
+  expect_false(isTRUE(all.equal(base$lt$ax[1], cfm$lt$ax[1])))
+  # On this abridged schedule only the first interval is one year wide; the
+  # wider ones keep the constant force of mortality value.
+  wide <- c(diff(x), NA)[2:(length(x) - 1)] > 1
+  expect_equal(base$lt$ax[2:(length(x) - 1)][wide],
+               cfm$lt$ax[2:(length(x) - 1)][wide], tolerance = 1e-12)
 
   # CFM and the Coale-Demeny rules differ in the first two intervals only,
   # and only when a sex is given (they coincide from age 5 on).
@@ -139,7 +147,7 @@ test_that("Coale-Demeny variants: default unchanged, both conventions correct", 
   # Without a sex every method coincides; a numeric ax is used verbatim
   # (its first two entries are not overwritten by any Coale-Demeny rule).
   expect_identical(LifeTable(x, mx = mx)$lt$ax,
-                   LifeTable(x, mx = mx, ax = "coale_demeny")$lt$ax)
+                   LifeTable(x, mx = mx, ax = "andreev_kingkade")$lt$ax)
   my_ax <- c(0.1, 1.5, rep(2, length(x) - 5), 1, 1, 1)
   num   <- suppressWarnings(LifeTable(x, mx = mx, ax = my_ax))$lt
   expect_equal(num$ax[1:2], my_ax[1:2], tolerance = 1e-12)
@@ -148,7 +156,7 @@ test_that("Coale-Demeny variants: default unchanged, both conventions correct", 
   M <- cbind(f = mx, m = mx * 1.15)
   colnames(M) <- c("f", "m")
   expect_identical(LifeTable(x, mx = M, sex = "female")$lt$ax,
-                   LifeTable(x, mx = M, sex = "female", ax = "cfm")$lt$ax)
+                   LifeTable(x, mx = M, sex = "female", ax = "andreev_kingkade")$lt$ax)
   expect_false(identical(LifeTable(x, mx = M, sex = "female")$lt$ax,
                          LifeTable(x, mx = M, sex = "female",
                                    ax = "coale_demeny")$lt$ax))

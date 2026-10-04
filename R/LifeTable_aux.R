@@ -272,9 +272,15 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
 #'
 #' The method names are:
 #' \itemize{
-#'   \item \code{"cfm"} (the default): the standard lifetable identity
+#'   \item \code{"andreev_kingkade"} (the default): the rule the Human
+#'         Mortality Database applies to its period life tables (Methods
+#'         Protocol, version 6, section 7.1). The Andreev-Kingkade (2015)
+#'         formula sets a0 from m0, every other closed interval uses
+#'         \code{n/2}, and the open interval uses \code{1/mx};
+#'   \item \code{"cfm"}: the standard lifetable identity
 #'         \code{ax = n + 1/m - n/q} under the constant force of mortality
-#'         assumption (Preston, Heuveline and Guillot 2001, eq. 3.15);
+#'         assumption (Preston, Heuveline and Guillot 2001, eq. 3.15), with a0
+#'         left at the midpoint value;
 #'   \item \code{"preston"}: \code{"cfm"} for all intervals, with the first
 #'         two intervals replaced by the Coale-Demeny West separation
 #'         factors given by Preston et al. (2001), table 3.3, when \code{sex}
@@ -285,20 +291,28 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
 #' }
 #' \code{"preston"} and \code{"coale_demeny"} differ from \code{"cfm"} only
 #' in the first two intervals, and only when \code{sex} is given.
+#'
+#' \code{"andreev_kingkade"} is the only method that replaces the whole
+#' \code{ax} vector with a numeric one, so it is also the only method that
+#' drives the exact \code{mx} to \code{qx} identity. The others adjust
+#' \code{ax} after the fact and leave the constant force of mortality
+#' conversion in place.
 #' @noRd
-check_ax <- function(x, ax = "cfm") {
+check_ax <- function(x, ax = "andreev_kingkade") {
 
   if (is.character(ax)) {
     if (length(ax) != 1) {
       stop("'ax' must name a single method, not a vector.", call. = FALSE)
     }
-    ax_method <- match.arg(ax, c("cfm", "preston", "coale_demeny"))
+    ax_method <- match.arg(ax, c("andreev_kingkade", "cfm", "preston",
+                                 "coale_demeny"))
     return(list(ax = NULL, ax_method = ax_method))
   }
 
   if (!is.numeric(ax)) {
     stop("'ax' must be a numeric scalar or vector, or one of ",
-         "\"cfm\" / \"preston\" / \"coale_demeny\".", call. = FALSE)
+         "\"andreev_kingkade\" / \"cfm\" / \"preston\" / \"coale_demeny\".",
+         call. = FALSE)
   }
 
   if (!any(length(ax) %in% c(1, length(x)))) {
@@ -760,6 +774,138 @@ coale_demeny_ax_coefs <- function(m0, method) {
   out <- list(male = c(a0M, a1M), female = c(a0F, a1F))
 
   return(out)
+}
+
+
+#' The Andreev-Kingkade a0 factor
+#'
+#' Returns the average person-years lived before the first birthday (a0) from
+#' the death rate in the first year of life, using the piecewise linear rule
+#' of Andreev and Kingkade (2015) adopted by version 6 of the HMD Methods
+#' Protocol (Table 3). It is used only for a table that starts at birth with a
+#' one-year first interval, where the rate is a genuine m0.
+#' @param m0 The death rate in the first year of life.
+#' @param sex One of \code{"male"}, \code{"female"} or \code{"total"}. The
+#'   total row takes the death-weighted average convention of
+#'   \code{\link{coale_demeny_ax_coefs}}: the arithmetic mean of the male and
+#'   female a0 at the given m0, which is HMD equation (77) with equal deaths.
+#' @return The value of a0.
+#' @references
+#' Andreev, E. M. and Kingkade, W. W. (2015). Average age at death in infancy
+#' and infant mortality level: Reconsidering the Coale-Demeny formulas at
+#' current low levels of infant mortality. \emph{Demographic Research} 33,
+#' 727-756.
+#'
+#' Wilmoth, J. R., Andreev, K., Jdanov, D., Glei, D. A. and Riffe, T. (2025).
+#' \emph{Methods Protocol for the Human Mortality Database}, Version 6,
+#' section 7.1 and Table 3.
+#' @noRd
+ak_a0_coefs <- function(m0, sex = c("male", "female", "total")) {
+  sex <- match.arg(sex)
+
+  a0M <- if (m0 < 0.02300) {
+    0.14929 - 1.99545 * m0
+  } else if (m0 < 0.08307) {
+    0.02832 + 3.26021 * m0
+  } else {
+    0.29915
+  }
+
+  a0F <- if (m0 < 0.01724) {
+    0.14903 - 2.05527 * m0
+  } else if (m0 < 0.06891) {
+    0.04667 + 3.88089 * m0
+  } else {
+    0.31411
+  }
+
+  out <- switch(sex,
+                male   = a0M,
+                female = a0F,
+                total  = (a0M + a0F)/2)
+
+  return(out)
+}
+
+
+#' The Andreev-Kingkade a0 of a table
+#'
+#' Returns the average person-years lived before the first birthday (a0) for a
+#' table that starts at birth with a one-year first interval, where the first
+#' interval is a genuine first year of life. A table that starts above age 0 or
+#' whose first interval is wider has no such interval, so the function returns
+#' \code{NULL} and the caller keeps the ordinary value.
+#' @inheritParams ak_a0_coefs
+#' @param x Numeric vector of ages at the beginning of each age interval.
+#' @param m0 The first-interval death rate.
+#' @return The value of a0, or \code{NULL} when the rule does not apply.
+#' @noRd
+andreev_kingkade_a0 <- function(x, m0, sex = NULL) {
+  starts_at_birth <- isTRUE(all.equal(x[1], 0))
+  one_year        <- isTRUE(all.equal(x[2] - x[1], 1))
+
+  if (!starts_at_birth || !one_year || !is.finite(m0) || m0 < 0) {
+    return(NULL)
+  }
+
+  sx <- if (is.null(sex)) "total" else sex
+  a0 <- ak_a0_coefs(m0 = m0, sex = sx)
+
+  return(a0)
+}
+
+
+#' Build the ax vector of the Andreev-Kingkade method
+#'
+#' Builds the average person-years lived in each age interval with the rule
+#' the Human Mortality Database applies to its period life tables (Methods
+#' Protocol version 6, section 7.1): the Andreev-Kingkade (2015) formula for
+#' the first year of life and \code{n/2} for every other closed interval. That
+#' is exact when the table is by single years of age, which is how the HMD
+#' publishes (abridged HMD tables are extracted from the single-age ones, not
+#' built from five-year rates).
+#'
+#' On wider intervals the midpoint value can exceed the interval's implied
+#' average \code{1/mx} once the rate passes \code{2/n}, which would collapse
+#' the interval's death probability to one and close the table early. Above
+#' such a rate, and on every interval wider than one year, the interval keeps
+#' the constant force of mortality value, which is where the HMD's own rates
+#' would land too.
+#'
+#' A table that does not start at birth with a one-year first interval carries
+#' no m0, so its first interval keeps the ordinary value as well.
+#' @param x Numeric vector of ages at the beginning of each age interval.
+#' @param mx Numeric vector of death rates, one per age in \code{x}.
+#' @param qx Numeric vector of death probabilities, one per age in \code{x},
+#'   used for the wide intervals, where the constant force of mortality value
+#'   \code{n + 1/m - n/q} takes over from the midpoint.
+#' @param sex One of \code{"male"}, \code{"female"}, \code{"total"} or
+#'   \code{NULL}. \code{NULL} uses the total convention, the mean of the male
+#'   and female a0.
+#' @return A numeric vector the same length as \code{x}.
+#' @noRd
+hmd_ax_vector <- function(x, mx, qx, sex = NULL) {
+  N  <- length(x)
+  nx <- c(diff(x), diff(x)[N - 1])
+
+  # Single-year intervals: the midpoint. Wider intervals: the constant force
+  # of mortality value, which the exact identity reproduces for them.
+  ax           <- nx + 1/mx - nx/qx
+  one_year     <- nx == 1
+  ax[one_year] <- nx[one_year]/2
+
+  # Never let an interval carry more than its own implied average.
+  bound <- ifelse(is.finite(mx) & mx > 0, 1/mx, Inf)
+  ax    <- pmin(ax, bound)
+
+  # The Andreev-Kingkade a0 needs a table that starts at birth.
+  a0 <- andreev_kingkade_a0(x = x, m0 = mx[1], sex = sex)
+
+  if (!is.null(a0)) {
+    ax[1] <- a0
+  }
+
+  return(ax)
 }
 
 

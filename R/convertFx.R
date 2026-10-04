@@ -107,8 +107,10 @@ convertFx <- function(x,
 
   from <- match.arg(from)
   to   <- match.arg(to)
-  lx0  <- list(...)[["lx0"]]
-  ext  <- !is.null(list(...)[["omega"]]) || !is.null(list(...)[["close"]])
+  dots <- list(...)
+  lx0  <- dots[["lx0"]]
+  ax_u <- dots[["ax"]]
+  ext  <- !is.null(dots[["omega"]]) || !is.null(dots[["close"]])
 
   LT <- switch(
     from,
@@ -136,7 +138,7 @@ convertFx <- function(x,
     }
 
     out <- convert_fx_matrix(x = x, data = data, from = from, to = to,
-                             LT = LT, lx0 = lx0, ext = ext)
+                             LT = LT, lx0 = lx0, ax = ax_u, ext = ext)
   }
 
   return(out)
@@ -157,23 +159,32 @@ convertFx <- function(x,
 #' @param LT A function calling \code{\link{LifeTable}} with the argument
 #' named after \code{from}.
 #' @param lx0 The radix, or \code{NULL} to use the \code{\link{LifeTable}}
-#' default.
+#'   default.
+#' @param ax The \code{ax} argument supplied to \code{\link{convertFx}}, or
+#'   \code{NULL}. The closing identities in this function are the constant
+#'   force of mortality ones and carry no \code{ax}, so any supplied \code{ax}
+#'   (numeric or a method name) disables them and the generic
+#'   \code{\link{LifeTable}} path is used, which honours it.
 #' @return A numeric matrix with the converted indicator.
 #' @noRd
-convert_fx_matrix <- function(x, data, from, to, LT, lx0, ext = FALSE) {
+convert_fx_matrix <- function(x, data, from, to, LT, lx0, ax = NULL,
+                              ext = FALSE) {
 
   M    <- as.matrix(data)
   N    <- length(x)
   nx   <- c(diff(x), diff(x)[N - 1])
   case <- paste0(from, "_to_", to)
   # A one-step identity needs a finite input and at least two age intervals.
-  # When the table is extended (omega), the identities no longer describe the
-  # full output, so the generic LifeTable path is used instead.
-  ok   <- !ext && length(nx) == N && all(is.finite(M))
+  # The mx/qx identities assume the constant force of mortality conversion and
+  # carry no ax, so they are only valid when no ax was supplied; otherwise the
+  # generic LifeTable path below is used, so that a matrix gives the same
+  # answer as a single column. The dx/lx pair is pure arithmetic and has no
+  # ax dependence.
+  ok   <- !ext && is.null(ax) && length(nx) == N && all(is.finite(M))
   one  <- switch(
     case,
-    mx_to_qx = ok && all(M > 0),
-    qx_to_mx = ok && all(M > 0) && all(M <= 1) && all(M[N, ] == 1),
+    mx_to_qx = FALSE,
+    qx_to_mx = FALSE,
     dx_to_lx = ok && all(M >= 0) && all(colSums(M) > 0),
     lx_to_dx = ok && all(M >= 0) && all(M[1, ] > 0),
     FALSE

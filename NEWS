@@ -1,3 +1,10 @@
+version 2.8.0 - "second rule"
+- Life tables now use the Human Mortality Database rule for the average
+time lived in the first year of life, named after its authors, Andreev
+and Kingkade. It is more accurate and is now the default.
+- Life expectancy for babies therefore changes slightly. The previous
+rule is still available.
+
 version 2.7.0 - "long tail"
 - Life tables can now be closed more accurately at the open age, either by
 using a mortality model to correct the last interval in place or by extending
