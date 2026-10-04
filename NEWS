@@ -1,3 +1,9 @@
+version 2.6.0 - "early hours"
+- Four new models for the first years of life are available: the negative
+Gompertz, the Pareto II, the shifted power, and the truncated power model.
+- The truncated power model needs age detail finer than single years; with
+coarse data it falls back to the shifted power model and says so.
+
 version 2.5.1 - "sign post"
 - The help page for the 1870 mortality model now explains why its middle
 term is written with a minus sign.

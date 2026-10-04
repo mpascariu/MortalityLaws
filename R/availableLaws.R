@@ -31,6 +31,18 @@
 #' Observations made use of by the Danish Life Insurance Company of 1871.
 #' Journal of the Institute of Actuaries and Assurance Magazine, 16(5), 313-329.
 #' \doi{10.1017/S2046167400043688}}
+#' \item{Lomax, K. S. (1954). Business Failures: Another Example of the
+#' Analysis of Failure Data. Journal of the American Statistical Association,
+#' 49(268), 847-852. \doi{10.1080/01621459.1954.10501239}}
+#' \item{Vaupel, J. W. and Yashin, A. I. (1983). The Deviant Dynamics of Death
+#' in Heterogeneous Populations. IIASA Research Report RR-83-1. Laxenburg,
+#' Austria.}
+#' \item{de Beer, J. and Janssen, F. (2016). A new parametric model to assess
+#' delay and compression of mortality. Population Health Metrics, 14(1), 46.
+#' \doi{10.1186/s12963-016-0113-1}}
+#' \item{Scholey, J. (2019). The Age-Trajectory of Infant Mortality in the
+#' United States: Parametric Models and Generative Mechanisms. PAA Annual
+#' Conference, Austin.}
 #' \item{Oppermann, L. H. F. (1870). On the graduation of life tables,
 #' with special application to the rate of mortality in infancy and childhood.
 #' The Insurance Record Minutes from a meeting in the Institute of Actuaries, 42.}
@@ -115,10 +127,12 @@ availableLaws <- function(law = NULL){
           NA, 'Makeham', 'mu[x] = 1/sigma * exp[(x-M)/sigma] + C', 3, 'makeham0', 'mu[x]', TRUE,
           1870, 'Opperman', 'mu[x] = A/sqrt(x+1) - B + C*sqrt(x+1)', 1, 'opperman', 'mu[x]', FALSE,
           1871, 'Thiele', 'mu[x] = A exp(-Bx) + C exp[-.5D (x-E)^2] + F exp(Gx)', 6, 'thiele', 'mu[x]', FALSE,
+          1871, 'Negative-Gompertz', 'mu[x] = A exp(-Bx)', 1, 'neggompertz', 'mu[x]', FALSE,
           1883, 'Wittstein', 'q[x] = (1/B) A^-[(Bx)^N] + A^-[(M-x)^N]', 6, 'wittstein', 'q[x]', FALSE,
           1930, 'Steffensen', 'mu[x] = [A + BC^x] / [BC^-x + 1 + DC^x]', 6, 'steffensen', 'mu[x]', TRUE,
           1932, 'Perks', 'mu[x] = [A + BC^x] / [1 + DC^x]', 3, 'perks', 'mu[x]', TRUE,
           1939, 'Weibull', 'mu[x] = 1/sigma * (x/M)^(M/sigma - 1)', 1, 'weibull', 'mu[x]', FALSE,
+          1954, 'Pareto-II', 'mu[x] = A/(x + C)', 1, 'pareto_2', 'mu[x]', FALSE,
           NA, 'Inverse-Weibull', 'mu[x] = 1/sigma * (x/M)^[-M/sigma - 1] / [exp((x/M)^(-M/sigma)) - 1]', 2, 'invweibull', 'mu[x]', TRUE,
           1943, 'Van der Maen', 'mu[x] = A + Bx + Cx^2 + I/[N - x]', 4, 'vandermaen', 'mu[x]', TRUE,
           1943, 'Van der Maen', 'mu[x] = A + Bx + I/[N - x]', 5, 'vandermaen2', 'mu[x]', TRUE,
@@ -138,7 +152,9 @@ availableLaws <- function(law = NULL){
           1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invgompertz) + P3 l[x](gompertz)', 6, 'carriere2', 'q[x]', TRUE,
           1992, 'Kostaki', 'q[x]/p[x] = A^[(x+B)^C] + D exp[-(E_i log(x/F_))^2] + G H^x', 6, 'kostaki', 'q[x]', FALSE,
           1998, 'Kannisto', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)]', 5, 'kannisto', 'mu[x]', TRUE,
-          1998, 'Kannisto-Makeham', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)] + C', 5, 'kannisto_makeham', 'mu[x]', TRUE
+          1998, 'Kannisto-Makeham', 'mu[x] = A exp(Bx) / [1 + A exp(Bx)] + C', 5, 'kannisto_makeham', 'mu[x]', TRUE,
+          2019, 'Scholey-Shifted-Power', 'mu[x] = A (x + C)^-B', 1, 'scholey_shifted_power', 'mu[x]', FALSE,
+          2019, 'Scholey', 'mu[x] = A (x + C)^-B exp(-Dx)', 1, 'scholey', 'mu[x]', FALSE
           )
         )
       )

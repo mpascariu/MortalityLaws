@@ -257,6 +257,76 @@ test_that("Contract 4: kannisto cumulative hazard and survival", {
   expect_equal(out$Sx, as.numeric(exp(-Hx)), tolerance = 1e-12)
 })
 
+test_that("Contract 4: neggompertz is Thiele/Siler negative Gompertz", {
+  par <- c(A = .02, B = .4)
+  x   <- c(0, 20, 60)
+  # Thiele (1871, p. 326); reused by Siler (1979) as the immaturity term:
+  #   hx = A * exp(-B*x)
+  expect_equal(neggompertz(x, par)$hx, as.numeric(par["A"] * exp(-par["B"] * x)),
+               tolerance = 1e-12)
+  expect_identical(names(bring_parameters("neggompertz")), c("A", "B"))
+})
+
+test_that("Contract 4: pareto_2 is the Pareto II (Lomax) hazard of de Beer-Janssen", {
+  par <- c(A = .01, C = .001)
+  x   <- c(0, 20, 60)
+  # de Beer and Janssen (2016); Lomax (1954); a shifted power with exponent 1:
+  #   hx = A / (x + C)
+  expect_equal(pareto_2(x, par)$hx, as.numeric(par["A"] / (x + par["C"])),
+               tolerance = 1e-12)
+  expect_identical(names(bring_parameters("pareto_2")), c("A", "C"))
+})
+
+test_that("Contract 4: scholey_shifted_power is the Scholey (2019) shifted power hazard", {
+  par <- c(A = .01, B = .7, C = .01)
+  x   <- c(0, 20, 60)
+  # Scholey (2019), the flexibly-shifted power hazard; a shifted Weibull hazard:
+  #   hx = A * (x + C)^(-B)
+  expect_equal(scholey_shifted_power(x, par)$hx,
+               as.numeric(par["A"] * (x + par["C"])^(-par["B"])),
+               tolerance = 1e-12)
+  expect_identical(names(bring_parameters("scholey_shifted_power")), c("A", "B", "C"))
+})
+
+test_that("Contract 4: scholey is the truncated power hazard and nests its children", {
+  par <- c(A = .01, B = .7, C = .01, D = .1)
+  x   <- c(0, 20, 60)
+  # Scholey (2019), exponentially-truncated shifted power:
+  #   hx = A * (x + C)^(-B) * exp(-D*x)
+  expected <- par["A"] * (x + par["C"])^(-par["B"]) * exp(-par["D"] * x)
+  expect_equal(scholey(x, par)$hx, as.numeric(expected), tolerance = 1e-12)
+  expect_identical(names(bring_parameters("scholey")), c("A", "B", "C", "D"))
+
+  # The family nests its children as limits. Parameters must be strictly
+  # positive here, so approach the boundary rather than setting it: as D -> 0
+  # the truncated power collapses onto the shifted power hazard.
+  par_d <- c(A = .01, B = .7, C = .01, D = 1e-12)
+  sp    <- scholey_shifted_power(x, c(A = .01, B = .7, C = .01))$hx
+  expect_equal(scholey(x, par_d)$hx, as.numeric(sp), tolerance = 1e-10)
+  # As B -> 1 it collapses onto the Pareto II hazard.
+  par_b <- c(A = .01, B = 1 + 1e-12, C = .001, D = 1e-12)
+  pt    <- pareto_2(x, c(A = .01, C = .001))$hx
+  expect_equal(scholey(x, par_b)$hx, as.numeric(pt), tolerance = 1e-10)
+})
+
+test_that("Contract 4: scholey warns when the truncation is unidentified", {
+  x  <- 0:15
+  mx <- ahmd$mx[paste(x), "1950"]
+  # On coarse (year-resolution) infant data D collapses to the boundary and the
+  # exponential term contributes nothing; the fit must say so.
+  expect_warning(
+    MortalityLaw(x = x, mx = mx, law = "scholey", opt.method = "LF2"),
+    regexp = "truncation parameter 'D' of 'scholey' fitted at the boundary"
+  )
+  # At day resolution with a genuine truncated-power hazard, D is identified
+  # and no warning is raised.
+  xd <- 0:365
+  mu <- 2e-2 * (xd + 3e-4)^(-0.7) * exp(-7e-3 * xd)
+  expect_no_warning(
+    MortalityLaw(x = xd, mx = mu, law = "scholey", opt.method = "LF2")
+  )
+})
+
 test_that("Contract 4: HP returns the published q(x) form via eta/(1 + eta)", {
   par <- c(A = .0005, B = .004, C = .08, D = .001,
            E = 10, F_ = 17, G = .00005, H = 1.1)

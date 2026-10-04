@@ -225,6 +225,102 @@ steffensen <- function(x, par = NULL){
 }
 
 
+#' Negative Gompertz Mortality Law - 1871
+#'
+#' The Gompertz hazard with a negative exponent,
+#' \eqn{\mu_x = A \exp(-Bx)}, i.e. the hazard of a negative Gompertz
+#' distribution. Thiele (1871, p. 326) proposed it as the term describing the
+#' risk of death prior to maturity, and Siler (1979) reused it in his
+#' competing-risk model "to account for the hazard due to immaturity". On its
+#' own it is a poor description of infancy as a whole (it decays at a constant
+#' relative rate) but it is an excellent fit over the post-neonatal period;
+#' see Scholey (2019, Fig. 3b).
+#' @inheritParams gompertz
+#' @inherit gompertz return
+#' @examples neggompertz(x = 0:15)
+#' @keywords internal
+#' @export
+neggompertz <- function(x, par = NULL){
+  par <- bring_parameters(law = 'neggompertz', par = par)
+  hx  <- with(as.list(par), A*exp(-B*x) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Pareto II Mortality Law - 1954
+#'
+#' The hazard of a Pareto type II (Lomax) distribution,
+#' \eqn{\mu_x = A / (x + C)}. de Beer and Janssen (2016) write the infancy and
+#' childhood hazard in this form, and Vaupel and Yashin (1983) show it is
+#' equivalent to a Gamma-exponential frailty model (a mixture of constant
+#' individual hazards with Gamma-distributed rates). It is a shifted power
+#' hazard with the exponent fixed at one.
+#' @inheritParams gompertz
+#' @inherit gompertz return
+#' @examples pareto_2(x = 0:15)
+#' @keywords internal
+#' @export
+pareto_2 <- function(x, par = NULL){
+  par <- bring_parameters(law = 'pareto_2', par = par)
+  hx  <- with(as.list(par), A/(x + C) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Shifted Power Mortality Law - 2019
+#'
+#' The Scholey (2019) flexibly-shifted power hazard,
+#' \eqn{\mu_x = A (x + C)^{-B}}. This is the hazard function of a shifted
+#' Weibull distribution; it is the exponential-truncated power hazard with the
+#' exponential term switched off (\eqn{D = 0}). The power term lets the hazard
+#' decline faster than an exponential just after birth and the location
+#' offset \code{C} keeps it finite at age 0.
+#' @inheritParams gompertz
+#' @inherit gompertz return
+#' @examples scholey_shifted_power(x = 0:15)
+#' @keywords internal
+#' @export
+scholey_shifted_power <- function(x, par = NULL){
+  par <- bring_parameters(law = 'scholey_shifted_power', par = par)
+  hx  <- with(as.list(par), A*(x + C)^(-B) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Scholey Mortality Law - 2019
+#'
+#' The exponentially-truncated power hazard of Scholey (2019),
+#' \eqn{\mu_x = A (x + C)^{-B} \exp(-Dx)}. Using individual-level US birth and
+#' death register data, Scholey found that the age-trajectory of infant
+#' mortality is initially dominated by a power-law regime and over the course
+#' of infancy approaches a constant exponential decline; the product of the
+#' two is the best-fitting parametric form he tested (99.9\% of the deviance
+#' explained on the 2005-2009 US cohort). The family nests the negative
+#' Gompertz, Pareto II, (shifted) power and (shifted) Weibull hazards as
+#' special cases: \code{D = 0} gives \code{scholey_shifted_power}, \code{B = 1}
+#' with \code{D = 0} gives \code{pareto_2}, and \code{B = 0} gives the negative
+#' Gompertz form. The preprint is available from the author's page at SDU.
+#'
+#' \strong{Age resolution.} The truncation parameter \code{D} is identified
+#' only when the fitted age range is wide enough in units of \code{1/D}: it was
+#' estimated by Scholey on day-by-day data over the first year of life. On
+#' coarse input (single years of age) or on a very short range \code{D}
+#' collapses to the optimisation boundary, the exponential term contributes
+#' nothing, and the fit reduces to \code{scholey_shifted_power}; in that case a
+#' warning is issued and the four-parameter model should not be preferred over
+#' the three-parameter one.
+#' @inheritParams gompertz
+#' @inherit gompertz return
+#' @examples scholey(x = 0:15)
+#' @keywords internal
+#' @export
+scholey <- function(x, par = NULL){
+  par <- bring_parameters(law = 'scholey', par = par)
+  hx  <- with(as.list(par), A*(x + C)^(-B)*exp(-D*x) )
+  return(list(hx = hx, par = par))
+}
+
+
 #' Van der Maen Model - 1943
 #' @inheritParams gompertz
 #' @inherit gompertz return
@@ -625,6 +721,10 @@ bring_parameters <- function(law, par = NULL) {
             wittstein   = c(A = 1.5, B = 1, N = .5, M = 100),
             perks       = c(A = .0005, B = .0002, C = 1.1, D = .01),
             steffensen  = c(A = .0005, B = .02, C = 1.05, D = .1),
+            neggompertz = c(A = .02, B = .4),
+            pareto_2    = c(A = .01, C = .001),
+            scholey_shifted_power = c(A = .01, B = .7, C = .01),
+            scholey     = c(A = .01, B = .7, C = .01, D = .1),
             weibull     = c(sigma = 2, M = 1),
             invweibull  = c(sigma = 10, M = 5),
             vandermaen  = c(A = .01, B = 1, C = .01, I = 100, N = 200),

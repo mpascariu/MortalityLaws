@@ -40,6 +40,18 @@ Rate of Mortality throughout the whole of Life, tested by a Series of
 Observations made use of by the Danish Life Insurance Company of 1871.
 Journal of the Institute of Actuaries and Assurance Magazine, 16(5), 313-329.
 \doi{10.1017/S2046167400043688}}
+\item{Lomax, K. S. (1954). Business Failures: Another Example of the
+Analysis of Failure Data. Journal of the American Statistical Association,
+49(268), 847-852. \doi{10.1080/01621459.1954.10501239}}
+\item{Vaupel, J. W. and Yashin, A. I. (1983). The Deviant Dynamics of Death
+in Heterogeneous Populations. IIASA Research Report RR-83-1. Laxenburg,
+Austria.}
+\item{de Beer, J. and Janssen, F. (2016). A new parametric model to assess
+delay and compression of mortality. Population Health Metrics, 14(1), 46.
+\doi{10.1186/s12963-016-0113-1}}
+\item{Scholey, J. (2019). The Age-Trajectory of Infant Mortality in the
+United States: Parametric Models and Generative Mechanisms. PAA Annual
+Conference, Austin.}
 \item{Oppermann, L. H. F. (1870). On the graduation of life tables,
 with special application to the rate of mortality in infancy and childhood.
 The Insurance Record Minutes from a meeting in the Institute of Actuaries, 42.}

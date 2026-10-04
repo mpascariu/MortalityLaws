@@ -10,3 +10,4 @@ vignettes/*.log
 MortalityLaws.Rproj
 doc
 Meta
+data-raw/ilts.Rdata

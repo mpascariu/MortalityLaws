@@ -664,6 +664,25 @@ choose_optim <- function(input) {
       if (C[5] >= 50*C[6]) C[6] <- C[5]/50
     }
 
+    # The truncated power model degenerates onto the shifted power law when the
+    # exponential term is not identified: D collapses to the optimisation
+    # boundary and contributes nothing over the fitted age range. This happens
+    # on coarse (year) or short infant age ranges, where the age span is too
+    # narrow in units of 1/D to separate the power and exponential parts.
+    if (law == 'scholey') {
+      Dstar <- C[["D"]]
+      if (Dstar * max(new.fit.this.x) < 1e-3) {
+        warning(paste0(
+          "MortalityLaw: the truncation parameter 'D' of 'scholey' fitted at ",
+          "the boundary (D = ", format(Dstar, digits = 3), "), so the ",
+          "exponential term is not identified over ages ",
+          min(new.fit.this.x), "-", max(new.fit.this.x),
+          " and the model reduces to 'scholey_shifted_power'. The truncated ",
+          "power law needs finer age resolution (days or weeks over the first ",
+          "year) for 'D' to be estimable."), call. = FALSE)
+      }
+    }
+
     hx <- fn(x = new.x, par = C)$hx
 
     # Compute goodness of fit measures
