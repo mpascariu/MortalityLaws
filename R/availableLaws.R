@@ -45,7 +45,24 @@
 #'   \item \code{"HP"}, \code{"HP2"}, \code{"HP3"}, \code{"HP4"} and
 #'         \code{"kostaki"}: high-parameter models; fit them with
 #'         \code{opt.method = "LF2"}.
+#'   \item \code{"gompertz_logquad"} and \code{"makeham_logquad"}: the sign of
+#'         the quadratic term is fixed to the decelerating branch that
+#'         mortality data occupy; the accelerating branch cannot be fitted.
+#'   \item \code{"beard_makeham"} and \code{"perks"}: the same four-parameter
+#'         Perks-Beard logistic written two ways, so they fit identical
+#'         curves; \code{"beard"}, \code{"kannisto"} and
+#'         \code{"kannisto_makeham"} are its two- and three-parameter cases.
+#'         Pick one of them, not several.
+#'   \item \code{"demoivre"}: the 1725 baseline, kept for completeness. Its
+#'         hazard is defined only below a limiting age, so it must not be
+#'         extrapolated and the fit warns every time.
+#'   \item \code{"weibull"}: not defined at birth, so age 0 is reported as
+#'         missing and takes no part in the fit; start the fit at age 1.
 #' }
+#'
+#' Two entries in the reference list are background for the infant laws
+#' rather than the source of a catalogue code: Harper (1936), and de Beer and
+#' Janssen (2016), whose infancy term is the fitted \code{pareto_2}.
 #'
 #' @param law Optional. Default: \code{NULL}. One can extract details about
 #' a certain model by specifying its codename.
@@ -58,6 +75,8 @@
 #'   for the loss functions.
 #' @references
 #' \enumerate{
+#' \item{De Moivre, A. (1725). \emph{Annuities on Lives: or, the Valuation of
+#' Annuities upon any Number of Lives}. London: William Pearson.}
 #' \item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the
 #' Nature of the Function Expressive of the Law of Human Mortality, and on a
 #' New Mode of Determining the Value of Life Contingencies.}
@@ -126,6 +145,9 @@
 #' \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
 #' Stockholm, Sweden, Statistiska centralbyran, 1987. 55 p.
 #' (R&D Report, Research-Methods-Development, U/STM No. 38)}
+#' \item{Forfar, D. O., McCutcheon, J. J. and Wilkie, A. D. (1988).
+#' On graduation by mathematical formula.
+#' Journal of the Institute of Actuaries, 115(1), 1-149.}
 #' \item{Carriere J.F. (1992). Parametric models for life tables.
 #' Transactions of the Society of Actuaries. Vol.44}
 #' \item{Kostaki A. (1992).
@@ -160,6 +182,7 @@ availableLaws <- function(law = NULL){
         ncol = 7,
         byrow = TRUE,
         data = c(
+          1725, 'De Moivre', 'mu[x] = 1/[N - x]', 6, 'demoivre', 'mu[x]', FALSE,
           1825, 'Gompertz', 'mu[x] = A exp[Bx]', 3, 'gompertz', 'mu[x]', TRUE,
           NA, 'Gompertz', 'mu[x] = 1/sigma * exp[(x-M)/sigma]', 3, 'gompertz0', 'mu[x]', TRUE,
           NA, 'Inverse-Gompertz', 'mu[x] = 1/sigma * exp[-(x-M)/sigma] / (exp(exp[-(x-M)/sigma]) - 1)', 2, 'invgompertz', 'mu[x]', TRUE,
@@ -188,6 +211,8 @@ availableLaws <- function(law = NULL){
           1980, 'Heligman-Pollard', 'q[x] = A^[(x + B)^C] + D exp[-E log(x/F)^2] + GH^(x^K) / [1 + GH^(x^K)]', 6, 'HP4', 'q[x]', FALSE,
           1983, 'Rogers-Planck', 'q[x] = A0 + A1 exp[-Ax] + A2 exp[B(x - u) - exp(-C(x - u))] + A3 exp[Dx]', 6, 'rogersplanck', 'q[x]', FALSE,
           1987, 'Martinelle', 'mu[x] = [A exp(Bx) + C] / [1 + D exp(Bx)] + K exp(Bx)', 6, 'martinelle', 'mu[x]', FALSE,
+          1988, 'Gompertz-Makeham', 'mu[x] = A0 + K exp[B1 x - B2 x^2]', 5, 'makeham_logquad', 'mu[x]', TRUE,
+          1988, 'Gompertz-Makeham', 'mu[x] = K exp[B1 x - B2 x^2]', 5, 'gompertz_logquad', 'mu[x]', TRUE,
           1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invweibull) + P3 l[x](gompertz)', 6, 'carriere1', 'q[x]', TRUE,
           1992, 'Carriere', 'l[x] = P1 l[x](weibull) + P2 l[x](invgompertz) + P3 l[x](gompertz)', 6, 'carriere2', 'q[x]', TRUE,
           1992, 'Kostaki', 'q[x]/p[x] = A^[(x+B)^C] + D exp[-(E_i log(x/F_))^2] + G H^x', 6, 'kostaki', 'q[x]', FALSE,

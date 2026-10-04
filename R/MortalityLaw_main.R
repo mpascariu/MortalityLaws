@@ -304,22 +304,26 @@ fit_statistics <- function(fit, optim.model, input, K) {
     if (K$case == "C1_DxEx") {
       # Poisson diagnostics on the count scale. mu is the fitted hazard, so the
       # expected count is mu * Ex and the Poisson log-likelihood is
-      # sum(Dx * log(mu) - mu * Ex).
+      # sum(Dx * log(mu) - mu * Ex). Ages where the law is not defined are
+      # left out of the deviance and the log-likelihood.
       exp_count  <- fit * Ex
       pearson    <- (Dx - exp_count) / sqrt(exp_count)
       dev_resid  <- sign(Dx - exp_count) *
         sqrt(2 * (ifelse(Dx > 0, Dx * log(Dx / exp_count), 0) - (Dx - exp_count)))
-      dev        <- sum(dev_resid^2)
-      logLik     <- sum(Dx * log(fit) - exp_count)
+      keep       <- is.finite(dev_resid)
+      dev        <- sum(dev_resid[keep]^2)
+      logLik     <- sum((Dx * log(fit) - exp_count)[keep])
       rdf        <- sum(x %in% fit.this.x) - p
       disp       <- sum(pearson^2) / rdf
 
     } else {
       # Rate cases: no count likelihood. The deviance is the sum of squared
       # log-residuals; the dispersion is its mean, i.e. the residual variance
-      # on the log scale.
+      # on the log scale. An age where the law is not defined (a missing
+      # hazard) carries no information about the fit and is left out.
       log_resid  <- log(obs) - log(fit)
-      dev        <- sum(log_resid^2)
+      keep       <- is.finite(log_resid)
+      dev        <- sum(log_resid[keep]^2)
       dev_resid  <- log_resid
       pearson    <- log_resid
       logLik     <- NaN
@@ -690,6 +694,18 @@ choose_optim <- function(input) {
     case       <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx)$case
     fn         <- law_function(law = law, custom.law = custom.law)
 
+    # The Weibull hazard is not defined at birth: it is 0 when the shape
+    # exceeds one and unbounded when it is smaller. Leaving age 0 in the
+    # objective adds only a large constant, which loosens the optimiser's
+    # relative tolerance, so drop it from the fitting ages.
+    if (law == 'weibull' && any(fit.this.x == 0)) {
+      warning(paste0(
+        "MortalityLaw: the Weibull hazard is not defined at age 0, so age 0 ",
+        "is left out of the fit; fit the law from age 1."), call. = FALSE)
+      fit.this.x <- fit.this.x[fit.this.x != 0]
+      select.x   <- x %in% fit.this.x
+    }
+
     if (scale.x) {
       new.fit.this.x <- scale_x(fit.this.x)
       d     <- fit.this.x[1] - new.fit.this.x[1]
@@ -728,6 +744,18 @@ choose_optim <- function(input) {
 
     if (law == 'kostaki') { # kostaki hack
       if (C[5] >= 50*C[6]) C[6] <- C[5]/50
+    }
+
+    # De Moivre's hazard is defined only below its limiting age N, and the fit
+    # always puts N just above the top fitted age, so a prediction past the
+    # fitted range can turn negative. Say so on every fit.
+    if (law == 'demoivre') {
+      warning(paste0(
+        "MortalityLaw: 'demoivre' is defined only below its limiting age ",
+        "(fitted N = ", format(C[["N"]], digits = 4), "). Do not extrapolate ",
+        "past the fitted ages ", min(new.fit.this.x), "-",
+        max(new.fit.this.x), ": the hazard turns negative above N."),
+        call. = FALSE)
     }
 
     # The truncated power model degenerates onto the shifted power law when the

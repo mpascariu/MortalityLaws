@@ -51,10 +51,13 @@ expect_mortality_law <- function(Y){
   expect_s3_class(Y, "MortalityLaw")
   expect_output(print(Y))
   expect_output(print(summary(Y)))
-  expect_true(all(fitted(Y) >= 0))
+  # A law may be undefined at some ages (the Weibull at birth, for instance);
+  # those ages are reported as missing and are allowed, but never a negative
+  # hazard.
+  expect_true(all(is.na(fitted(Y)) | fitted(Y) >= 0))
   expect_true(all(is.finite(coef(Y))))
   pred <- predict(Y, x = Y$input$x)
-  expect_true(all(pred >= 0))
+  expect_true(all(is.na(pred) | pred >= 0))
 
   if (is.matrix(fitted(Y))) {
     expect_error(plot(Y),

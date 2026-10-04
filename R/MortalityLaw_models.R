@@ -5,6 +5,22 @@
 
 # ---- LAWS ---------------------------------------
 
+#' De Moivre Mortality Law - 1725
+#'
+#' The oldest law in the catalogue: survivorship falls linearly to zero at a
+#' limiting age, \eqn{l_x = N - x}, so the hazard rises steeply as age
+#' approaches \eqn{N}, \eqn{\mu_x = 1/(N - x)}. A historical baseline rather
+#' than a curve to graduate data with. USE WITH CARE: the hazard is defined
+#' only below \eqn{N}, so a prediction past the fitted ages can be negative,
+#' and \code{\link{MortalityLaw}} warns whenever it fits this law.
+#' @noRd
+demoivre <- function(x, par = NULL){
+  par <- bring_parameters(law = 'demoivre', par = par)
+  hx  <- 1/(par[['N']] - x)
+  return(list(hx = hx, par = par))
+}
+
+
 #' Gompertz Mortality Law - 1825
 #'
 #' The exponential rise of mortality with age, the classic adult and old-age
@@ -123,12 +139,14 @@ wittstein <- function(x, par = NULL){
 #' Weibull Mortality Law - 1939
 #'
 #' The Weibull hazard; increasing when \eqn{\sigma < M}, non-increasing
-#' otherwise.
+#' otherwise. NOT DEFINED AT BIRTH: the hazard is 0 when the shape is greater
+#' than one and unbounded when it is smaller, so age 0 is reported as missing
+#' and carries no weight in the fit; fit the law from age 1.
 #' @noRd
 weibull <- function(x, par = NULL){
   par <- bring_parameters(law = 'weibull', par = par)
   hx <- with(as.list(par), 1/sigma * (x/M)^(M/sigma - 1) )
-  hx[x == 0] <- 1
+  hx[x == 0] <- NA_real_
   Hx <- with(as.list(par), (x/M)^(M/sigma) )
   Sx <- exp(-Hx)
   return(list(hx = hx, par = par, Sx = Sx))
@@ -538,6 +556,43 @@ kannisto_makeham <- function(x, par = NULL){
 }
 
 
+#' Makeham Log-Quadratic Mortality Law (GM(1,3)) - 1988
+#'
+#' The generalised Gompertz-Makeham graduation formula of Forfar, McCutcheon
+#' and Wilkie: a Makeham constant plus a Gompertz whose log hazard carries a
+#' quadratic term, \eqn{\mu_x = A_0 + K \exp(B_1 x - B_2 x^2)}. The quadratic
+#' term bends the exponential rise downward, so the hazard decelerates at the
+#' oldest ages. This is the family UK pensioner tables are graduated with (the
+#' CMI S2 and 08 series) and the best-fitting law for the Canadian CPM2014
+#' experience. SIGN IS A CHOICE: the published fits put a negative coefficient
+#' on the square, so it is written here as \eqn{-B_2 x^2} with \eqn{B_2 > 0},
+#' the branch the engine's positive parameters permit; the accelerating branch
+#' is out of reach.
+#' @noRd
+makeham_logquad <- function(x, par = NULL){
+  par <- bring_parameters(law = 'makeham_logquad', par = par)
+  hx  <- with(as.list(par), A0 + K*exp(B1*x - B2*x^2) )
+  return(list(hx = hx, par = par))
+}
+
+
+#' Gompertz Log-Quadratic Mortality Law (GM(0,3)) - 1988
+#'
+#' The generalised Gompertz-Makeham formula without the Makeham constant: a
+#' Gompertz whose log hazard is quadratic,
+#' \eqn{\mu_x = K \exp(B_1 x - B_2 x^2)}. It is the \eqn{GM(0, 3)} member of
+#' the family and the log-quadratic law used to test for deceleration in old
+#' age; prefer it when background mortality is negligible and the constant of
+#' \code{makeham_logquad} is not wanted. SIGN IS A CHOICE, as in
+#' \code{makeham_logquad}: only the decelerating branch is reachable.
+#' @noRd
+gompertz_logquad <- function(x, par = NULL){
+  par <- bring_parameters(law = 'gompertz_logquad', par = par)
+  hx  <- with(as.list(par), K*exp(B1*x - B2*x^2) )
+  return(list(hx = hx, par = par))
+}
+
+
 #' Validate User-Supplied Parameters of a Mortality Law
 #'
 #' Checks that the supplied parameters form a numeric vector with the right
@@ -595,6 +650,7 @@ check_parameters <- function(law, par, Spar) {
 #' @noRd
 bring_parameters <- function(law, par = NULL) {
   Spar <- switch(law,
+            demoivre    = c(N = 110),
             gompertz    = c(A = 0.0002, B = 0.13),
             gompertz0   = c(sigma = 7.7, M = 49),
             invgompertz = c(sigma = 7.7, M = 49),
@@ -640,7 +696,9 @@ bring_parameters <- function(law, par = NULL) {
                            P2 = .01, sigma2 = 7, M2 = 49,
                            sigma3 = 7, M3 = 49),
             kannisto   = c(A = 0.5, B = 0.13),
-            kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001)
+            kannisto_makeham = c(A = 0.5, B = 0.13, C = 0.001),
+            makeham_logquad        = c(A0 = .001, K = .001, B1 = .1, B2 = .001),
+            gompertz_logquad        = c(K = .001, B1 = .1, B2 = .001)
             )
 
   if (is.null(Spar)) {

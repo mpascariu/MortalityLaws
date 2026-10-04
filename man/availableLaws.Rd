@@ -58,13 +58,32 @@ documented in the model catalogue and their catalogue entries:
   \item \code{"HP"}, \code{"HP2"}, \code{"HP3"}, \code{"HP4"} and
         \code{"kostaki"}: high-parameter models; fit them with
         \code{opt.method = "LF2"}.
+  \item \code{"gompertz_logquad"} and \code{"makeham_logquad"}: the sign of
+        the quadratic term is fixed to the decelerating branch that
+        mortality data occupy; the accelerating branch cannot be fitted.
+  \item \code{"beard_makeham"} and \code{"perks"}: the same four-parameter
+        Perks-Beard logistic written two ways, so they fit identical
+        curves; \code{"beard"}, \code{"kannisto"} and
+        \code{"kannisto_makeham"} are its two- and three-parameter cases.
+        Pick one of them, not several.
+  \item \code{"demoivre"}: the 1725 baseline, kept for completeness. Its
+        hazard is defined only below a limiting age, so it must not be
+        extrapolated and the fit warns every time.
+  \item \code{"weibull"}: not defined at birth, so age 0 is reported as
+        missing and takes no part in the fit; start the fit at age 1.
 }
+
+Two entries in the reference list are background for the infant laws
+rather than the source of a catalogue code: Harper (1936), and de Beer and
+Janssen (2016), whose infancy term is the fitted \code{pareto_2}.
 }
 \examples{
 availableLaws()
 }
 \references{
 \enumerate{
+\item{De Moivre, A. (1725). \emph{Annuities on Lives: or, the Valuation of
+Annuities upon any Number of Lives}. London: William Pearson.}
 \item{Gompertz, B. (1825). \href{https://www.jstor.org/stable/107756}{On the
 Nature of the Function Expressive of the Law of Human Mortality, and on a
 New Mode of Determining the Value of Life Contingencies.}
@@ -133,6 +152,9 @@ IIASA Working Paper. IIASA, Laxenburg, Austria: WP-83-102}
 \item{Martinelle S. (1987). A generalized Perks formula for old-age mortality.
 Stockholm, Sweden, Statistiska centralbyran, 1987. 55 p.
 (R&D Report, Research-Methods-Development, U/STM No. 38)}
+\item{Forfar, D. O., McCutcheon, J. J. and Wilkie, A. D. (1988).
+On graduation by mathematical formula.
+Journal of the Institute of Actuaries, 115(1), 1-149.}
 \item{Carriere J.F. (1992). Parametric models for life tables.
 Transactions of the Society of Actuaries. Vol.44}
 \item{Kostaki A. (1992).

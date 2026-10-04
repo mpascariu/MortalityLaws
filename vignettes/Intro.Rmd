@@ -176,6 +176,7 @@ string used in the `law` argument of `MortalityLaw`.
 
 | Mortality Law | Predictor | Code |
 |---------------|-----------|------|
+| De Moivre | $\mu(x) = \frac{1}{N - x}$ | `demoivre` |
 | Gompertz | $\mu(x) = A e^{Bx}$ | `gompertz` |
 | Gompertz (reparam.) | $\mu(x) = \frac{1}{\sigma} \exp\left\{\frac{x-M}{\sigma}\right\}$ | `gompertz0` |
 | Inverse-Gompertz | $\mu(x) = \frac{\frac{1}{\sigma}\exp\left\{-\frac{x-M}{\sigma}\right\}}{\exp\left\{e^{-(x-M)/\sigma}\right\}-1}$ | `invgompertz` |
@@ -201,13 +202,17 @@ string used in the `law` argument of `MortalityLaw`.
 | Heligman–Pollard (HP4) | $q(x) = A^{(x+B)^C} + D e^{-E (\ln x - \ln F)^2} + \frac{G H^{x^K}}{1 + G H^{x^K}}$ | `HP4` |
 | Rogers–Planck | $q(x) = A_0 + A_1 e^{-Ax} + A_2 e^{B(x-U) - e^{-C(x-U)}} + A_3 e^{D x}$ | `rogersplanck` |
 | Martinelle | $\mu(x) = \frac{A e^{Bx} + C}{1 + D e^{Bx}} + K e^{Bx}$ | `martinelle` |
+| Gompertz-Makeham (GM(1,3)) | $\mu(x) = A_0 + K \exp\left\{B_1 x - B_2 x^2\right\}$ | `makeham_logquad` |
+| Gompertz-Makeham (GM(0,3)) | $\mu(x) = K \exp\left\{B_1 x - B_2 x^2\right\}$ | `gompertz_logquad` |
 | Carriere 1 | $S(x) = \psi_1 S_1(x) + \psi_2 S_2(x) + \psi_3 S_3(x)$ | `carriere1` |
 | Carriere 2 | $S(x) = \psi_1 S_1(x) + \psi_4 S_4(x) + \psi_3 S_3(x)$ | `carriere2` |
 | Kostaki | $\frac{q(x)}{p(x)} = A^{(x+B)^C} + D e^{-E_i (\ln x - \ln F)^2} + G H^x$ | `kostaki` |
 | Kannisto | $\mu(x) = \frac{A e^{Bx}}{1 + A e^{Bx}}$ | `kannisto` |
 | Kannisto-Makeham | $\mu(x) = \frac{A e^{Bx}}{1 + A e^{Bx}} + C$ | `kannisto_makeham` |
 
-The `opperman` formula is evaluated internally at age $x + 1$.
+The `opperman` formula is evaluated internally at age $x + 1$. The `weibull`
+hazard is not defined at birth, so age 0 is reported as missing and takes no
+part in the fit.
 
 Use `availableLaws()` in R to see this list dynamically:
 

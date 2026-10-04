@@ -325,6 +325,73 @@ test_that("Contract 4: scholey is the truncated power hazard and nests its child
   expect_equal(scholey(x, par_b)$hx, as.numeric(pt), tolerance = 1e-10)
 })
 
+test_that("Contract 4: makeham_logquad is the Forfar-McCutcheon-Wilkie GM(1,3) law", {
+  par <- c(A0 = .001, K = .001, B1 = .1, B2 = .001)
+  x   <- c(30, 60, 100)
+  # Forfar, McCutcheon and Wilkie (1988), member GM(1,3) of the family
+  # GM(r,s) = sum a_i x^i + exp(sum b_j x^j):
+  #   hx = A0 + K * exp(B1*x - B2*x^2)
+  expected <- par["A0"] + par["K"] * exp(par["B1"] * x - par["B2"] * x^2)
+  expect_equal(makeham_logquad(x, par)$hx, as.numeric(expected), tolerance = 1e-12)
+  expect_identical(names(bring_parameters("makeham_logquad")), c("A0", "K", "B1", "B2"))
+
+  # gompertz_logquad is the same law without the Makeham constant. Parameters are strictly
+  # positive, so approach the boundary rather than setting it: as A0 -> 0 the
+  # GM(1,3) hazard collapses onto GM(0,3).
+  par0 <- c(K = .001, B1 = .1, B2 = .001)
+  expect_equal(gompertz_logquad(x, par0)$hx,
+               as.numeric(par0["K"] * exp(par0["B1"] * x - par0["B2"] * x^2)),
+               tolerance = 1e-12)
+  expect_identical(names(bring_parameters("gompertz_logquad")), c("K", "B1", "B2"))
+  expect_equal(makeham_logquad(x, c(A0 = 1e-16, par0))$hx,
+               as.numeric(gompertz_logquad(x, par0)$hx), tolerance = 1e-9)
+
+  # As B2 -> 0 the quadratic term vanishes: GM(1,3) becomes Makeham, and with
+  # A0 -> 0 as well it becomes Gompertz. The boundary values are held small
+  # enough that the approach is exact to 1e-9 in relative terms.
+  par_mk <- c(A0 = .001, K = .001, B1 = .1, B2 = 1e-16)
+  expect_equal(makeham_logquad(x, par_mk)$hx,
+               as.numeric(makeham(x, c(A = .001, B = .1, C = .001))$hx),
+               tolerance = 1e-9)
+  par_gp <- c(A0 = 1e-16, K = .001, B1 = .1, B2 = 1e-16)
+  expect_equal(makeham_logquad(x, par_gp)$hx,
+               as.numeric(gompertz(x, c(A = .001, B = .1))$hx),
+               tolerance = 1e-9)
+})
+
+test_that("Contract 4: demoivre is the 1725 law and refuses to extrapolate", {
+  # De Moivre (1725): survivorship is linear, l_x = N - x, so hx = 1/(N - x).
+  par <- c(N = 110)
+  xx  <- c(0, 50, 90)
+  expect_equal(demoivre(xx, par)$hx, as.numeric(1 / (par[["N"]] - xx)),
+               tolerance = 1e-12)
+  expect_identical(names(bring_parameters("demoivre")), "N")
+
+  # Fitting it always warns: the hazard is defined only below N, and the fit
+  # parks N just above the top fitted age.
+  obs <- ahmd$mx[paste(60:100), "1950"]
+  expect_warning(
+    MortalityLaw(x = 60:100, mx = obs, law = "demoivre", opt.method = "LF2"),
+    regexp = "defined only below its limiting age")
+})
+
+test_that("Contract 4: the Weibull is not defined at birth", {
+  # The hazard is 0 when the shape exceeds one and unbounded when it is
+  # smaller, so age 0 is missing rather than an arbitrary placeholder.
+  expect_true(is.na(weibull(c(0, 1, 10), c(sigma = 2, M = 1))$hx[1]))
+  expect_true(all(is.finite(weibull(c(1, 10), c(sigma = 2, M = 1))$hx)))
+
+  # The missing age carries no weight, so fitting from 0 and from 1 must give
+  # the same deviance over the ages they share.
+  d0 <- deviance(suppressWarnings(MortalityLaw(
+    x = 0:15, mx = ahmd$mx[paste(0:15), "1950"], law = "weibull",
+    opt.method = "LF2")))
+  d1 <- deviance(suppressWarnings(MortalityLaw(
+    x = 1:15, mx = ahmd$mx[paste(1:15), "1950"], law = "weibull",
+    opt.method = "LF2")))
+  expect_equal(as.numeric(d0), as.numeric(d1), tolerance = 1e-6)
+})
+
 test_that("Contract 2: count deviance, residuals and dispersion match a Poisson GLM", {
   x  <- 45:95
   Dx <- ahmd$Dx[paste(x), "1950"]
