@@ -1,3 +1,7 @@
+version 2.10.2 - "safety net"
+- The models and the life tables are now tested almost completely, so a change
+that breaks them is caught before it reaches you.
+
 version 2.10.1 - "open shelf"
 - The mortality models can be called by name again, as before, without
 crowding the help index.
