@@ -88,6 +88,16 @@ makeham0 <- function(x, par = NULL){
 #'
 #' The model is evaluated at ages shifted by one year (\code{x + 1}), which
 #' keeps the term \code{A/sqrt(x)} finite at age 0.
+#'
+#' The published form writes the middle term with a free sign,
+#' \eqn{\mu_x = A/\sqrt{x} + b + C\sqrt{x}} (Oppermann 1870; catalogued with
+#' \code{+b} in demofit (Li 2026) and Scholey (2019)). Here it is spelled
+#' \code{- B} with \code{B > 0}, i.e. the \code{b = -B < 0} branch, because
+#' the fitting engine estimates parameters on the log scale and so requires
+#' positivity. The two are equivalent whenever the fitted \code{b} is
+#' negative, which is the case for mortality data (the intercept is a
+#' mortality floor in the infant and adult U-shape); the constraint only
+#' binds when \code{b > 0}, a regime these data do not occupy.
 #' @inheritParams gompertz
 #' @inherit gompertz return
 #' @examples opperman(x = 1:25)

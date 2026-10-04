@@ -1,3 +1,7 @@
+version 2.5.1 - "sign post"
+- The help page for the 1870 mortality model now explains why its middle
+term is written with a minus sign.
+
 version 2.5.0 - "twin anchor"
 - Life tables can now use either of the two published versions of the
 childhood mortality adjustment: the one used until now, and the original
