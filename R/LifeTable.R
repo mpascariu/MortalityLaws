@@ -40,7 +40,23 @@
 #' If the \code{sex} argument is supplied, the first two values of the 
 #' \code{ax} column are adjusted using the Coale-Demeny method, which 
 #' accounts for the different infant mortality patterns between males 
-#' and females.
+#' and females. Two published parameterisations of that adjustment are 
+#' available through \code{ax_method}: the default one, expressed in 
+#' terms of \code{mx}, and the original one, expressed in terms of 
+#' \code{qx} and retrieved from \code{mx} by the PAS inversion. The 
+#' second reproduces the coefficients used by the Coale-Demeny 1983 
+#' regional model tables and by the PAS software; the two differ by a 
+#' few thousandths of a year in the first two intervals when infant 
+#' mortality is low.
+#'
+#' @references
+#' Coale, A. J., Demeny, P., and Vaughan, B. (1983). \emph{Regional 
+#' Model Life Tables and Stable Populations}. 2nd ed. New York: 
+#' Academic Press.
+#'
+#' Preston, S. H., Heuveline, P., and Guillot, M. (2001). 
+#' \emph{Demography: Measuring and Modeling Population Processes}. 
+#' Oxford: Blackwell Publishers.
 #'
 #' When \code{ax} is supplied by the user the conversion between 
 #' \code{mx} and \code{qx} uses the exact interval identity 
@@ -71,7 +87,8 @@
 #'              dx = NULL,
 #'              sex = NULL,
 #'              lx0 = 1e5,
-#'              ax  = NULL)
+#'              ax  = NULL,
+#'              ax_method = c("preston", "coale_demeny"))
 #'
 #' @param x Numeric vector of ages at the beginning of each age interval. 
 #'   For a full life table, use single-year ages (e.g., \code{0:110}). 
@@ -120,6 +137,17 @@
 #'   assumption is \code{ax = 0.5}, which places deaths at the midpoint 
 #'   of each interval. The value supplied for the open age interval is 
 #'   ignored and replaced with \code{1/mx}; see \code{Details}.
+#'
+#' @param ax_method The published parameterisation used to adjust the 
+#'   first two values of \code{ax} when \code{sex} is given. 
+#'   \code{"preston"} (the default) uses the coefficients of Preston, 
+#'   Heuveline and Guillot (2001), table 3.3, which are expressed in 
+#'   terms of \code{mx}. \code{"coale_demeny"} uses the original 1983 
+#'   Coale-Demeny rule, expressed in terms of \code{qx} and reproduced 
+#'   by the PAS software. The two agree exactly once \code{mx[1]} 
+#'   reaches 0.107 and differ by at most a few thousandths of a year 
+#'   below it. Ignored when \code{sex = NULL} or when \code{ax} is 
+#'   supplied.
 #'
 #' @return An object of class \code{"LifeTable"} containing the following 
 #'   components:
@@ -182,6 +210,16 @@
 #'
 #' LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 #'
+#' # Example 5 --- The two Coale-Demeny parameterisations ---------
+#' # The default ('preston') uses the coefficients expressed in m0.
+#' # 'coale_demeny' uses the original q0-based rule; the two differ only
+#' # below m0 = 0.107 (here m0 = 0.053) and converge above it.
+#'
+#' LT8  <- LifeTable(x, mx = mx, sex = "female")
+#' LT9  <- LifeTable(x, mx = mx, sex = "female", ax_method = "coale_demeny")
+#' LT8$lt$ax[1:2]
+#' LT9$lt$ax[1:2]
+#'
 #' @export
 LifeTable <- function(x,
                       Dx = NULL,
@@ -192,8 +230,10 @@ LifeTable <- function(x,
                       dx = NULL,
                       sex = NULL,
                       lx0 = 1e5,
-                      ax = NULL){
+                      ax = NULL,
+                      ax_method = c("preston", "coale_demeny")){
 
+  ax_method <- match.arg(ax_method)
   input <- c(as.list(environment()))
   X     <- check_life_table_input(input)
   x     <- X$x
@@ -210,6 +250,7 @@ LifeTable <- function(x,
                          sex = X$sex,
                          lx0 = X$lx0,
                          ax = X$ax,
+                         ax_method = X$ax_method,
                          case = X$case,
                          x.int = x.int)
 
@@ -228,6 +269,7 @@ LifeTable <- function(x,
                             sex = X$sex,
                             lx0 = X$lx0,
                             ax = X$ax,
+                            ax_method = X$ax_method,
                             case = X$case,
                             x.int = x.int)
 
@@ -266,6 +308,7 @@ compute_life_table <- function(x,
                            sex = NULL,
                            lx0 = 1e5,
                            ax = NULL,
+                           ax_method = "preston",
                            case = NULL,
                            x.int = NULL) {
 
@@ -316,7 +359,7 @@ compute_life_table <- function(x,
   }
 
   ax <- lt_ax(x = x, ax = ax, mx = mx, qx = qx, nx = nx, sex = sex,
-              user = user_ax)
+              user = user_ax, ax_method = ax_method)
 
   C <- lt_columns(mx = mx, ax = ax, lx = lx, dx = dx, nx = nx)
 
@@ -345,13 +388,15 @@ compute_life_table <- function(x,
 #' the first two intervals with the Coale-Demeny coefficients when a sex is
 #' given, and applies the rule of the open age interval.
 #' @noRd
-lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE) {
+lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE,
+                  ax_method = "preston") {
 
   if (!user) {
     ax <- compute_ax(x = x, mx = mx, qx = qx)
 
     if (!is.null(sex)) {
-      ax <- coale_demeny_ax(x = x, mx = mx, ax = ax, sex = sex)
+      ax <- coale_demeny_ax(x = x, mx = mx, ax = ax, sex = sex,
+                            method = ax_method)
     }
   }
 

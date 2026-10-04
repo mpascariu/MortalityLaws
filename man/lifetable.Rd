@@ -11,7 +11,8 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              dx = NULL,
              sex = NULL,
              lx0 = 1e5,
-             ax  = NULL)
+             ax  = NULL,
+             ax_method = c("preston", "coale_demeny"))
 }
 \arguments{
 \item{x}{Numeric vector of ages at the beginning of each age interval. 
@@ -61,6 +62,17 @@ intervals) or a vector of the same length as \code{x}. A common
 assumption is \code{ax = 0.5}, which places deaths at the midpoint 
 of each interval. The value supplied for the open age interval is 
 ignored and replaced with \code{1/mx}; see \code{Details}.}
+
+\item{ax_method}{The published parameterisation used to adjust the 
+first two values of \code{ax} when \code{sex} is given. 
+\code{"preston"} (the default) uses the coefficients of Preston, 
+Heuveline and Guillot (2001), table 3.3, which are expressed in 
+terms of \code{mx}. \code{"coale_demeny"} uses the original 1983 
+Coale-Demeny rule, expressed in terms of \code{qx} and reproduced 
+by the PAS software. The two agree exactly once \code{mx[1]} 
+reaches 0.107 and differ by at most a few thousandths of a year 
+below it. Ignored when \code{sex = NULL} or when \code{ax} is 
+supplied.}
 }
 \value{
 An object of class \code{"LifeTable"} containing the following 
@@ -110,28 +122,14 @@ function derives \code{mx}, then \code{qx}, then \code{lx}, \code{dx},
 If the \code{sex} argument is supplied, the first two values of the 
 \code{ax} column are adjusted using the Coale-Demeny method, which 
 accounts for the different infant mortality patterns between males 
-and females.
-
-When \code{ax} is supplied by the user the conversion between 
-\code{mx} and \code{qx} uses the exact interval identity 
-\code{qx = nx * mx / (1 + (nx - ax) * mx)} (and its inverse) instead 
-of the CFM approximation, so that the \code{mx}, \code{qx} and 
-\code{ax} columns of the result are mutually consistent. An \code{ax} 
-that an interval cannot support (\code{ax * mx > 1}) is replaced with 
-the implied average, \code{1/mx}, and the affected ages are reported.
-
-The open (closing) age interval follows its own rule: 
-\code{ax[N] = 1/mx[N]}, \code{ex[N] = 1/mx[N]} and 
-\code{Lx[N] = lx[N]/mx[N]}, which keeps the closed table consistent 
-with \code{qx[N] = 1}. A user-supplied \code{ax[N]} is therefore 
-replaced, with a warning.
-
-Missing values in \code{mx} or \code{qx} are never masked. They 
-localise to the interval quantities of the affected row (which are 
-returned as \code{NA}) and to the cumulative \code{Tx} and \code{ex} 
-columns at and before that row, while the survivorship chain 
-\code{lx} is bridged across the gap, so the ages above it remain 
-computable. A warning names the affected ages.
+and females. Two published parameterisations of that adjustment are 
+available through \code{ax_method}: the default one, expressed in 
+terms of \code{mx}, and the original one, expressed in terms of 
+\code{qx} and retrieved from \code{mx} by the PAS inversion. The 
+second reproduces the coefficients used by the Coale-Demeny 1983 
+regional model tables and by the PAS software; the two differ by a 
+few thousandths of a year in the first two intervals when infant 
+mortality is low.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ------------
@@ -176,6 +174,46 @@ my_ax <- c(0.1, 1.5, rep(2, 19), 1, 1, 1)
 
 LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 
+# Example 5 --- The two Coale-Demeny parameterisations ---------
+# The default ('preston') uses the coefficients expressed in m0.
+# 'coale_demeny' uses the original q0-based rule; the two differ only
+# below m0 = 0.107 (here m0 = 0.053) and converge above it.
+
+LT8  <- LifeTable(x, mx = mx, sex = "female")
+LT9  <- LifeTable(x, mx = mx, sex = "female", ax_method = "coale_demeny")
+LT8$lt$ax[1:2]
+LT9$lt$ax[1:2]
+
+}
+\references{
+Coale, A. J., Demeny, P., and Vaughan, B. (1983). \emph{Regional 
+Model Life Tables and Stable Populations}. 2nd ed. New York: 
+Academic Press.
+
+Preston, S. H., Heuveline, P., and Guillot, M. (2001). 
+\emph{Demography: Measuring and Modeling Population Processes}. 
+Oxford: Blackwell Publishers.
+
+When \code{ax} is supplied by the user the conversion between 
+\code{mx} and \code{qx} uses the exact interval identity 
+\code{qx = nx * mx / (1 + (nx - ax) * mx)} (and its inverse) instead 
+of the CFM approximation, so that the \code{mx}, \code{qx} and 
+\code{ax} columns of the result are mutually consistent. An \code{ax} 
+that an interval cannot support (\code{ax * mx > 1}) is replaced with 
+the implied average, \code{1/mx}, and the affected ages are reported.
+
+The open (closing) age interval follows its own rule: 
+\code{ax[N] = 1/mx[N]}, \code{ex[N] = 1/mx[N]} and 
+\code{Lx[N] = lx[N]/mx[N]}, which keeps the closed table consistent 
+with \code{qx[N] = 1}. A user-supplied \code{ax[N]} is therefore 
+replaced, with a warning.
+
+Missing values in \code{mx} or \code{qx} are never masked. They 
+localise to the interval quantities of the affected row (which are 
+returned as \code{NA}) and to the cumulative \code{Tx} and \code{ex} 
+columns at and before that row, while the survivorship chain 
+\code{lx} is bridged across the gap, so the ages above it remain 
+computable. A warning names the affected ages.
 }
 \seealso{
 \code{\link{LawTable}} for generating life tables from a fitted 

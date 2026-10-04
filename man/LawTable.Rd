@@ -4,7 +4,15 @@
 \alias{LawTable}
 \title{Compute Life Tables from Parameters of a Mortality Law}
 \usage{
-LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = NULL)
+LawTable(
+  x,
+  par,
+  law,
+  sex = NULL,
+  lx0 = 1e+05,
+  ax = NULL,
+  ax_method = c("preston", "coale_demeny")
+)
 }
 \arguments{
 \item{x}{Numeric vector of ages at the beginning of each age interval. 
@@ -44,6 +52,17 @@ intervals) or a vector of the same length as \code{x}. A common
 assumption is \code{ax = 0.5}, which places deaths at the midpoint 
 of each interval. The value supplied for the open age interval is 
 ignored and replaced with \code{1/mx}; see \code{Details}.}
+
+\item{ax_method}{The published parameterisation used to adjust the 
+first two values of \code{ax} when \code{sex} is given. 
+\code{"preston"} (the default) uses the coefficients of Preston, 
+Heuveline and Guillot (2001), table 3.3, which are expressed in 
+terms of \code{mx}. \code{"coale_demeny"} uses the original 1983 
+Coale-Demeny rule, expressed in terms of \code{qx} and reproduced 
+by the PAS software. The two agree exactly once \code{mx[1]} 
+reaches 0.107 and differ by at most a few thousandths of a year 
+below it. Ignored when \code{sex = NULL} or when \code{ax} is 
+supplied.}
 }
 \value{
 An object of class \code{"LifeTable"} containing the following 

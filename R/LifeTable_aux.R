@@ -429,35 +429,98 @@ compute_ax <- function(x, mx, qx) {
 }
 
 
+#' Recover q0 from m0 for the Coale-Demeny separation factors
+#'
+#' The 1983 coefficients are a function of q0, while a life table built
+#' from rates is keyed on m0. The quadratic published by the PAS software
+#' (LTPOPDTH) inverts the constant force of mortality relation
+#' \code{q0 = 1 - exp(-m0)} to first order and is the inversion the
+#' Coale-Demeny rule expects. A non-positive discriminant only occurs well
+#' above the q0 = 0.1 cutoff, where the constant branch applies anyway; such
+#' rows return 0.2 to select it, as in the original implementation.
+#' @noRd
+cd_q0_from_m0 <- function(m0, alpha, beta) {
+
+  a    <- m0 * beta
+  b    <- 1 + m0 * (1 - alpha)
+  disc <- b^2 - 4 * a * m0
+  ok   <- a > 0 & disc > 0
+
+  q0 <- rep(0, length(m0))
+
+  if (any(ok)) {
+    q0[ok] <- (b[ok] - sqrt(disc[ok])) / (2 * a[ok])
+  }
+
+  q0[!ok & m0 > 0] <- 0.2
+
+  return(q0)
+}
+
+
+#' The West separation factors a0 and 4a1
+#'
+#' Returns the average person-years lived before the first birthday (a0) and
+#' between ages 1 and 5 (4a1) for the West model, as a male and a female
+#' pair. Both conventions return identical values once m0 reaches 0.107,
+#' because from there the constants apply.
+#' @param m0 The death rate in the first year of life.
+#' @param method \code{"preston"} for the coefficients published in
+#'   Preston, Heuveline and Guillot (2001), table 3.3, which are expressed
+#'   in terms of m0; \code{"coale_demeny"} for the original 1983 rule,
+#'   expressed in terms of q0, recovered from m0 by
+#'   \code{cd_q0_from_m0}.
+#' @noRd
+coale_demeny_ax_coefs <- function(m0, method) {
+
+  if (method == "preston") {
+    a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684 * m0)
+    a1M <- ifelse(m0 >= 0.107, 1.352, 1.651 - 2.816 * m0)
+    a0F <- ifelse(m0 >= 0.107, 0.350, 0.053 + 2.800 * m0)
+    a1F <- ifelse(m0 >= 0.107, 1.361, 1.522 - 1.518 * m0)
+
+  } else {
+    q0M <- cd_q0_from_m0(m0 = m0, alpha = 0.0425, beta = 2.875)
+    q0F <- cd_q0_from_m0(m0 = m0, alpha = 0.0500, beta = 3.000)
+
+    a0M <- ifelse(q0M > 0.1, 0.330, 0.0425 + 2.875 * q0M)
+    a1M <- ifelse(q0M > 0.1, 1.352, 1.653 - 3.013 * q0M)
+    a0F <- ifelse(q0F > 0.1, 0.350, 0.0500 + 3.000 * q0F)
+    a1F <- ifelse(q0F > 0.1, 1.361, 1.524 - 1.627 * q0F)
+  }
+
+  out <- list(male = c(a0M, a1M), female = c(a0F, a1F))
+
+  return(out)
+}
+
+
 #' Find ax[1:2] indicators using Coale-Demeny coefficients
 #'
 #' Adjusts the first two values of ax to account for infant mortality more
-#' accurately, using the West model coefficients of the Coale-Demeny
-#' regional model as published in UN (1983), \emph{Manual X: Indirect
-#' Techniques for Demographic Estimation}, table 3.3 (also reproduced by
-#' the PAS software). Below m0 = 0.107 the coefficients are interpolated
-#' from the same table.
+#' accurately, using the West model separation factors. Two published
+#' parameterisations are available through \code{method}: the m0-based
+#' coefficients of Preston, Heuveline and Guillot (2001), table 3.3, and
+#' the original q0-based rule of Coale and Demeny (1983), reproduced by the
+#' PAS software. They agree exactly once m0 reaches 0.107 and differ by at
+#' most a few thousandths of a year below it. The total population row
+#' averages the male and female values.
 #' @noRd
-coale_demeny_ax <- function(x, mx, ax, sex) {
+coale_demeny_ax <- function(x, mx, ax, sex, method = "preston") {
 
   if (!is.na(mx[1]) && mx[1] < 0) {
     stop("'m[1]' must be greater than 0", call. = FALSE)
   }
 
   nx  <- c(diff(x), Inf)
-  m0  <- mx[1]
-  a0M <- ifelse(m0 >= 0.107, 0.330, 0.045 + 2.684 * m0)
-  a1M <- ifelse(m0 >= 0.107, 1.352, 1.651 - 2.816 * m0)
-  a0F <- ifelse(m0 >= 0.107, 0.350, 0.053 + 2.800 * m0)
-  a1F <- ifelse(m0 >= 0.107, 1.361, 1.522 - 1.518 * m0)
-  a0T <- (a0M + a0F)/2
-  a1T <- (a1M + a1F)/2
+  C   <- coale_demeny_ax_coefs(m0 = mx[1], method = method)
+  a02 <- switch(sex,
+                male   = C$male,
+                female = C$female,
+                total  = (C$male + C$female)/2)
 
   f  <- nx[1:2] / c(1, 4)
-
-  if (sex == "male")   ax[1:2] <- c(a0M, a1M) * f
-  if (sex == "female") ax[1:2] <- c(a0F, a1F) * f
-  if (sex == "total")  ax[1:2] <- c(a0T, a1T) * f
+  ax[1:2] <- a02 * f
 
   return(ax)
 }
@@ -588,6 +651,7 @@ check_life_table_input <- function(input) {
                 sex = sex,
                 lx0 = lx0,
                 ax = ax,
+                ax_method = ax_method,
                 case = C,
                 iclass = K$iclass,
                 nLT = K$nLT,

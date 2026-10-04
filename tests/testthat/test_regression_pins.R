@@ -99,6 +99,57 @@ test_that("Contract 3: Coale-Demeny child ax constants and continuity", {
   expect_lt(abs(lo_f$lt$ax[2] - hi_f$lt$ax[2]), 0.02)
 })
 
+test_that("Coale-Demeny variants: default unchanged, both conventions correct", {
+  x  <- c(0, 1, seq(5, 110, by = 5))
+  mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+          .004, .005, .006, .0093, .0129, .019, .031, .049,
+          .084, .129, .180, .2354, .3085, .390, .478, .551)
+
+  # The default is the Preston parameterisation: byte-identical to spelling
+  # it out, and to the pre-argument behaviour.
+  base <- LifeTable(x, mx = mx, sex = "female")
+  pr   <- LifeTable(x, mx = mx, sex = "female", ax_method = "preston")
+  cd   <- LifeTable(x, mx = mx, sex = "female", ax_method = "coale_demeny")
+  expect_identical(base$lt$ax, pr$lt$ax)
+  expect_identical(base$lt, pr$lt)
+
+  # The two conventions really differ below m0 = 0.107, in the first two
+  # intervals only, and by no more than a few thousandths of a year.
+  expect_false(isTRUE(all.equal(cd$lt$ax[1:2], pr$lt$ax[1:2])))
+  expect_lt(max(abs(cd$lt$ax[1:2] - pr$lt$ax[1:2])), 0.005)
+  expect_equal(cd$lt$ax[-(1:2)], pr$lt$ax[-(1:2)], tolerance = 1e-12)
+
+  # Above the cutoff both conventions collapse to the same constants.
+  mx2    <- mx
+  mx2[1] <- 0.12
+  hi_pr  <- LifeTable(x, mx = mx2, sex = "female")
+  hi_cd  <- LifeTable(x, mx = mx2, sex = "female", ax_method = "coale_demeny")
+  expect_identical(hi_pr$lt$ax[1:2], hi_cd$lt$ax[1:2])
+  expect_equal(hi_pr$lt$ax[1:2], c(0.350, 1.361), tolerance = 1e-12)
+
+  # The variant is ignored without a sex and when ax is supplied.
+  expect_identical(LifeTable(x, mx = mx)$lt$ax,
+                   LifeTable(x, mx = mx, ax_method = "coale_demeny")$lt$ax)
+  my_ax <- c(0.1, 1.5, rep(2, length(x) - 5), 1, 1, 1)
+  expect_identical(suppressWarnings(LifeTable(x, mx = mx, ax = my_ax))$lt$ax,
+                   suppressWarnings(LifeTable(x, mx = mx, ax = my_ax,
+                             ax_method = "coale_demeny"))$lt$ax)
+
+  # Matrix input carries the variant per column.
+  M <- cbind(f = mx, m = mx * 1.15)
+  colnames(M) <- c("f", "m")
+  expect_identical(LifeTable(x, mx = M, sex = "female")$lt$ax,
+                   LifeTable(x, mx = M, sex = "female",
+                             ax_method = "preston")$lt$ax)
+  expect_false(identical(LifeTable(x, mx = M, sex = "female")$lt$ax,
+                         LifeTable(x, mx = M, sex = "female",
+                                   ax_method = "coale_demeny")$lt$ax))
+
+  # An unknown value is rejected.
+  expect_error(LifeTable(x, mx = mx, sex = "female", ax_method = "west"),
+               regexp = "'arg' should be one of")
+})
+
 test_that("Contract 3: a single NA in mx corrupts the table only locally", {
   x  <- 0:60
   k  <- 31                       # age 30

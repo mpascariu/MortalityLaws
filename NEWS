@@ -1,3 +1,8 @@
+version 2.5.0 - "twin anchor"
+- Life tables can now use either of the two published versions of the
+childhood mortality adjustment: the one used until now, and the original
+1983 rule. The default is unchanged, so results stay the same as before.
+
 version 2.4.0 - "swept deck"
 - The internet address shown for the Canadian mortality database now works;
 it used to point to a page that could not be opened.

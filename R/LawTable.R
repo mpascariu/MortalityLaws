@@ -130,7 +130,10 @@
 #' # Note that e3 = 70.31 in both tables, confirming consistency.
 #'
 #' @export
-LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL) {
+LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL,
+                     ax_method = c("preston", "coale_demeny")) {
+
+  ax_method <- match.arg(ax_method)
 
   info    <- law_details(law)
   scale.x <- info$scale.x
@@ -154,11 +157,13 @@ LawTable <- function(x, par, law, sex = NULL, lx0 = 1e5, ax = NULL) {
   thisIndex <- info$model["FIT"]
 
   if (thisIndex == "q[x]") {
-    out <- LifeTable(x = x, qx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = x, qx = hx, sex = sex, lx0 = lx0, ax = ax,
+                     ax_method = ax_method)
   }
 
   if (thisIndex == "mu[x]") {
-    out <- LifeTable(x = x, mx = hx, sex = sex, lx0 = lx0, ax = ax)
+    out <- LifeTable(x = x, mx = hx, sex = sex, lx0 = lx0, ax = ax,
+                     ax_method = ax_method)
   }
 
   out$call <- match.call()
