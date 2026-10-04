@@ -1,3 +1,13 @@
+version 2.7.0 - "long tail"
+- Life tables can now be closed more accurately at the open age, either by
+using a mortality model to correct the last interval in place or by extending
+the table to an older age before closing.
+- How long people live on average in the interval where they die is now
+chosen by name, and by default it follows the standard unadjusted formula.
+Previously an adjustment was applied automatically at the youngest ages
+whenever a sex was given, so life expectancy for babies differs slightly
+from before.
+
 version 2.6.1 - "second opinion"
 - Fit summaries now judge the quality of a fit more reliably, and models
 fitted from death counts and exposures are compared on the correct scale.

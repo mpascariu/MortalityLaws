@@ -263,6 +263,274 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
 }
 
 
+#' Resolve the ax argument
+#'
+#' The single public argument \code{ax} carries two meanings: a numeric
+#' scalar or vector (user-supplied person-years lived), or a method name
+#' selecting how the internal values are derived. This splits it into the
+#' numeric \code{ax} and the internal method name.
+#'
+#' The method names are:
+#' \itemize{
+#'   \item \code{"cfm"} (the default): the standard lifetable identity
+#'         \code{ax = n + 1/m - n/q} under the constant force of mortality
+#'         assumption (Preston, Heuveline and Guillot 2001, eq. 3.15);
+#'   \item \code{"preston"}: \code{"cfm"} for all intervals, with the first
+#'         two intervals replaced by the Coale-Demeny West separation
+#'         factors given by Preston et al. (2001), table 3.3, when \code{sex}
+#'         is supplied;
+#'   \item \code{"coale_demeny"}: \code{"cfm"} for all intervals, with the
+#'         first two intervals replaced by the original 1983 Coale-Demeny
+#'         rule reproduced by the PAS software, when \code{sex} is supplied.
+#' }
+#' \code{"preston"} and \code{"coale_demeny"} differ from \code{"cfm"} only
+#' in the first two intervals, and only when \code{sex} is given.
+#' @noRd
+check_ax <- function(x, ax = "cfm") {
+
+  if (is.character(ax)) {
+    if (length(ax) != 1) {
+      stop("'ax' must name a single method, not a vector.", call. = FALSE)
+    }
+    ax_method <- match.arg(ax, c("cfm", "preston", "coale_demeny"))
+    return(list(ax = NULL, ax_method = ax_method))
+  }
+
+  if (!is.numeric(ax)) {
+    stop("'ax' must be a numeric scalar or vector, or one of ",
+         "\"cfm\" / \"preston\" / \"coale_demeny\".", call. = FALSE)
+  }
+
+  if (!any(length(ax) %in% c(1, length(x)))) {
+    stop("'ax' must be a scalar of length 1 or a ",
+         "vector of the same dimension as 'x'", call. = FALSE)
+  }
+
+  return(list(ax = ax, ax_method = "cfm"))
+}
+
+
+#' Close the open interval with a mortality law
+#'
+#' Fits a parametric mortality law to the closed age intervals and returns
+#' the model-implied average force of mortality over the open interval,
+#' \code{1/e(x[N])}, where \code{e(x[N])} is obtained by integrating the
+#' fitted survival curve. Replacing the observed open-interval rate
+#' \code{mx[N]} with this value closes the table accurately without changing
+#' the age grid: the open interval absorbs the rise in the hazard that the
+#' reciprocal rule \code{1/mx} ignores.
+#'
+#' The law is fitted to the observed closed intervals from age
+#' \code{fit_from} (60 by default when the input reaches age 85, otherwise
+#' the last 20 years) up to the last closed interval, excluding the open
+#' interval itself, whose aggregate rate is not a point on the hazard curve.
+#' The default law is the Kannisto logistic, the field standard for old-age
+#' mortality.
+#'
+#' @param x Numeric vector of ages at the beginning of the age intervals.
+#' @param mx Numeric vector of death rates, one per age in \code{x}.
+#' @param law The mortality law used to close. Default \code{"kannisto"}.
+#' @param fit_from The age from which the law is fitted. \code{NULL} chooses
+#'   60, or the last 20 years of the input when the input is shorter.
+#' @param horizon The age up to which the fitted survival curve is
+#'   integrated. Default 130, the standard old-age ceiling.
+#' @return The model-implied open-interval rate, or \code{NULL} when the law
+#'   cannot be fitted (the caller then keeps the observed rate and warns).
+#' @noRd
+lt_close_model <- function(x, mx, law = NULL, fit_from = NULL,
+                           horizon = 130) {
+
+  if (is.null(law)) {
+    law <- "kannisto"
+  }
+
+  N    <- length(x)
+  x_o  <- x[N]
+  fit  <- lt_fit_ages(x = x, fit_from = fit_from)
+
+  if (sum(fit) < 3 || horizon <= x_o) {
+    return(NULL)
+  }
+
+  M <- lt_fit_law(x = x[fit], mx = mx[fit], law = law)
+  if (is.null(M)) {
+    return(NULL)
+  }
+
+  # Integrate the fitted survival curve S(t) = exp(-H(t)) from the open age
+  # to the horizon; e(x_o) = int S, since S(x_o) = 1 by construction.
+  g    <- 0.05
+  grid <- seq(x_o, horizon, by = g)
+
+  mu <- tryCatch(predict(M, x = grid), error = function(e) NULL)
+  if (is.null(mu) || any(!is.finite(mu)) || any(mu < 0)) {
+    return(NULL)
+  }
+
+  S <- exp(-cumsum(mu) * g)
+  e <- g * (sum(S) - 0.5 * S[1] - 0.5 * S[length(S)])
+
+  if (!is.finite(e) || e <= 0) {
+    return(NULL)
+  }
+
+  return(1/e)
+}
+
+
+#' Fit a mortality law to a set of rates
+#'
+#' Wraps \code{\link{MortalityLaw}} and returns \code{NULL} instead of an
+#' error or a warning when the fit is not usable.
+#' @noRd
+lt_fit_law <- function(x, mx, law) {
+
+  M <- tryCatch(
+    MortalityLaw(x = x, mx = mx, law = law),
+    error = function(e) NULL,
+    warning = function(w) NULL
+    )
+
+  if (is.null(M) || any(!is.finite(coef(M)))) {
+    return(NULL)
+  }
+
+  return(M)
+}
+
+
+#' Ages used to fit the closing law
+#'
+#' By default 60 and above when the input reaches age 85, otherwise the last
+#' 20 years of the input. Always excludes the open interval itself.
+#' @noRd
+lt_fit_ages <- function(x, fit_from = NULL) {
+
+  N   <- length(x)
+  x_o <- x[N]
+
+  if (is.null(fit_from)) {
+    fit_from <- if (x_o >= 85) 60 else x_o - 20
+  }
+
+  return(x >= fit_from & x < x_o)
+}
+
+
+#' Extend the open age interval to a chosen omega
+#'
+#' Fits a parametric mortality law to the closed age intervals below the
+#' open interval and predicts the death rates from the open age up to
+#' \code{omega}, so that the table can be closed at \code{omega} instead of
+#' at the age where the input stops.
+#'
+#' The law is fitted to the observed closed intervals from age
+#' \code{fit_from} (60 by default when the input reaches age 85, otherwise
+#' the last 20 years) up to the last closed interval, excluding the open
+#' interval itself, whose aggregate rate is not a point on the hazard curve.
+#' The default law is the Kannisto logistic, the field standard for old-age
+#' mortality. Values below the open age are kept as supplied.
+#'
+#' @param x Numeric vector of ages at the beginning of the age intervals.
+#' @param mx Numeric vector of death rates, one per age in \code{x}.
+#' @param omega The age at which the extended table closes.
+#' @param law The mortality law used to extrapolate. Default
+#'   \code{"kannisto"}.
+#' @param fit_from The age from which the law is fitted. \code{NULL} chooses
+#'   60, or the last 20 years of the input when the input is shorter.
+#' @return A list with the extended \code{x} and \code{mx}, or \code{NULL}
+#'   when the law cannot be fitted (the caller then keeps the table closed at
+#'   the input's open age and warns).
+#' @noRd
+lt_extend_omega <- function(x, mx, omega, law = NULL, fit_from = NULL) {
+
+  if (is.null(law)) {
+    law <- "kannisto"
+  }
+
+  N    <- length(x)
+  x_o  <- x[N]
+  step <- x[N] - x[N - 1]
+  fit  <- lt_fit_ages(x = x, fit_from = fit_from) & is.finite(mx)
+
+  if (sum(fit) < 3) {
+    return(NULL)
+  }
+
+  xext <- seq(x_o, omega, by = step)
+  if (length(xext) < 2) {
+    return(NULL)
+  }
+
+  M <- lt_fit_law(x = x[fit], mx = mx[fit], law = law)
+  if (is.null(M)) {
+    return(NULL)
+  }
+
+  mext <- tryCatch(predict(M, x = xext),
+                   error = function(e) NULL)
+  if (is.null(mext) || any(!is.finite(mext)) || any(mext <= 0)) {
+    return(NULL)
+  }
+
+  keep <- x < x_o
+  out  <- list(x = c(x[keep], xext), mx = c(mx[keep], as.numeric(mext)))
+  return(out)
+}
+
+
+#' Validate the closing method
+#'
+#' Returns \code{NULL} for the standard reciprocal close and the validated
+#' law code otherwise.
+#' @noRd
+check_close <- function(close) {
+
+  if (is.null(close) || identical(close, "standard")) {
+    return(NULL)
+  }
+
+  if (!is.character(close) || length(close) != 1) {
+    stop("'close' must be \"standard\" or a single mortality-law code.",
+         call. = FALSE)
+  }
+
+  codes <- availableLaws()$table[, "CODE"]
+  if (!close %in% codes) {
+    stop("'close' must be \"standard\" or one of the codes listed by ",
+         "availableLaws(), got '", close, "'.", call. = FALSE)
+  }
+
+  return(close)
+}
+
+
+#' Validate the omega closing argument
+#'
+#' Returns \code{NULL} when no extension is requested and the validated,
+#' numeric omega otherwise.
+#' @noRd
+check_omega <- function(x, omega) {
+
+  if (is.null(omega)) {
+    return(NULL)
+  }
+
+  if (!is.numeric(omega) || length(omega) != 1 || !is.finite(omega)) {
+    stop("'omega' must be a single finite number.", call. = FALSE)
+  }
+
+  if (omega <= max(x)) {
+    warning("'omega' (", omega, ") is not greater than the last age in 'x' (",
+            max(x), "). The life table keeps its current open interval.",
+            call. = FALSE)
+    return(NULL)
+  }
+
+  return(omega)
+}
+
+
 #' Educate mx or qx on how to behave above age omega
 #'
 #' Replaces missing, zero and non-finite rates from age \code{omega}
@@ -628,17 +896,7 @@ check_life_table_input <- function(input) {
       dx[is.na(dx)] <- 0
     }
 
-    if (!is.null(ax)) {
-      if (!is.numeric(ax)) {
-        stop("'ax' must be a numeric scalar (or NULL)", call. = FALSE)
-      }
-
-      if (!any(length(ax) %in% c(1, length(x)))) {
-        stop("'ax' must be a scalar of length 1 or a ",
-             "vector of the same dimension as 'x'",
-             call. = FALSE)
-      }
-    }
+    # 'ax' is validated by check_ax() before this function runs.
 
     # Exit
     out <- list(x = as.numeric(x),
@@ -651,7 +909,9 @@ check_life_table_input <- function(input) {
                 sex = sex,
                 lx0 = lx0,
                 ax = ax,
-                ax_method = ax_method,
+                close = close,
+                omega = omega,
+                fit_from = fit_from,
                 case = C,
                 iclass = K$iclass,
                 nLT = K$nLT,

@@ -31,7 +31,11 @@ period.}
 \code{"Tx"}, or \code{"ex"}.}
 
 \item{...}{Further arguments passed to \code{\link{LifeTable}} that may 
-affect the results, such as \code{sex}, \code{lx0}, or \code{ax}.}
+effect the results, such as \code{sex}, \code{lx0}, \code{ax}, or the 
+closing arguments \code{close}, \code{omega} and \code{fit_from}. When 
+\code{omega} extends the table beyond the input's open age, the result 
+carries the extended ages (vector names, or matrix row names) rather 
+than the input ages.}
 }
 \value{
 A numeric vector or matrix containing the converted life table 

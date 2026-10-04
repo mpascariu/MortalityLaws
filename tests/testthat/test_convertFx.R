@@ -77,3 +77,42 @@ test_that("convertFx keeps the per-format life table identities", {
 test_that("convertFx returns non-negative probabilities from a single column", {
   expect_true(all(convertFx(x, data = mx[, 1], from = "mx", to = "qx") >= 0))
 })
+
+test_that("convertFx forwards omega and relabels the extended grid", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  names(mxo) <- xo
+
+  # Vector: the output keeps the extended ages as names.
+  ex <- convertFx(xo, data = mxo, from = "mx", to = "ex", omega = 110)
+  expect_equal(length(ex), 24)
+  expect_equal(as.integer(names(ex)), c(0, 1, seq(5, 110, by = 5)))
+  expect_equal(ex[["110"]], 1/LifeTable(xo, mx = mxo, omega = 110)$lt$mx[24],
+               tolerance = 1e-12)
+
+  # Matrix: the shape follows the extended grid.
+  M  <- cbind(a = mxo, b = mxo * 1.1)
+  exm <- convertFx(xo, data = M, from = "mx", to = "ex", omega = 110)
+  expect_equal(dim(exm), c(24, 2))
+  expect_equal(rownames(exm)[24], "110")
+  expect_equal(colnames(exm), c("a", "b"))
+})
+
+test_that("convertFx forwards close without changing the grid", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  names(mxo) <- xo
+
+  ex <- convertFx(xo, data = mxo, from = "mx", to = "ex", close = "kannisto")
+  expect_equal(length(ex), length(xo))
+  expect_equal(names(ex), names(mxo))
+  expect_equal(unname(ex), unname(LifeTable(xo, mx = mxo, close = "kannisto")$lt$ex),
+               tolerance = 1e-12)
+
+  M   <- cbind(a = mxo, b = mxo * 1.1)
+  exm <- convertFx(xo, data = M, from = "mx", to = "ex", close = "kannisto")
+  expect_equal(dim(exm), c(length(xo), 2))
+  expect_equal(rownames(exm), names(mxo))
+})

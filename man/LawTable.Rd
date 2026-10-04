@@ -4,15 +4,7 @@
 \alias{LawTable}
 \title{Compute Life Tables from Parameters of a Mortality Law}
 \usage{
-LawTable(
-  x,
-  par,
-  law,
-  sex = NULL,
-  lx0 = 1e+05,
-  ax = NULL,
-  ax_method = c("preston", "coale_demeny")
-)
+LawTable(x, par, law, sex = NULL, lx0 = 1e+05, ax = "cfm")
 }
 \arguments{
 \item{x}{Numeric vector of ages at the beginning of each age interval. 
@@ -44,25 +36,40 @@ and females.}
 age 0. Default is \code{100,000}. All subsequent life-table columns 
 (\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.}
 
-\item{ax}{Numeric vector representing the average number of person-years 
-lived in the age interval by those who die in that interval. If 
-\code{NULL} (the default), \code{ax} is estimated internally using 
-a standard formula. You may supply a single value (applied to all 
-intervals) or a vector of the same length as \code{x}. A common 
-assumption is \code{ax = 0.5}, which places deaths at the midpoint 
-of each interval. The value supplied for the open age interval is 
-ignored and replaced with \code{1/mx}; see \code{Details}.}
+\item{ax}{The average number of person-years lived in each age interval 
+  by those who die in it, given either as values or as the method that 
+  produces them. Accepts two forms: 
+  \itemize{ 
+  \item a numeric scalar or vector: a scalar is applied to all intervals, 
+        a vector must have the same length as \code{x}. A common 
+        assumption is \code{ax = 0.5}, which places deaths at the 
+        midpoint of each interval; 
+  \item a method name, one of \code{"cfm"} (the default), 
+        \code{"preston"} or \code{"coale_demeny"} (see below). 
+  } 
 
-\item{ax_method}{The published parameterisation used to adjust the 
-first two values of \code{ax} when \code{sex} is given. 
-\code{"preston"} (the default) uses the coefficients of Preston, 
-Heuveline and Guillot (2001), table 3.3, which are expressed in 
-terms of \code{mx}. \code{"coale_demeny"} uses the original 1983 
-Coale-Demeny rule, expressed in terms of \code{qx} and reproduced 
-by the PAS software. The two agree exactly once \code{mx[1]} 
-reaches 0.107 and differ by at most a few thousandths of a year 
-below it. Ignored when \code{sex = NULL} or when \code{ax} is 
-supplied.}
+  The three methods share the same basis, the standard lifetable 
+  identity \code{ax = n + 1/m - n/q} under a constant force of mortality 
+  (Preston, Heuveline and Guillot 2001, eq. 3.15), and differ in how 
+  they treat the first two intervals: 
+  \itemize{ 
+  \item \code{"cfm"}: the identity alone, for every interval; 
+  \item \code{"preston"}: the identity, with the first two intervals 
+        replaced by the Coale-Demeny West separation factors published 
+        by Preston et al. (2001), table 3.3, when \code{sex} is given; 
+  \item \code{"coale_demeny"}: the identity, with the first two intervals 
+        replaced by the original 1983 Coale-Demeny rule expressed in 
+        \code{qx}, reproduced by the PAS software, when \code{sex} is 
+        given. 
+  } 
+  \code{"preston"} and \code{"coale_demeny"} agree exactly once 
+  \code{mx[1]} reaches 0.107, and differ by at most a few thousandths of 
+  a year below it. Both coincide with \code{"cfm"} when \code{sex} is 
+  \code{NULL}. 
+
+  The value for the open age interval is always replaced with \code{1/mx} 
+  (or the model-implied value when \code{close} is set); see 
+  \code{Details}.}
 }
 \value{
 An object of class \code{"LifeTable"} containing the following 

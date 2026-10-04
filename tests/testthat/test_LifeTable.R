@@ -120,13 +120,44 @@ for (k in 7:10) test_lt_consistency(LT6, get(paste0("LT", k)))
 
 test_that("LifeTable validates the 'ax' argument", {
   mx_lt <- LT1$lt$mx
-  # Error: 'ax' must be a numeric scalar (or NULL) - here it's a string.
+  # Error: 'ax' must be NULL, a numeric scalar/vector, or a method name;
+  # here it is neither a known method nor numeric.
   expect_error(LifeTable(x, mx = mx_lt, ax = "ax"),
-               regexp = "'ax' must be a numeric")
+               regexp = "should be one of")
   # Error: 'ax' must be a scalar of length 1 or a vector of the same
   # dimension as 'x'
   expect_error(LifeTable(x, mx = mx_lt, ax = rep(0.5, 3)),
                regexp = "scalar of length 1")
+})
+
+test_that("the 'cfm' ax method is the plain lifetable identity", {
+  xa  <- c(0, 1, seq(5, 100, by = 5))
+  mxa <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049,
+           .084, .129, .180, .2354, .3085, .390)
+  N   <- length(xa)
+  cfm <- LifeTable(xa, mx = mxa, ax = "cfm")$lt
+
+  # ax[2..N-1] is exactly n + 1/m - n/q, with q under the CFM assumption.
+  n <- c(diff(xa), NA)
+  q <- 1 - exp(-n * mxa)
+  a <- n + 1/mxa - n/q
+  expect_equal(cfm$ax[2:(N - 1)], a[2:(N - 1)], tolerance = 1e-10)
+
+  # Without a sex, cfm and preston coincide everywhere except the open row.
+  pr <- LifeTable(xa, mx = mxa, ax = "preston")$lt
+  expect_equal(cfm$ax[-N], pr$ax[-N], tolerance = 1e-12)
+
+  # With a sex the childhood rule bites: cfm differs from preston at 0 and 1-4.
+  expect_false(isTRUE(all.equal(
+    LifeTable(xa, mx = mxa, sex = "female", ax = "cfm")$lt$ax[1:2],
+    LifeTable(xa, mx = mxa, sex = "female", ax = "preston")$lt$ax[1:2])))
+
+  # The two childhood conventions still agree above the m0 = 0.107 cutoff.
+  mx2    <- mxa; mx2[1] <- 0.12
+  expect_identical(LifeTable(xa, mx = mx2, sex = "female", ax = "preston")$lt$ax[1:2],
+                   LifeTable(xa, mx = mx2, sex = "female",
+                             ax = "coale_demeny")$lt$ax[1:2])
 })
 
 test_that("LifeTable forces ax[N] = 1/mx[N] at the closing age", {
@@ -205,4 +236,150 @@ test_that("print works for multi-column life tables", {
   # ahmd$mx carries NA at ages 107-110, which contract 3 surfaces as a warning
   expect_warning(LT_multi <- LifeTable(x = 0:110, mx = ahmd$mx))
   expect_output(print(LT_multi))
+})
+
+# ----------------------------------------------------------------------------
+# Closing at a chosen omega (issue #8): extend the open interval beyond the
+# age at which the input stops, extrapolating with a mortality law.
+test_that("LifeTable leaves the result unchanged when omega is NULL", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  A <- LifeTable(xo, mx = mxo)
+  B <- LifeTable(xo, mx = mxo, omega = NULL)
+  C <- LifeTable(xo, mx = mxo, close = NULL)
+  expect_identical(A$lt, B$lt)
+  expect_identical(A$lt, C$lt)
+})
+
+# ----------------------------------------------------------------------------
+# Accurate closing without extension (issue #8): 'close' replaces the observed
+# open-interval rate with the model-implied average over the tail, keeping the
+# age grid unchanged.
+test_that("LifeTable closes in place with a mortality law", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  N   <- length(xo)
+  A   <- LifeTable(xo, mx = mxo)$lt
+  C   <- LifeTable(xo, mx = mxo, close = "kannisto")$lt
+
+  # The grid is untouched: same ages, same number of rows.
+  expect_identical(A$x, C$x)
+  expect_equal(nrow(A), nrow(C))
+
+  # Only the open row's rate changes; everything below is preserved exactly.
+  expect_equal(C$mx[-N], A$mx[-N], tolerance = 1e-12)
+  expect_false(isTRUE(all.equal(C$mx[N], A$mx[N])))
+
+  # The open row keeps the standard identities on the corrected rate, and the
+  # lives below the open age are the same.
+  expect_equal(C$qx[N], 1, tolerance = 1e-12)
+  expect_equal(C$ax[N], 1/C$mx[N], tolerance = 1e-12)
+  expect_equal(C$ex[N], 1/C$mx[N], tolerance = 1e-12)
+  expect_equal(C$lx, A$lx, tolerance = 1e-12)
+
+  # A young open interval is closed more accurately than the reciprocal rule:
+  # the observed 1/mx[75] overshoots because the hazard is still rising.
+  expect_true(C$mx[N] > A$mx[N])
+  expect_true(C$ex[1] < A$ex[1])
+})
+
+test_that("LifeTable closes in place for every input index", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  A <- LifeTable(xo, mx = mxo)$lt
+  mx_new <- vapply(c("qx", "lx", "dx"), function(idx) {
+    L <- switch(idx,
+                qx = LifeTable(xo, qx = A$qx, close = "kannisto"),
+                lx = LifeTable(xo, lx = A$lx, close = "kannisto"),
+                dx = LifeTable(xo, dx = A$dx, close = "kannisto"))
+    L$lt$mx[nrow(L$lt)]
+  }, 0)
+  expect_equal(unname(mx_new), rep(unname(mx_new[1]), 3), tolerance = 1e-6)
+})
+
+test_that("LifeTable validates the close argument", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- rep(0.01, length(xo))
+  expect_error(LifeTable(xo, mx = mxo, close = "notalaw"),
+               regexp = "'close' must be")
+  expect_error(LifeTable(xo, mx = mxo, close = c("kannisto", "gompertz")),
+               regexp = "'close' must be")
+  # "standard" is the default reciprocal close
+  expect_identical(LifeTable(xo, mx = mxo, close = "standard")$lt,
+                   LifeTable(xo, mx = mxo)$lt)
+})
+
+test_that("LifeTable warns and keeps the observed rate when the close fails", {
+  # Two ages cannot support a three-parameter-plus fit.
+  expect_warning(LifeTable(c(0, 1), mx = c(0.05, 0.005), close = "kannisto"),
+                 regexp = "could not be fitted")
+})
+
+test_that("LifeTable extends and closes the table at omega", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  LT <- LifeTable(xo, mx = mxo, omega = 110)$lt
+  N  <- nrow(LT)
+
+  # the table now runs to omega in 5-year steps above age 5
+  expect_equal(tail(LT$x, 1), 110)
+  expect_equal(diff(LT$x[-c(1, 2)]), rep(5, N - 3))
+  # and it is closed by the same rule as before, at the new open age
+  expect_equal(LT$qx[N], 1, tolerance = 1e-12)
+  expect_equal(LT$ax[N], 1/LT$mx[N], tolerance = 1e-12)
+  expect_equal(LT$ex[N], 1/LT$mx[N], tolerance = 1e-12)
+  # the observed rates below the old open age are untouched
+  expect_equal(LT$mx[1:(length(mxo) - 1)], mxo[1:(length(mxo) - 1)],
+               tolerance = 1e-12)
+  # the extrapolated rates keep rising
+  expect_true(all(diff(LT$mx[(length(mxo) - 1):N]) > 0))
+})
+
+test_that("LifeTable closes at omega for every input index", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  A <- LifeTable(xo, mx = mxo)$lt
+  e0 <- vapply(c("qx", "lx", "dx"), function(idx) {
+    L <- switch(idx,
+                qx = LifeTable(xo, qx = A$qx, omega = 110),
+                lx = LifeTable(xo, lx = A$lx, omega = 110),
+                dx = LifeTable(xo, dx = A$dx, omega = 110))
+    L$lt$ex[1]
+  }, 0)
+  expect_equal(unname(e0), rep(unname(e0[1]), 3), tolerance = 1e-8)
+})
+
+test_that("LifeTable validates and warns about omega", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- rep(0.01, length(xo))
+  expect_error(LifeTable(xo, mx = mxo, omega = "x"),
+               regexp = "'omega' must be a single finite number")
+  expect_warning(LifeTable(xo, mx = mxo, omega = 75),
+                 regexp = "not greater than the last age")
+  # the extension is dropped, with a warning, when the law cannot be fitted
+  expect_warning(LifeTable(c(0, 1), mx = c(0.05, 0.005), omega = 110),
+                 regexp = "could not be computed")
+})
+
+test_that("LifeTable closes or extends abridged tables for every column", {
+  xo  <- c(0, 1, seq(5, 75, by = 5))
+  mxo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+           .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  M   <- cbind(a = mxo, b = mxo * 1.1)
+
+  # in place: the grid is unchanged, every column closed
+  LC <- LifeTable(x = xo, mx = M, close = "kannisto")$lt
+  expect_equal(sort(unique(LC$LT)), c("a", "b"))
+  expect_equal(nrow(LC), 2 * length(xo))
+  expect_true(all(LC$qx[LC$x == 75] == 1))
+
+  # extended: the grid grows to omega for every column
+  LE <- LifeTable(x = xo, mx = M, omega = 110)$lt
+  expect_equal(nrow(LE), 2 * 24)
+  expect_true(all(LE$qx[LE$x == 110] == 1))
 })

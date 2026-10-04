@@ -52,7 +52,11 @@
 #'   \code{"Tx"}, or \code{"ex"}.
 #'
 #' @param ... Further arguments passed to \code{\link{LifeTable}} that may 
-#'   affect the results, such as \code{sex}, \code{lx0}, or \code{ax}.
+#'   effect the results, such as \code{sex}, \code{lx0}, \code{ax}, or the 
+#'   closing arguments \code{close}, \code{omega} and \code{fit_from}. When 
+#'   \code{omega} extends the table beyond the input's open age, the result 
+#'   carries the extended ages (vector names, or matrix row names) rather 
+#'   than the input ages.
 #'
 #' @return A numeric vector or matrix containing the converted life table 
 #'   indicator. If the input was a named object, the output retains those 
@@ -104,6 +108,7 @@ convertFx <- function(x,
   from <- match.arg(from)
   to   <- match.arg(to)
   lx0  <- list(...)[["lx0"]]
+  ext  <- !is.null(list(...)[["omega"]]) || !is.null(list(...)[["close"]])
 
   LT <- switch(
     from,
@@ -118,8 +123,11 @@ convertFx <- function(x,
       stop("The 'x' and 'data' do not have the same length", call. = FALSE)
     }
 
-    out <- LT(data)$lt[, to]
-    names(out) <- names(data)
+    LTt <- LT(data)$lt
+    out <- LTt[, to]
+    # An extension argument (omega) adds rows above the input's open age; the
+    # output is then labelled by the extended ages rather than by the input.
+    names(out) <- if (nrow(LTt) == length(data)) names(data) else LTt$x
 
   } else {
     if (length(x) != nrow(data)) {
@@ -128,7 +136,7 @@ convertFx <- function(x,
     }
 
     out <- convert_fx_matrix(x = x, data = data, from = from, to = to,
-                             LT = LT, lx0 = lx0)
+                             LT = LT, lx0 = lx0, ext = ext)
   }
 
   return(out)
@@ -152,14 +160,16 @@ convertFx <- function(x,
 #' default.
 #' @return A numeric matrix with the converted indicator.
 #' @noRd
-convert_fx_matrix <- function(x, data, from, to, LT, lx0) {
+convert_fx_matrix <- function(x, data, from, to, LT, lx0, ext = FALSE) {
 
   M    <- as.matrix(data)
   N    <- length(x)
   nx   <- c(diff(x), diff(x)[N - 1])
   case <- paste0(from, "_to_", to)
   # A one-step identity needs a finite input and at least two age intervals.
-  ok   <- length(nx) == N && all(is.finite(M))
+  # When the table is extended (omega), the identities no longer describe the
+  # full output, so the generic LifeTable path is used instead.
+  ok   <- !ext && length(nx) == N && all(is.finite(M))
   one  <- switch(
     case,
     mx_to_qx = ok && all(M > 0),
@@ -188,7 +198,15 @@ convert_fx_matrix <- function(x, data, from, to, LT, lx0) {
 
   } else {
     if (is.null(colnames(M))) colnames(M) <- seq_len(ncol(M))
-    out <- matrix(LT(M)$lt[, to], nrow = N)
+    LTm <- LT(M)$lt
+    # An extension argument (omega) lengthens every column above the input's
+    # open age; keep the matrix shape on the extended grid and relabel rows.
+    if (nrow(LTm) != N) {
+      out <- matrix(LTm[, to], ncol = ncol(M),
+                    dimnames = list(unique(LTm$x), colnames(M)))
+      return(out)
+    }
+    out <- matrix(LTm[, to], nrow = N)
   }
 
   dimnames(out) <- dimnames(data)

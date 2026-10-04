@@ -36,18 +36,18 @@
 #' The life table is constructed sequentially: from the input data the 
 #' function derives \code{mx}, then \code{qx}, then \code{lx}, \code{dx}, 
 #' \code{Lx}, \code{Tx}, and finally \code{ex}. The constant-force-of-mortality 
-#' (CFM) assumption is used to convert between \code{mx} and \code{qx}. 
-#' If the \code{sex} argument is supplied, the first two values of the 
-#' \code{ax} column are adjusted using the Coale-Demeny method, which 
-#' accounts for the different infant mortality patterns between males 
-#' and females. Two published parameterisations of that adjustment are 
-#' available through \code{ax_method}: the default one, expressed in 
-#' terms of \code{mx}, and the original one, expressed in terms of 
-#' \code{qx} and retrieved from \code{mx} by the PAS inversion. The 
-#' second reproduces the coefficients used by the Coale-Demeny 1983 
-#' regional model tables and by the PAS software; the two differ by a 
-#' few thousandths of a year in the first two intervals when infant 
-#' mortality is low.
+#' (CFM) assumption is used to convert between \code{mx} and \code{qx} and 
+#' provides the \code{ax = n + 1/m - n/q} identity, which is the default 
+#' \code{ax = "cfm"}. If the \code{sex} argument is supplied, the first two 
+#' values of the \code{ax} column can instead be adjusted using the 
+#' Coale-Demeny method, which accounts for the different infant mortality 
+#' patterns between males and females. Two published parameterisations of 
+#' that adjustment are available through \code{ax}: \code{"preston"}, 
+#' expressed in terms of \code{mx}, and \code{"coale_demeny"}, expressed in 
+#' terms of \code{qx} and retrieved from \code{mx} by the PAS inversion. The 
+#' second reproduces the coefficients used by the Coale-Demeny 1983 regional 
+#' model tables and by the PAS software; the two differ by a few thousandths 
+#' of a year in the first two intervals when infant mortality is low.
 #'
 #' @references
 #' Coale, A. J., Demeny, P., and Vaughan, B. (1983). \emph{Regional 
@@ -72,6 +72,18 @@
 #' with \code{qx[N] = 1}. A user-supplied \code{ax[N]} is therefore 
 #' replaced, with a warning.
 #'
+#' That rule assumes the force of mortality is roughly constant above the 
+#' open age, which holds when the open interval is old (85+ or 90+) but 
+#' not when the input stops early (70+ or 75+). The \code{close} argument 
+#' addresses that directly: given a mortality-law code, the observed 
+#' \code{mx[N]} is replaced by the model-implied average over the open 
+#' interval, \code{1/ex[N]}, without changing the age grid. The 
+#' \code{omega} argument is a different response to the same problem: it 
+#' extends the table to \code{omega} by extrapolating the rates and closes 
+#' there. Either argument alone leaves the other's default in place, and 
+#' the default (\code{close = NULL}, \code{omega = NULL}) is the standard 
+#' reciprocal close, so results are unchanged.
+#'
 #' Missing values in \code{mx} or \code{qx} are never masked. They 
 #' localise to the interval quantities of the affected row (which are 
 #' returned as \code{NA}) and to the cumulative \code{Tx} and \code{ex} 
@@ -87,8 +99,10 @@
 #'              dx = NULL,
 #'              sex = NULL,
 #'              lx0 = 1e5,
-#'              ax  = NULL,
-#'              ax_method = c("preston", "coale_demeny"))
+#'              ax  = "cfm",
+#'              close = NULL,
+#'              omega = NULL,
+#'              fit_from = NULL)
 #'
 #' @param x Numeric vector of ages at the beginning of each age interval. 
 #'   For a full life table, use single-year ages (e.g., \code{0:110}). 
@@ -129,25 +143,71 @@
 #'   age 0. Default is \code{100,000}. All subsequent life-table columns 
 #'   (\code{lx}, \code{dx}, \code{Lx}, \code{Tx}) are scaled accordingly.
 #'
-#' @param ax Numeric vector representing the average number of person-years 
-#'   lived in the age interval by those who die in that interval. If 
-#'   \code{NULL} (the default), \code{ax} is estimated internally using 
-#'   a standard formula. You may supply a single value (applied to all 
-#'   intervals) or a vector of the same length as \code{x}. A common 
-#'   assumption is \code{ax = 0.5}, which places deaths at the midpoint 
-#'   of each interval. The value supplied for the open age interval is 
-#'   ignored and replaced with \code{1/mx}; see \code{Details}.
+#' @param ax The average number of person-years lived in each age interval 
+#'   by those who die in it, given either as values or as the method that 
+#'   produces them. Accepts two forms: 
+#'   \itemize{ 
+#'   \item a numeric scalar or vector: a scalar is applied to all intervals, 
+#'         a vector must have the same length as \code{x}. A common 
+#'         assumption is \code{ax = 0.5}, which places deaths at the 
+#'         midpoint of each interval; 
+#'   \item a method name, one of \code{"cfm"} (the default), 
+#'         \code{"preston"} or \code{"coale_demeny"} (see below). 
+#'   } 
+#' 
+#'   The three methods share the same basis, the standard lifetable 
+#'   identity \code{ax = n + 1/m - n/q} under a constant force of mortality 
+#'   (Preston, Heuveline and Guillot 2001, eq. 3.15), and differ in how 
+#'   they treat the first two intervals: 
+#'   \itemize{ 
+#'   \item \code{"cfm"}: the identity alone, for every interval; 
+#'   \item \code{"preston"}: the identity, with the first two intervals 
+#'         replaced by the Coale-Demeny West separation factors published 
+#'         by Preston et al. (2001), table 3.3, when \code{sex} is given; 
+#'   \item \code{"coale_demeny"}: the identity, with the first two intervals 
+#'         replaced by the original 1983 Coale-Demeny rule expressed in 
+#'         \code{qx}, reproduced by the PAS software, when \code{sex} is 
+#'         given. 
+#'   } 
+#'   \code{"preston"} and \code{"coale_demeny"} agree exactly once 
+#'   \code{mx[1]} reaches 0.107, and differ by at most a few thousandths of 
+#'   a year below it. Both coincide with \code{"cfm"} when \code{sex} is 
+#'   \code{NULL}. 
+#' 
+#'   The value for the open age interval is always replaced with \code{1/mx} 
+#'   (or the model-implied value when \code{close} is set); see 
+#'   \code{Details}.
 #'
-#' @param ax_method The published parameterisation used to adjust the 
-#'   first two values of \code{ax} when \code{sex} is given. 
-#'   \code{"preston"} (the default) uses the coefficients of Preston, 
-#'   Heuveline and Guillot (2001), table 3.3, which are expressed in 
-#'   terms of \code{mx}. \code{"coale_demeny"} uses the original 1983 
-#'   Coale-Demeny rule, expressed in terms of \code{qx} and reproduced 
-#'   by the PAS software. The two agree exactly once \code{mx[1]} 
-#'   reaches 0.107 and differ by at most a few thousandths of a year 
-#'   below it. Ignored when \code{sex = NULL} or when \code{ax} is 
-#'   supplied.
+#' @param close The method used to close the open age interval, named by 
+#'   the mortality-law code that implements it. \code{NULL} (the default) 
+#'   keeps the standard reciprocal close, \code{mx[N] = (the observed 
+#'   rate)}. A code from \code{\link{availableLaws}} (e.g. \code{"kannisto"}) 
+#'   closes the table instead with the model-implied average force of 
+#'   mortality over the open interval: the law is fitted to the closed 
+#'   intervals and the observed \code{mx[N]} is replaced by \code{1/ex[N]}. 
+#'   This corrects the bias of the reciprocal close when the open interval 
+#'   begins at a young age, and it does not change the age grid. The 
+#'   standard row identities (\code{qx[N] = 1}, \code{ax[N] = ex[N] = 1/mx[N]}) 
+#'   still hold on the corrected rate. The same code is used when 
+#'   \code{omega} extends the table; when \code{omega} is set and \code{close} 
+#'   is \code{NULL}, the extrapolation defaults to \code{"kannisto"}.
+#'
+#' @param omega The age at which to close the table when it should be 
+#'   extended beyond the input's open age. \code{NULL} (the default) keeps 
+#'   the table closed at the input's own open age. When \code{omega} is 
+#'   greater than the last age in \code{x}, the death rates from the open 
+#'   age up to \code{omega} are obtained by extrapolating the \code{close} 
+#'   law (see also \code{fit_from}) and the table is closed at \code{omega}. 
+#'   The input's own open interval is replaced by the extrapolated values, 
+#'   so a user-supplied \code{ax} is re-estimated on the extended grid. An 
+#'   \code{omega} that does not exceed the last age in \code{x} leaves the 
+#'   table unchanged, with a warning. Ignored by the in-place close, which 
+#'   operates on the input's own open age.
+#'
+#' @param fit_from The age from which the closing law is fitted. 
+#'   \code{NULL} (the default) uses 60 when the input reaches age 85, and 
+#'   the last 20 years of the input otherwise. Ignored when neither 
+#'   \code{close} nor \code{omega} is set.
 #'
 #' @return An object of class \code{"LifeTable"} containing the following 
 #'   components:
@@ -210,15 +270,31 @@
 #'
 #' LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 #'
-#' # Example 5 --- The two Coale-Demeny parameterisations ---------
-#' # The default ('preston') uses the coefficients expressed in m0.
-#' # 'coale_demeny' uses the original q0-based rule; the two differ only
-#' # below m0 = 0.107 (here m0 = 0.053) and converge above it.
+#' # Example 5 --- The Coale-Demeny parameterisations ---------
+#' # The default 'cfm' is the plain identity (no childhood adjustment).
+#' # 'preston' uses the coefficients expressed in m0 and 'coale_demeny'
+#' # the original q0-based rule; the two differ only below m0 = 0.107
+#' # (here m0 = 0.053) and converge above it.
 #'
 #' LT8  <- LifeTable(x, mx = mx, sex = "female")
-#' LT9  <- LifeTable(x, mx = mx, sex = "female", ax_method = "coale_demeny")
+#' LT9  <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
+#' LT10 <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
 #' LT8$lt$ax[1:2]
 #' LT9$lt$ax[1:2]
+#' LT10$lt$ax[1:2]
+#'
+#' # Example 6 --- Closing the open interval accurately -----------
+#' # The data stop at 75+; closing there assumes a constant hazard above 75.
+#' # 'close' corrects the open-interval rate with a fitted law, on the same
+#' # age grid; 'omega' instead extends the table to 110 before closing.
+#'
+#' x5  <- c(0, 1, seq(5, 75, by = 5))
+#' mx5 <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+#'          .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+#' LT10 <- LifeTable(x5, mx = mx5, close = "kannisto")
+#' LT11 <- LifeTable(x5, mx = mx5, omega = 110)
+#' c(close = LT10$lt$ex[1], omega = LT11$lt$ex[1])
+#' tail(LT10$lt)
 #'
 #' @export
 LifeTable <- function(x,
@@ -230,10 +306,16 @@ LifeTable <- function(x,
                       dx = NULL,
                       sex = NULL,
                       lx0 = 1e5,
-                      ax = NULL,
-                      ax_method = c("preston", "coale_demeny")){
+                      ax  = "cfm",
+                      close = NULL,
+                      omega = NULL,
+                      fit_from = NULL){
 
-  ax_method <- match.arg(ax_method)
+  A         <- check_ax(x = x, ax = ax)
+  ax        <- A$ax
+  ax_method <- A$ax_method
+  close     <- check_close(close)
+  omega     <- check_omega(x = x, omega = omega)
   input <- c(as.list(environment()))
   X     <- check_life_table_input(input)
   x     <- X$x
@@ -250,9 +332,12 @@ LifeTable <- function(x,
                          sex = X$sex,
                          lx0 = X$lx0,
                          ax = X$ax,
-                         ax_method = X$ax_method,
+                         ax_method = ax_method,
+                         close = close,
+                         omega = omega,
+                         fit_from = fit_from,
                          case = X$case,
-                         x.int = x.int)
+                         x.int = if (is.null(omega)) x.int else NULL)
 
   } else {
     nm <- X$LTnames
@@ -269,9 +354,12 @@ LifeTable <- function(x,
                             sex = X$sex,
                             lx0 = X$lx0,
                             ax = X$ax,
-                            ax_method = X$ax_method,
+                            ax_method = ax_method,
+                            close = close,
+                            omega = omega,
+                            fit_from = fit_from,
                             case = X$case,
-                            x.int = x.int)
+                            x.int = if (is.null(omega)) x.int else NULL)
 
       LTn     <- if (is.null(nm) || is.na(nm[i])) i else nm[i]
       LT[[i]] <- cbind(LT = LTn, LTi)
@@ -308,17 +396,16 @@ compute_life_table <- function(x,
                            sex = NULL,
                            lx0 = 1e5,
                            ax = NULL,
-                           ax_method = "preston",
+                           ax_method = "cfm",
+                           close = NULL,
+                           omega = NULL,
+                           fit_from = NULL,
                            case = NULL,
                            x.int = NULL) {
 
   if (is.null(case)) {
     case <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx,
                          lx = lx, dx = dx)$case
-  }
-
-  if (is.null(x.int)) {
-    x.int <- paste0("[", x, ",", c(x[-1], "+"), ")")
   }
 
   N       <- length(x)
@@ -328,6 +415,55 @@ compute_life_table <- function(x,
 
   if (user_ax && length(ax) == 1) {
     ax <- rep(ax, N)
+  }
+
+  # Closing methods (issue #8). Both are opt-in responses to the same problem:
+  # the reciprocal 1/mx close is biased when the open interval starts young.
+  #   - close = "<law>" corrects mx[N] in place, on the same age grid;
+  #   - omega = <age>    extends the rates to omega and closes there.
+  # 'close' names the law for either; the extension defaults to Kannisto when
+  # 'close' is NULL, while the in-place close is then simply not requested.
+  law_use <- if (!is.null(close)) close else if (!is.null(omega)) "kannisto"
+
+  # Extension of the open interval: resolve the input to rates, extrapolate
+  # them to omega with a mortality law, and rebuild the table on the extended
+  # grid as an mx case. A user-supplied ax cannot survive the grid change and
+  # is re-estimated.
+  if (!is.null(omega)) {
+    mx0 <- lt_case_rates(case = case, x = x, nx = nx, Dx = Dx, Ex = Ex,
+                         mx = mx, qx = qx, lx = lx, dx = dx, lx0 = lx0,
+                         ax = ax)$mx
+    mx0 <- repair_mx(mx = mx0, nx = nx)
+
+    E <- lt_extend_omega(x = x, mx = mx0, omega = omega,
+                         law = law_use, fit_from = fit_from)
+
+    if (is.null(E)) {
+      warning("The 'omega' extension could not be computed from the ",
+              "supplied data; the life table closes at ", x[N], " as before.",
+              call. = FALSE)
+
+    } else {
+      if (user_ax) {
+        warning("'ax' is re-estimated on the extended age grid; the ",
+                "supplied values no longer match the new intervals.",
+                call. = FALSE)
+      }
+
+      x    <- E$x
+      mx   <- E$mx
+      Dx   <- Ex <- qx <- lx <- dx <- NULL
+      ax   <- NULL
+      case <- "C2_mx"
+      N    <- length(x)
+      df   <- diff(x)
+      nx   <- c(df, df[N - 1])
+      user_ax <- FALSE
+    }
+  }
+
+  if (is.null(x.int)) {
+    x.int <- paste0("[", x, ",", c(x[-1], "+"), ")")
   }
 
   R <- lt_case_rates(case = case, x = x, nx = nx, Dx = Dx, Ex = Ex,
@@ -340,6 +476,24 @@ compute_life_table <- function(x,
 
   mx <- repair_mx(mx = R$mx, nx = nx)
   qx <- R$qx
+
+  # In-place accurate close, on the input's own open age (when the table was
+  # not extended, in which case the open age is already omega and the
+  # reciprocal close is adequate there). The downstream identities
+  # (qx = 1, ax = ex = 1/mx, Lx = lx/mx) hold on the corrected rate.
+  if (!is.null(close) && is.null(omega) && !any(R$miss[N])) {
+    mcl <- lt_close_model(x = x, mx = mx, law = law_use, fit_from = fit_from)
+
+    if (is.null(mcl)) {
+      warning("The closing law '", law_use, "' could not be fitted to the ",
+              "supplied data; the open interval keeps its observed rate ",
+              format(mx[N], digits = 4), ".", call. = FALSE)
+
+    } else {
+      mx[N]    <- mcl
+      R$mx[N]  <- mcl
+    }
+  }
 
   if (is.null(R$lx)) {
     L <- lx_dx(qx = qx, lx0 = lx0)
@@ -394,7 +548,7 @@ lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE,
   if (!user) {
     ax <- compute_ax(x = x, mx = mx, qx = qx)
 
-    if (!is.null(sex)) {
+    if (!is.null(sex) && ax_method != "cfm") {
       ax <- coale_demeny_ax(x = x, mx = mx, ax = ax, sex = sex,
                             method = ax_method)
     }
