@@ -1,3 +1,7 @@
+version 2.10.3 - "hex appeal"
+- The package wears a new logo: two curves of a life, with the little figures
+between them thinning out as the years pass.
+
 version 2.10.2 - "safety net"
 - The models and the life tables are now tested almost completely, so a change
 that breaks them is caught before it reaches you.
