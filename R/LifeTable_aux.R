@@ -17,22 +17,24 @@ detect_case <- function(Dx = NULL,
                          mx = NULL,
                          qx = NULL,
                          lx = NULL,
-                         dx = NULL) {
+                         dx = NULL,
+                         ex = NULL) {
 
   input   <- c(as.list(environment()))
 
   # Matrix of possible cases --------------------
-  rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx")
-  cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx")
+  rn  <- c("C1_DxEx", "C2_mx", "C3_qx", "C4_lx", "C5_dx", "C6_ex")
+  cn  <- c("Dx", "Ex", "mx", "qx", "lx", "dx", "ex")
   mat <- matrix(
-    ncol = 6,
+    ncol = 7,
     byrow = TRUE,
     dimnames = list(rn, cn),
-    data = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE,
-             FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
-             FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
-             FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
-             FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)
+    data = c(TRUE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE,
+             FALSE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE,
+             FALSE, FALSE, FALSE, TRUE, FALSE, FALSE, FALSE,
+             FALSE, FALSE, FALSE, FALSE, TRUE, FALSE, FALSE,
+             FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, FALSE,
+             FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, TRUE)
     )
   # ----------------------------------------------
   L1 <- !unlist(lapply(input, is.null))
@@ -983,7 +985,8 @@ check_life_table_input <- function(input) {
 
   with(input, {
     # ----------------------------------------------
-    K <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx)
+    K <- detect_case(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx,
+                     ex = ex)
     C <- K$case
     valid_classes <- c("numeric", "matrix", "data.frame", NULL)
 
@@ -993,7 +996,7 @@ check_life_table_input <- function(input) {
     }
 
     # The data must line up with the age vector before any repair runs.
-    L <- list(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx)
+    L <- list(Dx = Dx, Ex = Ex, mx = mx, qx = qx, lx = lx, dx = dx, ex = ex)
 
     for (nm in names(L)) {
       ux <- L[[nm]]
@@ -1042,6 +1045,13 @@ check_life_table_input <- function(input) {
       dx[is.na(dx)] <- 0
     }
 
+    if (C == "C6_ex") {
+      # A curve of life expectancy cannot be repaired the way a rate can: the
+      # inverse needs a complete curve, so a missing value is reported, never
+      # filled with a rate heuristic (which would silently change the answer).
+      ex <- lt_repair_ex(x = x, ex = ex)
+    }
+
     # 'ax' is validated by check_ax() before this function runs.
 
     # Exit
@@ -1052,6 +1062,7 @@ check_life_table_input <- function(input) {
                 qx = qx,
                 lx = lx,
                 dx = dx,
+                ex = ex,
                 sex = sex,
                 lx0 = lx0,
                 ax = ax,

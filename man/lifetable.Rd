@@ -9,6 +9,7 @@ LifeTable(x, Dx = NULL, Ex = NULL,
              qx = NULL,
              lx = NULL,
              dx = NULL,
+             ex = NULL,
              sex = NULL,
              lx0 = 1e5,
              ax  = "andreev_kingkade",
@@ -44,6 +45,16 @@ chosen radix \code{lx0}.}
 \item{dx}{Number of deaths in the life-table population occurring in 
 the age interval \code{[x, x+n)}. When \code{dx} is the sole input, 
 the values are re-scaled to sum to \code{lx0}.}
+
+\item{ex}{Remaining life expectancy at age \code{x}, in years. When 
+\code{ex} is the sole input the function builds the life table that 
+reproduces the supplied curve: the survivorship, death probabilities and 
+death rates are recovered from \code{ex} and the \code{ax} convention 
+(see \code{Details}). A curve that rises with age at the youngest ages is 
+allowed; a missing value anywhere in the curve, or a curve that is not a 
+feasible life table (falling faster than the interval width, or below its 
+own \code{ax}), is an error naming the affected ages. A missing 
+\code{ex} is never repaired the way a missing rate is.}
 
 \item{sex}{Sex of the population. Options are \code{NULL} (default), 
 \code{"male"}, \code{"female"}, or \code{"total"}. When specified, 
@@ -163,6 +174,7 @@ The function accepts:
   \item Death probabilities (\code{qx})
   \item Survivorship curve (\code{lx})
   \item Distribution of deaths (\code{dx})
+  \item Remaining life expectancy (\code{ex})
 }
 Exactly one of these input options must be provided; supplying more 
 than one is an error. The input can be a numeric \code{vector}, 
@@ -202,6 +214,31 @@ through \code{ax = "preston"}, expressed in terms of \code{mx}, and
 from \code{mx} by the PAS inversion. The latter reproduces the 
 coefficients used by the Coale-Demeny 1983 regional model tables and by 
 the PAS software.
+
+The \code{ex} input runs the table backwards. The survivorship ratio of 
+each closed interval follows from the identity
+\deqn{e_x l_x - e_{x+n} l_{x+n} = nL_x = a_x l_x + (n - a_x) l_{x+n}}, so
+that \eqn{r_x = l_{x+n}/l_x = (e_x - a_x)/(e_{x+n} + n - a_x)}. When 
+\code{ax} is supplied as a numeric vector the recovery is a single sweep. 
+When it is not, each interval is solved so that the ax the method in force 
+would assign to the recovered interval reproduces the ratio it came from; 
+the recovered table is then identical to the one the same \code{ex} curve 
+describes under that method. The open interval closes by the standard rule, 
+\eqn{a_N = e_N} and \eqn{m_N = 1/e_N}. A curve of life expectancy is 
+allowed to rise with age at the youngest ages (life expectancy at birth is 
+lower than at age one when infant mortality is high), so a rise is not an 
+error; a curve that falls by more than the interval width, or below its own 
+\eqn{a_x}, is not a feasible life table and is reported by age. Because 
+\eqn{e_x} alone does not pin \eqn{a_x}, pass \code{ax} alongside \code{ex} 
+when the ax convention matters. One nuance follows from the forward build: 
+when \code{ax} is \code{"preston"} or \code{"coale_demeny"} and a \code{sex} 
+is given, the forward table adjusts \code{ax} in the first two intervals 
+after converting the rates, so its stored \code{mx} there does not satisfy 
+the exact identity on its own \code{ax}. The inverse returns the 
+identity-consistent \code{mx}, so in that one family the recovered 
+\code{mx} in the first two rows can differ from the forward table's at the 
+third decimal while \code{ex}, \code{qx} and \code{ax} still reproduce 
+exactly.
 }
 \examples{
 # Example 1 --- Full life tables with different inputs ------------
@@ -216,9 +253,11 @@ LT2 <- LifeTable(x, mx = LT1$lt$mx)
 LT3 <- LifeTable(x, qx = LT1$lt$qx)
 LT4 <- LifeTable(x, lx = LT1$lt$lx)
 LT5 <- LifeTable(x, dx = LT1$lt$dx)
+LT5b <- LifeTable(x, ex = LT1$lt$ex)
 
 LT1
 LT5
+LT5b
 ls(LT5)
 
 # Example 2 --- Compute multiple life tables at once ------------

@@ -456,3 +456,122 @@ test_that("LifeTable closes or extends abridged tables for every column", {
   expect_equal(nrow(LE), 2 * 24)
   expect_true(all(LE$qx[LE$x == 110] == 1))
 })
+
+
+# The ex input (issue #6): build a life table that reproduces a supplied curve
+# of life expectancy. The round trip mx -> table -> ex -> table must recover the
+# table, because the inverse uses the same interval identity the forward build
+# does, and the ax the forward rule would have assigned.
+test_that("LifeTable reproduces a table entered from its own e(x)", {
+  for (gr in list(0:105, c(0, 1, seq(5, 105, by = 5)),
+                  c(0, 1, seq(5, 75, by = 5)), 0:95, 60:105)) {
+    xs <- gr
+    ms <- ahmd$mx[paste0(xs), 1]
+    A  <- LifeTable(xs, mx = ms)
+    B  <- LifeTable(xs, ex = A$lt$ex)
+    n  <- length(xs) - 1
+
+    expect_equal(B$lt$ex, A$lt$ex, tolerance = 1e-8)
+    expect_equal(B$lt$qx, A$lt$qx, tolerance = 1e-8)
+    expect_equal(B$lt$mx[seq_len(n)], A$lt$mx[seq_len(n)], tolerance = 1e-8)
+    expect_equal(B$lt$ax, A$lt$ax, tolerance = 1e-6)
+  }
+})
+
+test_that("the ex input honours a supplied ax exactly", {
+  xs <- 0:105
+  ms <- ahmd$mx[paste0(xs), 1]
+  A  <- LifeTable(xs, mx = ms, ax = rep(0.5, length(xs)))
+  B  <- LifeTable(xs, ex = A$lt$ex, ax = rep(0.5, length(xs)))
+  n  <- length(xs) - 1
+
+  expect_equal(B$lt$ex, A$lt$ex, tolerance = 1e-9)
+  expect_equal(B$lt$mx[seq_len(n)], A$lt$mx[seq_len(n)], tolerance = 1e-9)
+})
+
+test_that("the ex input reproduces the table under every ax method", {
+  # The Coale-Demeny childhood rule makes the second interval's ax a function
+  # of the first interval's rate, so this pins the non-local case as well as
+  # the local ones. The round trip is exact for every method and sex, in the
+  # ratio columns (ex, qx, ax); the mx column is compared too for the default
+  # method, where the forward table is internally consistent.
+  for (gr in list(0:105, c(0, 1, seq(5, 105, by = 5)),
+                  c(0, 1, seq(5, 75, by = 5)))) {
+    for (am in c("andreev_kingkade", "cfm", "preston", "coale_demeny")) {
+      for (sx in list(NULL, "female", "male")) {
+        A <- suppressWarnings(LifeTable(gr, mx = ahmd$mx[paste0(gr), 1],
+                                        ax = am, sex = sx))
+        B <- suppressWarnings(LifeTable(gr, ex = A$lt$ex, ax = am, sex = sx))
+        expect_equal(B$lt$ex, A$lt$ex, tolerance = 1e-8)
+        expect_equal(B$lt$qx, A$lt$qx, tolerance = 1e-8)
+        expect_equal(B$lt$ax, A$lt$ax, tolerance = 1e-6)
+      }
+    }
+  }
+})
+
+test_that("the ex input reproduces the rate column for the default method", {
+  # A rate column that satisfies the table's own interval identity, which the
+  # default method does, must be recovered exactly, including the fast closing
+  # intervals where the 1/mx cap binds.
+  for (gr in list(0:105, c(0, 1, seq(5, 105, by = 5)),
+                  as.numeric(rownames(ahmd$mx)))) {
+    A <- suppressWarnings(LifeTable(gr, mx = ahmd$mx[paste0(gr), 1]))
+    B <- suppressWarnings(LifeTable(gr, ex = A$lt$ex))
+    expect_equal(B$lt$mx, A$lt$mx, tolerance = 1e-8)
+  }
+})
+
+test_that("the ex input accepts a matrix and keeps the shape", {
+  xs <- c(0, 1, seq(5, 105, by = 5))
+  A  <- LifeTable(xs, mx = ahmd$mx[paste0(xs), 1])
+  E  <- cbind(a = A$lt$ex, b = A$lt$ex + 0.5)
+
+  M <- LifeTable(xs, ex = E)$lt
+  expect_equal(sort(unique(M$LT)), c("a", "b"))
+  expect_equal(nrow(M), 2 * length(xs))
+})
+
+test_that("the ex input is not required to fall with age", {
+  # Life expectancy at birth below life expectancy at age one is normal when
+  # infant mortality is high; the inverse must not reject it.
+  xs <- 0:105
+  A  <- LifeTable(xs, mx = ahmd$mx[paste0(xs), 1])
+  expect_true(A$lt$ex[1] < A$lt$ex[2])
+  expect_silent(LifeTable(xs, ex = A$lt$ex))
+})
+
+test_that("an infeasible ex is an error naming the age", {
+  xs <- 0:105
+  A  <- LifeTable(xs, mx = ahmd$mx[paste0(xs), 1])
+
+  # a curve that rises where no rise is possible
+  eb <- A$lt$ex
+  eb[50] <- eb[51] + 2
+  expect_error(LifeTable(xs, ex = eb), regexp = "not a feasible life table")
+
+  # a missing value in the curve, at any age, including the oldest ages where
+  # a rate would instead be repaired
+  for (age in c(10, 99, 100, 105)) {
+    en <- A$lt$ex
+    en[age + 1] <- NA
+    expect_error(LifeTable(xs, ex = en), regexp = "missing or non-finite")
+  }
+})
+
+test_that("the ex input forwards close and omega", {
+  xo <- c(0, 1, seq(5, 75, by = 5))
+  mo <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
+          .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
+  A  <- LifeTable(xo, mx = mo)
+
+  # in place: the grid is unchanged
+  C  <- LifeTable(xo, ex = A$lt$ex, close = "kannisto")$lt
+  expect_equal(nrow(C), length(xo))
+  expect_true(C$qx[nrow(C)] == 1)
+
+  # extended: the grid grows to omega
+  O  <- LifeTable(xo, ex = A$lt$ex, omega = 110)$lt
+  expect_true(nrow(O) > length(xo))
+  expect_true(all(O$qx[O$x == 110] == 1))
+})

@@ -18,14 +18,15 @@ ax50 <- rep(0.5, length(x))
 qx <- convertFx(x, data = mx, from = "mx", to = "qx", ax = ax50)
 dx <- convertFx(x, data = mx, from = "mx", to = "dx", ax = ax50)
 lx <- convertFx(x, data = mx, from = "mx", to = "lx", ax = ax50)
+ex <- convertFx(x, data = mx, from = "mx", to = "ex", ax = ax50)
 
 
-test_that("convertFx covers all 28 from-to combinations", {
-  # from: mx, qx, dx, lx (the primary life table inputs)
+test_that("convertFx covers all 35 from-to combinations", {
+  # from: mx, qx, dx, lx, ex (the primary life table inputs, ex added by issue #6)
   # to: mx, qx, dx, lx, Lx, Tx, ex (all life table columns)
-  from <- c("mx", "qx", "dx", "lx")
+  from <- c("mx", "qx", "dx", "lx", "ex")
   to   <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
-  K    <- expand.grid(from = from, to = to) # 4 x 7 = 28 combinations
+  K    <- expand.grid(from = from, to = to) # 5 x 7 = 35 combinations
 
   for (i in 1:nrow(K)) {
     In  <- as.character(K[i, "from"])
@@ -35,7 +36,8 @@ test_that("convertFx covers all 28 from-to combinations", {
     # convertFx promises, and it holds exactly only when the ax is the same
     # on both sides; the default ax is input-shape dependent by design (the
     # rate cases read the Andreev-Kingkade a0 from m0, the probability cases
-    # from q0, and the closed intervals carry no recoverable rate).
+    # from q0, and the closed intervals carry no recoverable rate). The ex
+    # case is inverted under the same ax, so it agrees with the rate cases.
     assign(N, convertFx(x = x, data = get(In), from = In, to = Out,
                         ax = rep(0.5, length(x))))
   }
@@ -51,8 +53,12 @@ test_that("convertFx covers all 28 from-to combinations", {
     Ref <- get(paste0(cc, "_from_dx"))[-n, ]
     expect_equal(Ref, get(paste0(cc, "_from_lx"))[-n, ], tolerance = 1e-8)
     expect_equal(Ref, get(paste0(cc, "_from_qx"))[-n, ], tolerance = 1e-8)
+    expect_equal(Ref, get(paste0(cc, "_from_ex"))[-n, ], tolerance = 1e-8)
   }
-  # ex agrees among the starting points that share the open-interval rate
+  # ex agrees among the starting points that share the open-interval rate; the
+  # ex input is excluded because it pins the open rate as m_N = 1/e_N, which the
+  # other inputs recover geometrically, so their cumulative columns differ in
+  # the open interval and every row below it (see the dedicated ex test).
   expect_equal(ex_from_dx[-n, ], ex_from_lx[-n, ], tolerance = 1e-8)
   expect_equal(ex_from_dx[-n, ], ex_from_qx[-n, ], tolerance = 1e-8)
 })
@@ -63,6 +69,25 @@ test_that("convertFx validates its inputs", {
   expect_error(convertFx(10:15, data = mx, from = "mx", to = "qx"))
   # The length of 'x' must be equal to the number of rows in 'data'
   expect_error(convertFx(x[1], data = mx, from = "mx", to = "qx"))
+})
+
+test_that("convertFx takes ex as a source and round-trips it", {
+  # ex -> the columns it implies. mx in this file is a 4-column data frame, so
+  # the comparison runs on one column to keep the shapes aligned.
+  n   <- length(x)
+  ex1 <- ex[, 1]
+  qx_e <- convertFx(x, data = ex1, from = "ex", to = "qx", ax = ax50)
+  mx_e <- convertFx(x, data = ex1, from = "ex", to = "mx", ax = ax50)
+  mx1  <- convertFx(x, data = mx[, 1], from = "mx", to = "mx", ax = ax50)
+
+  expect_equal(qx_e, qx[, 1], tolerance = 1e-8)
+  expect_equal(unname(mx_e), unname(mx1), tolerance = 1e-8)
+
+  # a matrix source keeps its shape and names
+  M   <- cbind(a = ex1, b = ex1 + 1)
+  Mex <- convertFx(x, data = M, from = "ex", to = "mx", ax = ax50)
+  expect_equal(dim(Mex), c(n, 2))
+  expect_equal(colnames(Mex), c("a", "b"))
 })
 
 test_that("convertFx accepts integer vectors as numeric input", {

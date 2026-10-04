@@ -18,19 +18,21 @@
 #' \code{\link{LifeTable}} directly and extract the desired column.
 #'
 #' The supported \strong{input} types (\code{from}) are:
-#' \code{mx}, \code{qx}, \code{dx}, and \code{lx}.
+#' \code{mx}, \code{qx}, \code{dx}, \code{lx}, and \code{ex}.
 #'
 #' The supported \strong{output} types (\code{to}) are:
 #' \code{mx}, \code{qx}, \code{dx}, \code{lx}, \code{Lx}, \code{Tx}, and 
 #' \code{ex}.
 #'
-#' There are 28 possible \code{from}-\code{to} combinations (4 inputs 
+#' There are 35 possible \code{from}-\code{to} combinations (5 inputs 
 #' \eqn{\times} 7 outputs). Conversions that need a single life-table 
 #' identity, such as \code{mx} to \code{qx} or \code{dx} to \code{lx}, are 
 #' computed directly from that relation. All the other conversions are 
 #' obtained from the full life-table computation; for example, converting 
 #' \code{mx} to \code{ex} will internally compute \code{qx}, \code{lx}, 
-#' \code{dx}, \code{Lx}, and \code{Tx} in sequence.
+#' \code{dx}, \code{Lx}, and \code{Tx} in sequence. A \code{ex} input is 
+#' converted by building the life table that reproduces the supplied curve 
+#' (see \code{\link{LifeTable}}).
 #'
 #' When \code{data} is a \code{vector}, the function returns a named vector. 
 #' When \code{data} is a \code{matrix} or \code{data.frame} with multiple 
@@ -45,7 +47,7 @@
 #'   period.
 #'
 #' @param from The type of indicator supplied in \code{data}. One of:
-#'   \code{"mx"}, \code{"qx"}, \code{"dx"}, or \code{"lx"}.
+#'   \code{"mx"}, \code{"qx"}, \code{"dx"}, \code{"lx"}, or \code{"ex"}.
 #'
 #' @param to The desired output indicator. One of:
 #'   \code{"mx"}, \code{"qx"}, \code{"dx"}, \code{"lx"}, \code{"Lx"}, 
@@ -84,9 +86,12 @@
 #' # Convert death rates to survivorship
 #' lx <- convertFx(x, data = mx, from = "mx", to = "lx")
 #'
-#' # ---- All 28 possible conversions ----
+#' # Convert death rates to life expectancy
+#' ex <- convertFx(x, data = mx, from = "mx", to = "ex")
 #'
-#' from <- c("mx", "qx", "dx", "lx")
+#' # ---- All 35 possible conversions ----
+#'
+#' from <- c("mx", "qx", "dx", "lx", "ex")
 #' to   <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
 #' K    <- expand.grid(from = from, to = to)
 #'
@@ -101,7 +106,7 @@
 #' @export
 convertFx <- function(x,
                       data,
-                      from = c("mx", "qx", "dx", "lx"),
+                      from = c("mx", "qx", "dx", "lx", "ex"),
                       to = c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex"),
                       ...) {
 
@@ -117,7 +122,8 @@ convertFx <- function(x,
     mx = function(w) LifeTable(x = x, mx = w, ...),
     qx = function(w) LifeTable(x = x, qx = w, ...),
     dx = function(w) LifeTable(x = x, dx = w, ...),
-    lx = function(w) LifeTable(x = x, lx = w, ...)
+    lx = function(w) LifeTable(x = x, lx = w, ...),
+    ex = function(w) LifeTable(x = x, ex = w, ...)
     )
 
   if (is.vector(data)) {
