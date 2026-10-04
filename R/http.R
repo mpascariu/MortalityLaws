@@ -76,7 +76,10 @@ hmd_session <- function(username, password) {
   session <- httr::cookies(x = response)
   cookie_string <- paste0(session$name, "=", session$value, collapse = "; ")
 
-  if (!nzchar(cookie_string)) {
+  # Test the cookie set, not the string: paste0() recycles its literal "="
+  # against an empty cookie set and returns "=", so a nzchar() check on the
+  # string could never fire.
+  if (nrow(session) == 0) {
     stop(
       "The HMD login reached Home/Index but no session cookie was set. ",
       "Try again later.",

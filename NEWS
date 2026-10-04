@@ -1,3 +1,7 @@
+version 2.10.4 - "small print"
+- A failed login now says the session was not set up, and the test suite is
+half the size and about four times faster.
+
 version 2.10.3 - "hex appeal"
 - The package wears a new logo: two curves of a life, with the little figures
 between them thinning out as the years pass.
