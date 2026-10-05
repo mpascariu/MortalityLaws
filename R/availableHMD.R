@@ -20,11 +20,7 @@
 #'   when the website cannot be reached or the response carries no table.
 #' @seealso \code{\link{ReadHMD}}
 #' @author Marius D. Pascariu
-#' @examples
-#' \dontrun{
-#' availableHMD()
-#' }
-#' 
+#' @example inst/examples/availableHMD.R
 #' @export
 availableHMD <- function(link = "https://www.mortality.org/Data/DataAvailability") {
   out <- NULL

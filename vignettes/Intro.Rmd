@@ -120,8 +120,10 @@ Visual inspection is also easy:
 plot(fit)
 ```
 
-The default plot shows observed and fitted age-specific death rates (or probabilities),
-the residuals, and a histogram of the residuals.
+The default plot shows the observed and fitted age-specific death rates (or
+probabilities) together with a residual diagnosis: the residuals against age and
+against the fitted values, a normal Q-Q plot, and their distribution. Use
+`which` and `split` to draw the figures separately or to rearrange the panels.
 
 ## Fitting on a subset of ages
 

@@ -6,13 +6,6 @@
 # files plus Contracts 6, 8, 9 and the loss-function sweep.
 # --------------------------------------------
 
-# plot() auto-opens the default device (and drops Rplots.pdf) when none is active.
-with_pdf_device <- function(expr) {
-  grDevices::pdf(file = tempfile(fileext = ".pdf"))
-  on.exit(grDevices::dev.off(), add = TRUE)
-  return(expr)
-}
-
 # ---- The catalogue: one fit per law ------------------------------------------
 # Ages per law TYPE, read off the legend of availableLaws().
 law_catalogue <- availableLaws()
@@ -248,6 +241,26 @@ test_that("print.summary, logLik and predict follow the fit shape", {
   expect_equal(p90, predict(law_fits[["thiele"]], x = 85:90)["90"])
   # the multi-curve summary takes the L2 = FALSE branch (MortalityLaw_S3.R:134)
   expect_output(print(summary(fit_multi)), "Average dispersion")
+})
+
+test_that("summary reports the fit window, the method and the fit measures", {
+  out <- capture.output(print(summary(law_fits[["makeham"]])))
+  expect_true(any(grepl("fitted on", out)))
+  expect_true(any(grepl("^  method ", out)))
+  expect_true(any(grepl("optimiser converged", out)))
+  expect_true(any(grepl("R-squared", out)))
+  expect_true(any(grepl("RMSE", out)))
+  # residuals on both scales, in one table
+  expect_true(any(grepl("^raw", out)))
+  expect_true(any(grepl("^deviance ", out)))
+  # the multi-curve summary carries the per-curve fit table and curve count
+  outm <- capture.output(print(summary(fit_multi)))
+  expect_true(any(grepl("curves", outm)))
+  expect_true(any(grepl("R.squared", outm)))
+  # the summary object keeps the new fields for programmatic use
+  s <- summary(law_fits[["makeham"]])
+  expect_true(all(c("deviance", "rq", "method", "optim", "dres") %in% names(s)))
+  expect_true(all(is.finite(s$rq)))
 })
 
 test_that("plot draws the fitted curve for both qx and mx input", {

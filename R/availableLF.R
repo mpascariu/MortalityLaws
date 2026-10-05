@@ -21,8 +21,7 @@
 #'  \item{legend}{Table with details about the abbreviation used.}
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
-#' @examples
-#' availableLF()
+#' @examples availableLF()
 #' @export
 availableLF <- function(){
   tab <- as.data.frame(

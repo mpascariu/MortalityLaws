@@ -60,49 +60,23 @@
 #'   carries the extended ages (vector names, or matrix row names) rather 
 #'   than the input ages.
 #'
-#' @return A numeric vector or matrix containing the converted life table 
-#'   indicator. If the input was a named object, the output retains those 
-#'   names.
+#' @return A numeric vector or matrix of class \code{"convertFx"} containing
+#'   the converted life table indicator. If the input was a named object, the
+#'   output retains those names. The result carries the ages it is indexed by
+#'   (\code{x}), the conversion (\code{from}, \code{to}) and the input curve
+#'   (\code{input}) as attributes, which is what
+#'   \code{\link{plot.convertFx}} draws. It behaves like the underlying
+#'   numeric vector or matrix in every other respect; subsetting returns the
+#'   bare values.
 #'
 #' @seealso
-#' \code{\link{LifeTable}} for the underlying life-table construction; 
-#' \code{\link{LawTable}} for generating life tables from parametric 
-#'   mortality laws.
+#' \code{\link{LifeTable}} for the underlying life-table construction;
+#' \code{\link{LawTable}} for generating life tables from parametric
+#'   mortality laws; \code{\link{plot.convertFx}} for plotting a conversion.
 #'
 #' @author Marius D. Pascariu
 #'
-#' @examples
-#' # ---- Basic conversions ----
-#'
-#' x  <- 0:110
-#' mx <- ahmd$mx
-#'
-#' # Convert death rates to death probabilities
-#' qx <- convertFx(x, data = mx, from = "mx", to = "qx")
-#'
-#' # Convert death rates to death distribution
-#' dx <- convertFx(x, data = mx, from = "mx", to = "dx")
-#'
-#' # Convert death rates to survivorship
-#' lx <- convertFx(x, data = mx, from = "mx", to = "lx")
-#'
-#' # Convert death rates to life expectancy
-#' ex <- convertFx(x, data = mx, from = "mx", to = "ex")
-#'
-#' # ---- All 35 possible conversions ----
-#'
-#' from <- c("mx", "qx", "dx", "lx", "ex")
-#' to   <- c("mx", "qx", "dx", "lx", "Lx", "Tx", "ex")
-#' K    <- expand.grid(from = from, to = to)
-#'
-#' for (i in 1:nrow(K)) {
-#'   In  <- as.character(K[i, "from"])
-#'   Out <- as.character(K[i, "to"])
-#'   N   <- paste0(Out, "_from_", In)
-#'   cat(i, " Create", N, "\n")
-#'   assign(N, convertFx(x = x, data = get(In), from = In, to = Out))
-#' }
-#'
+#' @example inst/examples/convertFx.R
 #' @export
 convertFx <- function(x,
                       data,
@@ -126,7 +100,9 @@ convertFx <- function(x,
     ex = function(w) LifeTable(x = x, ex = w, ...)
     )
 
-  if (is.vector(data)) {
+  # A classed bare vector (e.g. a convertFx result fed back in) is vector
+  # input; only objects with dimensions take the matrix branch.
+  if (is.null(dim(data))) {
     if (length(x) != length(data)) {
       stop("The 'x' and 'data' do not have the same length", call. = FALSE)
     }
@@ -135,7 +111,8 @@ convertFx <- function(x,
     out <- LTt[, to]
     # An extension argument (omega) adds rows above the input's open age; the
     # output is then labelled by the extended ages rather than by the input.
-    names(out) <- if (nrow(LTt) == length(data)) names(data) else LTt$x
+    out_x <- if (nrow(LTt) == length(data)) x else LTt$x
+    names(out) <- if (nrow(LTt) == length(data)) names(data) else out_x
 
   } else {
     if (length(x) != nrow(data)) {
@@ -145,9 +122,46 @@ convertFx <- function(x,
 
     out <- convert_fx_matrix(x = x, data = data, from = from, to = to,
                              LT = LT, lx0 = lx0, ax = ax_u, ext = ext)
+    out_x <- attr(out, "x")
   }
 
+  # Tag the result with what was converted so that plot.convertFx() can
+  # rebuild the conversion view; the values stay plain numerics underneath
+  # and subsetting returns them bare.
+  out <- structure(
+    out,
+    class = c("convertFx", class(out)),
+    x = out_x,
+    from = from,
+    to = to,
+    input = list(x = x, data = data)
+    )
+
   return(out)
+}
+
+
+#' Print a Converted Life Table Indicator
+#'
+#' Prints the conversion that produced the object and the converted values.
+#' @param x An object of class \code{"convertFx"}.
+#' @param ... Further arguments passed to or from other methods.
+#' @return The object \code{x}, invisibly. Called for its printed output.
+#' @seealso \code{\link{convertFx}}.
+#' @keywords internal
+#' @export
+print.convertFx <- function(x, ...) {
+  from <- attr(x, "from")
+  to   <- attr(x, "to")
+  nr   <- if (is.null(dim(x))) length(x) else nrow(x)
+  nc   <- if (is.null(dim(x))) 1L else ncol(x)
+  cat(sprintf("convertFx result: %s -> %s  |  %d age%s%s\n",
+              from, to, nr, if (nr == 1) "" else "s",
+              if (nc > 1) sprintf(", %d columns", nc) else ""))
+  y <- unclass(x)
+  attributes(y) <- attributes(y)[c("names", "dim", "dimnames")]
+  print(y)
+  return(invisible(x))
 }
 
 
@@ -219,11 +233,13 @@ convert_fx_matrix <- function(x, data, from, to, LT, lx0, ax = NULL,
     if (nrow(LTm) != N) {
       out <- matrix(LTm[, to], ncol = ncol(M),
                     dimnames = list(unique(LTm$x), colnames(M)))
+      attr(out, "x") <- unique(LTm$x)
       return(out)
     }
     out <- matrix(LTm[, to], nrow = N)
   }
 
   dimnames(out) <- dimnames(data)
+  attr(out, "x") <- x
   return(out)
 }

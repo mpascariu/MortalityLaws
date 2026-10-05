@@ -38,9 +38,14 @@ carries the extended ages (vector names, or matrix row names) rather
 than the input ages.}
 }
 \value{
-A numeric vector or matrix containing the converted life table 
-  indicator. If the input was a named object, the output retains those 
-  names.
+A numeric vector or matrix of class \code{"convertFx"} containing
+  the converted life table indicator. If the input was a named object, the
+  output retains those names. The result carries the ages it is indexed by
+  (\code{x}), the conversion (\code{from}, \code{to}) and the input curve
+  (\code{input}) as attributes, which is what
+  \code{\link{plot.convertFx}} draws. It behaves like the underlying
+  numeric vector or matrix in every other respect; subsetting returns the
+  bare values.
 }
 \description{
 Easily convert between different life table indicators (e.g., from death 
@@ -111,9 +116,9 @@ for (i in 1:nrow(K)) {
 
 }
 \seealso{
-\code{\link{LifeTable}} for the underlying life-table construction; 
-\code{\link{LawTable}} for generating life tables from parametric 
-  mortality laws.
+\code{\link{LifeTable}} for the underlying life-table construction;
+\code{\link{LawTable}} for generating life tables from parametric
+  mortality laws; \code{\link{plot.convertFx}} for plotting a conversion.
 }
 \author{
 Marius D. Pascariu

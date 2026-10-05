@@ -1,0 +1,5 @@
+x  <- as.numeric(rownames(ahmd$mx))
+LT <- LifeTable(x = x, mx = ahmd$mx[, c("1900", "1950")])
+plot(LT)
+plot(LT, which = "lx")
+plot(LT, split = c(4, 1))

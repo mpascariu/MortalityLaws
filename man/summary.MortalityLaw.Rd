@@ -15,16 +15,21 @@
 }
 \value{
 An object of class \code{"summary.MortalityLaw"}, a list holding
-  the model information, the matched call, the goodness-of-fit measures,
-  the dispersion, the residual summary, the rounded coefficients and the
-  degrees of freedom.
+  the model information, the matched call, the rounded coefficients, the
+  goodness-of-fit measures, the deviance and the degrees of freedom, the
+  R-squared and RMSE of the fit, the optimisation outcome, the fit window
+  and the residual summaries on the raw and the deviance scale.
 }
 \description{
-Collects the fitted coefficients, the goodness-of-fit measures, the
-dispersion and a five-number summary of the residuals into a compact
-object for printing, and rounds them to \code{digits}. For models with
-more than four parameters only the first and the last two coefficients
-and fit measures are kept, so the output fits on one screen.
+Collects the fitted coefficients, the fit measures and a summary of the
+residuals into a compact object for printing, and rounds them to
+\code{digits}. The fit measures cover the fit window (the ages fitted and
+the ages reported), the optimisation (method used, optimiser outcome), the
+deviance with its degrees of freedom and dispersion, and the
+R-squared and RMSE of the fit. For a likelihood-based fit the maximised
+log-likelihood with its information criteria is included. When more than
+four curves were fitted only the first and the last two are kept in the
+printed coefficients and fit measures, so the output fits on one screen.
 }
 \examples{
 x  <- 45:75

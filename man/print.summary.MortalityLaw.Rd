@@ -16,9 +16,10 @@ The object \code{x}, invisibly. Called for its printed output.
 }
 \description{
 Prints the contents of a \code{"summary.MortalityLaw"} object: the model
-description, the matched call, the residual summary, the coefficients and,
-for likelihood-based fits, the goodness-of-fit measures and the
-degrees of freedom.
+description, the fit window, the matched call, the coefficients, the fit
+measures (method and optimiser outcome, deviance, R-squared and RMSE, and
+for likelihood-based fits the goodness-of-fit block) and the residuals on
+the raw and the deviance scale.
 }
 \seealso{
 \code{\link{summary.MortalityLaw}}.

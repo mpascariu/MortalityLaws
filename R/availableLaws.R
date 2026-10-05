@@ -172,8 +172,7 @@
 #' }
 #' @seealso \code{\link{MortalityLaw}}
 #' @author Marius D. Pascariu
-#' @examples
-#' availableLaws()
+#' @examples availableLaws()
 #' @export
 availableLaws <- function(law = NULL){
 

@@ -25,27 +25,83 @@ print.MortalityLaw <- function(x, ...) {
 }
 
 
+#' Observed mortality series of a fit
+#'
+#' The series the fit was fitted to: the death probabilities if the model was
+#' entered as \code{qx}, the death rates \code{Dx/Ex} for count input, or the
+#' \code{mx} rates directly.
+#' @param x An object of class \code{"MortalityLaw"}.
+#' @return A numeric vector or matrix with the observed series.
+#' @noRd
+observed_values <- function(x) {
+  if (!is.null(x$input$qx)) {
+    x$input$qx
+  } else {
+    with(x$input, if (is.null(mx)) Dx / Ex else mx)
+  }
+}
+
+
+#' Coefficient of determination and RMSE of a fit
+#'
+#' Computed on the observed scale over the fitted age range only. Ages the
+#' model cannot be placed on (missing or non-positive rates) carry no fit
+#' information and are left out.
+#' @param x An object of class \code{"MortalityLaw"}.
+#' @return A named vector \code{c(R.squared, RMSE)} for a single fit, or a
+#'   curve-by-column matrix for a multiple fit.
+#' @noRd
+fit_quality <- function(x) {
+  obs <- observed_values(x)
+  fit <- x$fitted.values
+  age <- x$input$x
+  age2 <- x$input$fit.this.x
+
+  one <- function(o, f) {
+    keep <- age %in% age2 & is.finite(o) & is.finite(f) & o > 0 & f > 0
+    den  <- sum((o[keep] - mean(o[keep]))^2)
+    c(R.squared = if (den > 0) {
+      1 - sum((o[keep] - f[keep])^2) / den
+    } else {
+      NA_real_
+    },
+    RMSE = sqrt(mean((o[keep] - f[keep])^2)))
+  }
+
+  if (is.matrix(fit)) {
+    out <- t(vapply(seq_len(ncol(fit)),
+                    function(j) one(obs[, j], fit[, j]),
+                    numeric(2)))
+    rownames(out) <- colnames(fit)
+    out
+  } else {
+    one(obs, fit)
+  }
+}
+
+
 #' Summarise a Fitted Mortality Law
 #'
-#' Collects the fitted coefficients, the goodness-of-fit measures, the
-#' dispersion and a five-number summary of the residuals into a compact
-#' object for printing, and rounds them to \code{digits}. For models with
-#' more than four parameters only the first and the last two coefficients
-#' and fit measures are kept, so the output fits on one screen.
+#' Collects the fitted coefficients, the fit measures and a summary of the
+#' residuals into a compact object for printing, and rounds them to
+#' \code{digits}. The fit measures cover the fit window (the ages fitted and
+#' the ages reported), the optimisation (method used, optimiser outcome), the
+#' deviance with its degrees of freedom and dispersion, and the
+#' R-squared and RMSE of the fit. For a likelihood-based fit the maximised
+#' log-likelihood with its information criteria is included. When more than
+#' four curves were fitted only the first and the last two are kept in the
+#' printed coefficients and fit measures, so the output fits on one screen.
 #' @param object An object of class \code{"MortalityLaw"}.
 #' @param digits Number of significant digits to display.
 #' @param ... Additional arguments affecting the summary produced.
 #' @return An object of class \code{"summary.MortalityLaw"}, a list holding
-#'   the model information, the matched call, the goodness-of-fit measures,
-#'   the dispersion, the residual summary, the rounded coefficients and the
-#'   degrees of freedom.
+#'   the model information, the matched call, the rounded coefficients, the
+#'   goodness-of-fit measures, the deviance and the degrees of freedom, the
+#'   R-squared and RMSE of the fit, the optimisation outcome, the fit window
+#'   and the residual summaries on the raw and the deviance scale.
 #' @seealso \code{\link{MortalityLaw}} to fit a law;
 #'   \code{\link{coef}} and \code{\link{fitted}} for the extracted values.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"], law = "makeham")
-#' summary(M1)
+#' @example inst/examples/summary.MortalityLaw.R
 #' @export
 summary.MortalityLaw <- function(object, ...,
                                  digits = max(3L, getOption("digits") - 3L)) {
@@ -53,6 +109,7 @@ summary.MortalityLaw <- function(object, ...,
   L1     <- x$input$law == "custom.law"
   mi     <- if (L1) "Custom Mortality Law" else as.matrix(x$info$model.info[, c(2, 3)])
   res    <- summary(as.vector(as.matrix(x$residuals)))
+  dres   <- summary(as.vector(as.matrix(x$deviance.residuals)))
   fv     <- if (!is.null(x$input$qx)) "qx" else "mx"
   gof    <- round(x$goodness.of.fit, digits)
   param  <- round(coef(x), digits)
@@ -64,6 +121,14 @@ summary.MortalityLaw <- function(object, ...,
   nc     <- nrow(param)
   L2     <- is.null(nc)
   L3     <- x$input$opt.method %in% c("poissonL", "binomialL")
+
+  dgn    <- x$opt.diagnosis
+  conv   <- if (L2) dgn$convergence else
+    vapply(dgn, function(d) d$convergence, numeric(1))
+  iter   <- if (L2) dgn$iterations else
+    vapply(dgn, function(d) d$iterations, numeric(1))
+  msg    <- if (L2) dgn$message else
+    vapply(dgn, function(d) d$message, character(1))
 
   if (!L2 && nc > 4) {
     param <- head_tail(
@@ -87,7 +152,17 @@ summary.MortalityLaw <- function(object, ...,
     sigma  = sigma,
     fv     = fv,
     resid  = res,
+    dres   = dres,
     param  = param,
+    deviance = signif(x$deviance, digits),
+    rq     = signif(fit_quality(x), digits),
+    method = x$input$opt.method,
+    optim  = list(convergence = conv, iterations = iter, message = msg),
+    n.curve = if (L2) 1L else nrow(coef(x)),
+    age.range = range(x$input$x),
+    fit.range = range(x$input$fit.this.x),
+    n.fit  = sum(x$input$x %in% x$input$fit.this.x),
+    n.age  = length(x$input$x),
     df     = x$df,
     digits = digits,
     L1     = L1,
@@ -102,9 +177,10 @@ summary.MortalityLaw <- function(object, ...,
 #' Print a MortalityLaw Summary
 #'
 #' Prints the contents of a \code{"summary.MortalityLaw"} object: the model
-#' description, the matched call, the residual summary, the coefficients and,
-#' for likelihood-based fits, the goodness-of-fit measures and the
-#' degrees of freedom.
+#' description, the fit window, the matched call, the coefficients, the fit
+#' measures (method and optimiser outcome, deviance, R-squared and RMSE, and
+#' for likelihood-based fits the goodness-of-fit block) and the residuals on
+#' the raw and the deviance scale.
 #' @param x An object of class \code{"summary.MortalityLaw"}.
 #' @param ... Additional arguments affecting the summary produced.
 #' @return The object \code{x}, invisibly. Called for its printed output.
@@ -113,26 +189,73 @@ summary.MortalityLaw <- function(object, ...,
 #' @export
 print.summary.MortalityLaw <- function(x, ...) {
   with(x, {
-    cat(paste(info, collapse = " model: "))
-    cat("\nFitted values:", fv)
-    cat("\n\nCall: ")
+    cat(paste(info, collapse = " model: "), "\n", sep = "")
+    cat("Fitted values: ", fv,
+        "  |  ages ", age.range[1], "-", age.range[2],
+        "  |  fitted on ", fit.range[1], "-", fit.range[2],
+        " (", n.fit, " of ", n.age, " ages)",
+        if (L2) "" else paste0("  |  ", n.curve, " curves"),
+        "\n", sep = "")
+
+    cat("\nCall:\n")
     print(call)
-    cat("\nResiduals:\n")
-    print(round(resid, digits))
-    cat("\nParameters:\n")
-    print(param)
-    sg <- format(signif(sigma, digits))
+
+    cat("\nCoefficients", if (L2) "" else " by curve", ":\n", sep = "")
+    if (L2) {
+      print(cbind(estimate = param))
+    } else {
+      print(param)
+    }
+
+    # Optimiser outcome: a non-zero convergence code is reported as such,
+    # with the optimiser's own message; the common case reads short.
+    if (all(optim$convergence == 0)) {
+      opt_lab <- if (L2) {
+        sprintf("optimiser converged in %d iterations", max(optim$iterations))
+      } else {
+        sprintf("optimiser converged for all %d curves, up to %d iterations",
+                n.curve, max(optim$iterations))
+      }
+    } else {
+      opt_lab <- sprintf("optimiser NOT converged (code %s: %s), %d iterations",
+                         paste(unique(optim$convergence), collapse = "/"),
+                         paste(unique(optim$message), collapse = "; "),
+                         max(optim$iterations))
+    }
+
+    cat("\nFit", if (L2) "" else " by curve", ":\n", sep = "")
+    cat("  method ", method, "  |  ", opt_lab, "\n", sep = "")
+
+    if (L2) {
+      fmt <- function(v) format(v, scientific = FALSE, trim = TRUE)
+      cat("  deviance ", fmt(deviance), " on ", df["df.residual"],
+          " degrees of freedom  |  dispersion ", fmt(signif(sigma, digits)),
+          "\n", sep = "")
+      cat("  R-squared ", fmt(rq["R.squared"]),
+          "  |  RMSE ", fmt(rq["RMSE"]), "\n", sep = "")
+    } else {
+      tab <- data.frame(
+        deviance = deviance,
+        df.residual = df[, "df.residual"],
+        dispersion = round(df[, "dispersion"], digits),
+        R.squared = rq[, "R.squared"],
+        RMSE = rq[, "RMSE"]
+        )
+      if (n.curve > 4) {
+        tab <- head_tail(x = tab, hlength = 2, tlength = 2, digits = digits)
+      }
+      print(tab)
+      cat("  Average dispersion: ", format(signif(sigma, digits)), " on ",
+          df[1, "df.residual"], " degrees of freedom\n", sep = "")
+    }
 
     if (L3) {
       cat("\nGoodness of fit:\n")
       print(gof)
     }
 
-    if (L2) {
-      cat("\nDispersion:", sg, "on", df[2], "degrees of freedom")
-    } else {
-      cat("\nAverage dispersion:", sg, "on", df[1, 2], "degrees of freedom")
-    }
+    cat("\nResiduals", if (L2) "" else " (pooled over curves)", ":\n", sep = "")
+    print(round(rbind(raw = resid, deviance = dres), digits))
   })
   return(invisible(x))
 }
@@ -150,12 +273,7 @@ print.summary.MortalityLaw <- function(x, ...) {
 #' @return An object of class \code{"logLik"} for a single fit, or a named
 #'   numeric vector of log-likelihoods for a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{AIC.MortalityLaw}}.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"],
-#'                    law = "makeham", opt.method = "poissonL")
-#' logLik(M1)
+#' @example inst/examples/logLik.MortalityLaw.R
 #' @export
 logLik.MortalityLaw <- function(object, ...) {
   gof <- object$goodness.of.fit
@@ -190,12 +308,7 @@ logLik.MortalityLaw <- function(object, ...) {
 #' @return The AIC value for a single fit, or a named vector of AIC values
 #'   for a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{logLik.MortalityLaw}}.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"],
-#'                    law = "makeham", opt.method = "poissonL")
-#' AIC(M1)
+#' @example inst/examples/AIC.MortalityLaw.R
 #' @export
 AIC.MortalityLaw <- function(object, ...) {
   gof <- object$goodness.of.fit
@@ -217,12 +330,7 @@ AIC.MortalityLaw <- function(object, ...) {
 #' @return The deviance for a single fit, or a named vector of deviances for
 #'   a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{dispersion}}.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"],
-#'                    law = "makeham", opt.method = "poissonL")
-#' deviance(M1)
+#' @example inst/examples/deviance.MortalityLaw.R
 #' @export
 deviance.MortalityLaw <- function(object, ...) {
   out <- object$deviance
@@ -240,12 +348,7 @@ deviance.MortalityLaw <- function(object, ...) {
 #' @return The residual degrees of freedom for a single fit, or a named
 #'   vector for a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{dispersion}}.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"],
-#'                    law = "makeham", opt.method = "poissonL")
-#' df.residual(M1)
+#' @example inst/examples/df.residual.MortalityLaw.R
 #' @export
 df.residual.MortalityLaw <- function(object, ...) {
   df_all <- object$df
@@ -269,12 +372,7 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' @return The dispersion for a single fit, or a named vector of dispersions
 #'   for a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{deviance.MortalityLaw}}.
-#' @examples
-#' x  <- 45:75
-#' M1 <- MortalityLaw(x = x, Dx = ahmd$Dx[as.character(x), "1950"],
-#'                    Ex = ahmd$Ex[as.character(x), "1950"],
-#'                    law = "makeham", opt.method = "poissonL")
-#' dispersion(M1)
+#' @example inst/examples/dispersion.R
 #' @export
 dispersion <- function(object, ...) {
   UseMethod("dispersion")
@@ -305,16 +403,7 @@ dispersion.MortalityLaw <- function(object, ...) {
 #'   law; see the \code{FIT} column of \code{\link{availableLaws}}.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{fitted}}.
 #' @author Marius D. Pascariu
-#' @examples
-#' # Extrapolate old-age mortality with the Kannisto model
-#' # Fit ages 80-94 and extrapolate up to 120.
-#'
-#' Mx <- ahmd$mx[paste(80:94), "1950"]
-#' M1 <- MortalityLaw(x = 80:94, mx  = Mx, law = 'kannisto')
-#' fitted(M1)
-#' predict(M1, x = 80:120)
-#'
-#' # See more examples in MortalityLaw function help page.
+#' @example inst/examples/predict.MortalityLaw.R
 #' @export
 predict.MortalityLaw <- function(object, x, ...){
   if (min(x) < 0) {

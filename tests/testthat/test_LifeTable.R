@@ -529,6 +529,19 @@ test_that("guards: the old-age repair and the ex inverse", {
     regexp = "starting at age 4 has a non-positive")
 })
 
+test_that("an ax method adjusting the open interval stays silent", {
+  # The open interval follows the closing rule, so an ax method assigning it
+  # is implied; only a user-supplied value is announced when it is replaced.
+  expect_no_warning(LT <- LifeTable(x = grid_single, mx = mx_1950(grid_single)))
+  expect_no_warning(LTM <- LifeTable(x = grid_single,
+                                     mx = cbind(a = mx_1950(grid_single),
+                                                b = mx_1950(grid_single) * 1.1)))
+  expect_no_warning(LTE <- LifeTable(x = grid_single, ex = LT$lt$ex))
+  # a user-supplied value is still announced when the rule replaces it
+  expect_warning(LifeTable(x = grid_small, mx = mx_small, ax = 0.5),
+                 regexp = "open age interval")
+})
+
 # ---- convertFx ---------------------------------------------------------------
 # The 0:105 schedule with the four AHMD columns; matrices convert column by column.
 SRC  <- list(mx = ahmd$mx[paste0(x), ])
@@ -571,7 +584,8 @@ test_that("convertFx validates its inputs and takes plain numeric data", {
                regexp = "must be equal to the number of rows")
   # F31: integer vectors used to error in the matrix branch; they are valid input
   out_int <- fx(x = x, data = x, from = "mx", to = "qx")
-  expect_equal(out_int, fx(x = x, data = as.numeric(x), from = "mx", to = "qx"))
+  expect_equal(vals(out_int),
+               vals(fx(x = x, data = as.numeric(x), from = "mx", to = "qx")))
   expect_true(all(is.finite(out_int)))
   expect_true(all(fx(x = x, data = SRC$mx[, 1], from = "mx", to = "qx") >= 0))
 })
@@ -581,9 +595,9 @@ test_that("convertFx takes ex as a source and round-trips it", {
   e1   <- SRC$ex[, 1]
   qx_e <- fx(x = x, data = e1, from = "ex", to = "qx", ax = ax50)
   mx1  <- fx(x = x, data = SRC$mx[, 1], from = "mx", to = "mx", ax = ax50)
-  expect_equal(qx_e, SRC$qx[, 1], tolerance = 1e-8)
-  expect_equal(unname(fx(x = x, data = e1, from = "ex", to = "mx", ax = ax50)),
-               unname(mx1), tolerance = 1e-8)
+  expect_equal(vals(qx_e), SRC$qx[, 1], tolerance = 1e-8)
+  expect_equal(vals(unname(fx(x = x, data = e1, from = "ex", to = "mx", ax = ax50))),
+               vals(unname(mx1)), tolerance = 1e-8)
   Mex <- fx(x = x, data = cbind(a = e1, b = e1 + 1), from = "ex", to = "mx",
             ax = ax50)
   expect_equal(dim(Mex), c(n, 2))
@@ -604,7 +618,7 @@ test_that("convertFx forwards omega and close, relabelling the grid", {
   e2 <- fx(x = xo, data = mxon, from = "mx", to = "ex", close = "kannisto")
   expect_equal(length(e2), length(xo))
   expect_equal(names(e2), names(mxon))
-  expect_equal(unname(e2),
+  expect_equal(vals(unname(e2)),
                unname(lt(x = xo, mx = mxon, close = "kannisto")$lt$ex),
                tolerance = 1e-12)
   exc <- fx(x = xo, data = M, from = "mx", to = "ex", close = "kannisto")
@@ -618,7 +632,7 @@ test_that("convertFx converts a matrix column by column", {
     expect_equal(dim(mat), dim(MM))
     for (j in seq_len(ncol(MM))) {
       vec <- fx(x = x, data = MM[, j], from = In, to = Out)
-      expect_equal(unname(mat[, j]), unname(vec), tolerance = 1e-12)
+      expect_equal(unname(mat[, j]), vals(unname(vec)), tolerance = 1e-12)
     }
   }
   mcols("mx", "qx", XM)
@@ -634,7 +648,7 @@ test_that("convertFx converts a matrix column by column", {
     expect_true(is.matrix(m))
     expect_equal(dim(m), c(length(x), 1))
     expect_identical(dimnames(m), dimnames(m1))
-    expect_equal(unname(m[, 1]), unname(v), tolerance = 1e-12)
+    expect_equal(unname(m[, 1]), vals(unname(v)), tolerance = 1e-12)
     m
   }
   qx1 <- one_col("mx", "qx")
@@ -656,7 +670,7 @@ test_that("convertFx converts a matrix column by column", {
   expect_equal(dim(unnamed), dim(Mn))
   expect_equal(colnames(unnamed), as.character(seq_len(ncol(Mn))))
   expect_equal(rownames(unnamed), as.character(x))
-  expect_equal(unname(unnamed), unname(XQ), tolerance = 1e-12)
+  expect_equal(vals(unname(unnamed)), vals(unname(XQ)), tolerance = 1e-12)
 })
 test_that("Contract 10: convertFx round-trips its columns and the matrix shape", {
   qx1 <- fx(x = x, data = mx, from = "mx", to = "qx")
@@ -667,7 +681,7 @@ test_that("Contract 10: convertFx round-trips its columns and the matrix shape",
   expect_true(is.finite(mx2[length(x)]) && mx2[length(x)] > 0)
   lx1 <- fx(x = x, data = mx, from = "mx", to = "lx")
   dx1 <- fx(x = x, data = lx1, from = "lx", to = "dx")
-  expect_equal(fx(x = x, data = dx1, from = "dx", to = "lx"), lx1,
+  expect_equal(vals(fx(x = x, data = dx1, from = "dx", to = "lx")), vals(lx1),
                tolerance = 1e-8)
   M   <- ahmd$mx[paste0(x), c("1950", "2010")]
   out <- fx(x = x, data = M, from = "mx", to = "qx")

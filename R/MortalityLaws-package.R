@@ -9,9 +9,9 @@
 #' To learn more about the package, start with the vignettes:
 #' \code{browseVignettes(package = "MortalityLaws")}
 #'
-#' @importFrom graphics plot abline axis barplot box hist layout legend lines par rect
+#' @importFrom graphics plot abline axis box hist layout legend lines mtext par points rect title
 #' @importFrom utils read.table head tail
-#' @importFrom stats fitted coef optim predict quantile nlminb residuals df.residual
+#' @importFrom stats fitted coef optim predict quantile nlminb residuals df.residual lowess sd dnorm qnorm qqnorm
 #' @importFrom pbapply startpb closepb setpb
 #' @importFrom httr GET POST set_cookies cookies content status_code timeout
 #' @name MortalityLaws

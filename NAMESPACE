@@ -5,7 +5,9 @@ S3method(deviance,MortalityLaw)
 S3method(df.residual,MortalityLaw)
 S3method(dispersion,MortalityLaw)
 S3method(logLik,MortalityLaw)
+S3method(plot,LifeTable)
 S3method(plot,MortalityLaw)
+S3method(plot,convertFx)
 S3method(predict,MortalityLaw)
 S3method(print,LifeTable)
 S3method(print,MortalityLaw)
@@ -15,6 +17,7 @@ S3method(print,ReadHMD)
 S3method(print,ReadJMD)
 S3method(print,availableLF)
 S3method(print,availableLaws)
+S3method(print,convertFx)
 S3method(print,summary.MortalityLaw)
 S3method(summary,MortalityLaw)
 export(HP)
@@ -70,15 +73,17 @@ export(wittstein)
 importFrom(graphics,
   abline,
   axis,
-  barplot,
   box,
   hist,
   layout,
   legend,
   lines,
+  mtext,
   par,
   plot,
-  rect
+  points,
+  rect,
+  title
 )
 importFrom(httr,
   GET,
@@ -97,12 +102,17 @@ importFrom(pbapply,
 importFrom(stats,
   coef,
   df.residual,
+  dnorm,
   fitted,
+  lowess,
   nlminb,
   optim,
   predict,
+  qnorm,
+  qqnorm,
   quantile,
-  residuals
+  residuals,
+  sd
 )
 importFrom(utils,
   head,

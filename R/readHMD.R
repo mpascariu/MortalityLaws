@@ -88,35 +88,7 @@
 #'  \item{years}{Numerical vector with the years covered in the data.}
 #'  \item{ages}{Numerical vector with ages covered in the data.}
 #' @author Marius D. Pascariu
-#' @examples
-#' \dontrun{
-#'
-#'
-#' # Download demographic data for 3 countries in 1x1 format
-#' age_int  <- 1  # age interval: 1,5
-#' year_int <- 1  # year interval: 1,5,10
-#' interval <- paste0(age_int, "x", year_int)  # --> 1x1
-#' # And the 3 countries: Sweden Denmark and USA. We have to use the HMD codes
-#' cntr  <- c('SWE', 'DNK', 'USA')
-#'
-#' # Download death counts. We don't want to export data outside R.
-#' HMD_Dx <- ReadHMD(what = "Dx",
-#'                   countries = cntr,
-#'                   interval  = interval,
-#'                   username  = "user@email.com",
-#'                   password  = "password",
-#'                   save = FALSE)
-#' HMD_Dx
-#'
-#' # Download life tables for female population and export data.
-#' LTF <- ReadHMD(what = "LT_f",
-#'                countries = cntr,
-#'                interval  = interval,
-#'                username  = "user@email.com",
-#'                password  = "password",
-#'                save = TRUE)
-#' LTF
-#' }
+#' @example inst/examples/ReadHMD.R
 #' @export
 ReadHMD <- function(what, countries = NULL, interval = "1x1",
                     username, password, save = FALSE, show = TRUE){

@@ -1,3 +1,12 @@
+version 2.11.0 - "new clothes"
+- The plots are new throughout: a fitted law draws its fit and a residual
+diagnosis, a life table its survivorship, hazard, deaths and expectancy, and
+a conversion its two curves. The panels split as you like.
+- The fit summary grew to match: the fit window, the method, the deviance,
+the R-squared and RMSE. A conversion result now plots and prints itself.
+- The life table stays quiet when its own ax method assigns the open
+interval; only your own values are announced when replaced.
+
 version 2.10.4 - "small print"
 - A failed login now says the session was not set up, and the test suite is
 half the size and about four times faster.

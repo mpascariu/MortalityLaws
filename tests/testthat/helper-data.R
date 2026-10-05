@@ -33,3 +33,18 @@ mx_small   <- c(0.01, 0.02, 0.03, 0.04, 0.05, 0.06)
 mx_1950 <- function(x) ahmd$mx[paste(x), "1950"]
 Dx_1950 <- function(x) ahmd$Dx[paste(x), "1950"]
 Ex_1950 <- function(x) ahmd$Ex[paste(x), "1950"]
+
+# Strip the convertFx class and metadata, keeping names and shape. Value
+# comparisons against plain numbers live outside the class contract.
+vals <- function(z) {
+  attributes(z) <- attributes(z)[c("names", "dim", "dimnames")]
+  z
+}
+
+# plot() auto-opens the default device (and drops Rplots.pdf) when none is
+# active.
+with_pdf_device <- function(expr) {
+  grDevices::pdf(file = tempfile(fileext = ".pdf"))
+  on.exit(grDevices::dev.off(), add = TRUE)
+  return(expr)
+}

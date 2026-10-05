@@ -605,7 +605,9 @@ repair_above_omega <- function(x,
                        omega = 100,
                        verbose = FALSE) {
 
-  if (is.vector(ux)) {
+  # A classed bare vector is vector input; only objects with dimensions take
+  # the column-by-column branch.
+  if (is.null(dim(ux))) {
     L    <- x >= omega & (is.na(ux) | is.infinite(ux) | ux == 0)
     good <- !L & !is.na(ux) & is.finite(ux) & ux > 0
 
