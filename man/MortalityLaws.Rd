@@ -15,6 +15,7 @@ To learn more about the package, start with the vignettes:
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://mpascariu.github.io/MortalityLaws/}
   \item \url{https://github.com/mpascariu/MortalityLaws}
   \item Report bugs at \url{https://github.com/mpascariu/MortalityLaws/issues}
 }

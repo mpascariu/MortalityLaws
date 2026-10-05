@@ -1,0 +1,139 @@
+url: https://mpascariu.github.io/MortalityLaws/
+
+template:
+  bootstrap: 5
+  math-rendering: mathjax
+
+reference:
+  - title: Package
+    desc: Overview of the package and the bundled data.
+    contents:
+      - MortalityLaws
+  - title: Fitting and diagnostics
+    desc: Fit mortality laws to data, then interrogate the fit.
+    contents:
+      - MortalityLaw
+      - predict.MortalityLaw
+      - summary.MortalityLaw
+      - print.MortalityLaw
+      - print.summary.MortalityLaw
+      - logLik.MortalityLaw
+      - AIC.MortalityLaw
+      - deviance.MortalityLaw
+      - df.residual.MortalityLaw
+      - dispersion
+      - plot.MortalityLaw
+  - title: Life tables and conversion
+    desc: Build life tables from mortality rates and convert between mortality functions.
+    contents:
+      - LifeTable
+      - LawTable
+      - convertFx
+      - plot.LifeTable
+      - print.LifeTable
+      - plot.convertFx
+      - print.convertFx
+  - title: Data access and catalogues
+    desc: Pull mortality data from the HMD family of databases and browse what is available.
+    contents:
+      - ReadHMD
+      - ReadJMD
+      - ReadCHMD
+      - ReadAHMD
+      - print.ReadHMD
+      - print.ReadJMD
+      - print.ReadCHMD
+      - print.ReadAHMD
+      - availableHMD
+      - availableLaws
+      - print.availableLaws
+      - availableLF
+      - print.availableLF
+      - ahmd
+      - HMD_sample
+      - JMD_sample
+      - CHMD_sample
+      - AHMD_sample
+  - title: The 38 mortality laws
+    desc: The parametric models themselves, evaluated age by age.
+    contents:
+      - demoivre
+      - gompertz
+      - gompertz0
+      - invgompertz
+      - makeham
+      - makeham0
+      - opperman
+      - thiele
+      - wittstein
+      - weibull
+      - invweibull
+      - perks
+      - steffensen
+      - neggompertz
+      - pareto_2
+      - scholey_shifted_power
+      - scholey
+      - vandermaen
+      - vandermaen2
+      - strehler_mildvan
+      - beard
+      - beard_makeham
+      - ggompertz
+      - quadratic
+      - siler
+      - HP
+      - HP2
+      - HP3
+      - HP4
+      - martinelle
+      - rogersplanck
+      - carriere1
+      - carriere2
+      - kostaki
+      - kannisto
+      - kannisto_makeham
+      - makeham_logquad
+      - gompertz_logquad
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - Intro
+      - Mortality-models
+      - Life-tables
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    intro:
+      text: Get started
+      href: articles/Intro.html
+
+figures:
+  fig.width: 7
+  fig.height: 4.2
+  dpi: 96
+
+# Badge behaviour depends on this setting, so read before changing it.
+#   mode: release  pkgdown hides a sidebar Dev Status block. The shields
+#                  themselves are unaffected: they live in the README body as
+#                  plain lines and render inline.
+#   mode: devel    the whole site is written into a dev/ subdirectory, so no
+#                  root index.html is produced and Pages would serve nothing.
+#   mode: auto     resolves from the version, so a released version behaves
+#                  like release.
+# The site is published from the repository root, so release is the only
+# usable setting here.
+development:
+  mode: release
+
+authors:
+  Marius D. Pascariu:
+    href: https://github.com/mpascariu
+  # No verifiable personal GitHub profile for Vladimir Canudas-Romo, so he is
+  # listed without an href and his name renders as plain text.
+  Vladimir Canudas-Romo: ~

@@ -1,3 +1,9 @@
+version 2.12.0 - "full picture"
+- The documentation is new end to end: a guided introduction, a tour of the
+mortality models and their formulas, and a walk through the life table methods.
+- The package has a website now, with every function indexed and every article
+readable online. The installation guide has moved into the README.
+
 version 2.11.0 - "new clothes"
 - The plots are new throughout: a fitted law draws its fit and a residual
 diagnosis, a life table its survivorship, hazard, deaths and expectancy, and

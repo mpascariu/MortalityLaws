@@ -147,7 +147,8 @@ coef(M1)
 summary(M1)
 fitted(M1)
 predict(M1, x = 45:95)
-plot(M1)
+plot(M1, which = 'fit')
+plot(M1, which = 'diagnostics')
 
 
 # Example 2: --------------------------
@@ -168,12 +169,12 @@ predict(M2, x = 55:90)
 
 # A function with 'x' and 'par' as input has to be defined, which returns
 # at least an object called 'hx' (hazard rate).
-my_gompertz <- function(x, par = c(b = 0.13, M = 45)){
+missov <- function(x, par = c(b = 0.13, M = 45)){
   hx  <- with(as.list(par), b*exp(b*(x - M)) )
   return(as.list(environment()))
 }
 
-M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = my_gompertz)
+M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = missov)
 summary(M3)
 # predict M3 for different ages
 predict(M3, x = 85:130)
@@ -187,7 +188,8 @@ x  <- 0:100
 mx <- ahmd$mx[paste(x), "1950"] # select data
 M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 M4
-plot(M4)
+plot(M4, which = 'fit')
+plot(M4, which = 'diagnostics')
 
 LifeTable(x = x, qx = fitted(M4))
 }

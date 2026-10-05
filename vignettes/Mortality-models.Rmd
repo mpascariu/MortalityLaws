@@ -1,0 +1,742 @@
+---
+title: "Mortality models and estimation"
+author: "Marius D. Pascariu"
+date: "2026-10-05"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    toc_depth: 3
+    number_sections: false
+    fig_width: 7
+    fig_height: 4.2
+    fig_align: center
+    code_folding: hide
+bibliography: Mlaw_References.bib
+biblio-style: apalike
+link-citations: true
+vignette: >
+  %\VignetteIndexEntry{Mortality models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(MortalityLaws)
+```
+
+# What a law is
+
+A mortality law is a smooth function of age with a handful of parameters,
+meant to capture the age pattern of death in a population. Write $x$ for age at
+the start of a one-year interval. There are two standard ways to say how
+dangerous that age is, and this package uses both.
+
+* The **force of mortality** (the hazard) $\mu_x$ is the instantaneous rate at
+  which a person aged $x$ dies. Think of it as the slope of the survival curve,
+  scaled by how many are left to take it.
+* The **death probability** $q_x$ is the probability that someone aged $x$ dies
+  before reaching $x + 1$. Its complement $p_x = 1 - q_x$ is the chance of
+  seeing the year out.
+
+The two are readings of one curve, tied together by the cumulative hazard
+$H_x$ and the survivorship $S_x$:
+
+$$
+H_x = \int_0^x \mu_t \, dt, \qquad
+S_x = e^{-H_x}, \qquad
+q_x = 1 - \frac{S_{x+1}}{S_x}, \qquad
+p_x = 1 - q_x .
+$$
+
+In `MortalityLaws` every law is a function `function(x, par)` returning a list
+whose `hx` element holds one value per age. The **FIT** column of the catalogue
+below says what `hx` contains: in `mu[x]` laws it is the hazard $\mu_x$, in
+`q[x]` laws it is the death probability $q_x$. The fitting engine and
+`LawTable()` read `hx` and route it to the right place, so nothing outside the
+law definition has to know which kind of law is in play.
+
+One convention is worth knowing before the table: all parameters are strictly
+positive. The optimiser works on the log scale (see
+[the optimisation procedure](#the-optimisation-procedure)), so where a
+published formula wants a negative coefficient, the sign is folded into the
+formula itself. Oppermann's middle term is written $-B$, the log-quadratic
+families carry $-B_2 x^2$, and so on. Two formula letters are also spelled
+differently in R to avoid name clashes: the coefficient $F$ of Thiele's
+formula and the hump location $F$ of the Heligman-Pollard family are both the
+parameter `F_`, and the Rogers-Planck hump centre $U$ is `U`.
+
+# The catalogue of laws
+
+`availableLaws()` returns exactly the table below, together with the type
+legend of the next section. The columns are the code to pass as `law`, the
+model name, the formula in the parameter names the law functions use, the
+lifespan type, the fitted quantity, whether fitting rescales the ages, the
+year the catalogue assigns to the model, and where the formula comes from.
+
+| CODE | NAME | Formula | TYPE | FIT | SCALE_X | YEAR | Reference |
+|---|---|---|---|---|---|---|---|
+| `demoivre` | De Moivre | $\mu_x = \dfrac{1}{N - x}$ | 6 | `mu[x]` | `FALSE` | 1725 | @demoivre1725 |
+| `gompertz` | Gompertz | $\mu_x = A e^{Bx}$ | 3 | `mu[x]` | `TRUE` | 1825 | @gompertz1825 |
+| `gompertz0` | Gompertz | $\mu_x = \dfrac{1}{\sigma} \exp\left\{\dfrac{x - M}{\sigma}\right\}$ | 3 | `mu[x]` | `TRUE` | - | @gompertz1825 |
+| `invgompertz` | Inverse-Gompertz | $\mu_x = \dfrac{\frac{1}{\sigma} \exp\left\{-\frac{x - M}{\sigma}\right\}}{\exp\left(\exp\left\{-\frac{x - M}{\sigma}\right\}\right) - 1}$ | 2 | `mu[x]` | `TRUE` | - | @tabeau2001 |
+| `makeham` | Makeham | $\mu_x = A e^{Bx} + C$ | 3 | `mu[x]` | `TRUE` | 1860 | @makeham1860 |
+| `makeham0` | Makeham | $\mu_x = \dfrac{1}{\sigma} \exp\left\{\dfrac{x - M}{\sigma}\right\} + C$ | 3 | `mu[x]` | `TRUE` | - | @makeham1860 |
+| `opperman` | Opperman | $\mu_x = \dfrac{A}{\sqrt{x + 1}} - B + C\sqrt{x + 1}$ | 1 | `mu[x]` | `FALSE` | 1870 | @oppermann1870 |
+| `thiele` | Thiele | $\mu_x = A e^{-Bx} + C \exp\left\{-\tfrac{1}{2} D (x - E)^2\right\} + F e^{Gx}$ | 6 | `mu[x]` | `FALSE` | 1871 | @thiele1871 |
+| `neggompertz` | Negative-Gompertz | $\mu_x = A e^{-Bx}$ | 1 | `mu[x]` | `FALSE` | 1871 | @thiele1871 |
+| `wittstein` | Wittstein | $q_x = \dfrac{1}{B} A^{-(Bx)^N} + A^{-(M - x)^N}$ | 6 | `q[x]` | `FALSE` | 1883 | @wittstein1883 |
+| `steffensen` | Steffensen | $\mu_x = \dfrac{A + B C^x}{B C^{-x} + 1 + D C^x}$ | 6 | `mu[x]` | `TRUE` | 1930 | @steffensen1930 |
+| `perks` | Perks | $\mu_x = \dfrac{A + B C^x}{1 + D C^x}$ | 3 | `mu[x]` | `TRUE` | 1932 | @perks1932 |
+| `weibull` | Weibull | $\mu_x = \dfrac{1}{\sigma} \left(\dfrac{x}{M}\right)^{\frac{M}{\sigma} - 1}$ | 1 | `mu[x]` | `FALSE` | 1939 | @weibull1951 |
+| `pareto_2` | Pareto-II | $\mu_x = \dfrac{A}{x + C}$ | 1 | `mu[x]` | `FALSE` | 1954 | @lomax1954 |
+| `invweibull` | Inverse-Weibull | $\mu_x = \dfrac{\frac{1}{\sigma} \left(\frac{x}{M}\right)^{-\frac{M}{\sigma} - 1}}{\exp\left(\left(\frac{x}{M}\right)^{-\frac{M}{\sigma}}\right) - 1}$ | 2 | `mu[x]` | `TRUE` | - | @weibull1951 |
+| `vandermaen` | Van der Maen | $\mu_x = A + Bx + Cx^2 + \dfrac{I}{N - x}$ | 4 | `mu[x]` | `TRUE` | 1943 | @tabeau2001 |
+| `vandermaen2` | Van der Maen | $\mu_x = A + Bx + \dfrac{I}{N - x}$ | 5 | `mu[x]` | `TRUE` | 1943 | @tabeau2001 |
+| `strehler_mildvan` | Strehler-Mildvan | $\mu_x = A e^{Bx} \exp\left\{-\dfrac{V}{B}\left(1 - e^{-Bx}\right)\right\}$ | 3 | `mu[x]` | `TRUE` | 1960 | @finkelstein2012 |
+| `quadratic` | Quadratic | $\mu_x = A + Bx + Cx^2$ | 5 | `mu[x]` | `TRUE` | - | @tabeau2001 |
+| `beard` | Beard | $\mu_x = \dfrac{A e^{Bx}}{1 + K A e^{Bx}}$ | 4 | `mu[x]` | `TRUE` | 1971 | @beard1971 |
+| `beard_makeham` | Beard-Makeham | $\mu_x = \dfrac{A e^{Bx}}{1 + K A e^{Bx}} + C$ | 4 | `mu[x]` | `TRUE` | 1971 | @beard1971 |
+| `ggompertz` | Gamma-Gompertz | $\mu_x = \dfrac{A e^{Bx}}{1 + \frac{AG}{B}\left(e^{Bx} - 1\right)}$ | 4 | `mu[x]` | `TRUE` | 1979 | @vaupel1979 |
+| `siler` | Siler | $\mu_x = A e^{-Bx} + C + D e^{E x}$ | 6 | `mu[x]` | `FALSE` | 1979 | @siler1979 |
+| `HP` | Heligman-Pollard | $\dfrac{q_x}{p_x} = A^{(x + B)^C} + D \exp\left\{-E \log(x/F)^2\right\} + G H^x$ | 6 | `q[x]` | `FALSE` | 1980 | @heligman1980 |
+| `HP2` | Heligman-Pollard | $q_x = A^{(x + B)^C} + D \exp\left\{-E \log(x/F)^2\right\} + \dfrac{G H^x}{1 + G H^x}$ | 6 | `q[x]` | `FALSE` | 1980 | @heligman1980 |
+| `HP3` | Heligman-Pollard | $q_x = A^{(x + B)^C} + D \exp\left\{-E \log(x/F)^2\right\} + \dfrac{G H^x}{1 + K G H^x}$ | 6 | `q[x]` | `FALSE` | 1980 | @heligman1980 |
+| `HP4` | Heligman-Pollard | $q_x = A^{(x + B)^C} + D \exp\left\{-E \log(x/F)^2\right\} + \dfrac{G H^{x^K}}{1 + G H^{x^K}}$ | 6 | `q[x]` | `FALSE` | 1980 | @heligman1980 |
+| `rogersplanck` | Rogers-Planck | $q_x = A_0 + A_1 e^{-Ax} + A_2 \exp\left\{B(x - U) - e^{-C(x - U)}\right\} + A_3 e^{Dx}$ | 6 | `q[x]` | `FALSE` | 1983 | @rogersplanck1983 |
+| `martinelle` | Martinelle | $\mu_x = \dfrac{A e^{Bx} + C}{1 + D e^{Bx}} + K e^{Bx}$ | 6 | `mu[x]` | `FALSE` | 1987 | @martinelle1987 |
+| `makeham_logquad` | Gompertz-Makeham | $\mu_x = A_0 + K \exp\left\{B_1 x - B_2 x^2\right\}$ | 5 | `mu[x]` | `TRUE` | 1988 | @forfar1988 |
+| `gompertz_logquad` | Gompertz-Makeham | $\mu_x = K \exp\left\{B_1 x - B_2 x^2\right\}$ | 5 | `mu[x]` | `TRUE` | 1988 | @forfar1988 |
+| `carriere1` | Carriere | $\mu_x = \dfrac{P_1 S^{w}_x \mu^{w}_x + P_2 S^{i}_x \mu^{i}_x + P_3 S^{g}_x \mu^{g}_x}{P_1 S^{w}_x + P_2 S^{i}_x + P_3 S^{g}_x}$, with the Weibull component $\mu^{w}_x = \dfrac{(x/M_1)^{M_1/\sigma_1 - 1}}{\sigma_1}$, $S^{w}_x = \exp\{-(x/M_1)^{M_1/\sigma_1}\}$; the inverse-Weibull component $\mu^{i}_x = \dfrac{(x/M_2)^{-M_2/\sigma_2 - 1}}{\sigma_2\,\bigl(\exp\{(x/M_2)^{-M_2/\sigma_2}\} - 1\bigr)}$, $S^{i}_x = 1 - \exp\{-(x/M_2)^{-M_2/\sigma_2}\}$; and the Gompertz component $\mu^{g}_x = \dfrac{1}{\sigma_3}\exp\left\{\dfrac{x - M_3}{\sigma_3}\right\}$, $S^{g}_x = \exp\{-\exp\{-M_3/\sigma_3\}(\exp\{x/\sigma_3\} - 1)\}$ | 6 | `q[x]` | `TRUE` | 1992 | @carriere1992 |
+| `carriere2` | Carriere | $\mu_x = \dfrac{P_1 S^{w}_x \mu^{w}_x + P_2 S^{i}_x \mu^{i}_x + P_3 S^{g}_x \mu^{g}_x}{P_1 S^{w}_x + P_2 S^{i}_x + P_3 S^{g}_x}$, with the Weibull component $\mu^{w}_x = \dfrac{(x/M_1)^{M_1/\sigma_1 - 1}}{\sigma_1}$, $S^{w}_x = \exp\{-(x/M_1)^{M_1/\sigma_1}\}$; the inverse-Gompertz component $\mu^{i}_x = \dfrac{\exp\{-(x - M_2)/\sigma_2\}}{\sigma_2\,\bigl(\exp\{\exp\{-(x - M_2)/\sigma_2\}\} - 1\bigr)}$, $S^{i}_x = \dfrac{1 - \exp\{-\exp\{-(x - M_2)/\sigma_2\}\}}{1 - \exp\{-\exp\{M_2/\sigma_2\}\}}$; and the Gompertz component $\mu^{g}_x = \dfrac{1}{\sigma_3}\exp\left\{\dfrac{x - M_3}{\sigma_3}\right\}$, $S^{g}_x = \exp\{-\exp\{-M_3/\sigma_3\}(\exp\{x/\sigma_3\} - 1)\}$ | 6 | `q[x]` | `TRUE` | 1992 | @carriere1992 |
+| `kostaki` | Kostaki | $\dfrac{q_x}{p_x} = A^{(x + B)^C} + D \exp\left\{-\left(E_i \log(x/F)\right)^2\right\} + G H^x$ | 6 | `q[x]` | `FALSE` | 1992 | @kostaki1992 |
+| `kannisto` | Kannisto | $\mu_x = \dfrac{A e^{Bx}}{1 + A e^{Bx}}$ | 5 | `mu[x]` | `TRUE` | 1998 | @thatcher1998 |
+| `kannisto_makeham` | Kannisto-Makeham | $\mu_x = \dfrac{A e^{Bx}}{1 + A e^{Bx}} + C$ | 5 | `mu[x]` | `TRUE` | 1998 | @thatcher1998 |
+| `scholey_shifted_power` | Scholey-Shifted-Power | $\mu_x = A (x + C)^{-B}$ | 1 | `mu[x]` | `FALSE` | 2019 | @scholey2019 |
+| `scholey` | Scholey | $\mu_x = A (x + C)^{-B} e^{-Dx}$ | 1 | `mu[x]` | `FALSE` | 2019 | @scholey2019 |
+
+A few notes on the table.
+
+* The formulas mirror the `MODEL` strings of `availableLaws()`, and the
+  parameter names are the ones the law functions accept, so they can be
+  copied straight into `parS`. Exceptions in spelling: $F$ is `F_` in R (in
+  Thiele's formula and in the Heligman-Pollard hump alike), and in `siler` the
+  third exponent is the parameter $E$, not Euler's number.
+* `opperman` is evaluated at ages shifted by one year, which keeps
+  $A/\sqrt{x}$ finite at birth. Its middle term uses the negative branch,
+  which is the branch mortality data occupy; the published sign is free.
+* `weibull` is undefined at $x = 0$. Age 0 is reported as missing and takes no
+  part in any fit.
+* `steffensen` is attributed to Steffensen (1930), an attribution that could
+  not be verified against the paywalled source. It is the formula this package
+  used to ship as `perks`, before the published Perks form was separated out.
+* `carriere1` and `carriere2` mix survivorship curves with weights normalised
+  to the simplex, so $P_3 = 1 - P_1 - P_2 > 0$. Their `hx` is a numerical
+  derivative: the law function builds the mixture survivorship $S_x$, takes
+  $H_x = -\log S_x$ and returns the year-to-year increments of that cumulative
+  hazard on the age grid, which is the quantity the FIT column labels `q[x]`.
+  The analytic hazard is the mixture formula in the table above, the
+  derivative of the same $H_x$ [@carriere1992].
+* In `kostaki`, $E_i$ is $E_1$ below the cut age $F$ and $E_2$ above it, so the
+  accident hump may be asymmetric.
+* The two rows dated 1988 are the Gompertz-Makeham graduation forms GM(1,3)
+  and GM(0,3); see [the log-quadratic family](#the-log-quadratic-family).
+* Where the original publication is not in the bibliography (Van der Maen
+  1943, Strehler-Mildvan 1960, and the reparameterised Gompertz and Makeham),
+  the Reference column names the closest work the bibliography does carry.
+
+# Lifespan types
+
+The TYPE column says where on the lifespan a law belongs. It is not decoration:
+a TYPE 5 law fitted over the whole age range will happily draw nonsense at age
+5. `availableLaws()` ships the legend as its second component.
+
+```{r types}
+availableLaws()$legend
+```
+
+Each type below comes with one representative law, fitted to observed rates to
+show the shape. Every figure uses the female population of England and Wales in
+2010, from the bundled `ahmd` data, and plots the fitted curve against the
+observed rates with `plot(fit, which = "fit")`; the fitted $R^2$ appears in the
+figure header. The laws can all be called by name like this, outside of any
+fit; each returns its hazard or death probability in `hx`.
+
+**TYPE 1, infant mortality.** The block of `neggompertz`, `weibull`,
+`pareto_2`, the two `scholey` laws and `opperman`. The hazard starts high and
+falls, steeply at first. `neggompertz` decays at a constant relative rate,
+which is a decent story for the post-neonatal months and a poor one for the
+first day of life; a power law lets the decay slow down, and
+`scholey_shifted_power` fitted to ages 0 to 10 of the 2010 rates tracks the
+fall from 0.0041 at birth to 0.00007 at age 10, with $R^2 = 0.999$. One caveat
+belongs to the segment rather than to the fit: the infant curve is only fully
+identified at day-level resolution, where the shifted-power family of
+@scholey2019 is the tool, and since Scholey's daily series is not shipped with
+the package, this illustration has to use the single-year rates.
+
+```{r type1, fig.asp = 0.45}
+x   <- 0:10
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "scholey_shifted_power")
+plot(fit, which = "fit")
+```
+
+**TYPE 2, the accident hump.** `invgompertz` and `invweibull`. The
+inverse-Weibull rises from birth to a peak near its location parameter $M$ and
+declines after it, which makes it the law to reach for when the hump is
+serious. It is also a hard fit on a female schedule, where the hump is a mild
+bump: over ages 10 to 35 of the 2010 rates it settles far from the data, with a
+negative $R^2$, so the figure shows its sibling instead. The inverse-Gompertz
+rises steeply through the young ages and levels off at $1/\sigma$, and over
+this window it climbs smoothly past the bump, giving $R^2 = 0.927$.
+
+```{r type2, fig.asp = 0.45}
+x   <- 10:35
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "invgompertz")
+plot(fit, which = "fit")
+```
+
+**TYPE 3, adult mortality.** `gompertz`, `gompertz0`, `makeham`, `makeham0`,
+`perks` and `strehler_mildvan`. Gompertz's claim to fame is that the log
+hazard is a straight line in age, which is very nearly true of human adults.
+The hazard is unbounded, so these laws are fitted over adult ages rather than
+the whole lifespan. Fitted to ages 40 to 80 of the 2010 rates, the line is
+straight on the log scale to the eye, and $R^2 = 0.982$.
+
+```{r type3, fig.asp = 0.45}
+x   <- 40:80
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "gompertz")
+plot(fit, which = "fit")
+```
+
+**TYPE 4, adult and/or old-age mortality.** `vandermaen`, `beard`,
+`beard_makeham` and `ggompertz`. The curve rises like a Gompertz through
+adulthood and then bends: towards a ceiling, or towards the divergence of
+`vandermaen`'s closing term. This is the block to reach for when the old-age
+deceleration matters. The figure fits `ggompertz` to ages 40 to 110 of the 2010
+rates, and the range matters: over ages 40 to 100 alone the frailty term
+collapses to nearly zero and the same law returns a plain Gompertz, while the
+longer range gives $R^2 = 0.929$ and a visible bend away from the straight line
+above age 100.
+
+```{r type4, fig.asp = 0.45}
+x   <- 40:110
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "ggompertz")
+plot(fit, which = "fit")
+```
+
+**TYPE 5, old-age mortality.** `vandermaen2`, `quadratic`, `kannisto`,
+`kannisto_makeham` and the two log-quadratic laws. These are fitted from the
+adult ages up. `kannisto` is the field standard for exactly this job: a
+Gompertz-like rise that levels off at a ceiling of one. Fitted to ages 60 to
+110 of the 2010 rates it gives $R^2 = 0.924$; the last decade of the range is
+thin and noisy, and the ceiling is what keeps the fitted curve steady where the
+data stop being informative.
+
+```{r type5, fig.asp = 0.45}
+x   <- 60:110
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "kannisto")
+plot(fit, which = "fit")
+```
+
+**TYPE 6, the full age range.** `demoivre`, `thiele`, `wittstein`,
+`steffensen`, `siler`, the Heligman-Pollard family, `rogersplanck`,
+`martinelle`, the two Carriere mixtures and `kostaki`. These are multi-term
+curves with an infant part, a hump where the data have one, and a rising
+old-age part. Siler's three terms are the cleanest example: immaturity,
+background and senescence, added together. Fitted to ages 0 to 100 of the 2010
+rates, one curve covers the infant fall, the childhood trough and the adult
+rise, with $R^2 = 0.975$.
+
+```{r type6, fig.asp = 0.45}
+x   <- 0:100
+mx  <- ahmd$mx[paste(x), paste(2010)]
+fit <- MortalityLaw(x = x, mx = mx, law = "siler")
+plot(fit, which = "fit")
+```
+
+# Family biographies
+
+Thirty-eight laws are easier to face in families. What follows is who wrote
+what, and what each family is for. Laws whose original is not in the
+bibliography lean on @tabeau2001, the standard review of parametric mortality
+models, as their umbrella reference.
+
+## The Gompertz-Makeham lineage
+
+@gompertz1825 proposed the oldest law in the catalogue: the force of mortality
+rises exponentially with age, $\mu_x = A e^{Bx}$. It is a one-parameter story
+about aging, and it is uncannily good at describing adult mortality. The code
+`gompertz0` is the same curve written through its mode $M$ and dispersion
+$\sigma$, which are readable straight off the fitted line.
+
+@makeham1860 added the age-independent constant, $\mu_x = A e^{Bx} + C$, so
+that accidents, infections and other age-free risks have somewhere to live;
+`makeham0` is its mode-and-dispersion form. The full memoir of the law is
+@makeham1867; see [Bibliographic notes](#bibliographic-notes) for why the
+catalogue dates it 1860.
+
+@perks1932 put a logistic denominator on the exponential,
+$(A + B C^x)/(1 + D C^x)$, which flattens the rise at the oldest ages. That
+four-parameter logistic exists in two spellings in the catalogue, `perks` and
+`beard_makeham`, and `beard`, `kannisto` and `kannisto_makeham` are its two-
+and three-parameter cases [@beard1971]. They fit identical curves when the
+parameter counts match, so pick one and not several.
+
+The Strehler-Mildvan model of vitality decline rounds out the block
+[@finkelstein2012]; it predicts a negative correlation between the Gompertz
+intercept and slope across populations, a claim worth checking rather than
+assuming.
+
+## Siler and the competing risks view
+
+@siler1979 wrote mortality as three independent hazards added together:
+immaturity, $A e^{-Bx}$; background, $C$; and senescence, $D e^{Ex}$. The
+model came out of animal mortality, where competing risks are the natural
+language, and it fits human curves well. Its first term is the declining
+hazard Thiele proposed in 1871 [@thiele1871], which the catalogue carries
+separately as `neggompertz`. If you want one law with a story for every age
+and five parameters, Siler is the usual answer.
+
+## The Heligman-Pollard family
+
+@heligman1980 modelled the odds of dying, $q_x/p_x$, as three terms: the
+decline of infancy, a hump shaped like a lognormal density, and the
+Gompertz-like rise of old age. It is the standard full-range law in modern
+demography, and the fit is genuinely good over the whole lifespan. The
+catalogue carries four versions. `HP` is the original; `HP2`, `HP3` and `HP4`
+rewrite the old-age term as a logistic, with `HP3` and `HP4` adding a
+parameter $K$ that bends the curve further [@heligman1980].
+
+@kostaki1992 extended the family to nine parameters by giving the accident
+hump two dispersion parameters, one below and one above the cut age $F$, so
+the hump can lean. @martinelle1987 generalised Perks the other way, adding a
+linear term $K e^{Bx}$ above the logistic plateau so that very old ages can
+keep rising. All of these are high-parameter models and they all want
+`opt.method = "LF2"`; see [Fitting](#fitting-a-law-with-mortalitylaw).
+
+## Old age: the Kannisto family
+
+@thatcher1998 studied the force of mortality at ages 80 to 120, and the
+logistic they used, $\mu_x = A e^{Bx} / (1 + A e^{Bx})$, is `kannisto`. It
+rises like a Gompertz at the younger old ages and levels off at a ceiling of
+one, which is exactly the behaviour observed in the sparse, noisy data at the
+top of a life table. It is the field standard for closing life tables, and
+`LifeTable()` uses it for its `close` and `omega` arguments. Add the constant
+$C$ and you get `kannisto_makeham`.
+
+## Carriere mixtures
+
+@carriere1992 took a different tack: instead of one hazard, mix standard
+survivorship curves. `carriere1` combines Weibull, inverse-Weibull and
+Gompertz components; `carriere2` swaps the middle one for an inverse-Gompertz.
+The weights are normalised to the simplex as they are fitted, so the third
+weight stays positive. The result is a flexible whole-lifespan curve where
+each component has a recognisable job: childhood, hump, old age.
+
+## The infant laws of Scholey
+
+@scholey2019 traced the age trajectory of infant mortality in US register
+data and found two regimes: a power law right after birth, then a constant
+exponential decline. The product of the two is `scholey`,
+$A (x + C)^{-B} e^{-Dx}$; switch the truncation off and you have
+`scholey_shifted_power`, $A (x + C)^{-B}$. The family nests the other infant
+laws: $D = 0$ gives the shifted power, $B = 1$ with $D = 0$ gives
+`pareto_2`, and $B = 0$ gives `neggompertz`. The truncation parameter is only
+identifiable on day- or week-level data over the first year of life, which is
+a limitation to know before fitting; see
+[How to get it wrong](#how-to-get-it-wrong).
+
+## Pareto, Lomax and the power hazards
+
+`pareto_2`, $\mu_x = A/(x + C)$, is the hazard of the Pareto type II, or
+Lomax, distribution [@lomax1954]: a shifted power law with the exponent fixed
+at one. It is a workhorse for the infancy and childhood years, and it is the
+infancy term of the delay-and-compression model of @debeer2016. @vaupel1983
+showed the same hazard arises from a gamma-exponential frailty model, so the
+smooth curve has a population story behind it.
+
+## The log-quadratic family
+
+`makeham_logquad` and `gompertz_logquad` write the adult component as
+$K \exp(B_1 x - B_2 x^2)$, with and without a Makeham constant $A_0$. The
+$-B_2 x^2$ term bends the Gompertz straight line down at the oldest ages, so
+the hazard decelerates instead of running away. These are the GM(1,3) and
+GM(0,3) forms of the Gompertz-Makeham graduation family catalogued by
+@forfar1988, which is what the 1988 rows of the table refer to. Whether
+mortality really decelerates at the oldest ages is a question with a long
+argument attached: @finkelstein2012 works through it in the context of the
+Strehler-Mildvan model, and @missov2015 rewrites the Gompertz hazard through
+the modal age at death, the parameterisation used by the custom-law example in
+the introduction. Note that the sign of $B_2$ is fixed to the decelerating
+branch; the accelerating branch cannot be fitted.
+
+## Rogers-Planck
+
+`rogersplanck` is a three-term death probability covering the whole lifespan,
+developed as a general schedule for model life tables [@rogersplanck1983]. Its
+middle term, $A_2 \exp\{B(x - U) - e^{-C(x - U)}\}$, is a Gompertz-shaped hump
+on the log scale around the centre $U$. The companion PAA paper of 1984
+[@rogers1984] is a different work and both are kept; see
+[Bibliographic notes](#bibliographic-notes).
+
+## Heterogeneity: a note on what a fitted curve describes
+
+Every law in this catalogue describes a population, not a person. Mix people
+with different frailties and the aggregate hazard flattens at old ages even if
+every individual's hazard runs away: this is the point of @vaupel1979, whose
+gamma-frailty Gompertz is exactly the `ggompertz` law in the catalogue. The
+dynamics of such mixed populations are worked out in @vaupel1983. So a
+decelerating fit is evidence about the curve, and only indirectly about aging.
+
+## Choosing among the families
+
+Pick the lifespan type first, so the law is used where it is defined. Then
+pick the family whose terms match the story you want to tell (immaturity,
+hump, senescence), and only then worry about the parameter count. A
+nine-parameter law will fit any single mortality schedule better than a
+two-parameter one; whether it describes anything is a separate question.
+@tabeau2001 reviews the field, and @harper1936 remains useful background for
+the infant laws, though it maps to no code in the catalogue.
+
+## Bibliographic notes
+
+Two date conflicts run through this documentation, and they are resolved here
+once.
+
+* **Makeham.** `availableLaws()` prints 1860 next to the Makeham formula, so
+  the catalogue table cites @makeham1860, the short Assurance Magazine note.
+  @makeham1867, "On the law of mortality", is the full memoir of the law, and
+  that is the work cited in the narrative above.
+* **Siler.** `availableLaws()` prints 1979 next to the Siler formula, so the
+  catalogue table cites @siler1979, the competing-risk paper in *Ecology*.
+  The key `siler1983` is kept in the bibliography but deliberately uncited, because
+  what it contains is not verified; if it ever is, it may be cited in the Siler
+  note above and nowhere else.
+
+Three smaller points. The catalogue dates the Weibull law 1939; the
+bibliography carries the 1951 journal publication [@weibull1951]. The
+Rogers-Planck entry follows the 1983 IIASA working paper
+[@rogersplanck1983], with @rogers1984 kept as the separate PAA meeting paper.
+And the `steffensen` formula is attributed to Steffensen (1930)
+[@steffensen1930] on the strength of that attribution alone.
+
+# Fitting a law with MortalityLaw
+
+Everything so far is vocabulary. `MortalityLaw()` is where the data comes in.
+
+```r
+MortalityLaw(x, Dx = NULL, Ex = NULL, mx = NULL, qx = NULL,
+             law = NULL, opt.method = "LF2", parS = NULL,
+             fit.this.x = x, custom.law = NULL, show = FALSE, ...)
+```
+
+* `x` is the age vector, one value per age interval, at the start of the
+  interval.
+* The data is exactly one of three cases: death counts with exposures
+  (`Dx` + `Ex`), central death rates (`mx`), or death probabilities (`qx`).
+  Give two cases and the engine stops. A matrix or data frame of `Dx` (or
+  `mx`, or `qx`) with several columns fits one model per column.
+* `law` is a code from [the catalogue](#the-catalogue-of-laws), and
+  `custom.law` is your own function; exactly one of the two.
+* `opt.method` chooses what "best fit" means. There are eight options,
+  discussed below.
+* `parS` are starting values for the parameters, as a named, strictly
+  positive numeric vector. Leave it alone and the built-in starting values of
+  the law are used.
+* `fit.this.x` restricts the optimisation to a subset of the ages. The
+  fitted values are still returned over all of `x`.
+* `show = TRUE` displays a progress bar, which is mostly useful when many
+  columns are fitted at once.
+* `...` is passed to or from other methods.
+
+The workhorse data set for the examples in these vignettes is the bundled
+`ahmd`: death counts, exposures and rates for England and Wales females, ages
+0 to 110, for 1850, 1900, 1950 and 2010
+[@hmd2026]. Here is a Gompertz fitted to
+adult ages in 2010.
+
+```{r fit-gompertz}
+year     <- 2010
+ages     <- 45:90
+deaths   <- ahmd$Dx[paste(ages), paste(year)]
+exposure <- ahmd$Ex[paste(ages), paste(year)]
+
+fit <- MortalityLaw(
+  x          = ages,
+  Dx         = deaths,
+  Ex         = exposure,
+  law        = "gompertz",
+  opt.method = "poissonL"
+)
+summary(fit)
+```
+
+## The eight objectives
+
+What the optimiser minimises is chosen with `opt.method`. Write $\mu$ for the
+fitted value and $\nu$ for the observed one: $\nu = D_x/E_x$ when counts and
+exposures are supplied, and $\nu = m_x$ or $\nu = q_x$ when rates or
+probabilities are. $D_x$ is the death count and $E_x$ the exposure to risk.
+Two of the eight are likelihoods, and six are loss functions.
+
+$$
+\begin{aligned}
+L_{\text{poissonL}}  &= -\bigl[D_x \log \mu - \mu E_x\bigr], \\
+L_{\text{binomialL}} &= -\bigl[D_x \log(1 - e^{-\mu}) - (E_x - D_x)\mu\bigr], \\
+L_{\text{LF1}} &= \Bigl(1 - \frac{\mu}{\nu}\Bigr)^2, \qquad
+L_{\text{LF2}} = \Bigl(\log\frac{\mu}{\nu}\Bigr)^2, \\
+L_{\text{LF3}} &= \frac{(\nu - \mu)^2}{\nu}, \qquad
+L_{\text{LF4}} = (\nu - \mu)^2, \\
+L_{\text{LF5}} &= (\nu - \mu) \log\frac{\nu}{\mu}, \qquad
+L_{\text{LF6}} = \lvert \nu - \mu \rvert .
+\end{aligned}
+$$
+
+The total loss is the sum over the fitted ages; a term that is not finite is
+replaced by a penalty of $10^5$, and a fitted hazard larger than one is capped
+at one. When rates or probabilities are the input, the observed rates stand in
+for the death counts in the two likelihoods. `availableLF()` prints the same
+formulas at the console.
+
+```{r availableLF}
+availableLF()
+```
+
+Choosing is mostly empirical. The two likelihoods are the principled choice
+for count data, and `poissonL` works well for most laws. The loss functions
+are for when the fit needs help in a particular corner of the curve, and the
+high-parameter laws of the Heligman-Pollard family are the reason the option
+exists: they fit reliably under `LF2` and less reliably elsewhere, and the
+package says so at the console when you try. Test a couple of objectives on
+your data before deciding; the results will differ slightly.
+
+# The optimisation procedure
+
+**Starting values.** Every catalogue law carries built-in starting values,
+visible by calling the law without `par`.
+
+```{r starting-values}
+gompertz(x = 45:90)$par
+```
+
+Pass `parS` to supply your own. The names must match the law's parameters
+exactly and all values must be positive; the engine validates both before the
+optimiser runs. The starting point of the search is `log(parS)` either way.
+
+```{r fit-parS}
+fit_parS <- MortalityLaw(
+  x          = ages,
+  Dx         = deaths,
+  Ex         = exposure,
+  law        = "gompertz",
+  opt.method = "poissonL",
+  parS       = c(A = 0.001, B = 0.05)
+)
+rbind(default = coef(fit), parS = coef(fit_parS))
+```
+
+Two very different starting points, one optimum. That is the usual outcome
+for these laws, not a guarantee; a fit that lands somewhere else is telling
+you the objective has more than one basin.
+
+**The log transform.** Parameters are optimised on the log scale: the
+objective calls the law as `fn(x, exp(par))`. This is why all parameters are
+strictly positive, why a formula needing $-0.5$ carries the sign in its own
+text instead, and why an extreme probe simply underflows rather than
+producing a negative hazard.
+
+**The optimiser.** All laws are fitted with `nlminb` and its PORT routines,
+with `eval.max` and `iter.max` at 5000. The single exception is `invweibull`,
+which uses `optim` with Nelder-Mead. There is no user-facing switch, and the
+coefficients returned are always on the original parameter scale.
+
+**Reading the convergence output.** A non-zero convergence code raises a
+warning of the form "MortalityLaw: optimisation did not converge (code k)",
+and the full optimiser object is kept in `opt.diagnosis` for inspection. Note
+that `nlminb` attaches a message such as "relative convergence (4)" even on
+success, so a message with `convergence = 0` is routine. `summary()` reports
+the iteration count and the convergence status in one line.
+
+**Age scaling.** Laws flagged `SCALE_X = TRUE` are fitted on shifted ages,
+
+$$
+x_{\text{fit}} = x - \min(x) + 1,
+$$
+
+so that the youngest fitted age becomes 1 and the exponentials stay tame. The
+coefficients therefore refer to scaled ages and are not comparable with the
+unscaled parameterisation, while the fitted curves are always returned on the
+original age scale. The same shift is reapplied whenever the fitted law is
+evaluated again, including `predict()` and `LawTable()`. The one trap: for a
+scaled law, `LawTable()` is only valid from the lower bound of the fitting
+range upwards.
+
+**The fitting window.** `fit.this.x` fits a subset of the ages while keeping
+the full fitted curve. This is how you fit an adult law to adult ages without
+dropping the rest of the vector.
+
+```{r fit-window}
+fit_window <- MortalityLaw(
+  x          = ages,
+  Dx         = deaths,
+  Ex         = exposure,
+  law        = "gompertz",
+  opt.method = "poissonL",
+  fit.this.x = 60:90
+)
+range(fit_window$input$fit.this.x)
+length(fit_window$fitted.values)
+```
+
+# Goodness of fit
+
+A finished `MortalityLaw` object carries three kinds of residual (raw,
+deviance and Pearson), the `deviance`, the degrees of freedom and
+`dispersion`, and `goodness.of.fit` with the log-likelihood, AIC and BIC.
+
+**Information criteria.** For the two likelihood objectives,
+
+$$
+\text{logLik} = -L, \qquad
+\text{AIC} = 2k - 2\,\text{logLik}, \qquad
+\text{BIC} = \log(n)\, k - 2\,\text{logLik},
+$$
+
+with $k$ the number of parameters and $n$ the number of fitted ages. All
+three are `NaN` for the six loss functions, because a sum of squares is not a
+likelihood and pretending otherwise only produces numbers that look like
+AICs. One caveat the engine is honest about: the log-likelihood drops
+data-only additive constants, so its absolute value differs from what `glm`
+reports, while comparisons between fits of the same data are unaffected.
+
+```{r gof-count}
+fit$goodness.of.fit
+fit$df
+```
+
+**Counts or rates.** The deviance and the dispersion depend on the data case.
+With counts and exposures, everything follows the Poisson definitions: the
+Pearson residual is $(D_x - \mu E_x)/\sqrt{\mu E_x}$, the deviance is the sum
+of squared Poisson deviance residuals (the quantity `poissonL` minimises), and
+
+$$
+\text{dispersion} = \frac{\sum \text{Pearson}^2}{\text{rdf}},
+$$
+
+which is about one for a correctly specified Poisson model and larger when the
+data are noisier than Poisson, as single-age death counts usually are. With
+rates or probabilities there is no count likelihood, so the residuals are log
+residuals, $\log \nu - \log \mu$; the deviance is their sum of squares, and
+the dispersion is their mean square.
+
+```{r gof-rate}
+fit_rate <- MortalityLaw(
+  x          = ages,
+  mx         = ahmd$mx[paste(ages), paste(year)],
+  law        = "gompertz",
+  opt.method = "LF2"
+)
+fit_rate$goodness.of.fit   # NaN: LF2 is a loss, not a likelihood
+c(deviance = fit_rate$deviance, dispersion = fit_rate$dispersion)
+```
+
+**Residuals.** Numbers tell you the fit is close; the residual panels tell you
+where it is not. `plot(fit)` draws the observed points against the fitted line
+plus four diagnostics (residuals against age, against the fitted values, a
+normal Q-Q plot and a histogram). The worked example is in the introduction
+to the package.
+
+# How to get it wrong
+
+Most of the ways to get it wrong produce output that looks fine. These are
+the ones the package tries to warn you about, and one or two it cannot.
+
+* **Fitting `weibull` at birth.** The hazard is undefined at $x = 0$, so age
+  0 is dropped from the fit with a warning. Start the fit at age 1 and save
+  yourself the surprise.
+* **Extrapolating `demoivre`.** The hazard $1/(N - x)$ diverges at $N$, and
+  the fit always places $N$ just above the top fitted age. Predicting past the
+  fitted range gives a negative hazard, and every `demoivre` fit warns about
+  it, naming the fitted $N$.
+* **Trusting `scholey` on year data.** The truncation parameter $D$ is only
+  identified on day- or week-level ages over the first year of life. On
+  single-year ages it collapses to the optimisation boundary and the model
+  reduces to `scholey_shifted_power`, with a warning. The fit is still fine;
+  it is just a different model than the one you asked for.
+* **Ignoring the `kostaki` guard.** If the two hump dispersions drift more
+  than a factor of 50 apart, the engine pulls $E_2$ back to $E_1/50$ before
+  the hazard is evaluated. This is a deliberate hack to stop an artificial
+  jump at the cut age; if the reported coefficients look oddly tidy, this is
+  why.
+* **Fitting the HP family with a likelihood.** `HP`, `HP2`, `HP3`, `HP4` and
+  `kostaki` are reliably estimated under `opt.method = "LF2"` and not under
+  the others. The package prints a hint at the console when you try; the hint
+  is correct.
+* **Plugging scaled coefficients into the unscaled formula.** Laws flagged
+  `SCALE_X = TRUE` are calibrated on shifted ages, $x - \min(x) + 1$, so their
+  coefficients are not comparable with the unscaled parameterisation and must
+  not be read into the formula with ages as they come. The recipe is one line:
+  shift the same way before you evaluate. The
+  [Age scaling](Intro.html#age-scaling) section of the introduction shows the
+  worked demonstration.
+* **Reporting AIC from a loss function.** `goodness.of.fit` is `NaN` there on
+  purpose. Do not fill it in by hand or compare such numbers across fits.
+* **Fitting `perks` and `beard_makeham` to different data sets and comparing
+  them.** They are the same four-parameter curve written two ways.
+
+# Custom laws
+
+Anything not in the catalogue can be fitted by handing a function to
+`custom.law`. The contract is small.
+
+```r
+my_law <- function(x, par) {
+  # compute one mortality value per age, on the scale of your data
+  list(hx = hx, par = par)      # optionally add Sx = survivorship
+}
+```
+
+* The function takes the age vector `x` and a parameter vector `par`, and
+  returns a list. The `hx` element is required and must hold one value per
+  age; `par` is echoed back with the (possibly normalised) parameters, and an
+  `Sx` element with the survivorship is optional. The mixture laws of the
+  catalogue use `Sx` internally, and so may yours.
+* **`hx` must be on the scale of the data you fit.** The engine compares `hx`
+  directly with $D_x/E_x$, $m_x$ or $q_x$. A hazard fitted to rate data is
+  correct only because $m_x$ is a rate; if you fit probabilities, return
+  probabilities. This is what the FIT column means for your own law.
+* **Starting values come from `my_law(1)$par`.** The engine evaluates the
+  function at `x = 1` and reads `par` out of the returned list, so the
+  default value of `par` is where your search starts.
+* **Parameters are optimised on the log scale**, so every parameter must be
+  positive for the fit to be reachable. Fold any sign into the formula, as the
+  built-in laws do.
+* **A custom law is always treated as a scaled one.** Ages are shifted by
+  $x - \min(x) + 1$ before your function sees them, exactly as for
+  `SCALE_X = TRUE` laws, and the fitted curve is reported on the original
+  scale.
+* Values of `hx` that are non-finite or non-positive are set aside and
+  penalised, so a law that misbehaves part of the time drags the fit instead
+  of crashing it. Return a clean vector and the optimiser will thank you.
+* `LawTable()` takes catalogue codes only; to build life tables from a custom
+  law, evaluate it yourself and pass the result to `LifeTable()`.
+
+A worked custom-law fit, with a Gompertz written through the modal age at
+death, is in the introduction to the package.
+
+# Session info and references
+
+Everything on this page was produced with:
+
+```{r session}
+sessionInfo()
+```
+
+## References
