@@ -1,3 +1,7 @@
+version 2.12.1 - "quiet attic"
+- Old working files the package no longer needs have been cleared out, and
+the readme has been tidied up.
+
 version 2.12.0 - "full picture"
 - The documentation is new end to end: a guided introduction, a tour of the
 mortality models and their formulas, and a walk through the life table methods.
