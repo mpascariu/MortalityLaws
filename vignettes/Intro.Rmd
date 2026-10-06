@@ -2,7 +2,7 @@
 title: "Introduction to `MortalityLaws`"
 subtitle: "A guided tour of parametric mortality models and life tables"
 author: "Marius D. Pascariu"
-date: "2026-10-05"
+date: "2026-10-06"
 output:
   html_document:
     toc: true
@@ -55,9 +55,9 @@ download. Let us start.
 
 # Install and load
 
-The [Installation section of the README](../index.html#installation) carries
-the instructions for both the CRAN release and the development version. The
-short version is `install.packages("MortalityLaws")`.
+The [Installation section of the README](https://mpascariu.github.io/MortalityLaws/#installation)
+carries the instructions for both the CRAN release and the development version.
+The short version is `install.packages("MortalityLaws")`.
 
 ```{r}
 library(MortalityLaws)
@@ -432,7 +432,7 @@ mechanically from it. `LawTable()` does the round in one call: it evaluates
 the law at the ages you give it and hands the result to the life table
 engine.
 
-```{r, warning = FALSE}
+```{r, warning = FALSE, message = FALSE}
 lt <- LawTable(x = 0:100, par = fit$coefficients, law = "HP")
 head(lt$lt)
 ```
@@ -441,9 +441,9 @@ The table has one row per age and the usual columns: the age, the mortality
 schedule in its interchangeable forms, the survivors `lx`, the deaths `dx`,
 the person-years `Lx` and `Tx`, and life expectancy `ex`. A model curve never
 reaches a death probability of exactly 1 at the last age in the range, so the
-call warns that the table is not closed at the top; the engine closes the
-final interval and says so. (The warning is switched off above to keep the
-output readable.)
+call notes that the table is not closed at the top; the engine closes the
+final interval for you and says so. Closing the input yourself is optional.
+(The note is switched off above to keep the output readable.)
 
 There are no life table figures here on purpose. The
 [Life tables](Life-tables.html) article takes this table apart: the
@@ -464,8 +464,8 @@ companion articles go deep where this one stayed shallow.
   recursions, the average-years-lived methods, closing and extending the
   tail, indicator conversions with `convertFx()`, `LawTable()`, and the
   inverse life table from `ex`.
-* The [function reference](../reference/index.html) - every function and
-  dataset, with the arguments spelled out.
+* The [function reference](https://mpascariu.github.io/MortalityLaws/reference/) -
+  every function and dataset, with the arguments spelled out.
 
 If the package earns a line in your paper, the citation is one call away:
 

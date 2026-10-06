@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04 17:46:32
+# Date: 2026-10-06 21:03:27
 # --------------------------------------------
 
 #' Compute Life Tables from Mortality Data
@@ -237,9 +237,14 @@
 #'   constant force of mortality conversion in place; only
 #'   \code{"andreev_kingkade"} changes the conversion itself.
 #' 
-#'   The value for the open age interval is always replaced with \code{1/mx} 
-#'   (or the model-implied value when \code{close} is set); see 
-#'   \code{Details}.
+#'   A value supplied for the open age interval is kept as given. Everybody
+#'   alive there dies in that interval, so its own rate implies what the
+#'   average time lived in it should be (\code{1/mx}); a value that differs
+#'   is reported and left alone, which leaves the \code{ax} and \code{mx}
+#'   columns of the table disagreeing at that age, or the model-implied
+#'   value when \code{close} is set. The one exception is a table entered
+#'   from \code{ex}, where the curve being inverted fixes that interval.
+#'   See \code{Details}.
 #'
 #' @param close The method used to close the open age interval, named by 
 #'   the mortality-law code that implements it. \code{NULL} (the default) 
@@ -423,10 +428,11 @@ compute_life_table <- function(x,
   df      <- diff(x)
   nx      <- c(df, df[N - 1])
   user_ax <- !is.null(ax)
-  # The open-interval warning is about values the user supplied. The flags
-  # below also mark internally derived ax as "keep this", which must stay
-  # silent: an ax method adjusting the open interval is implied, not news.
-  warn_ax <- user_ax
+  # A supplied open-interval ax is the caller's to keep, except where it is
+  # derived rather than chosen: an ax method (those arrive as a name, so
+  # user_ax is TRUE for them too) and a table entered from ex, where the
+  # open interval's ax is ex there by definition.
+  keep_ax <- user_ax && case != "C6_ex"
 
   if (user_ax && length(ax) == 1) {
     ax <- rep(ax, N)
@@ -467,7 +473,7 @@ compute_life_table <- function(x,
   if (!is.null(omega)) {
     mx0 <- lt_case_rates(case = case, x = x, nx = nx, Dx = Dx, Ex = Ex,
                          mx = mx, qx = qx, lx = lx, dx = dx, lx0 = lx0,
-                         ax = ax)$mx
+                         ax = ax, notice = FALSE)$mx
     mx0 <- repair_mx(mx = mx0, nx = nx)
 
     E <- lt_extend_omega(x = x, mx = mx0, omega = omega,
@@ -494,7 +500,7 @@ compute_life_table <- function(x,
       df   <- diff(x)
       nx   <- c(df, df[N - 1])
       user_ax <- FALSE
-      warn_ax <- FALSE
+      keep_ax <- FALSE
     }
   }
 
@@ -522,7 +528,7 @@ compute_life_table <- function(x,
     for (k in seq_len(5)) {
       Rk  <- lt_case_rates(case = case, x = x, nx = nx, Dx = Dx, Ex = Ex,
                            mx = mx, qx = qx, lx = lx, dx = dx, lx0 = lx0,
-                           ax = ax)
+                           ax = ax, notice = FALSE)
       axn <- hmd_ax_vector(x = x, mx = Rk$mx, qx = Rk$qx, sex = sex)
 
       moved <- is.null(ax) || max(abs(axn - ax)) > 1e-14
@@ -583,7 +589,7 @@ compute_life_table <- function(x,
   }
 
   ax <- lt_ax(x = x, ax = ax, mx = mx, qx = qx, nx = nx, sex = sex,
-              user = user_ax, warn = warn_ax, ax_method = ax_method)
+              user = user_ax, keep = keep_ax, ax_method = ax_method)
 
   C <- lt_columns(mx = mx, ax = ax, lx = lx, dx = dx, nx = nx)
 
@@ -618,14 +624,14 @@ compute_life_table <- function(x,
 #' @param ax_method The ax method name, see \code{\link{LifeTable}}.
 #' @param user Logical; TRUE keeps the \code{ax} given rather than deriving
 #'   it from the rates.
-#' @param warn Logical; warn when a user-supplied open-interval value is
-#'   replaced. Kept apart from \code{user}: an internally derived \code{ax}
-#'   that is kept (the ax methods, the ex inverse) adjusts the open interval
-#'   silently.
+#' @param keep Logical; report a supplied open-interval value that disagrees
+#'   with the one its rate implies, and keep it. Kept apart from
+#'   \code{user}: the ax methods and a table entered from \code{ex} adjust
+#'   that interval silently, because there it is derived rather than chosen.
 #' @return A numeric vector of the average person-years lived in each
 #'   interval by those who die in it.
 #' @noRd
-lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE, warn = FALSE,
+lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE, keep = FALSE,
                   ax_method = "preston") {
 
   if (!user) {
@@ -637,7 +643,7 @@ lt_ax <- function(x, ax, mx, qx, nx, sex, user = FALSE, warn = FALSE,
     }
   }
 
-  ax <- lt_open_ax(x = x, ax = ax, mx = mx, nx = nx, warn = warn)
+  ax <- lt_open_ax(x = x, ax = ax, mx = mx, nx = nx, keep = keep)
   return(ax)
 }
 
@@ -701,7 +707,8 @@ lt_degenerate <- function(mx) {
 #'   \code{dx} and \code{ax} vectors, plus \code{miss}, a logical vector
 #'   flagging the rows that hold a missing input.
 #' @noRd
-lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
+lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax,
+                        notice = TRUE) {
 
   miss <- rep(FALSE, length(x))
 
@@ -725,7 +732,7 @@ lt_case_rates <- function(case, x, nx, Dx, Ex, mx, qx, lx, dx, lx0, ax) {
     qx   <- as.numeric(qx)
     mx   <- mx_qx(x = x, nx = nx, ux = qx, out = "mx", ax = ax)
     ax   <- lt_feasible_ax(x = x, ax = ax, mx = mx)
-    qx   <- lt_close_qx(qx = qx)
+    qx   <- lt_close_qx(qx = qx, notice = notice)
   }
 
   if (case == "C4_lx") {

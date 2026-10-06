@@ -7,8 +7,11 @@ check/
 vignettes/*.pdf
 vignettes/*.R
 vignettes/*.log
+vignettes/*.html
+Rplots.pdf
 MortalityLaws.Rproj
 doc
+docs
 Meta
 data-raw/ilts.Rdata
 site/

@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04 17:46:32
+# Date: 2026-10-06 00:32:38
 # --------------------------------------------
 
 #' Print a Fitted Mortality Law
@@ -372,13 +372,14 @@ df.residual.MortalityLaw <- function(object, ...) {
 #' @return The dispersion for a single fit, or a named vector of dispersions
 #'   for a multiple fit.
 #' @seealso \code{\link{MortalityLaw}}; \code{\link{deviance.MortalityLaw}}.
+#' @name dispersion.MortalityLaw
 #' @example inst/examples/dispersion.R
 #' @export
 dispersion <- function(object, ...) {
   UseMethod("dispersion")
 }
 
-#' @rdname dispersion
+#' @rdname dispersion.MortalityLaw
 #' @export
 dispersion.MortalityLaw <- function(object, ...) {
   return(object$dispersion)

@@ -16,7 +16,7 @@ fit <- suppressWarnings(
 lt_multi  <- suppressWarnings(
   LifeTable(x = as.numeric(rownames(ahmd$mx)), mx = ahmd$mx[, c("1900", "1950")])
   )
-lt_single <- suppressWarnings(LifeTable(x = 0:105, mx = mx_1950(0:105)))
+lt_single <- quiet(LifeTable(x = 0:105, mx = mx_1950(0:105)))
 
 fx_vec <- suppressWarnings(
   convertFx(x = 0:105, data = mx_1950(0:105), from = "mx", to = "ex")
@@ -110,7 +110,7 @@ test_that("convertFx returns a classed result that plots and round-trips", {
     convertFx(x = 0:105, data = qx, from = "qx", to = "mx")
     )
   expect_s3_class(back, "convertFx")
-  expect_s3_class(suppressWarnings(LifeTable(x = 0:105, qx = qx)), "LifeTable")
+  expect_s3_class(quiet(LifeTable(x = 0:105, qx = qx)), "LifeTable")
   qx2 <- suppressWarnings(
     convertFx(x = 45:75, data = mx_1950(45:75), from = "mx", to = "qx")
     )

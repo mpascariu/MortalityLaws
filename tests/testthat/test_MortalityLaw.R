@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04
+# Date: 2026-10-06 20:29:39
 # --------------------------------------------
 # Engine tests for MortalityLaw() and its S3 surface. Absorbs the seven old test
 # files plus Contracts 6, 8, 9 and the loss-function sweep.
@@ -156,28 +156,29 @@ hp_par <- c(0.00223, 0.01461, 0.12292, 0.00091, 2.75201, 29.01877, 0.00002, 1.11
 hp_qx  <- HP(x = 0:110, par = hp_par)$hx
 
 test_that("LawTable reproduces the direct law evaluation and LifeTable", {
-  hp_lt <- suppressWarnings(LawTable(x = 0:110, par = hp_par, law = "HP")$lt)
+  hp_lt <- quiet(LawTable(x = 0:110, par = hp_par, law = "HP")$lt)
   n  <- length(hp_qx)
   # q[n] = 1 by convention, so only the ages below it are comparable
   expect_equal(hp_qx[-n], hp_lt$qx[-n], tolerance = 1e-12)
   expect_identical(hp_lt$qx[n], 1)
-  expect_equal(hp_lt, suppressWarnings(LifeTable(x = 0:110, qx = hp_qx)$lt))
-  hp_lt3 <- suppressWarnings(LawTable(x = 3:110, par = hp_par, law = "HP")$lt)
+  expect_equal(hp_lt, quiet(LifeTable(x = 0:110, qx = hp_qx)$lt))
+  hp_lt3 <- quiet(LawTable(x = 3:110, par = hp_par, law = "HP")$lt)
   expect_equal(hp_lt$ex[hp_lt$x == 3], hp_lt3$ex[hp_lt3$x == 3])
-  expect_warning(LifeTable(x = 0:110, qx = hp_qx), regexp = "'qx' is not closed")
-  est_lt <- suppressWarnings(LawTable(x = two_col_ages, par = coef(fit_2col),
+  expect_message(LifeTable(x = 0:110, qx = hp_qx),
+                 regexp = "'qx' is not closed at the last age")
+  est_lt <- quiet(LawTable(x = two_col_ages, par = coef(fit_2col),
                                       law = "kannisto_makeham"))
   expect_s3_class(est_lt, "LifeTable")
   expect_equal(nrow(est_lt$lt), 2 * length(two_col_ages))
   # makeham rescales internally; ages and per-row stacking survive (Contract 8)
-  vec_lt <- suppressWarnings(LawTable(x = 45:100, par = c(A = .002, B = .13, C = .001),
+  vec_lt <- quiet(LawTable(x = 45:100, par = c(A = .002, B = .13, C = .001),
                                       law = "makeham"))
   expect_equal(vec_lt$lt$x, 45:100)
   par2 <- matrix(c(0.00717, 0.07789, 0.00363,
                    0.01018, 0.07229, 0.00001),
                  nrow = 2, byrow = TRUE,
                  dimnames = list(c("m1", "m2"), c("A", "B", "C")))
-  mat_lt <- suppressWarnings(LawTable(x = 45:100, par = par2, law = "makeham"))
+  mat_lt <- quiet(LawTable(x = 45:100, par = par2, law = "makeham"))
   expect_s3_class(mat_lt, "LifeTable")
   expect_equal(nrow(mat_lt$lt), 2 * length(45:100))
   expect_equal(mat_lt$lt$x, rep(45:100, 2))
@@ -265,7 +266,7 @@ test_that("summary reports the fit window, the method and the fit measures", {
 
 test_that("plot draws the fitted curve for both qx and mx input", {
   # plot() reads the observed series from qx if entered as qx, else from mx
-  qx <- suppressWarnings(convertFx(45:75, data = mx_1950(45:75),
+  qx <- quiet(convertFx(45:75, data = mx_1950(45:75),
                                    from = "mx", to = "qx"))
   fit_qx <- suppressWarnings(MortalityLaw(x = 45:75, qx = qx, law = "makeham"))
   fit_mx <- law_fits[["makeham"]]
@@ -358,9 +359,6 @@ bad_input <- list(
   # a missing or an infinite rate carries no information about the fit (21)
   case("'mx' contains missing or infinite values", mx = replace(mx6, 3, NA)),
   case("'mx' contains missing or infinite values", mx = replace(mx6, 3, Inf)),
-  # Ex is a person-years count, so a zero exposure is undefined (26)
-  case("'Ex' must contain strictly positive values", Dx = rep(100, 6),
-       Ex = c(rep(1000, 3), 0, 1000, 1000)),
   # a hazard cannot be negative (31)
   case("'mx' must not contain negative values", mx = replace(mx6, 2, -0.001)),
   # the qx path has its own length guard, separate from the mx one (58)
@@ -395,4 +393,31 @@ test_that("MortalityLaw reports every input check, and the helpers their contrac
   expect_equal(substr_right(c("abc", "wxyz"), 2), c("bc", "yz"))
   expect_equal(substr_right("abc", 10), "abc")
   expect_equal(substr_right("", 2), "")
+})
+
+test_that("zero exposure is left out of the fit, not rejected", {
+  # An age with no exposure carries no information about the hazard. vital, a
+  # reverse dependency, fits data with zero population at the oldest ages, so
+  # this must not stop the fit: the age is dropped and the fit says so.
+  Dx <- rep(100, 6)
+  Ex <- c(rep(1000, 3), 0, 1000, 1000)
+
+  expect_message(
+    M <- suppressWarnings(
+      MortalityLaw(x = x6, Dx = Dx, Ex = Ex, law = "gompertz")
+    ),
+    regexp = "1 age\\(s\\) with zero exposure"
+  )
+  expect_s3_class(M, "MortalityLaw")
+  expect_true(all(is.finite(coef(M))))
+  # out of the fit, so out of the residual degrees of freedom: 5 ages - 2 par
+  expect_equal(unname(M$df["df.residual"]), 3)
+
+  # dropping every informative age leaves nothing to fit
+  expect_error(
+    suppressMessages(
+      MortalityLaw(x = x6, Dx = Dx, Ex = c(rep(0, 5), 1000), law = "gompertz")
+    ),
+    regexp = "fewer than two ages carry exposure"
+  )
 })

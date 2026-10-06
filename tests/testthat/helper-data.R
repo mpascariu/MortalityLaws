@@ -48,3 +48,10 @@ with_pdf_device <- function(expr) {
   on.exit(grDevices::dev.off(), add = TRUE)
   return(expr)
 }
+
+# Table builders report what they repaired (the open interval they closed, the
+# ages they left out). The suite does not test those notes, so they are
+# silenced together here rather than at each of the call sites.
+quiet <- function(x) {
+  suppressMessages(suppressWarnings(x))
+}

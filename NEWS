@@ -1,3 +1,21 @@
+version 2.13.0 - "chalk outline"
+- The package now speaks up less and more clearly: where it adjusts the data
+you gave it, it says so once, as a note rather than a warning, and a value you
+supply for the last, open age interval is used as given instead of quietly
+replaced.
+- Axis tick labels are short and readable (20k, 100k rather than 2e+04 and
+1e+05), a panel carries only as many as it has room for, and the figure
+subtitle is drawn larger than before.
+- Fitted models, life tables and conversions all draw their own figures in one
+house style, with the margins around every panel reworked so the labels clear
+the data, and any layout you ask for comes out whole.
+- The average time lived in the first year now follows the Andreev-Kingkade
+rule, and a life table can be built from a life expectancy vector.
+- New models for the first years of life, two for old age and a straight-line
+law join the catalogue, with every model on its published formula.
+- Downloads from the mortality databases work again, and the models and the
+life tables are almost fully tested.
+
 version 2.12.1 - "quiet attic"
 - Old working files the package no longer needs have been cleared out, and
 the readme has been tidied up.

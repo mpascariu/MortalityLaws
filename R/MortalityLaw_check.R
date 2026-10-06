@@ -39,8 +39,8 @@ check_values <- function(value, name, positive = FALSE) {
 #' Check the data vectors against the age vector
 #'
 #' Verifies that the supplied data have the same length as the age vector
-#' \code{x} and that their values pass \code{check_values}. Counts (\code{Ex})
-#' must be strictly positive; the other inputs must be non-negative.
+#' \code{x} and that their values pass \code{check_values}. Every input must be
+#' non-negative; ages with zero exposure are left out of the fit, not rejected.
 #' @inheritParams MortalityLaw
 #' @return No return value, called for side effects
 #' @noRd
@@ -67,7 +67,7 @@ check_input_data <- function(x, Dx, Ex, mx, qx) {
     }
 
     check_values(value = Dx, name = "Dx")
-    check_values(value = Ex, name = "Ex", positive = TRUE)
+    check_values(value = Ex, name = "Ex")
   }
 
   return(invisible(NULL))

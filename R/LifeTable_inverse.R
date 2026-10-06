@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04 17:46:32
+# Date: 2026-10-06 21:02:34
 # --------------------------------------------
 
 # Inverse life table: build a table from a vector of life expectancy e(x).
@@ -101,12 +101,13 @@ ex_inverse <- function(x, nx, ex, ax = NULL, sex = NULL,
   open_i    <- which(!close_end)
 
   if (given_ax) {
-    # The open interval follows the standard rule, a_N = e_N; a supplied value
-    # there is replaced, with a warning, exactly as the forward pipeline does.
+    # The open interval is fixed by the curve being inverted: a_N = e_N. This
+    # is the one place a supplied value cannot be kept, so it is reported.
     if (!isTRUE(all.equal(ax[N], ex[N]))) {
-      warning("The 'ax' value supplied for the open age interval (age ",
-              x[N], ") has been replaced with ", round(ex[N], 4),
-              " to keep the closed life table consistent.", call. = FALSE)
+      message("'ax' at the open age interval (age ", x[N], ") is set to ",
+              "e(x) there, ", round(ex[N], 4), ", which is what a table ",
+              "entered from 'ex' fixes it to. The value you supplied, ",
+              round(ax[N], 4), ", applies to the closed intervals.")
     }
 
     ax[N]  <- ex[N]

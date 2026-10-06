@@ -20,15 +20,14 @@ LawTable(x = x1, par = C1, law = L1)
 # table produced by LawTable is valid only from age 45 onward.
 
 # ---- Example 1B: correct usage ----
-LawTable(x = 45:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
+LawTable(x = x1, par = c(0.00717, 0.07789, 0.00363), law = L1)
 
 # ---- Example 1C: incorrect usage ----
 # The code below uses the same coefficients but starts at age 25.
 # Because the model was fitted on scaled ages (starting at 45),
 # the life table at age 25 will be meaningless (e.g., e25 equals e45).
-\dontrun{
 LawTable(x = 25:100, par = c(0.00717, 0.07789, 0.00363), law = L1)
-}
+
 
 # ---- How to check which laws apply scaling ----
 A <- availableLaws()$table

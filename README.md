@@ -5,10 +5,10 @@
 [![pkgdown](https://github.com/mpascariu/MortalityLaws/actions/workflows/pkgdown.yaml/badge.svg)](https://mpascariu.github.io/MortalityLaws/)
 [![codecov](https://codecov.io/github/mpascariu/MortalityLaws/branch/master/graphs/badge.svg)](https://app.codecov.io/github/mpascariu/MortalityLaws)
 [![downloads](https://cranlogs.r-pkg.org/badges/grand-total/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
+[![downloads (monthly)](https://cranlogs.r-pkg.org/badges/MortalityLaws)](https://CRAN.R-project.org/package=MortalityLaws)
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/mpascariu/MortalityLaws/blob/master/LICENSE)
 [![issues](https://img.shields.io/github/issues-raw/mpascariu/MortalityLaws.svg)](https://github.com/mpascariu/MortalityLaws/issues)
-
 
 A mortality law is a small parametric function that describes how a population dies
 out with age: high mortality in infancy, a hump at young adult ages, and an
@@ -106,7 +106,7 @@ to pull the latest commits.
 To cite `MortalityLaws` in publications use:
 
 > Pascariu M (2026). *MortalityLaws: Parametric Mortality Models, Life Tables and
-> HMD*. R package version 2.12.1, <https://github.com/mpascariu/MortalityLaws>.
+> HMD*. R package version 2.13.0, <https://github.com/mpascariu/MortalityLaws>.
 
 A BibTeX entry for LaTeX users is:
 
@@ -115,7 +115,7 @@ A BibTeX entry for LaTeX users is:
     title = {MortalityLaws: Parametric Mortality Models, Life Tables and HMD},
     author = {Marius D. Pascariu},
     year = {2026},
-    note = {R package version 2.12.1},
+    note = {R package version 2.13.0},
     url = {https://github.com/mpascariu/MortalityLaws},
   }
 ```

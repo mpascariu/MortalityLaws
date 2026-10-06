@@ -40,6 +40,7 @@ missov <- function(x, par = c(b = 0.13, M = 45)){
 
 M3 <- MortalityLaw(x = x, Dx = Dx, Ex = Ex, custom.law = missov)
 summary(M3)
+plot(M3)
 # predict M3 for different ages
 predict(M3, x = 85:130)
 
@@ -54,5 +55,6 @@ M4 <- MortalityLaw(x = x, mx = mx, law = 'HP', opt.method = 'LF2')
 M4
 plot(M4, which = 'fit')
 plot(M4, which = 'diagnostics')
+plot(M4, which = 'both')
 
 LifeTable(x = x, qx = fitted(M4))

@@ -1,6 +1,6 @@
 # --------------------------------------------
 # Author: Marius D PASCARIU
-# Date: 2026-10-04 17:46:32
+# Date: 2026-10-06 20:59:21
 # --------------------------------------------
 
 # Internal helpers behind LifeTable(): the mx/qx bridge, the ax
@@ -185,17 +185,21 @@ lt_feasible_ax <- function(x, ax, mx) {
 #' Close a set of death probabilities
 #'
 #' Forces the probability of dying in the last interval to 1, so that the
-#' life table closes, warning when the supplied values were not closed.
-#' @inheritParams LifeTable
+#' life table closes, saying so when the supplied values were not closed.
+#' @param qx Death probabilities.
+#' @param notice Whether to report the closure. The ax iteration in
+#'   \code{compute_life_table} and the omega probe evaluate the same input
+#'   repeatedly, and a note per pass would say the same thing five times over.
 #' @return The input vector with its last element set to 1.
 #' @noRd
-lt_close_qx <- function(qx) {
+lt_close_qx <- function(qx, notice = TRUE) {
   N  <- length(qx)
   ok <- !is.na(qx[N]) && qx[N] != 1
 
-  if (ok) {
-    warning("'qx' is not closed. The probability of dying in the last ",
-            "interval has been set to 1.", call. = FALSE)
+  if (ok && notice) {
+    message("'qx' is not closed at the last age; it has been set to 1. That ",
+            "is the usual way to close a life table and is applied here, so ",
+            "closing the input yourself is optional.")
   }
 
   if (!is.na(qx[N])) {
@@ -257,19 +261,24 @@ repair_mx <- function(mx, nx) {
 #' Everybody alive at the start of the open interval dies in it, so the
 #' survivors live 1/mx years on average. When mx is missing the interval
 #' quantity is missing too, and when it is not usable the interval falls
-#' back to half of the last closed interval. A user-supplied value is
-#' replaced, with a warning.
+#' back to half of the last closed interval.
+#'
+#' The interval's own rate implies the average time lived in it, so a value
+#' supplied for it is used as given - the table is the caller's to build -
+#' and the disagreement is reported. Two callers cannot keep one: an ax
+#' method, whose values are derived, and a table entered from ex, where the
+#' open interval's ax equals ex there by definition. Both adjust it silently.
 #' @inheritParams LifeTable
 #' @param nx Numeric vector of interval widths, one per age.
-#' @param warn Logical; warn when a user-supplied open-interval value is
-#'   replaced.
+#' @param keep Logical; \code{TRUE} keeps a supplied open-interval value
+#'   instead of the implied one.
 #' @return The \code{ax} vector with the open interval assigned
 #'   \code{1/mx}.
 #' @noRd
-lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
-  N   <- length(ax)
-  old <- ax[N]
-  val <- if (is.finite(mx[N]) && mx[N] > 0) {
+lt_open_ax <- function(x, ax, mx, nx, keep = FALSE) {
+  N    <- length(ax)
+  old  <- ax[N]
+  val  <- if (is.finite(mx[N]) && mx[N] > 0) {
     1/mx[N]
 
   } else if (is.na(mx[N])) {
@@ -279,10 +288,17 @@ lt_open_ax <- function(x, ax, mx, nx, warn = FALSE) {
     nx[N - 1]/2
   }
 
-  if (warn && !is.na(old) && !isTRUE(all.equal(old, val))) {
-    warning("The 'ax' value supplied for the open age interval (age ",
-            x[N], ") has been replaced with ", round(val, 4),
-            " to keep the closed life table consistent.", call. = FALSE)
+  # A value supplied for the closing interval is the caller's to keep; the
+  # interval's own rate implies the value it "should" have, and the two
+  # disagreeing is reported rather than silently corrected.
+  if (keep && !is.na(old) && !isTRUE(all.equal(old, val))) {
+    message("'ax' at the open age interval (age ", x[N], ") is used as ",
+            "supplied, ", round(old, 4), ". Everyone alive at ", x[N],
+            " dies in that interval, so the average time lived in it is ",
+            "implied by its own death rate, 1/mx = ", round(val, 4),
+            ". Keeping the supplied value leaves the table's 'ax' and 'mx' ",
+            "columns disagreeing at that age.")
+    return(ax)
   }
 
   ax[N] <- val
@@ -617,9 +633,9 @@ repair_above_omega <- function(x,
       ux[L] <- mux
 
       if (verbose) {
-        warning("The input data contains missing, zero or non-finite values ",
+        message("The input data contains missing, zero or non-finite values ",
                 "over the age of ", omega, ". These have been replaced with ",
-                "the maximum observed value: ", round(mux, 4), call. = FALSE)
+                "the maximum observed value: ", round(mux, 4))
       }
     }
 
@@ -997,9 +1013,9 @@ coale_demeny_ax <- function(x, mx, ax, sex, method = "preston") {
 }
 
 
-#' Normalise and warn about a missing mortality input
+#' Normalise a missing mortality input and say what was done
 #'
-#' Turns NaN into NA and warns about the missing or non-finite rate values,
+#' Turns NaN into NA and says so about the missing or non-finite rate values,
 #' naming the affected ages and the treatment they receive. Values from age
 #' 100 onwards are repaired by \code{repair_above_omega}; the remaining affected
 #' rows are returned as NA.
@@ -1021,11 +1037,11 @@ lt_repair_input <- function(x, ux, what, omega = 100) {
   rows <- if (is.matrix(ux)) which(rowSums(bad) > 0) else which(bad)
 
   if (length(rows)) {
-    warning("'", what, "' contains missing or non-finite values at age(s) ",
+    message("'", what, "' contains missing or non-finite values at age(s) ",
             paste(x[rows], collapse = ", "), ". Rows below age ", omega,
             " are returned as NA with the survivorship bridged across the ",
             "gap; rows from age ", omega, " are replaced with the highest ",
-            "rate observed there.", call. = FALSE)
+            "rate observed there.")
   }
 
   ux <- repair_above_omega(x = x, ux = ux, omega = omega)
@@ -1036,7 +1052,7 @@ lt_repair_input <- function(x, ux, what, omega = 100) {
 #' Check LifeTable input
 #'
 #' Validates the input data and the auxiliary arguments, repairs the values
-#' that can be repaired and warns about the missing ones.
+#' that can be repaired and says so about the missing ones.
 #' @param input A list containing the input arguments of the LifeTable
 #'   functions.
 #' @return A list of life table validated data
@@ -1081,8 +1097,8 @@ check_life_table_input <- function(input) {
     }
 
     if (C == "C1_DxEx") {
-      if (any(is.na(Dx))) warning("'Dx'", SMS, 0, call. = FALSE)
-      if (any(is.na(Ex))) warning("'Ex'", SMS, 0.01, call. = FALSE)
+      if (any(is.na(Dx))) message("'Dx' ", SMS, 0)
+      if (any(is.na(Ex))) message("'Ex' ", SMS, 0.01)
       Dx[is.na(Dx)] <- 0
       Ex[is.na(Ex) | Ex == 0] <- 0.01
     }
@@ -1096,12 +1112,12 @@ check_life_table_input <- function(input) {
     }
 
     if (C == "C4_lx") {
-      if (any(is.na(lx))) warning("'lx'", SMS, 0, call. = FALSE)
+      if (any(is.na(lx))) message("'lx' ", SMS, 0)
       lx[is.na(lx) & x >= 100] <- 0
     }
 
     if (C == "C5_dx") {
-      if (any(is.na(dx))) warning("'dx'", SMS, 0, call. = FALSE)
+      if (any(is.na(dx))) message("'dx' ", SMS, 0)
       dx[is.na(dx)] <- 0
     }
 

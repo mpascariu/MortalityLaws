@@ -1,0 +1,21 @@
+# Line endings: LF in the repository, LF in the working tree, on every platform.
+# Without this file the rule lives in each machine's core.autocrlf, so a file
+# committed on Windows arrives as CRLF on Linux and vice versa.
+* text=auto eol=lf
+
+# Binary: never normalise, diff or merge.
+*.rda binary
+*.RData binary
+*.rds binary
+*.png binary
+*.jpg binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+
+# The two HMD fixtures below are committed with the carriage returns they were
+# downloaded with, so they are left byte-exact: no normalisation, ever. They are
+# read through read_fixture(), which collapses lines itself, so the stored
+# endings are irrelevant to the tests either way.
+tests/testthat/fixtures/hmd_deaths_1x1.txt -text
+tests/testthat/fixtures/hmd_mx_5x5.txt -text

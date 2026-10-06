@@ -10,11 +10,11 @@ LT2 <- LifeTable(x, mx = LT1$lt$mx)
 LT3 <- LifeTable(x, qx = LT1$lt$qx)
 LT4 <- LifeTable(x, lx = LT1$lt$lx)
 LT5 <- LifeTable(x, dx = LT1$lt$dx)
-LT5b <- LifeTable(x, ex = LT1$lt$ex)
+LT6 <- LifeTable(x, ex = LT1$lt$ex)
 
 LT1
 LT5
-LT5b
+LT6
 ls(LT5)
 
 # Example 2 --- Compute multiple life tables at once ------------
@@ -30,8 +30,8 @@ x  <- c(0, 1, seq(5, 110, by = 5))
 mx <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
         .004, .005, .006, .0093, .0129, .019, .031, .049,
         .084, .129, .180, .2354, .3085, .390, .478, .551)
-LT6 <- LifeTable(x, mx = mx, sex = "female")
-LT6
+LT7 <- LifeTable(x, mx = mx, sex = "female")
+LT7
 
 # Example 4 --- Abridged life table using a custom 'ax' --------
 # This example reuses the ages (x) and death rates (mx) from Example 3.
@@ -40,7 +40,7 @@ LT6
 
 my_ax <- c(0.1, 1.5, rep(2, 19), 1, 1, 1)
 
-LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
+LT8 <- LifeTable(x = x, mx = mx, ax = my_ax)
 
 # Example 5 --- The ax methods ------------------------------
 # The default 'andreev_kingkade' follows the HMD Methods Protocol v6
@@ -49,23 +49,31 @@ LT7 <- LifeTable(x = x, mx = mx, ax = my_ax)
 # Coale-Demeny conventions for the first two intervals (identical above
 # m0 = 0.107).
 
-LT8  <- LifeTable(x, mx = mx, sex = "female")
-LT9  <- LifeTable(x, mx = mx, sex = "female", ax = "cfm")
-LT10 <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
-LT11 <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
-rbind(ak = LT8$lt$ax[1:2], cfm = LT9$lt$ax[1:2],
-      preston = LT10$lt$ax[1:2], coale_demeny = LT11$lt$ax[1:2])
+LT9  <- LifeTable(x, mx = mx, sex = "female", ax = "andreev_kingkade")
+LT10 <- LifeTable(x, mx = mx, sex = "female", ax = "cfm")
+LT11 <- LifeTable(x, mx = mx, sex = "female", ax = "preston")
+LT12 <- LifeTable(x, mx = mx, sex = "female", ax = "coale_demeny")
+
+rbind(
+ andreev_kingkade = LT9$lt$ax[1:2], 
+ cfm = LT10$lt$ax[1:2],
+ preston = LT11$lt$ax[1:2], 
+ coale_demeny = LT12$lt$ax[1:2]
+)
 
 # Example 6 --- Closing the open interval accurately -----------
 # The data stop at 75+; closing there assumes a constant hazard above 75.
-# 'close' corrects the open-interval rate with a fitted law, on the same
-# age grid; 'omega' instead extends the table to 110 before closing.
+# 'close' argument corrects the open-interval rate with a fitted law, on the same
+# age grid; 
+# 'omega' argument offers the option to extend the table to 110 before closing it.
 
 x5  <- c(0, 1, seq(5, 75, by = 5))
 mx5 <- c(.053, .005, .001, .0012, .0018, .002, .003, .004,
          .004, .005, .006, .0093, .0129, .019, .031, .049, .084)
-LT12 <- LifeTable(x5, mx = mx5, close = "kannisto")
-LT13 <- LifeTable(x5, mx = mx5, omega = 110)
-c(close = LT12$lt$ex[1], omega = LT13$lt$ex[1])
-tail(LT12$lt)
+LT13 <- LifeTable(x5, mx = mx5)
+LT14 <- LifeTable(x5, mx = mx5, close = "kannisto")
+LT15 <- LifeTable(x5, mx = mx5, close = "kannisto", omega = 110)
+
+c(default = LT13$lt$ex[1], close = LT14$lt$ex[1], omega = LT15$lt$ex[1])
+
 

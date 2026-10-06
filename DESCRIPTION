@@ -1,7 +1,7 @@
 Package: MortalityLaws
 Type: Package
 Title: Parametric Mortality Models, Life Tables and HMD
-Version: 2.12.1
+Version: 2.13.0
 Authors@R: c(
   person("Marius D.", "Pascariu", role = c("aut", "cre", "cph"), email = "mpascariu@outlook.com", comment = c(ORCID = "0000-0002-2568-6489")),
   person("Vladimir", "Canudas-Romo", role = "ctb"))
@@ -16,12 +16,12 @@ Description: Fit the most popular human mortality 'laws', and construct
   databases are provided as well.  
 License: MIT + file LICENSE
 LazyData: TRUE
-Depends: R (>= 3.0.0)
+Depends: R (>= 4.5.0)
 Imports:
-  pbapply (>= 1.3-4),
-  httr (>= 1.4.5)
+  pbapply (>= 1.7-4),
+  httr (>= 1.4.8)
 Suggests:
-  testthat (>= 3.0.0),
+  testthat (>= 3.3.2),
   knitr,
   rmarkdown
 URL: https://mpascariu.github.io/MortalityLaws/, https://github.com/mpascariu/MortalityLaws
