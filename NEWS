@@ -1,3 +1,15 @@
+version 3.0.0 - "candle clock"
+- The catalogue of laws grew to 38, every model on its published formula, and the
+package wears a logo of its own.
+- Life tables grew: build one from life expectancy, close or extend the open age,
+and name the average time lived in the first year - now by the Human Mortality
+Database rule, so life expectancy at birth differs slightly from the last release.
+- Downloads work again, the models and life tables are now tested almost
+completely, and the package speaks up less, as a note rather than a warning.
+- The plots are new throughout, in one house style.
+- The documentation is new end to end and now lives on a website: a guided
+introduction, every model with its published formula, and the life tables.
+
 version 2.13.1 - "elbow room"
 - Website figures are taller and sharper, the survivorship panel shows l(x), and
 article tables give short columns only the width they need.

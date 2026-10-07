@@ -15,7 +15,7 @@
 library(MortalityLaws)
 
 # Same palette as the plot methods in R/graphics.R.
-ml_series <- c("#000000", "#3C8C00", "#1F6FB2", "#B3541E")
+ml_series <- c("#000000", "#54b807fa", "#10f0e8", "#ec2e08")
 ml_grid <- "#D8E0E4"
 ml_rule <- "#B7C2C8"
 
@@ -33,11 +33,11 @@ get_observed <- function() {
 fit_panel_laws <- function(ages, mx) {
   fits <- list(
     hp   = MortalityLaw(x = ages, mx = mx, law = "HP", opt.method = "LF2"),
-    sil  = MortalityLaw(x = ages, mx = mx, law = "siler", opt.method = "poissonL"),
-    km   = MortalityLaw(x = ages[ages >= 40], mx = mx[ages >= 40],
-                        law = "kannisto_makeham", opt.method = "poissonL"),
-    gom  = MortalityLaw(x = ages[ages >= 40], mx = mx[ages >= 40],
-                        law = "gompertz", opt.method = "poissonL")
+    sil  = MortalityLaw(x = ages, mx = mx, law = "siler", opt.method = "LF2"),
+    km   = MortalityLaw(x = 60:100, mx = mx[60:100],
+                        law = "kannisto_makeham", opt.method = "LF2"),
+    gom  = MortalityLaw(x = 40:80, mx = mx[40:80],
+                        law = "gompertz", opt.method = "LF2")
   )
 
   return(fits)
@@ -56,16 +56,16 @@ draw_fit_panel <- function(ages, mx, fits) {
     ylim = range(shown)
   )
   grid(col = ml_grid, lty = 1)
-  points(ages, mx, pch = 1, cex = 0.55, col = "grey55")
+  lines(60:100, fits$km$fitted.values, col = ml_series[3], lwd = 5)
+  lines(40:80, fits$gom$fitted.values, col = ml_series[4], lwd = 5)
+  points(ages, mx, pch = 4, cex = 1, col = "black")
   lines(ages, fits$hp$fitted.values, col = ml_series[1], lwd = 2)
   lines(ages, fits$sil$fitted.values, col = ml_series[2], lwd = 2)
-  lines(ages[ages >= 40], fits$km$fitted.values, col = ml_series[3], lwd = 2)
-  lines(ages[ages >= 40], fits$gom$fitted.values, col = ml_series[4], lwd = 2)
   axis(1, col = ml_rule)
   axis(2, col = ml_rule)
   box(col = ml_rule)
   legend("topleft",
-    bty = "n", lwd = 2, col = ml_series,
+    bty = "n", lwd = 4, col = ml_series, cex = 1.25,
     legend = c("Heligman-Pollard", "Siler", "Kannisto-Makeham", "Gompertz")
   )
   title(main = "One observed curve, four parametric laws", adj = 0,
@@ -110,7 +110,7 @@ main <- function() {
   obs <- get_observed()
   fits <- fit_panel_laws(ages = obs$ages, mx = obs$mx)
 
-  png("man/figures/README-hero.png", width = 1800, height = 800, res = 150)
+  png("man/figures/README-hero.png", width = 1800*2, height = 800*2, res = 300)
   par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2.8, 3.4), cex.lab = 0.95,
       cex.axis = 0.9, las = 1)
   draw_fit_panel(ages = obs$ages, mx = obs$mx, fits = fits)

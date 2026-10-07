@@ -1,4 +1,4 @@
-# <img src="man/figures/hex-mortalitylaws-dark.png" align="right" width="175" height="202" alt="MortalityLaws hex logo" /> MortalityLaws: Parametric Mortality Models, Life Tables and HMD
+# <picture><source media="(prefers-color-scheme: dark)" srcset="man/figures/hex-mortalitylaws-lime.png"><img src="man/figures/hex-mortalitylaws-dark.png" align="right" width="175" height="202" alt="MortalityLaws hex logo"></picture> MortalityLaws: Parametric Mortality Models, Life Tables and HMD
 
 [![CRAN version](https://www.r-pkg.org/badges/version/MortalityLaws)](https://cran.r-project.org/package=MortalityLaws)
 [![R-CMD-check](https://github.com/mpascariu/MortalityLaws/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/mpascariu/MortalityLaws/actions/workflows/R-CMD-check.yaml)
@@ -40,7 +40,7 @@ single function call.
 
 ## From one observed curve to a whole life table
 
-![Age-specific death rates of England and Wales females in 1950 as grey points on a log scale, with four fitted laws overlaid on the left (Heligman-Pollard and Siler over ages 0-100, Kannisto-Makeham and Gompertz over ages 40-100), and on the right the life table the fit implies: survivorship l(x) with radix 100,000 and life expectancy e(x) from a LawTable built on the Heligman-Pollard fit.](man/figures/README-hero.png)
+![Age-specific death rates of England and Wales females in 1950 as black crosses on a log scale, with four fitted laws overlaid on the left (Heligman-Pollard and Siler over ages 0-100, Kannisto-Makeham over ages 60-100 and Gompertz over ages 40-80), and on the right the life table the fit implies: survivorship l(x) with radix 100,000 and life expectancy e(x) from a LawTable built on the Heligman-Pollard fit.](man/figures/README-hero.png)
 
 ## What it does
 
@@ -69,16 +69,6 @@ like any install from source it needs a working development toolchain:
 # install.packages("pak")
 pak::pak("mpascariu/MortalityLaws")
 ```
-
-GitHub packages arrive as source code, so R compiles them locally. What that takes:
-
-- **Windows**: [Rtools](https://cran.r-project.org/bin/windows/Rtools/), the release
-  that matches your R version.
-- **macOS**: Xcode from the Mac App Store, or just its command line tools
-  (`xcode-select --install` in the Terminal).
-- **Linux**: a compiler and the usual development libraries, for example
-  `sudo apt-get install build-essential libcurl4-openssl-dev libssl-dev libxml2-dev`.
-
 Check that everything works:
 
 ```r
@@ -106,7 +96,7 @@ to pull the latest commits.
 To cite `MortalityLaws` in publications use:
 
 > Pascariu M (2026). *MortalityLaws: Parametric Mortality Models, Life Tables and
-> HMD*. R package version 2.13.1, <https://github.com/mpascariu/MortalityLaws>.
+> HMD*. R package version 3.0.0, <https://github.com/mpascariu/MortalityLaws>.
 
 A BibTeX entry for LaTeX users is:
 
@@ -115,7 +105,7 @@ A BibTeX entry for LaTeX users is:
     title = {MortalityLaws: Parametric Mortality Models, Life Tables and HMD},
     author = {Marius D. Pascariu},
     year = {2026},
-    note = {R package version 2.13.1},
+    note = {R package version 3.0.0},
     url = {https://github.com/mpascariu/MortalityLaws},
   }
 ```
