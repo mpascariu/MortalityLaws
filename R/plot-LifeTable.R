@@ -9,7 +9,7 @@
 
 # Panel tags and axis labels of the four life table panels.
 ml_lt_tags <- c(
-  lx     = "survivorship",
+  lx     = "survivorship  l(x)",
   hazard = "hazard  m(x)",
   dx     = "deaths  d(x)",
   ex     = "life expectancy  e(x)"

@@ -1,3 +1,7 @@
+version 2.13.1 - "elbow room"
+- Website figures are taller and sharper, the survivorship panel shows l(x), and
+article tables give short columns only the width they need.
+
 version 2.13.0 - "chalk outline"
 - The package now speaks up less and more clearly: where it adjusts the data
 you gave it, it says so once, as a note rather than a warning, and a value you

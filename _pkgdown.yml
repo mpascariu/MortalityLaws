@@ -113,10 +113,21 @@ navbar:
       text: Get started
       href: articles/Intro.html
 
+# Site-wide figure device, for articles and reference examples alike.
+#   fig.width x dpi  the img width attribute in CSS px. The compiled theme
+#                    clamps it to the article column (main img max-width 100%),
+#                    so 960 fills a wide screen and scales down elsewhere.
+#   fig.asp          height ratio. This is the knob, not fig.height: pkgdown's
+#                    own fig.asp default (1/1.618) overrides fig.height inside
+#                    knitr, which is why the old fig.height: 4.2 never applied.
+#                    Per-chunk fig.asp or fig.height in a vignette still wins.
+#   fig.retina       PNG pixels per displayed px (2 or 3 keeps text crisp; the
+#                    dpi 300-600 experiment of v2.13.0 was 11:1 downsampling).
 figures:
-  fig.width: 7
-  fig.height: 4.2
+  fig.width: 10
+  fig.asp: 0.95
   dpi: 96
+  fig.retina: 3
 
 # Badge behaviour depends on this setting, so read before changing it.
 #   mode: release  pkgdown hides a sidebar Dev Status block. The shields

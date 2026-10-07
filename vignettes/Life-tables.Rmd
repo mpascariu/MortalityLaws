@@ -64,7 +64,7 @@ the table itself; `call`, the matched call; and `process_date`, the timestamp.
 The `lt` data frame has one row per age interval and ten columns:
 
 | column | symbol | what it holds |
-|---|---|---|
+|----|---|-----------------|
 | `x.int` | | the interval as a label, e.g. `[0,1)` |
 | `x` | $x$ | the age at the start of the interval |
 | `mx` | $m_x$ | the death rate in $[x, x+n)$ |
@@ -544,7 +544,7 @@ ages named. A missing value is an error too, never a repaired gap.
 hazard $m(x)$ on a log scale, the death distribution $d(x)$, and life
 expectancy $e(x)$.
 
-```{r plot-lifetable, fig.asp = 0.93}
+```{r plot-lifetable}
 lt_two <- LifeTable(
   x  = x,
   mx = ahmd$mx[as.character(x), c("1900", "2010")]
@@ -559,11 +559,11 @@ table captures most of it: $e_0$ was 48.3 years in 1900 and 82.5 in 2010.
 
 `which` selects a single panel and `split` rearranges the layout:
 
-```{r plot-lifetable-one, fig.height = 4.2}
+```{r plot-lifetable-one}
 plot(lt_two, which = "hazard")
 ```
 
-```{r plot-lifetable-split}
+```{r plot-lifetable-split, fig.asp = 0.35}
 plot(lt_two, split = c(1, 4))
 ```
 

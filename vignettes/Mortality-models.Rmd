@@ -176,7 +176,7 @@ identified at day-level resolution, where the shifted-power family of
 @scholey2019 is the tool, and since Scholey's daily series is not shipped with
 the package, this illustration has to use the single-year rates.
 
-```{r type1, fig.asp = 0.45}
+```{r type1, fig.asp = 0.6}
 x   <- 0:10
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "scholey_shifted_power")
@@ -192,7 +192,7 @@ negative $R^2$, so the figure shows its sibling instead. The inverse-Gompertz
 rises steeply through the young ages and levels off at $1/\sigma$, and over
 this window it climbs smoothly past the bump, giving $R^2 = 0.927$.
 
-```{r type2, fig.asp = 0.45}
+```{r type2, fig.asp = 0.6}
 x   <- 10:35
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "invgompertz")
@@ -206,7 +206,7 @@ The hazard is unbounded, so these laws are fitted over adult ages rather than
 the whole lifespan. Fitted to ages 40 to 80 of the 2010 rates, the line is
 straight on the log scale to the eye, and $R^2 = 0.982$.
 
-```{r type3, fig.asp = 0.45}
+```{r type3, fig.asp = 0.6}
 x   <- 40:80
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "gompertz")
@@ -223,7 +223,7 @@ collapses to nearly zero and the same law returns a plain Gompertz, while the
 longer range gives $R^2 = 0.929$ and a visible bend away from the straight line
 above age 100.
 
-```{r type4, fig.asp = 0.45}
+```{r type4, fig.asp = 0.6}
 x   <- 40:110
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "ggompertz")
@@ -238,7 +238,7 @@ Gompertz-like rise that levels off at a ceiling of one. Fitted to ages 60 to
 thin and noisy, and the ceiling is what keeps the fitted curve steady where the
 data stop being informative.
 
-```{r type5, fig.asp = 0.45}
+```{r type5, fig.asp = 0.6}
 x   <- 60:110
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "kannisto")
@@ -254,7 +254,7 @@ background and senescence, added together. Fitted to ages 0 to 100 of the 2010
 rates, one curve covers the infant fall, the childhood trough and the adult
 rise, with $R^2 = 0.975$.
 
-```{r type6, fig.asp = 0.45}
+```{r type6, fig.asp = 0.6}
 x   <- 0:100
 mx  <- ahmd$mx[paste(x), paste(2010)]
 fit <- MortalityLaw(x = x, mx = mx, law = "siler")

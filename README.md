@@ -106,7 +106,7 @@ to pull the latest commits.
 To cite `MortalityLaws` in publications use:
 
 > Pascariu M (2026). *MortalityLaws: Parametric Mortality Models, Life Tables and
-> HMD*. R package version 2.13.0, <https://github.com/mpascariu/MortalityLaws>.
+> HMD*. R package version 2.13.1, <https://github.com/mpascariu/MortalityLaws>.
 
 A BibTeX entry for LaTeX users is:
 
@@ -115,7 +115,7 @@ A BibTeX entry for LaTeX users is:
     title = {MortalityLaws: Parametric Mortality Models, Life Tables and HMD},
     author = {Marius D. Pascariu},
     year = {2026},
-    note = {R package version 2.13.0},
+    note = {R package version 2.13.1},
     url = {https://github.com/mpascariu/MortalityLaws},
   }
 ```

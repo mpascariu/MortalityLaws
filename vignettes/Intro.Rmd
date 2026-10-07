@@ -78,7 +78,7 @@ exposures, and life expectancy $e(x)$, the summary everyone quotes. The
 package accepts all six as input, exactly one at a time.
 
 | Case | What it holds |
-|---|---|
+|----|--------------------|
 | `Dx` + `Ex` | Death counts and exposure-to-risk; their ratio is the observed death rate at age $x$. |
 | `mx` | Death rates: the force of mortality, the per-year hazard of dying at age $x$. |
 | `qx` | Death probabilities: the chance of dying between age $x$ and the next birthday. |
@@ -214,7 +214,7 @@ The fit is an object of class `"MortalityLaw"`, and every piece of the
 estimation is kept in it.
 
 | Element | What it holds |
-|---|---|
+|-----|---------------|
 | `input` | The arguments as supplied: data, ages, law code, loss, fit window. |
 | `info` | The law's metadata: name, formula, type, and the date of the fit. |
 | `coefficients` | The estimated parameters $\hat\theta$, named. |
@@ -245,7 +245,7 @@ report: LF2 is not a likelihood. Ask for `opt.method = "poissonL"` or
 `plot(fit)` draws the whole diagnosis in one figure: the fit chart on top,
 and four residual panels underneath.
 
-```{r, fig.asp = 0.93}
+```{r}
 plot(fit)
 ```
 
@@ -270,7 +270,7 @@ the data can be trusted. `fit.this.x` names the ages that take part in the
 optimisation; the fit is still evaluated and drawn over every age you passed
 in.
 
-```{r, fig.asp = 0.93}
+```{r}
 fit.subset <- MortalityLaw(
   x          = ages,
   Dx         = deaths,
